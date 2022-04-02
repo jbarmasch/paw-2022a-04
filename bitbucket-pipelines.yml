@@ -7,7 +7,7 @@ pipelines:
           caches:
             - maven
           script:
-            - mvn -B clean verify
+            - mvn clean package
           artifacts:
             - target/webapp.war
 
