@@ -9,5 +9,5 @@ pipelines:
           script:
             - mvn clean package
           artifacts:
-            - target/webapp.war
+            - webapp/target/webapp.war
 
