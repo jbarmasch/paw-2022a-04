@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.service.EventService;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,19 +12,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.jws.WebParam;
+
 @Controller
 public class HelloWorldController {
     private final UserService us;
+//    private final EventService evs;
 
     @Autowired
     public HelloWorldController(final UserService us) {
         this.us = us;
     }
+//    @Autowired
+//    public HelloWorldController(final UserService us, final EventService evs) {
+//        this.us = us;
+//        this.evs = evs;
+//    }
 
     @RequestMapping("/")
     public ModelAndView helloWorld(@RequestParam(name = "userId", defaultValue = "1") final long userId) {
         final ModelAndView mav = new ModelAndView("index");
         mav.addObject("user", us.getUserById(userId).orElseThrow(UserNotFoundException::new));
+        mav.addObject("events", us.getUserById(userId).orElseThrow(UserNotFoundException::new));
         return mav;
     }
 
