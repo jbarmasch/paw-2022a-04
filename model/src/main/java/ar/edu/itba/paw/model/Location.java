@@ -1,16 +1,16 @@
 package ar.edu.itba.paw.model;
 
 public enum Location {
-    ADRO("Adrogué"),
-    SANI("San Ishidro Gordo"),
-    RECO("Recoletah"),
-    BELGRA("Belgranoh"),
-    TURDE("Turde"),
-    TORCU("Don Torcuato");
+    ADROGUE("Adrogué"),
+    SANISIDRO("San Isidro"),
+    RECOLETA("Recoleta"),
+    BELGRANO("Belgrano"),
+    TURDERA("Turdera"),
+    TORCUATO("Don Torcuato");
 
     private final String name;
 
-    private Location(String name) {
+    Location(String name) {
         this.name = name;
     }
 

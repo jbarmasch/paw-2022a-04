@@ -22,9 +22,8 @@ public class EventJdbcDao implements EventDao {
             rs.getInt("eventId"),
             rs.getString("name"),
             rs.getString("description"),
-            rs.getObject("location", Location.class),
-            rs.getInt("maxCapacity"),
-            rs.getInt("attendance")
+            rs.getString("location"),
+            rs.getInt("maxCapacity")
     );
 
     @Autowired
@@ -36,9 +35,8 @@ public class EventJdbcDao implements EventDao {
                 + "name VARCHAR(100) NOT NULL,"
                 + "description VARCHAR(100) NOT NULL,"
                 + "location VARCHAR(100),"
-                + "maxCapacity INTEGER NOT NULL"
-                + "attendance INTEGER NOT NULL"
-                + "CHECK (location IN ('Adrogué', 'San Isidro', 'Don Torcuato', 'Marimashita Iruma Kun', 'Belgrano', 'Recoleta', 'Turdera'))"
+                + "maxCapacity INTEGER NOT NULL,"
+                + "CHECK (location IN ('Adrogué', 'San Isidro', 'Don Torcuato', 'Belgrano', 'Recoleta', 'Turdera'))"
                 + ")");
     }
 
@@ -49,18 +47,18 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public Event create(String name, String description, Location location, int maxCapacity, int attendance) {
+    public Event create(String name, String description, String location, int maxCapacity) {
         final Map<String, Object> eventData = new HashMap<>();
         eventData.put("name", name);
         eventData.put("description", description);
         eventData.put("location", location);
         eventData.put("maxCapacity", maxCapacity);
-        eventData.put("attendance", attendance);
 
         final int eventId = jdbcInsert.execute(eventData);
-        return new Event(eventId, name, description, location, maxCapacity, attendance);
+        return new Event(eventId, name, description, location, maxCapacity);
     }
 
+    @Override
     public List<Event> getAll(int page) {
         return jdbcTemplate.query("SELECT * FROM events LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
     }

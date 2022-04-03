@@ -4,17 +4,17 @@ public class Event {
     private long id;
     private String name;
     private String description;
-    private Location location;
+    private String location;
     private int maxCapacity;
     private int attendance = 0;
 
-    public Event(long id, String name, String description, Location location, int maxCapacity, int attendance) {
+    public Event(long id, String name, String description, String location, int maxCapacity) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.location = location;
         this.maxCapacity = maxCapacity;
-        this.attendance = attendance;
+        this.attendance = 0;
     }
 
     public long getId() {
@@ -29,7 +29,7 @@ public class Event {
         return description;
     }
     
-    public Location getLocation() {
+    public String getLocation() {
         return location;
     }
     
