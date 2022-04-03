@@ -10,17 +10,31 @@
     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
 }
 
+.card img {
+    width: 100%;
+}
+
 .logo {
     width: 60px;
     height: 60px;
 }
 
-.card img {
-    width: 100%;
+.icon {
+    width: 20px;
+    height: 20px;
 }
 
 .container {
     display: flex;
+}
+
+.card_info {
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card_info > * {
+    margin: 2px 4px 4px 2px;
 }
 
 .appbar {

@@ -1,5 +1,7 @@
 package ar.edu.itba.paw.webapp.controller;
 
+import ar.edu.itba.paw.model.Event;
+import ar.edu.itba.paw.model.Location;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.EventService;
 import ar.edu.itba.paw.service.UserService;
@@ -15,23 +17,18 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class HelloWorldController {
     private final UserService us;
-//    private final EventService evs;
+    private final EventService evs;
 
     @Autowired
-    public HelloWorldController(final UserService us) {
+    public HelloWorldController(final UserService us, final EventService evs) {
         this.us = us;
+        this.evs = evs;
     }
-//    @Autowired
-//    public HelloWorldController(final UserService us, final EventService evs) {
-//        this.us = us;
-//        this.evs = evs;
-//    }
 
     @RequestMapping("/")
-    public ModelAndView helloWorld(@RequestParam(name = "userId", defaultValue = "1") final long userId) {
+    public ModelAndView helloWorld(@RequestParam(name = "eventId", defaultValue = "1") final long eventId) {
         final ModelAndView mav = new ModelAndView("index");
-        mav.addObject("user", us.getUserById(userId).orElseThrow(UserNotFoundException::new));
-        mav.addObject("events", us.getUserById(userId).orElseThrow(UserNotFoundException::new));
+        mav.addObject("events", evs.getAll(1));
         return mav;
     }
 
@@ -42,10 +39,31 @@ public class HelloWorldController {
         return mav;
     }
 
+    @RequestMapping("/event/{eventId}")
+    public ModelAndView eventDescription(@PathVariable("eventId") final long eventId) {
+        final ModelAndView mav = new ModelAndView("profile");
+        mav.addObject("event", evs.getEventById(eventId).orElseThrow(UserNotFoundException::new));
+        return mav;
+    }
+
     @RequestMapping("/create")
-    public ModelAndView create(@RequestParam(value = "username", required = true) final String username,
-                               @RequestParam(value = "password", required = true) final String password) {
+    public ModelAndView create(@RequestParam(value = "username") final String username,
+                               @RequestParam(value = "password") final String password) {
             final User u = us.create(username, password);
             return new ModelAndView("redirect:/?userId=" + u.getId());
+    }
+
+    @RequestMapping("/createEvent")
+    public ModelAndView createEvent(@RequestParam(value = "name") final String username,
+                                    @RequestParam(value = "description") final String description,
+                                    @RequestParam(value = "location") final String location,
+                                    @RequestParam(value = "maxCapacity") final int maxCapacity) {
+        final Event e = evs.create(username, description, location, maxCapacity);
+        return new ModelAndView("redirect:/?eventId=" + e.getId());
+    }
+
+    @RequestMapping("/event")
+    public ModelAndView eventRedirect() {
+        return new ModelAndView("event");
     }
 }

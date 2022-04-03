@@ -5,5 +5,7 @@
 </head>
 <body>
     <%@ include file="appbar.jsp" %>
+    <h3><c:out value="${event.name}"/></h3>
+    <p><c:out value="${event.description}"/></p>
 </body>
 </html>
