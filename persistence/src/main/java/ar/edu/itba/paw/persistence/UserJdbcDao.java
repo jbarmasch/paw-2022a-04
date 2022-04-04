@@ -17,22 +17,21 @@ import java.util.Optional;
 public class UserJdbcDao implements UserDao {
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
-    private final static RowMapper<User> ROW_MAPPER = (rs, rowNum) -> new User(rs.getInt("userid"), rs.getString("username"), rs.getString("password"));
+    private final static RowMapper<User> ROW_MAPPER = (rs, rowNum) -> new User(
+            rs.getInt("userid"),
+            rs.getString("username"),
+            rs.getString("password")
+    );
 
     @Autowired
     public UserJdbcDao(final DataSource ds) {
         jdbcTemplate = new JdbcTemplate(ds);
-        jdbcInsert = new SimpleJdbcInsert(ds).withTableName("users").usingGeneratedKeyColumns("userId");
-        jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS users ("
-                + "userId SERIAL PRIMARY KEY,"
-                + "username VARCHAR(100) UNIQUE NOT NULL,"
-                + "password VARCHAR(100) NOT NULL"
-                + ")");
+        jdbcInsert = new SimpleJdbcInsert(ds).withTableName("users").usingGeneratedKeyColumns("userid");
     }
 
     @Override
     public Optional<User> getUserById(long id) {
-        List<User> query = jdbcTemplate.query("SELECT * FROM users WHERE userId = ?", new Object[] { id }, ROW_MAPPER);
+        List<User> query = jdbcTemplate.query("SELECT * FROM users WHERE userid = ?", new Object[] { id }, ROW_MAPPER);
         return query.stream().findFirst();
     }
 
@@ -42,8 +41,8 @@ public class UserJdbcDao implements UserDao {
         userData.put("username", username);
         userData.put("password", password);
 
-        final int userId = jdbcInsert.execute(userData);
-        return new User(userId, username, password);
+        final Number userId = jdbcInsert.executeAndReturnKey(userData);
+        return new User(userId.intValue(), username, password);
     }
 
     public List<User> getAll(int page) {
