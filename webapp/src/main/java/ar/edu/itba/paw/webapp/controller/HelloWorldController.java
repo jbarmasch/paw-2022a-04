@@ -4,6 +4,7 @@ import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.model.Location;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.EventService;
+import ar.edu.itba.paw.service.MailService;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +19,13 @@ import org.springframework.web.servlet.ModelAndView;
 public class HelloWorldController {
     private final UserService us;
     private final EventService evs;
+    private final MailService ms;
 
     @Autowired
-    public HelloWorldController(final UserService us, final EventService evs) {
+    public HelloWorldController(final UserService us, final EventService evs, final MailService ms) {
         this.us = us;
         this.evs = evs;
+        this.ms = ms;
     }
 
     @RequestMapping("/")
@@ -65,5 +68,11 @@ public class HelloWorldController {
     @RequestMapping("/event")
     public ModelAndView eventRedirect() {
         return new ModelAndView("event");
+    }
+
+    @RequestMapping("/mail")
+    public ModelAndView sendMail() {
+        ms.sendMail("santilococo.01@gmail.com", "Test", "Probando mandar un mail");
+        return new ModelAndView("redirect:/");
     }
 }
