@@ -5,10 +5,9 @@ import ar.edu.itba.paw.service.MailService;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -22,6 +21,12 @@ public class UserController {
         this.mailService = mailService;
     }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ModelAndView noSuchUser() {
+        return new ModelAndView("error");
+    }
+
     @RequestMapping("/profile/{userId}")
     public ModelAndView userProfile(@PathVariable("userId") final long userId) {
         final ModelAndView mav = new ModelAndView("profile");
@@ -29,7 +34,7 @@ public class UserController {
         return mav;
     }
 
-    @RequestMapping("/create")
+    @RequestMapping(value = "/create", method = { RequestMethod.POST })
     public ModelAndView create(@RequestParam(value = "username") final String username,
                                @RequestParam(value = "password") final String password) {
             final User u = userService.create(username, password);
