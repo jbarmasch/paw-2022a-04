@@ -30,14 +30,6 @@ public class EventJdbcDao implements EventDao {
     public EventJdbcDao(final DataSource ds) {
         jdbcTemplate = new JdbcTemplate(ds);
         jdbcInsert = new SimpleJdbcInsert(ds).withTableName("events").usingGeneratedKeyColumns("eventId");
-        jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS events ("
-                + "eventId SERIAL PRIMARY KEY,"
-                + "name VARCHAR(100) NOT NULL,"
-                + "description VARCHAR(100) NOT NULL,"
-                + "location VARCHAR(100),"
-                + "maxCapacity INTEGER NOT NULL,"
-                + "CHECK (location IN ('Adrogué', 'San Isidro', 'Don Torcuato', 'Belgrano', 'Recoleta', 'Turdera'))"
-                + ")");
     }
 
     @Override
