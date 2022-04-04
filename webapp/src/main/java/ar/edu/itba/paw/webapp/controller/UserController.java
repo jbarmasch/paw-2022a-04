@@ -34,11 +34,11 @@ public class UserController {
         return mav;
     }
 
-    @RequestMapping(value = "/create", method = { RequestMethod.POST })
+    @RequestMapping(value = "/create")
     public ModelAndView create(@RequestParam(value = "username") final String username,
                                @RequestParam(value = "password") final String password) {
             final User u = userService.create(username, password);
-            return new ModelAndView("redirect:/?userId=" + u.getId());
+            return new ModelAndView("redirect:/profile/" + u.getId());
     }
 
     @RequestMapping("/mail")
