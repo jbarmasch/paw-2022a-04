@@ -3,7 +3,7 @@ pipelines:
     master:
       - step:
           name: Build and Test
-          image: maven:3.6.3
+          image: maven:3.6.3-jdk-8
           caches:
             - maven
           script:
