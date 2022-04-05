@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS events (
     description VARCHAR(100) NOT NULL,
     location VARCHAR(100),
     maxCapacity INTEGER NOT NULL,
+    price DOUBLE PRECISION NOT NULL,
     CHECK (location IN ('Adrogué', 'San Isidro', 'Don Torcuato', 'Belgrano', 'Recoleta', 'Turdera'))
 );
 
