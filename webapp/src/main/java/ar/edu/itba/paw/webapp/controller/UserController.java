@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.User;
-import ar.edu.itba.paw.service.MailService;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,12 +12,10 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class UserController {
     private final UserService userService;
-    private final MailService mailService;
 
     @Autowired
-    public UserController(final UserService userService, final MailService mailService) {
+    public UserController(final UserService userService) {
         this.userService = userService;
-        this.mailService = mailService;
     }
 
     @ExceptionHandler(UserNotFoundException.class)
@@ -34,16 +31,10 @@ public class UserController {
         return mav;
     }
 
-    @RequestMapping(value = "/create")
+    @RequestMapping(value = "/createUser")
     public ModelAndView create(@RequestParam(value = "username") final String username,
                                @RequestParam(value = "password") final String password) {
             final User u = userService.create(username, password);
             return new ModelAndView("redirect:/profile/" + u.getId());
-    }
-
-    @RequestMapping("/mail")
-    public ModelAndView sendMail() {
-        mailService.sendMail("santilococo.01@gmail.com", "Test", "Probando mandar un mail");
-        return new ModelAndView("redirect:/");
     }
 }

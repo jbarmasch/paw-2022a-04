@@ -28,7 +28,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Event create(String name, String description, String location, int maxCapacity) {
-        return eventDao.create(name, description, location, maxCapacity);
+    public Event create(String name, String description, String location, int maxCapacity, double price) {
+        return eventDao.create(name, description, location, maxCapacity, price);
     }
 }

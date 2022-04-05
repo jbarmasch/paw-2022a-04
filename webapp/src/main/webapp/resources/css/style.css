@@ -2,7 +2,7 @@
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
     transition: 0.3s;
     max-width: 200px;
-    margin: 10px;
+    margin-top: 20px;
     background-color: aliceblue;
 }
 
@@ -51,14 +51,31 @@
 }
 
 .browse {
-    justify-content: center;
+    justify-content: space-around;
     align-items: flex-start;
-    padding: 6px;
+    margin: 0 20% 0 20%;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.event_info {
+    background-color: aliceblue;
+    padding: 10px;
+}
+
+.error {
+    color: red;
+    background-color: rgba(255, 0, 0, 0.2);
+    font-size: small;
+}
+
+input[type='number'] {
+    width: 60px;
 }
 
 body {
-    background-image: url('https://cdn.wallpapersafari.com/47/19/6Opteq.jpg');
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-position: center;
+    /*background-image: url('https://cdn.wallpapersafari.com/47/19/6Opteq.jpg');*/
+    /*background-repeat: no-repeat;*/
+    /*background-attachment: fixed;*/
+    /*background-position: center;*/
 }
