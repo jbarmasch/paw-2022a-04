@@ -7,14 +7,17 @@ public class Event {
     private String location;
     private int maxCapacity;
     private int attendance = 0;
+    private String img = null;
+    private double price;
 
-    public Event(long id, String name, String description, String location, int maxCapacity) {
+    public Event(long id, String name, String description, String location, int maxCapacity, double price) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.location = location;
         this.maxCapacity = maxCapacity;
         this.attendance = 0;
+        this.price = price;
     }
 
     public long getId() {
@@ -47,5 +50,9 @@ public class Event {
 
     public int getAttendance() {
         return attendance;
+    }
+
+    public double getPrice() {
+        return price;
     }
 }
