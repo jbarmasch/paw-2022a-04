@@ -15,7 +15,6 @@ import org.springframework.test.jdbc.JdbcTestUtils;
 import javax.sql.DataSource;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@Sql("classpath:schema.sql")
 @ContextConfiguration(classes = TestConfig.class)
 public class UserJdbcDaoTest {
     private static final String PASSWORD = "password";
