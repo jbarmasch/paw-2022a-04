@@ -1,17 +1,12 @@
 .card {
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-    transition: 0.3s;
-    max-width: 200px;
-    margin-top: 20px;
+    max-width: 240px;
+    margin: 14px 6px 6px 6px;
     background-color: aliceblue;
 }
 
-.card:hover {
-    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-}
-
-.card img {
+.card_img {
     width: 100%;
+    height: 80%;
 }
 
 .logo {
@@ -33,14 +28,19 @@
     align-items: center;
 }
 
-.card_info > * {
-    margin: 2px 4px 4px 2px;
+.uk-card-body {
+    padding: 10px 10px;
+}
+
+.card_info {
+    justify-content: space-between;
 }
 
 .appbar {
     box-shadow: 0 5px 5px 0 rgba(0,0,0,0.2);
     justify-content: flex-start;
     align-items: center;
+    text-align-last: left;
     padding: 5px 10px 5px 10px;
     margin: -10px -10px 0 -10px;
     background-color: aliceblue;
@@ -53,9 +53,9 @@
 .browse {
     justify-content: space-around;
     align-items: flex-start;
-    margin: 0 20% 0 20%;
+    margin: 10px 10% 0 10%;
+    overflow-wrap: initial;
     flex-wrap: wrap;
-    margin-top: 10px;
 }
 
 .event_info {
@@ -74,8 +74,8 @@ input[type='number'] {
 }
 
 body {
-    /*background-image: url('https://cdn.wallpapersafari.com/47/19/6Opteq.jpg');*/
-    /*background-repeat: no-repeat;*/
-    /*background-attachment: fixed;*/
-    /*background-position: center;*/
+    background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://wallpaperaccess.com/full/127060.jpg');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
 }
