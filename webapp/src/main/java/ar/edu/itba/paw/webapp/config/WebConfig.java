@@ -42,9 +42,9 @@ public class WebConfig {
     public DataSource dataSource() {
         final SimpleDriverDataSource ds = new SimpleDriverDataSource();
         ds.setDriverClass(org.postgresql.Driver.class);
-        ds.setUrl("jdbc:postgresql://localhost/paw-2022a-04");
-        ds.setUsername("paw-2022a-04");
-        ds.setPassword("uNa5Hq5cw");
+        ds.setUrl("jdbc:postgresql://localhost/pawUser");
+        ds.setUsername("pawUser");
+        ds.setPassword("pawPass");
         return ds;
     }
 
@@ -55,7 +55,7 @@ public class WebConfig {
         mailSender.setPort(587);
 
         mailSender.setUsername("santilococo.01@gmail.com");
-        mailSender.setPassword("");
+        mailSender.setPassword("pawMailPass");
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
