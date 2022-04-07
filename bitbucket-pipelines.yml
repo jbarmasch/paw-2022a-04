@@ -12,7 +12,7 @@ pipelines:
           name: Deploy
           deployment: production
           script:
-            - expport webConfigFile="webapp/src/main/java/ar/edu/itba/paw/webapp/config/WebConfig.java"
+            - export webConfigFile="webapp/src/main/java/ar/edu/itba/paw/webapp/config/WebConfig.java"
               sed -i "s/pawUser/$PAW_BOTTLER_USER/g" "$webConfigFile"
               sed -i "s/pawPass/$PAW_BOTTLER_PASS/g" "$webConfigFile"
               sed -i "s/localhost/10.16.1.110/g" "$webConfigFile"
