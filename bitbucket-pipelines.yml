@@ -7,17 +7,19 @@ pipelines:
           caches:
             - maven
           script:
-            - mvn clean package
-      - step:
-          name: Deploy
-          deployment: production
-          script:
             - export webConfigFile="webapp/src/main/java/ar/edu/itba/paw/webapp/config/WebConfig.java"
             - sed -i "s/pawUser/$PAW_BOTTLER_USER/g" "$webConfigFile"
             - sed -i "s/pawPass/$PAW_BOTTLER_PASS/g" "$webConfigFile"
             - sed -i "s/localhost/10.16.1.110/g" "$webConfigFile"
             - sed -i "s/pawMailPass/$PAW_BOTTLER_MAILPASS/g" "$webConfigFile"
-            - ls -al webapp/target/
+            - mvn clean package
+          artifacts:
+            - webapp/target/webapp.war
+      - step:
+          name: Deploy
+          deployment: production
+          script:
+            - ls -alh webapp/target/webapp.war
             - export SSHPASS="$PAW_BOTTLER_SERPASS"
             - sshpass -e scp webapp/target/webapp.war slococo@pampero.itba.edu.ar:/home/slococo/app.war
             - sshpass -e scp webapp/src/main/java/ar/edu/itba/paw/webapp/config/WebConfig.java slococo@pampero.itba.edu.ar:/home/slococo/WebConfig.java
