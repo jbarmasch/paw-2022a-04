@@ -4,6 +4,7 @@
 <html>
 <head>
     <link rel="stylesheet" href="<c:url value="/resources/css/style.css"/>"/>
+    <title>Register</title>
 </head>
 <body>
 <h2>Register</h2>
