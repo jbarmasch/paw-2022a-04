@@ -19,7 +19,8 @@ pipelines:
           name: Deploy
           deployment: production
           script:
-            - ls -alh webapp/target/webapp.war
+            - apt-get update -y
+            - apt-get install -y sshpass
             - export SSHPASS="$PAW_BOTTLER_SERPASS"
             - sshpass -e scp webapp/target/webapp.war slococo@pampero.itba.edu.ar:/home/slococo/app.war
             - sshpass -e scp webapp/src/main/java/ar/edu/itba/paw/webapp/config/WebConfig.java slococo@pampero.itba.edu.ar:/home/slococo/WebConfig.java
