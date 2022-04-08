@@ -51,6 +51,27 @@ public class EventJdbcDao implements EventDao {
         return new Event(eventId.intValue(), name, description, location, maxCapacity, price);
     }
 
+    public List<Event> filterByLocation(List<String> locations, int page) {
+        StringBuilder aux = new StringBuilder();
+        for (String location : locations) {
+            aux.append(", ").append(location);
+        }
+        return jdbcTemplate.query("SELECT * FROM events WHERE location IN [?] LIMIT 10 OFFSET ?", new Object[]{aux ,(page - 1) * 10}, ROW_MAPPER);
+    }
+
+    public List<Event> filterByPrice(Double minPrice, Double maxPrice, int page) {
+        StringBuilder query = new StringBuilder("SELECT * FROM events WHERE ");
+        if (minPrice != null) {
+            query.append("price > ").append(minPrice);
+            if (maxPrice != null)
+                query.append("AND ");
+        }
+        if (maxPrice != null)
+            query.append("price < ").append(maxPrice);
+        query.append("LIMIT 10 OFFSET ?");
+        return jdbcTemplate.query(query.toString(), new Object[]{(page - 1) * 10}, ROW_MAPPER);
+    }
+
     @Override
     public List<Event> getAll(int page) {
         return jdbcTemplate.query("SELECT * FROM events LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);

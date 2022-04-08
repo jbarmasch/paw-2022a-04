@@ -10,4 +10,6 @@ public interface EventDao {
     List<Event> getAll(int page);
     Optional<Event> getEventById(long id);
     Event create(String name, String description, String location, int maxCapacity, double price);
+    List<Event> filterByLocation(List<String> locations, int page);
+    List<Event> filterByPrice(Double minPrice, Double maxPrice, int page);
 }

@@ -31,4 +31,14 @@ public class EventServiceImpl implements EventService {
     public Event create(String name, String description, String location, int maxCapacity, double price) {
         return eventDao.create(name, description, location, maxCapacity, price);
     }
+
+    @Override
+    public List<Event> filterByLocation(List<String> locations, int page) {
+        return eventDao.filterByLocation(locations, page);
+    }
+
+    @Override
+    public List<Event> filterByPrice(Double minPrice, Double maxPrice, int page) {
+        return eventDao.filterByPrice(minPrice, maxPrice, page);
+    }
 }
