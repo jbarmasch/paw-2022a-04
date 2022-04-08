@@ -28,10 +28,6 @@
     align-items: center;
 }
 
-.uk-card-body {
-    padding: 10px 10px;
-}
-
 .card_info {
     justify-content: space-between;
 }
@@ -46,7 +42,7 @@
 }
 
 .appbar > * {
-    margin: 2px 6px 2px 6px;
+    margin: 6px 6px 6px 6px;
 }
 
 .browse {
