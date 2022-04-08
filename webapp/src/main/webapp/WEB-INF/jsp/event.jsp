@@ -1,7 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt"%>
 <html>
 <head>
-    <title>Title</title>
+    <%@ include file="include.jsp"%>
+    <title>BotPass</title>
 </head>
 <body>
     <%@ include file="appbar.jsp"%>
