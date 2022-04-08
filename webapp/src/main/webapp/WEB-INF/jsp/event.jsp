@@ -31,7 +31,7 @@
     function sendMail() {
         const val = document.getElementById("mail").value;
         if (isMail(val)){
-            window.location.href = "/book?mail=" + val + "&eventId=" + <c:out value="${event.id}"/>;
+            window.location.href = "<c:url value="/book"/>" + "?mail=" + val + "&eventId=" + <c:out value="${event.id}"/>;
         }
         else {
             document.querySelector("error").textContent = "Invalid email";
@@ -45,7 +45,7 @@
     function sendCancelMail() {
         const val = document.getElementById("mail").value;
         if (isMail(val)){
-            window.location.href = "/cancel?mail=" + val + "&eventId=" + <c:out value="${event.id}"/>;
+            window.location.href = "<c:url value="/cancel"/>" + "?mail=" + val + "&eventId=" + <c:out value="${event.id}"/>;
         }
         else {
             document.querySelector(".error").textContent = "Invalid email";
