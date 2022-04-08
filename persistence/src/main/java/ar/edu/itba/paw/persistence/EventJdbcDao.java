@@ -8,10 +8,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 public class EventJdbcDao implements EventDao {
@@ -51,25 +48,41 @@ public class EventJdbcDao implements EventDao {
         return new Event(eventId.intValue(), name, description, location, maxCapacity, price);
     }
 
-    public List<Event> filterByLocation(List<String> locations, int page) {
-        StringBuilder aux = new StringBuilder();
-        for (String location : locations) {
-            aux.append(", ").append(location);
-        }
-        return jdbcTemplate.query("SELECT * FROM events WHERE location IN [?] LIMIT 10 OFFSET ?", new Object[]{aux ,(page - 1) * 10}, ROW_MAPPER);
-    }
-
-    public List<Event> filterByPrice(Double minPrice, Double maxPrice, int page) {
+    public List<Event> filterBy(String[] filters, String[] locations, Double minPrice, Double maxPrice, int page) {
+        int size = filters.length;
+        String lastElement = null;
+        if (size > 0)
+            lastElement = filters[size - 1];
         StringBuilder query = new StringBuilder("SELECT * FROM events WHERE ");
-        if (minPrice != null) {
-            query.append("price > ").append(minPrice);
-            if (maxPrice != null)
-                query.append("AND ");
+        for (String filter : filters) {
+            switch (filter) {
+                case "location":
+                    String lastLocation = null;
+                    if (locations.length > 0)
+                        lastLocation = locations[locations.length - 1];
+                    query.append("location IN (");
+                    for (String location : locations) {
+                        query.append("'").append(location).append("'");
+                        if (!Objects.equals(location, lastLocation))
+                            query.append(", ");
+                    }
+                    query.append(")");
+                    break;
+                case "price":
+                    if (minPrice != null) {
+                        query.append("price >= ").append(minPrice);
+                        if (maxPrice != null)
+                            query.append(" AND ");
+                    }
+                    if (maxPrice != null)
+                        query.append("price <= ").append(maxPrice);
+                    break;
+            }
+            if (!filter.equals(lastElement))
+                query.append(" AND ");
         }
-        if (maxPrice != null)
-            query.append("price < ").append(maxPrice);
-        query.append("LIMIT 10 OFFSET ?");
-        return jdbcTemplate.query(query.toString(), new Object[]{(page - 1) * 10}, ROW_MAPPER);
+
+        return jdbcTemplate.query(query + " LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
     }
 
     @Override

@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.Arrays;
+
 @Controller
 public class EventController {
     private final EventService eventService;
@@ -29,12 +31,18 @@ public class EventController {
         return mav;
     }
 
-//    @RequestMapping("/event")
-//    public ModelAndView eventDescription(@RequestParam("eventId") final long eventId) {
-//        final ModelAndView mav = new ModelAndView("event");
-//        mav.addObject("event", eventService.getEventById(eventId).orElseThrow(UserNotFoundException::new));
-//        return mav;
-//    }
+    @RequestMapping("/events")
+    public ModelAndView browseEvents(@RequestParam(value = "filterBy", required = false) final String[] filterBy,
+                                     @RequestParam(value = "locations", required = false) final String[] locations,
+                                     @RequestParam(value = "minPrice", required = false) final Double minPrice,
+                                     @RequestParam(value = "maxPrice", required = false) final Double maxPrice) {
+        final ModelAndView mav = new ModelAndView("index");
+        if (filterBy != null)
+            mav.addObject("events", eventService.filterBy(filterBy, locations, minPrice, maxPrice, 1));
+        else
+            mav.addObject("events", eventService.getAll(1));
+        return mav;
+    }
 
     @RequestMapping("/event/{eventId}")
     public ModelAndView eventDescription(@PathVariable("eventId") final long eventId) {
