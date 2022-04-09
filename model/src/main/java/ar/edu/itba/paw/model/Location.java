@@ -1,5 +1,7 @@
 package ar.edu.itba.paw.model;
 
+import java.util.Arrays;
+
 public enum Location {
     ADROGUE("Adrogué"),
     SANISIDRO("San Isidro"),
@@ -17,4 +19,16 @@ public enum Location {
     public String getName(){
         return name;
     }
+
+    public static String[] getNames() {
+        Location[] locations = values();
+        String[] names = new String[locations.length];
+
+        for (int i = 0; i < locations.length; i++){
+            names[i] = locations[i].getName();
+        }
+
+        return names;
+    }
+
 }

@@ -1,5 +1,7 @@
 package ar.edu.itba.paw.model;
 
+import java.sql.Timestamp;
+
 public class Event {
     private long id;
     private String name;
@@ -9,8 +11,9 @@ public class Event {
     private int attendance = 0;
     private String img = null;
     private double price;
+    private Timestamp date;
 
-    public Event(long id, String name, String description, String location, int maxCapacity, double price) {
+    public Event(long id, String name, String description, String location, int maxCapacity, double price, Timestamp date) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -18,6 +21,7 @@ public class Event {
         this.maxCapacity = maxCapacity;
         this.attendance = 0;
         this.price = price;
+        this.date = date;
     }
 
     public long getId() {
@@ -35,7 +39,15 @@ public class Event {
     public String getLocation() {
         return location;
     }
-    
+
+    public String getImg() {
+        return img;
+    }
+
+    public Timestamp getDate() {
+        return date;
+    }
+
     public boolean book() {
         if (attendance < maxCapacity) {
             attendance++;

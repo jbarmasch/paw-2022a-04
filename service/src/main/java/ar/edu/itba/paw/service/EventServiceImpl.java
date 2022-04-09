@@ -5,6 +5,7 @@ import ar.edu.itba.paw.persistence.EventDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,8 +29,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Event create(String name, String description, String location, int maxCapacity, double price) {
-        return eventDao.create(name, description, location, maxCapacity, price);
+    public Event create(String name, String description, String location, int maxCapacity, double price, Timestamp date) {
+        return eventDao.create(name, description, location, maxCapacity, price, date);
     }
 
     @Override

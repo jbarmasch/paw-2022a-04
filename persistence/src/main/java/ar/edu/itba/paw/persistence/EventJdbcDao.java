@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.sql.Timestamp;
 import java.util.*;
 
 @Repository
@@ -20,7 +21,8 @@ public class EventJdbcDao implements EventDao {
             rs.getString("description"),
             rs.getString("location"),
             rs.getInt("maxCapacity"),
-            rs.getDouble("price")
+            rs.getDouble("price"),
+            rs.getTimestamp("date")
     );
 
     @Autowired
@@ -36,16 +38,17 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public Event create(String name, String description, String location, int maxCapacity, double price) {
+    public Event create(String name, String description, String location, int maxCapacity, double price, Timestamp date) {
         final Map<String, Object> eventData = new HashMap<>();
         eventData.put("name", name);
         eventData.put("description", description);
         eventData.put("location", location);
         eventData.put("maxCapacity", maxCapacity);
         eventData.put("price", price);
+        eventData.put("date", date);
 
         final Number eventId = jdbcInsert.executeAndReturnKey(eventData);
-        return new Event(eventId.intValue(), name, description, location, maxCapacity, price);
+        return new Event(eventId.intValue(), name, description, location, maxCapacity, price, date);
     }
 
     public List<Event> filterBy(String[] filters, String[] locations, Double minPrice, Double maxPrice, int page) {

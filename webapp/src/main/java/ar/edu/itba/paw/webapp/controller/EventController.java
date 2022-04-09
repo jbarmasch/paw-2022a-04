@@ -1,17 +1,19 @@
 package ar.edu.itba.paw.webapp.controller;
 
+import ar.edu.itba.paw.model.Location;
 import ar.edu.itba.paw.service.MailService;
+import ar.edu.itba.paw.webapp.form.EventForm;
+import ar.edu.itba.paw.webapp.form.UserForm;
 import org.springframework.stereotype.Controller;
 import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.service.EventService;
 import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-
-import java.util.Arrays;
+import javax.validation.Valid;
+import java.text.SimpleDateFormat;
 
 @Controller
 public class EventController {
@@ -51,14 +53,23 @@ public class EventController {
         return mav;
     }
 
+    @ModelAttribute("locations")
+    public String[] populateLocations() {
+        return Location.getNames();
+    }
+
+
+    @RequestMapping(value = "/createEvent", method = { RequestMethod.GET })
+    public ModelAndView createForm(@ModelAttribute("eventForm") final EventForm form){
+        return new ModelAndView("createEvent");
+    }
+
     @RequestMapping("/createEvent")
-    public ModelAndView createEvent(@RequestParam(value = "name") final String username,
-                                    @RequestParam(value = "description") final String description,
-                                    @RequestParam(value = "location") final String location,
-                                    @RequestParam(value = "maxCapacity") final int maxCapacity,
-                                    @RequestParam(value = "price") final double price) {
-        final Event e = eventService.create(username, description, location, maxCapacity, price);
-//        return new ModelAndView("redirect:/event?eventId=" + e.getId());
+    public ModelAndView createEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors) {
+        if (errors.hasErrors()) {
+            return createForm(form);
+        }
+        final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation().getName(), form.getMaxCapacity(), form.getPrice(), form.getDate());
         return new ModelAndView("redirect:/event/" + e.getId());
     }
 
@@ -67,7 +78,6 @@ public class EventController {
                                  @RequestParam("mail") final String mail) {
         final Event e = eventService.getEventById(eventId).orElseThrow(UserNotFoundException::new);
         mailService.sendMail(mail, "Book", "Book event" + e.getName());
-//        return new ModelAndView("redirect:/event?eventId=" + e.getId());
         return new ModelAndView("redirect:/event/" + e.getId());
     }
 
