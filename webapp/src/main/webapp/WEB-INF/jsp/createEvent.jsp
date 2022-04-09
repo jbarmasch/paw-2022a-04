@@ -41,7 +41,7 @@
         </div>
         <div>
             <form:label path="date">Date: </form:label>
-            <form:input class="uk-input" type="datetime-local" path="date" />
+            <form:input class="uk-input" type="datetime-local" min="${currentDate}" path="date" />
             <form:errors path="date" cssClass="formError" element="p"/>
         </div>
         <div>

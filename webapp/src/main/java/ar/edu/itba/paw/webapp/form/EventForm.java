@@ -25,7 +25,6 @@ public class EventForm {
 
     public String type;
 
-    @Future
     private Timestamp date;
 
     public void setDate(String date) {
