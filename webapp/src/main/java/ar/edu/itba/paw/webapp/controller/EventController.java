@@ -69,7 +69,7 @@ public class EventController {
         if (errors.hasErrors()) {
             return createForm(form);
         }
-        final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation().getName(), form.getMaxCapacity(), form.getPrice(), form.getDate());
+        final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(), form.getDate());
         return new ModelAndView("redirect:/event/" + e.getId());
     }
 

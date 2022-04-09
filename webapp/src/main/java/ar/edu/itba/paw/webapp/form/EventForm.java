@@ -15,8 +15,7 @@ public class EventForm {
     @Size(max = 100)
     private String description;
 
-
-    private Location location;
+    private String location;
 
     @DecimalMin("0.0")
     private int maxCapacity;
@@ -34,7 +33,6 @@ public class EventForm {
     private String parseDate(String s) {
         String date = s.substring(0,10);
         String time = s.substring(11, 16);
-        System.out.println(time);
         return date + " " + time + ":00";
     }
 
@@ -50,7 +48,7 @@ public class EventForm {
         return description;
     }
 
-    public Location getLocation() {
+    public String getLocation() {
         return location;
     }
 
@@ -70,7 +68,7 @@ public class EventForm {
         this.description = description;
     }
 
-    public void setLocation(Location location) {
+    public void setLocation(String location) {
         this.location = location;
     }
 
