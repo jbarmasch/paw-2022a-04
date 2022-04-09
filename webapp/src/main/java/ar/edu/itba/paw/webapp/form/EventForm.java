@@ -5,7 +5,7 @@ import ar.edu.itba.paw.model.Location;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.Size;
-import java.sql.Timestamp;//coco estuvo aqui mua jajajajjajj xd
+import java.sql.Timestamp;
 
 public class EventForm {
 
@@ -22,6 +22,8 @@ public class EventForm {
 
     @DecimalMin("0.0")
     private double price;
+
+    public String type;
 
     @Future
     private Timestamp date;
@@ -62,6 +64,14 @@ public class EventForm {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public void setDescription(String description) {

@@ -12,8 +12,9 @@ public class Event {
     private String img = null;
     private double price;
     private Timestamp date;
+    private String type;
 
-    public Event(long id, String name, String description, String location, int maxCapacity, double price, Timestamp date) {
+    public Event(long id, String name, String description, String location, int maxCapacity, double price, String type, Timestamp date) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -22,6 +23,7 @@ public class Event {
         this.attendance = 0;
         this.price = price;
         this.date = date;
+        this.type = type;
     }
 
     public long getId() {
@@ -66,5 +68,9 @@ public class Event {
 
     public double getPrice() {
         return price;
+    }
+
+    public String getType() {
+        return type;
     }
 }

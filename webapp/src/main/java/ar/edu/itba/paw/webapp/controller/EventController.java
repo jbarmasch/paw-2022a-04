@@ -44,8 +44,8 @@ public class EventController {
                                      @RequestParam(value = "minPrice", required = false) final Double minPrice,
                                      @RequestParam(value = "maxPrice", required = false) final Double maxPrice) {
         final ModelAndView mav = new ModelAndView("index");
-        mav.addObject("locations", Location.getNames());
-        mav.addObject("types", Type.getNames());
+        mav.addObject("allLocations", Location.getNames());
+        mav.addObject("allTypes", Type.getNames());
         if (filterBy != null)
             mav.addObject("events", eventService.filterBy(filterBy, locations, types, minPrice, maxPrice, 1));
         else
@@ -58,7 +58,28 @@ public class EventController {
         if (errors.hasErrors()) {
             return browseEvents(form, null, null, null, null, null);
         }
-        return new ModelAndView("redirect:/events?filterBy=" + form.getFilters() + "&locations=" + form.getLocations() + "&types=" + form.getTypes() + "&minPrice=" + form.getMinPrice() + "&maxPrice=" + form.getMaxPrice());
+        String filters = "";
+        String endURL = "";
+        if (form.getLocations() != null) {
+            filters += "location";
+            endURL += "&locations=" + form.getLocations();
+        }
+        if (form.getTypes() != null) {
+            if (!filters.isEmpty())
+                filters += ", ";
+            filters += "type";
+            endURL += "&types=" + form.getTypes();
+        }
+        if (form.getMaxPrice() != null || form.getMinPrice() != null) {
+            if (!filters.isEmpty())
+                filters += ", ";
+            filters += "price";
+            if (form.getMinPrice() != null)
+                endURL += "&minPrice=" + form.getMinPrice();
+            if (form.getMaxPrice() != null)
+                endURL += "&maxPrice=" + form.getMaxPrice();
+        }
+        return new ModelAndView("redirect:/events?filterBy=" + filters + endURL);
     }
 
     @RequestMapping("/event/{eventId}")
@@ -72,6 +93,7 @@ public class EventController {
     public ModelAndView createForm(@ModelAttribute("eventForm") final EventForm form) {
         final ModelAndView mav = new ModelAndView("createEvent");
         mav.addObject("locations", Location.getNames());
+        // mav.addObject("types", Type.getNames());
         return mav;
     }
 
@@ -80,7 +102,7 @@ public class EventController {
         if (errors.hasErrors()) {
             return createForm(form);
         }
-        final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(), form.getDate());
+        final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(), form.getType(), form.getDate());
         return new ModelAndView("redirect:/event/" + e.getId());
     }
 

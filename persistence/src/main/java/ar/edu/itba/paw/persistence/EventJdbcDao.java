@@ -22,6 +22,7 @@ public class EventJdbcDao implements EventDao {
             rs.getString("location"),
             rs.getInt("maxCapacity"),
             rs.getDouble("price"),
+            rs.getString("type"),
             rs.getTimestamp("date")
     );
 
@@ -38,17 +39,18 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public Event create(String name, String description, String location, int maxCapacity, double price, Timestamp date) {
+    public Event create(String name, String description, String location, int maxCapacity, double price, String type, Timestamp date) {
         final Map<String, Object> eventData = new HashMap<>();
         eventData.put("name", name);
         eventData.put("description", description);
         eventData.put("location", location);
         eventData.put("maxCapacity", maxCapacity);
         eventData.put("price", price);
+        eventData.put("type", type);
         eventData.put("date", date);
 
         final Number eventId = jdbcInsert.executeAndReturnKey(eventData);
-        return new Event(eventId.intValue(), name, description, location, maxCapacity, price, date);
+        return new Event(eventId.intValue(), name, description, location, maxCapacity, price, type, date);
     }
 
     public List<Event> filterBy(String[] filters, String[] locations, String[] types , Double minPrice, Double maxPrice, int page) {
