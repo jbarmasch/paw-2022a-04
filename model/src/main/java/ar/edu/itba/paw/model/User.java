@@ -4,11 +4,13 @@ public class User {
     private long id;
     private String username;
     private String password;
+    private String mail;
 
-    public User(long id, String username, String password) {
+    public User(long id, String username, String password, String mail) {
         this.id = id;
         this.username = username;
         this.password = password;
+        this.mail = mail;
     }
 
     public String getUsername() {
@@ -21,5 +23,9 @@ public class User {
 
     public long getId() {
         return id;
+    }
+
+    public String getMail() {
+        return mail;
     }
 }

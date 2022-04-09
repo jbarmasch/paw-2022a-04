@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS users (
     userId SERIAL PRIMARY KEY,
     username VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(100) NOT NULL
---     mail VARCHAR(100) UNIQUE NOT NULL
+    password VARCHAR(100) NOT NULL,
+    mail VARCHAR(100) UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS events (
@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS events (
     maxCapacity INTEGER NOT NULL,
     price DOUBLE PRECISION NOT NULL,
     date TIMESTAMP NOT NULL,
+    type VARCHAR(100),
     CHECK (location IN ('Adrogué', 'San Isidro', 'Don Torcuato', 'Belgrano', 'Recoleta', 'Turdera'))
 );
 

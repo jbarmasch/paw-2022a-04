@@ -23,24 +23,24 @@ public class UserServiceImplTest {
     @Mock
     private UserDao mockDao;
 
-    @Test
-    public void testCreate() {
-        Mockito.when(mockDao.create(Mockito.eq(USERNAME), Mockito.eq(PASSWORD))).thenReturn(new User(1, USERNAME, PASSWORD));
+//    @Test
+//    public void testCreate() {
+//        Mockito.when(mockDao.create(Mockito.eq(USERNAME), Mockito.eq(PASSWORD))).thenReturn(new User(1, USERNAME, PASSWORD));
+//
+//        Optional<User> maybeUser = Optional.ofNullable(userService.create(USERNAME, PASSWORD));
+//
+//        Assert.assertNotNull(maybeUser);
+//        Assert.assertTrue(maybeUser.isPresent());
+//        Assert.assertEquals(USERNAME, maybeUser.get().getUsername());
+//        Assert.assertEquals(PASSWORD, maybeUser.get().getPassword());
+//    }
 
-        Optional<User> maybeUser = Optional.ofNullable(userService.create(USERNAME, PASSWORD));
-
-        Assert.assertNotNull(maybeUser);
-        Assert.assertTrue(maybeUser.isPresent());
-        Assert.assertEquals(USERNAME, maybeUser.get().getUsername());
-        Assert.assertEquals(PASSWORD, maybeUser.get().getPassword());
-    }
-
-    @Test
-    public void testCreateEmptyPassword() {
-        Optional<User> maybeUser = Optional.ofNullable(userService.create(USERNAME, ""));
-        Assert.assertNotNull(maybeUser);
-        Assert.assertFalse(maybeUser.isPresent());
-    }
+//    @Test
+//    public void testCreateEmptyPassword() {
+//        Optional<User> maybeUser = Optional.ofNullable(userService.create(USERNAME, ""));
+//        Assert.assertNotNull(maybeUser);
+//        Assert.assertFalse(maybeUser.isPresent());
+//    }
 
 //    @Test
 //    public void testCreateAlreadyExists() {

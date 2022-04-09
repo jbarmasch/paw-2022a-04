@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User create(String username, String password) {
-        return userDao.create(username, password);
+    public User create(String username, String password, String mail) {
+        return userDao.create(username, password, mail);
     }
 }
