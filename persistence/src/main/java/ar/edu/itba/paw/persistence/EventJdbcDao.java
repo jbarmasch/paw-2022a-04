@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -43,7 +44,8 @@ public class EventJdbcDao implements EventDao {
         final Map<String, Object> eventData = new HashMap<>();
         eventData.put("name", name);
         eventData.put("description", description);
-        eventData.put("location", location);
+//        eventData.put("location", location);
+        eventData.put("location", new String(location.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8));
         eventData.put("maxCapacity", maxCapacity);
         eventData.put("price", price);
         eventData.put("type", type);

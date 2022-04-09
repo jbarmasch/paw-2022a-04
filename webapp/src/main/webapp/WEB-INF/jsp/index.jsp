@@ -10,7 +10,7 @@
 <body>
     <%@ include file="appbar.jsp"%>
     <div>
-        <div>
+        <div class="filter">
             <c:url value="/events" var="postPath"/>
             <form:form modelAttribute="filterForm" action="${postPath}" method="post">
                 <div>
