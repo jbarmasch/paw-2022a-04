@@ -1,8 +1,10 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.Location;
+import ar.edu.itba.paw.model.Type;
 import ar.edu.itba.paw.service.MailService;
 import ar.edu.itba.paw.webapp.form.EventForm;
+import ar.edu.itba.paw.webapp.form.FilterForm;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import org.springframework.stereotype.Controller;
 import ar.edu.itba.paw.model.Event;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 
 @Controller
 public class EventController {
@@ -27,23 +30,35 @@ public class EventController {
     }
 
     @RequestMapping("/")
-    public ModelAndView helloWorld() {
+    public ModelAndView home() {
         final ModelAndView mav = new ModelAndView("index");
         mav.addObject("events", eventService.getAll(1));
         return mav;
     }
 
-    @RequestMapping("/events")
-    public ModelAndView browseEvents(@RequestParam(value = "filterBy", required = false) final String[] filterBy,
+    @RequestMapping(value = "/events", method = { RequestMethod.GET })
+    public ModelAndView browseEvents(@ModelAttribute("filterForm") final FilterForm form,
+                                     @RequestParam(value = "filterBy", required = false) final String[] filterBy,
                                      @RequestParam(value = "locations", required = false) final String[] locations,
+                                     @RequestParam(value = "types", required = false) final String[] types,
                                      @RequestParam(value = "minPrice", required = false) final Double minPrice,
                                      @RequestParam(value = "maxPrice", required = false) final Double maxPrice) {
         final ModelAndView mav = new ModelAndView("index");
+        mav.addObject("locations", Location.getNames());
+        mav.addObject("types", Type.getNames());
         if (filterBy != null)
-            mav.addObject("events", eventService.filterBy(filterBy, locations, minPrice, maxPrice, 1));
+            mav.addObject("events", eventService.filterBy(filterBy, locations, types, minPrice, maxPrice, 1));
         else
             mav.addObject("events", eventService.getAll(1));
         return mav;
+    }
+
+    @RequestMapping(value = "/events", method = { RequestMethod.POST })
+    public ModelAndView browseByFilters(@Valid @ModelAttribute("filterForm") final FilterForm form, final BindingResult errors) {
+        if (errors.hasErrors()) {
+            return browseEvents(form, null, null, null, null, null);
+        }
+        return new ModelAndView("redirect:/events?filterBy=" + form.getFilters() + "&locations=" + form.getLocations() + "&types=" + form.getTypes() + "&minPrice=" + form.getMinPrice() + "&maxPrice=" + form.getMaxPrice());
     }
 
     @RequestMapping("/event/{eventId}")
@@ -54,7 +69,7 @@ public class EventController {
     }
 
     @RequestMapping(value = "/createEvent", method = { RequestMethod.GET })
-    public ModelAndView createForm(@ModelAttribute("eventForm") final EventForm form){
+    public ModelAndView createForm(@ModelAttribute("eventForm") final EventForm form) {
         final ModelAndView mav = new ModelAndView("createEvent");
         mav.addObject("locations", Location.getNames());
         return mav;

@@ -51,7 +51,7 @@ public class EventJdbcDao implements EventDao {
         return new Event(eventId.intValue(), name, description, location, maxCapacity, price, date);
     }
 
-    public List<Event> filterBy(String[] filters, String[] locations, Double minPrice, Double maxPrice, int page) {
+    public List<Event> filterBy(String[] filters, String[] locations, String[] types , Double minPrice, Double maxPrice, int page) {
         int size = filters.length;
         String lastElement = null;
         if (size > 0)
@@ -79,6 +79,18 @@ public class EventJdbcDao implements EventDao {
                     }
                     if (maxPrice != null)
                         query.append("price <= ").append(maxPrice);
+                    break;
+                case "type":
+                    String lastType = null;
+                    if (types.length > 0)
+                        lastType = types[types.length - 1];
+                    query.append("type IN (");
+                    for (String type : types) {
+                        query.append("'").append(type).append("'");
+                        if (!Objects.equals(type, lastType))
+                            query.append(", ");
+                    }
+                    query.append(")");
                     break;
             }
             if (!filter.equals(lastElement))

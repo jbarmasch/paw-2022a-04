@@ -1,5 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
 <html>
 <head>
     <%@ include file="include.jsp"%>
@@ -8,6 +10,31 @@
 <body>
     <%@ include file="appbar.jsp"%>
     <div>
+        <div>
+            <c:url value="/events" var="postPath"/>
+            <form:form modelAttribute="filterForm" action="${postPath}" method="post">
+            <div>
+                <form:label path="locations">Location: </form:label>
+                <form:select class="uk-select" htmlEscape="true" multiple="true" path="locations" items="${locations}"/>
+                <form:errors path="locations" cssClass="formError" element="p"/>
+            </div>
+            <div>
+                <form:label path="types">Name: </form:label>
+                <form:select class="uk-select" htmlEscape="true" multiple="true" path="types" items="${types}"/>
+                <form:errors path="types" cssClass="formError" element="p"/>
+            </div>
+            <div>
+                <form:label path="minPrice">Min. price: </form:label>
+                <form:input class="uk-input" type="text" path="minPrice" />
+                <form:errors path="minPrice" cssClass="formError" element="p"/>
+            </div>
+            <div>
+                <form:label path="maxPrice">Max. price: </form:label>
+                <form:input class="uk-input" type="text" path="maxPrice" />
+                <form:errors path="maxPrice" cssClass="formError" element="p"/>
+            </div>
+            </form:form>
+        </div>
         <div class="container browse">
             <c:forEach var="event" items="${events}">
                     <div class="card uk-card uk-card-default" onclick="location.href='<c:url value="/event/${event.id}"/>'">
