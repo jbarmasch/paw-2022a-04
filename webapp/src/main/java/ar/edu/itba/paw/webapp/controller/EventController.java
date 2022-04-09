@@ -53,18 +53,14 @@ public class EventController {
         return mav;
     }
 
-    @ModelAttribute("locations")
-    public String[] populateLocations() {
-        return Location.getNames();
-    }
-
-
     @RequestMapping(value = "/createEvent", method = { RequestMethod.GET })
     public ModelAndView createForm(@ModelAttribute("eventForm") final EventForm form){
-        return new ModelAndView("createEvent");
+        final ModelAndView mav = new ModelAndView("createEvent");
+        mav.addObject("locations", Location.getNames());
+        return mav;
     }
 
-    @RequestMapping("/createEvent")
+    @RequestMapping(value = "/createEvent", method = { RequestMethod.POST })
     public ModelAndView createEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors) {
         if (errors.hasErrors()) {
             return createForm(form);
@@ -75,7 +71,7 @@ public class EventController {
 
     @RequestMapping("/book")
     public ModelAndView bookEvent(@RequestParam("eventId") final long eventId,
-                                 @RequestParam("mail") final String mail) {
+                                  @RequestParam("mail") final String mail) {
         final Event e = eventService.getEventById(eventId).orElseThrow(UserNotFoundException::new);
         mailService.sendMail(mail, "Book", "Book event" + e.getName());
         return new ModelAndView("redirect:/event/" + e.getId());

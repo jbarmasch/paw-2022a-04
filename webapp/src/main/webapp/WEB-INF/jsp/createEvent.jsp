@@ -4,17 +4,15 @@
 
 <html>
 <head>
-    <head>
-        <%@ include file="include.jsp"%>
-        <title>Create Event</title>
-    </head>
+    <%@ include file="include.jsp"%>
+    <title>Create Event</title>
 </head>
 <body>
     <%@ include file="appbar.jsp"%>
     <h2 class="">Create Event</h2>
     <c:url value="/createEvent" var="postPath"/>
     <div class="only-element">
-    <form:form modelAttribute="eventForm" action="${postPath}" method="post">
+        <form:form modelAttribute="eventForm" action="${postPath}" method="post">
         <div>
             <form:label path="name">Name: </form:label>
             <form:input class="uk-input" type="text" path="name"/>
@@ -27,7 +25,7 @@
         </div>
         <div>
             <form:label path="location">Location: </form:label>
-            <form:select class="uk-select" htmlEscape="true"  multiple="false" path="location" items="${locations}"/>
+            <form:select class="uk-select" htmlEscape="true" multiple="false" path="location" items="${locations}"/>
             <form:errors path="location" cssClass="formError" element="p"/>
         </div>
         <div>
@@ -48,8 +46,7 @@
         <div>
             <input type="submit" value="Create event!"/>
         </div>
-    </form:form>
+        </form:form>
     </div>
-
 </body>
 </html>

@@ -1,6 +1,6 @@
 package ar.edu.itba.paw.model;
 
-import java.util.Arrays;
+import java.util.stream.Stream;
 
 public enum Location {
     ADROGUE("Adrogué"),
@@ -21,14 +21,6 @@ public enum Location {
     }
 
     public static String[] getNames() {
-        Location[] locations = values();
-        String[] names = new String[locations.length];
-
-        for (int i = 0; i < locations.length; i++){
-            names[i] = locations[i].getName();
-        }
-
-        return names;
+        return Stream.of(Location.values()).map(Location::getName).toArray(String[]::new);
     }
-
 }
