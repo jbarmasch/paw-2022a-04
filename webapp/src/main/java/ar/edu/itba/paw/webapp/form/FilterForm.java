@@ -1,10 +1,16 @@
 package ar.edu.itba.paw.webapp.form;
 
+import javax.validation.constraints.DecimalMin;
+
 public class FilterForm {
     private String filters;
     private String locations;
     private String types;
+
+    @DecimalMin("0.0")
     private Double minPrice;
+
+    @DecimalMin("0.0")
     private Double maxPrice;
 
     public String getLocations() {

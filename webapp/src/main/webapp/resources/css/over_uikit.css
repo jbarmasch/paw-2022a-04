@@ -6,3 +6,8 @@
     font-weight: 500;
     color: #666666;
 }
+
+.uk-card-title {
+    margin-bottom: 5px;
+    overflow: hidden;
+}

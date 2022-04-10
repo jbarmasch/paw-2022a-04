@@ -5,7 +5,6 @@ import ar.edu.itba.paw.model.Type;
 import ar.edu.itba.paw.service.MailService;
 import ar.edu.itba.paw.webapp.form.EventForm;
 import ar.edu.itba.paw.webapp.form.FilterForm;
-import ar.edu.itba.paw.webapp.form.UserForm;
 import org.springframework.stereotype.Controller;
 import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.service.EventService;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 
 @Controller
@@ -33,7 +31,7 @@ public class EventController {
     @RequestMapping("/")
     public ModelAndView home() {
         final ModelAndView mav = new ModelAndView("index");
-        mav.addObject("events", eventService.getAll(1));
+//        mav.addObject("events", eventService.getAll(1));
         return mav;
     }
 
@@ -44,7 +42,7 @@ public class EventController {
                                      @RequestParam(value = "types", required = false) final String[] types,
                                      @RequestParam(value = "minPrice", required = false) final Double minPrice,
                                      @RequestParam(value = "maxPrice", required = false) final Double maxPrice) {
-        final ModelAndView mav = new ModelAndView("index");
+        final ModelAndView mav = new ModelAndView("events");
         mav.addObject("allLocations", Location.getNames());
         mav.addObject("allTypes", Type.getNames());
         if (filterBy != null)
@@ -80,6 +78,8 @@ public class EventController {
             if (form.getMaxPrice() != null)
                 endURL += "&maxPrice=" + form.getMaxPrice();
         }
+        if (filters.isEmpty())
+            return new ModelAndView("redirect:/events");
         return new ModelAndView("redirect:/events?filterBy=" + filters + endURL);
     }
 
@@ -97,7 +97,7 @@ public class EventController {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         String dateStr = formatter.format(new Date());
         mav.addObject("currentDate", dateStr.substring(0, 10) + "T" + dateStr.substring(11, 16));
-        // mav.addObject("types", Type.getNames());
+        mav.addObject("types", Type.getNames());
         return mav;
     }
 

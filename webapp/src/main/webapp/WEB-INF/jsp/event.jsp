@@ -17,6 +17,7 @@
             <p><c:out value="${event.location}"/></p>
             <p>$<c:out value="${event.price}"/></p>
             <p><c:out value="${event.date}"/></p>
+            <p><c:out value="${event.type}"/></p>
             Cantidad de entradas: <input type="number"/>
             <p>Mail: <input id="mail" type="text" name="mail"/>
                 <span class="error"></span>

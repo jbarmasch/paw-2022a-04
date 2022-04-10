@@ -12,6 +12,8 @@ public class Event {
     private String img = null;
     private double price;
     private Timestamp date;
+    private String dateFmt;
+    private String timeFmt;
     private String type;
 
     public Event(long id, String name, String description, String location, int maxCapacity, double price, String type, Timestamp date) {
@@ -72,5 +74,17 @@ public class Event {
 
     public String getType() {
         return type;
+    }
+
+    public String getDateFormatted() {
+        String dateStr = date.toString();
+        String year = dateStr.substring(0, 4);
+        String month = dateStr.substring(5, 7);
+        String day = dateStr.substring(8, 10);
+        return day + "/" + month + "/" + year;
+    }
+
+    public String getTimeFormatted() {
+        return date.toString().substring(11, 16);
     }
 }
