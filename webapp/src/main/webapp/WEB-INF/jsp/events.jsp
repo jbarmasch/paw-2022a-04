@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
+
 <html>
 <head>
     <%@ include file="include.jsp"%>
@@ -34,8 +35,8 @@
                     <form:input class="uk-input" type="number" path="maxPrice"/>
                     <form:errors path="maxPrice" cssClass="formError" element="p"/>
                 </div>
-                <div>
-                    <input type="submit" value="Apply!">
+                <div class="container event">
+                    <input class="filter_button" type="submit" value="Apply!">
                 </div>
             </form:form>
         </div>

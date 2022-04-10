@@ -12,8 +12,6 @@ public class Event {
     private String img = null;
     private double price;
     private Timestamp date;
-    private String dateFmt;
-    private String timeFmt;
     private String type;
 
     public Event(long id, String name, String description, String location, int maxCapacity, double price, String type, Timestamp date) {

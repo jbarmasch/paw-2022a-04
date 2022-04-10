@@ -6,11 +6,10 @@
 <html>
 <head>
     <%@ include file="include.jsp"%>
-    <title>Create Event</title>
+    <title>BotPass</title>
 </head>
 <body>
     <%@ include file="appbar.jsp"%>
-    <h2 class="">Create Event</h2>
     <c:url value="/createEvent" var="postPath"/>
     <div class="only-element">
         <form:form modelAttribute="eventForm" action="${postPath}" method="post">
@@ -49,8 +48,8 @@
                 <form:input class="uk-input" type="datetime-local" min="${currentDate}" path="date" />
                 <form:errors path="date" cssClass="formError" element="p"/>
             </div>
-            <div>
-                <input type="submit" value="Create event!"/>
+            <div class="container event">
+                <input class="filter_button" type="submit" value="Create event!"/>
             </div>
         </form:form>
     </div>

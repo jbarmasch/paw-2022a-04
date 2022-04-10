@@ -2,12 +2,13 @@
     padding: 10px 10px;
 }
 
-.uk-button-link {
-    font-weight: 500;
-    color: #666666;
-}
-
 .uk-card-title {
     margin-bottom: 5px;
     overflow: hidden;
+}
+
+.uk-button-text {
+    font-size: medium;
+    font-weight: 500;
+    color: #666666;
 }
