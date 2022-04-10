@@ -3,12 +3,12 @@ package ar.edu.itba.paw.webapp.form;
 import ar.edu.itba.paw.model.Location;
 
 import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.Size;
 import java.sql.Timestamp;
 
 public class EventForm {
-
     @Size(max = 100)
     private String name;
 
@@ -17,10 +17,10 @@ public class EventForm {
 
     private String location;
 
-    @DecimalMin("0.0")
+    @Min(0)
     private int maxCapacity;
 
-    @DecimalMin("0.0")
+    @DecimalMin("0.00")
     private double price;
 
     public String type;

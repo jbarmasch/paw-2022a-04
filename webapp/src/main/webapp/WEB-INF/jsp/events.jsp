@@ -27,12 +27,12 @@
                 </div>
                 <div>
                     <form:label path="minPrice">Min. price: </form:label>
-                    <form:input class="uk-input" type="number" path="minPrice" />
+                    <form:input class="uk-input" type="number" path="minPrice" min="0" step="0.01"/>
                     <form:errors path="minPrice" cssClass="formError" element="p"/>
                 </div>
                 <div>
                     <form:label path="maxPrice">Max. price: </form:label>
-                    <form:input class="uk-input" type="number" path="maxPrice"/>
+                    <form:input class="uk-input" type="number" path="maxPrice" min="0" step="0.01"/>
                     <form:errors path="maxPrice" cssClass="formError" element="p"/>
                 </div>
                 <div class="container event">

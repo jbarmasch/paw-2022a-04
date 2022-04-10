@@ -40,7 +40,7 @@
             </div>
             <div>
                 <form:label path="price">Price: </form:label>
-                <form:input class="uk-input" type="number" path="price" />
+                <form:input class="uk-input" type="number" path="price" min="0.00" step="0.01" value="0.00" />
                 <form:errors path="price" cssClass="formError" element="p"/>
             </div>
             <div>

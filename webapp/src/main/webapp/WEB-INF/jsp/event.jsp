@@ -12,7 +12,7 @@
     <%@ include file="appbar.jsp"%>
     <div class="container event">
         <div>
-            <img class="event_img" src="https://d1csarkz8obe9u.cloudfront.net/posterpreviews/party-design-template-172a81aa153634421cabbdc2d4eeeb5b_screen.jpg?ts=1589238460" alt="Party img"/>
+            <img class="event_img" src="https://media.istockphoto.com/photos/dancing-friends-picture-id501387734?k=20&m=501387734&s=612x612&w=0&h=1mli5b7kpDg428fFZfsDPJ9dyVHsWsGK-EVYZUGWHpI=" alt="Party img"/>
         </div>
         <div class="event_info">
             <h3><c:out value="${event.name}"/></h3>

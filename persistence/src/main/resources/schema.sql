@@ -13,8 +13,7 @@ CREATE TABLE IF NOT EXISTS events (
     maxCapacity INTEGER NOT NULL,
     price DOUBLE PRECISION NOT NULL,
     date TIMESTAMP NOT NULL,
-    type VARCHAR(100),
-    CHECK (location IN ('Adrogué', 'San Isidro', 'Don Torcuato', 'Belgrano', 'Recoleta', 'Turdera'))
+    type VARCHAR(100)
 );
 
 CREATE TABLE IF NOT EXISTS eventTags (
