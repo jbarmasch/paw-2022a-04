@@ -111,7 +111,7 @@ public class EventController {
         return new ModelAndView("redirect:/event/" + e.getId());
     }
 
-    @RequestMapping(value = "/book", method = { RequestMethod.POST }, params = "submit")
+    @RequestMapping(value = "/event/{eventId}", method = { RequestMethod.POST }, params = "submit")
     public ModelAndView bookEvent(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors) {
         if (errors.hasErrors()) {
             return eventDescription(form, form.getEventId());
@@ -121,7 +121,7 @@ public class EventController {
         return new ModelAndView("redirect:/event/" + e.getId());
     }
 
-    @RequestMapping(value = "/book", method = { RequestMethod.POST }, params = "cancel")
+    @RequestMapping(value = "/event/{eventId}", method = { RequestMethod.POST }, params = "cancel")
     public ModelAndView cancelBooking(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors) {
         if (errors.hasErrors()) {
             return eventDescription(form, form.getEventId());
