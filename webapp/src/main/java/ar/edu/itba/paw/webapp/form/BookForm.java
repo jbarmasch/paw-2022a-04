@@ -1,22 +1,22 @@
 package ar.edu.itba.paw.webapp.form;
 
 import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.sql.Timestamp;
 
 public class BookForm {
     @Size(max = 100)
+    @NotEmpty
     @Email
     private String mail;
 
     private int eventId;
 
     @Min(1)
-    private int qty;
+    @NotNull
+    private Integer qty;
 
     public String getMail() {
         return mail;
@@ -30,15 +30,15 @@ public class BookForm {
         return eventId;
     }
 
-    public void setEventId(int eventId) {
+    public void setEventId(Integer eventId) {
         this.eventId = eventId;
     }
 
-    public int getQty() {
+    public Integer getQty() {
         return qty;
     }
 
-    public void setQty(int qty) {
+    public void setQty(Integer qty) {
         this.qty = qty;
     }
 }

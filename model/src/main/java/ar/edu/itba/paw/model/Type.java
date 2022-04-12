@@ -3,9 +3,9 @@ package ar.edu.itba.paw.model;
 import java.util.stream.Stream;
 
 public enum Type {
-    FIESTA("Fiesta"),
-    BEFORE("Before"),
-    AFTER("After");
+    AFTER("After"),
+    FIESTA( "Fiesta"),
+    PREVIA( "Previa");
 
     private final String name;
 

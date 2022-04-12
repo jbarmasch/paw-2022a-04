@@ -45,7 +45,7 @@ public class UserController {
         if (errors.hasErrors()) {
             return createForm(form);
         }
-        final User u = userService.create(form.getUsername(), form.getPassword(), form.getUsername()); // TODO gettear el mail
+        final User u = userService.create(form.getUsername(), form.getPassword(), form.getUsername());
         return new ModelAndView("redirect:/profile/" + u.getId());
     }
 }

@@ -1,34 +1,42 @@
 package ar.edu.itba.paw.webapp.form;
 
 import ar.edu.itba.paw.model.Location;
+import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Future;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.sql.Timestamp;
 
 public class EventForm {
     @Size(max = 100)
+    @NotEmpty
     private String name;
 
     @Size(max = 100)
     private String description;
 
+    @NotEmpty
     private String location;
 
     @Min(0)
-    private int maxCapacity;
+    @NotNull
+    private Integer maxCapacity;
 
     @DecimalMin("0.00")
-    private double price;
+    @NotNull
+    private Double price;
 
+    @NotEmpty
     public String type;
 
-    private Timestamp date;
+    @NotEmpty
+    private String date;
+
+    public String getDate() {
+        return date;
+    }
 
     public void setDate(String date) {
-        this.date = Timestamp.valueOf(parseDate(date));
+        this.date = date;
     }
 
     private String parseDate(String s) {
@@ -37,8 +45,8 @@ public class EventForm {
         return date + " " + time + ":00";
     }
 
-    public Timestamp getDate() {
-        return date;
+    public Timestamp getTimestamp() {
+        return Timestamp.valueOf(parseDate(date));
     }
 
     public String getName() {
@@ -53,11 +61,11 @@ public class EventForm {
         return location;
     }
 
-    public int getMaxCapacity() {
+    public Integer getMaxCapacity() {
         return maxCapacity;
     }
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 
@@ -81,11 +89,11 @@ public class EventForm {
         this.location = location;
     }
 
-    public void setMaxCapacity(int maxCapacity) {
+    public void setMaxCapacity(Integer maxCapacity) {
         this.maxCapacity = maxCapacity;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 }

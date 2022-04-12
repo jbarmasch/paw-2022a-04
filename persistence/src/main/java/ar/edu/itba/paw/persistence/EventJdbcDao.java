@@ -100,11 +100,13 @@ public class EventJdbcDao implements EventDao {
                 query.append(" AND ");
         }
 
-        return jdbcTemplate.query(query + " LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
+//        return jdbcTemplate.query(query + " LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
+        return jdbcTemplate.query(query + " LIMIT 1000 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
     }
 
     @Override
     public List<Event> getAll(int page) {
-        return jdbcTemplate.query("SELECT * FROM events LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
+//        return jdbcTemplate.query("SELECT * FROM events LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
+        return jdbcTemplate.query("SELECT * FROM events LIMIT 1000 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
     }
 }
