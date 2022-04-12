@@ -22,22 +22,22 @@
             <p><c:out value="${event.date}"/></p>
             <p><c:out value="${event.type}"/></p>
 
-            <c:url value="/book" var="postPath"/>
-            <form:form modelAttribute="bookForm" action="${postPath}" method="post">
+            <c:url value="/event/${event.id}" var="postPath"/>
+            <form:form novalidate="true" modelAttribute="bookForm" action="${postPath}" method="post">
 
                 <form:label path="qty">Cantidad de entradas: </form:label>
-                <form:input class="uk-input" type="number" path="qty" />
-                <form:errors path="qty" cssClass="formError" element="p"/>
+                <form:input class="uk-input" type="number" path="qty" min="1"/>
+                <form:errors path="qty" cssClass="error-message" element="span"/>
 
                 <form:label path="mail">Mail: </form:label>
                 <form:input class="uk-input" type="text" path="mail" />
-                <form:errors path="mail" cssClass="formError" element="p"/>
+                <form:errors path="mail" cssClass="error-message" element="span"/>
 
                 <form:input class="uk-input hidden" type="text" path="eventId" value="${event.id}"/>
 
                 <div class="container event_buttons">
-                    <input class="uk-button" type="submit" name="submit" value="Book!"/>
-                    <input class="uk-button cancel_button" type="submit" name="cancel" value="Cancel!"/>
+                    <input class="uk-button" type="submit" name="submit" value="Reservar"/>
+                    <input class="uk-button cancel_button" type="submit" name="cancel" value="Cancelar"/>
                 </div>
             </form:form>
         </div>

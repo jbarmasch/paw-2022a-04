@@ -9,7 +9,7 @@
 <body>
     <%@ include file="appbar.jsp"%>
     <div class="container only-element">
-        <h1>Welcome to BotPass.</h1>
+        <h1>Bienvenido a BotPass.</h1>
     </div>
 </body>
 </html>

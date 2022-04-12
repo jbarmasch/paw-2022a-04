@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <html>
 <head>
@@ -13,30 +14,30 @@
     <div class="home">
         <div>
             <c:url value="/events" var="postPath"/>
-            <form:form modelAttribute="filterForm" action="${postPath}" method="post"  class="filter">
-                <b>Filters:</b>
+            <form:form novalidate="true" modelAttribute="filterForm" action="${postPath}" method="post"  class="filter">
+                <b>Filtros:</b>
                 <div>
-                    <form:label path="locations">Location: </form:label>
+                    <form:label path="locations">Ubicación: </form:label>
                     <form:select class="uk-select" htmlEscape="true" multiple="true" path="locations" items="${allLocations}"/>
-                    <form:errors path="locations" cssClass="formError" element="p"/>
+                    <form:errors path="locations" cssClass="error-message" element="span"/>
                 </div>
                 <div>
-                    <form:label path="types">Name: </form:label>
+                    <form:label path="types">Tipo: </form:label>
                     <form:select class="uk-select" htmlEscape="true" multiple="true" path="types" items="${allTypes}"/>
-                    <form:errors path="types" cssClass="formError" element="p"/>
+                    <form:errors path="types" cssClass="error-message" element="span"/>
                 </div>
                 <div>
-                    <form:label path="minPrice">Min. price: </form:label>
+                    <form:label path="minPrice">Precio mínimo: </form:label>
                     <form:input class="uk-input" type="number" path="minPrice" min="0" step="0.01"/>
-                    <form:errors path="minPrice" cssClass="formError" element="p"/>
+                    <form:errors path="minPrice" cssClass="error-message" element="span"/>
                 </div>
                 <div>
-                    <form:label path="maxPrice">Max. price: </form:label>
+                    <form:label path="maxPrice">Precio máximo: </form:label>
                     <form:input class="uk-input" type="number" path="maxPrice" min="0" step="0.01"/>
-                    <form:errors path="maxPrice" cssClass="formError" element="p"/>
+                    <form:errors path="maxPrice" cssClass="error-message" element="span"/>
                 </div>
                 <div class="container event">
-                    <input class="filter_button" type="submit" value="Apply!">
+                    <input class="filter_button" type="submit" value="Aplicar">
                 </div>
             </form:form>
         </div>
@@ -53,7 +54,6 @@
                                     <span>$<c:out value="${event.price}"/></span>
                                     <span><c:out value="${event.location}"/></span>
                                 </div>
-                                <%-- <span><c:out value="${event.type}"/></span> --%>
                                 <div class="card_info">
                                     <span><c:out value="${event.dateFormatted}"/></span>
                                     <span><c:out value="${event.timeFormatted}"/></span>

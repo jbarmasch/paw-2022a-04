@@ -2,11 +2,13 @@
     max-width: 240px;
     margin: 14px 6px 6px 6px;
     background-color: aliceblue;
+    cursor: pointer;
 }
 
 .logo {
     width: 60px;
     height: 60px;
+    cursor: pointer;
 }
 
 .icon {
@@ -160,4 +162,23 @@ input[type=submit] {
     justify-content: space-around;
     margin: 20px;
     align-items: flex-start;
+}
+
+.error-message {
+    color: #ff002f;
+    display: inline-block;
+    font-size: 15px;
+    line-height: 15px;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
 }
