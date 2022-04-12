@@ -15,8 +15,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Controller
 public class EventController {
@@ -113,9 +112,7 @@ public class EventController {
     public ModelAndView createForm(@ModelAttribute("eventForm") final EventForm form) {
         final ModelAndView mav = new ModelAndView("createEvent");
         mav.addObject("locations", Location.getNames());
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        String dateStr = formatter.format(new Date());
-        mav.addObject("currentDate", dateStr.substring(0, 10) + "T" + dateStr.substring(11, 16));
+        mav.addObject("currentDate", LocalDateTime.now().toString().substring(0,16));
         mav.addObject("types", Type.getNames());
         return mav;
     }

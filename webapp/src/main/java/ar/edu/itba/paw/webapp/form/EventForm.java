@@ -1,6 +1,6 @@
 package ar.edu.itba.paw.webapp.form;
 
-import ar.edu.itba.paw.model.Location;
+import ar.edu.itba.paw.webapp.validations.Future;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.*;
@@ -29,6 +29,7 @@ public class EventForm {
     public String type;
 
     @NotEmpty
+    @Future
     private String date;
 
     public String getDate() {
