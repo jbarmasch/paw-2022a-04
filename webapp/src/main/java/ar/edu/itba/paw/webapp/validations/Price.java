@@ -7,11 +7,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = FutureValidator.class)
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.FIELD })
-public @interface Future {
-    String message() default "{Future.eventForm.date}";
+@Target({ ElementType.TYPE })
+@Constraint(validatedBy = { PriceValidator.class })
+public @interface Price {
+    String message() default "{Price.filterForm}";
 
     Class<?>[] groups() default {};
 

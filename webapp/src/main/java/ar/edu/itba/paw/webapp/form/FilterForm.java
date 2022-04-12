@@ -1,7 +1,9 @@
 package ar.edu.itba.paw.webapp.form;
 
+import ar.edu.itba.paw.webapp.validations.Price;
 import javax.validation.constraints.DecimalMin;
 
+@Price
 public class FilterForm {
     private String filters;
     private String locations;

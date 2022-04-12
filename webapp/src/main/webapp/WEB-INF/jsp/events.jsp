@@ -36,6 +36,7 @@
                     <form:input class="uk-input" type="number" path="maxPrice" min="0" step="0.01"/>
                     <form:errors path="maxPrice" cssClass="error-message" element="span"/>
                 </div>
+                <form:errors cssClass="error-message" element="span"/>
                 <div class="container event">
                     <input class="filter_button" type="submit" value="Aplicar">
                 </div>
