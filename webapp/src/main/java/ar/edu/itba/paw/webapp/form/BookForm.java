@@ -4,9 +4,20 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.*;
-import java.sql.Timestamp;
 
 public class BookForm {
+    @Size(max = 100)
+    @NotEmpty
+    private String name;
+
+    @Size(max = 100)
+    @NotEmpty
+    private String surname;
+
+    @Min(0)
+    @NotNull
+    private int dni;
+
     @Size(max = 100)
     @NotEmpty
     @Email
@@ -40,5 +51,29 @@ public class BookForm {
 
     public void setQty(Integer qty) {
         this.qty = qty;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+    public int getDni() {
+        return dni;
+    }
+
+    public void setDni(int dni) {
+        this.dni = dni;
     }
 }

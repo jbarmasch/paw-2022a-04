@@ -94,7 +94,7 @@ public class EventController {
             return eventDescription(form, form.getEventId());
         }
         final Event e = eventService.getEventById(form.getEventId()).orElseThrow(EventNotFoundException::new);
-        mailService.sendMail(form.getMail(), "Book", "Book event " + e.getName());
+        mailService.sendMail(form.getMail(), "Reserva recibida", "Se ha recibido una reserva de " + form.getQty() + " entradas a nombre de " + form.getName() + " " + form.getSurname() + " para " + e.getName() + ".");
         return new ModelAndView("redirect:/event/" + e.getId());
     }
 
