@@ -11,7 +11,7 @@ public class FutureValidator implements ConstraintValidator<Future, String> {
     @Override
     public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
         if (s == null || s.isEmpty())
-            return false;
+            return true;
 
         return LocalDateTime.parse(s).isAfter(LocalDateTime.now());
     }

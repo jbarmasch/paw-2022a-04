@@ -7,6 +7,7 @@ import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.form.EventForm;
 import ar.edu.itba.paw.webapp.form.BookForm;
 import ar.edu.itba.paw.webapp.form.FilterForm;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.service.EventService;
@@ -26,6 +27,12 @@ public class EventController {
     public EventController(final EventService eventService, final MailService mailService) {
         this.eventService = eventService;
         this.mailService = mailService;
+    }
+
+    @ExceptionHandler(EventNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ModelAndView noSuchEvent() {
+        return new ModelAndView("error");
     }
 
     @RequestMapping("/")
