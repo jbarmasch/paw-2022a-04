@@ -92,7 +92,7 @@ input[type='number'] {
 }
 
 .dni {
-    width: 100%;
+    width: 100% !important;
 }
 
 body {

@@ -16,7 +16,7 @@ public class BookForm {
 
     @Min(0)
     @NotNull
-    private int dni;
+    private Integer dni;
 
     @Size(max = 100)
     @NotEmpty
@@ -69,11 +69,11 @@ public class BookForm {
         this.surname = surname;
     }
 
-    public int getDni() {
+    public Integer getDni() {
         return dni;
     }
 
-    public void setDni(int dni) {
+    public void setDni(Integer dni) {
         this.dni = dni;
     }
 }
