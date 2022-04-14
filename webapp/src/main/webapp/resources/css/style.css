@@ -201,3 +201,7 @@ input::-webkit-inner-spin-button {
 input[type=number] {
     -moz-appearance: textfield;
 }
+
+.error2 { display: none; color: red; font-weight: bold; }
+.submitted :invalid + .error2 { display: block; }
+.submitted :invalid { border: 1px solid red; }

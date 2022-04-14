@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <html>
 <head>
@@ -37,7 +38,7 @@
         </div>
 
         <c:url value="/event/${event.id}" var="postPath"/>
-        <form:form novalidate="true" modelAttribute="bookForm" action="${postPath}" method="post">
+        <form:form novalidate="true" modelAttribute="bookForm" action="${postPath}" method="post" id="bookForm">
 
             <form:label path="name">Nombre: </form:label>
             <form:input class="uk-input" type="text" path="name" />
@@ -52,8 +53,11 @@
             <form:errors path="dni" cssClass="error-message" element="span"/>
 
             <form:label path="mail">Mail: </form:label>
-            <form:input class="uk-input" type="text" path="mail" />
+            <form:input class="uk-input" type="email" path="mail" required="true"/>
             <form:errors path="mail" cssClass="error-message" element="span"/>
+            <spring:message code="NotEmpty.bookForm.mail" var="mailEmptyError"/>
+            <spring:message code="Email.bookForm.mail" var="mailTypeError"/>
+            <span class="error2"></span>
 
             <form:label path="qty">Cantidad de entradas: </form:label>
             <form:input class="uk-input" type="number" path="qty" min="1"/>
@@ -70,3 +74,37 @@
 
 </body>
 </html>
+
+<script type="text/javascript">
+    (function() {
+        var mail = document.getElementById('mail');
+        var form = document.getElementById('bookForm');
+
+        var checkMailValidity = function() {
+            if (mail.validity.typeMismatch) {
+                mail.setCustomValidity('${mailTypeError}');
+                updateMailMessage();
+            } else if (mail.validity.valueMissing) {
+                mail.setCustomValidity('${mailEmptyError}');
+                updateMailMessage();
+            } else {
+                mail.setCustomValidity('');
+            }
+        };
+
+        var updateMailMessage = function() {
+            form.getElementsByClassName('error2')[0].innerHTML = mail.validationMessage;
+        }
+
+        mail.addEventListener('change', checkMailValidity, false);
+
+        form.addEventListener('submit', function(event) {
+            if (form.classList) form.classList.add('submitted');
+            checkMailValidity();
+            if (!this.checkValidity()) {
+                event.preventDefault();
+                updateMailMessage();
+            }
+        }, false);
+    }());
+</script>
