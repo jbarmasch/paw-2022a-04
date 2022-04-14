@@ -41,27 +41,38 @@
         <form:form novalidate="true" modelAttribute="bookForm" action="${postPath}" method="post" id="bookForm">
 
             <form:label path="name">Nombre: </form:label>
-            <form:input class="uk-input" type="text" path="name" />
-            <form:errors path="name" cssClass="error-message" element="span"/>
+            <form:input class="uk-input" type="text" path="name" maxlength="100" required="true"/>
+            <form:errors path="name" cssClass="error-message" element="span" required="true"/>
+            <spring:message code="NotEmpty.bookForm.name" var="nameEmptyError"/>
+            <spring:message code="Size.bookForm.name" var="nameSizeError"/>
+            <span class="formError"></span>
 
             <form:label path="surname">Apellido: </form:label>
-            <form:input class="uk-input" type="text" path="surname" />
-            <form:errors path="surname" cssClass="error-message" element="span"/>
+            <form:input class="uk-input" type="text" path="surname" maxlength="100" required="true" id="surname"/>
+            <form:errors path="surname" cssClass="error-message" element="span" required="true"/>
+            <spring:message code="NotEmpty.bookForm.surname" var="surnameEmptyError"/>
+            <spring:message code="Size.bookForm.surname" var="surnameSizeError"/>
+            <span class="formError"></span>
 
-            <form:label path="dni">DNI: </form:label>
-            <form:input class="uk-input dni" type="number" path="dni" min="0"/>
-            <form:errors path="dni" cssClass="error-message" element="span"/>
+<%--            <form:label path="dni">DNI: </form:label>--%>
+<%--            <form:input class="uk-input dni" type="number" path="dni" min="0" required="true"/>--%>
+<%--            <form:errors path="dni" cssClass="error-message" element="span"/>--%>
+<%--            <span class="error"></span>--%>
 
             <form:label path="mail">Mail: </form:label>
-            <form:input class="uk-input" type="email" path="mail" required="true"/>
+            <form:input class="uk-input" type="email" path="mail" maxlength="100" required="true" id="mail"/>
             <form:errors path="mail" cssClass="error-message" element="span"/>
             <spring:message code="NotEmpty.bookForm.mail" var="mailEmptyError"/>
             <spring:message code="Email.bookForm.mail" var="mailTypeError"/>
-            <span class="error2"></span>
+            <spring:message code="Size.bookForm.mail" var="mailSizeError"/>
+            <span class="formError"></span>
 
             <form:label path="qty">Cantidad de entradas: </form:label>
-            <form:input class="uk-input" type="number" path="qty" min="1"/>
+            <form:input class="uk-input" type="number" path="qty" min="1" required="true" id="qty"/>
             <form:errors path="qty" cssClass="error-message" element="span"/>
+            <spring:message code="Min.bookForm.qty" var="qtySizeError"/>
+            <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
+            <span class="formError"></span>
 
             <form:input class="uk-input hidden" type="text" path="eventId" value="${event.id}"/>
 
@@ -78,7 +89,34 @@
 <script type="text/javascript">
     (function() {
         var mail = document.getElementById('mail');
+        var name = document.getElementById('name');
+        var surname = document.getElementById('surname');
+        var qty = document.getElementById('qty');
         var form = document.getElementById('bookForm');
+
+        var checkNameValidity = function() {
+            if (name.validity.tooLong) {
+                name.setCustomValidity('${nameSizeError}');
+                updateNameMessage()
+            } else if (name.validity.valueMissing) {
+                name.setCustomValidity('${nameEmptyError}');
+                updateNameMessage()
+            } else {
+                name.setCustomValidity('');
+            }
+        };
+
+        var checkSurnameValidity = function() {
+            if (surname.validity.tooLong) {
+                surname.setCustomValidity('${surnameSizeError}');
+                updateSurnameMessage()
+            } else if (surname.validity.valueMissing) {
+                surname.setCustomValidity('${surnameEmptyError}');
+                updateSurnameMessage()
+            } else {
+                surname.setCustomValidity('');
+            }
+        };
 
         var checkMailValidity = function() {
             if (mail.validity.typeMismatch) {
@@ -87,23 +125,63 @@
             } else if (mail.validity.valueMissing) {
                 mail.setCustomValidity('${mailEmptyError}');
                 updateMailMessage();
+            } else if (mail.validity.tooLong) {
+                mail.setCustomValidity('${mailSizeError}');
+                updateMailMessage();
             } else {
                 mail.setCustomValidity('');
             }
         };
 
-        var updateMailMessage = function() {
-            form.getElementsByClassName('error2')[0].innerHTML = mail.validationMessage;
+        var checkQtyValidity = function() {
+            if (qty.validity.rangeOverflow) {
+                qty.setCustomValidity('${qtySizeError}');
+                updateQtyMessage();
+            } else if (qty.validity.valueMissing) {
+                qty.setCustomValidity('${qtyNullError}');
+                updateQtyMessage();
+            } else {
+                qty.setCustomValidity('');
+            }
+        };
+
+        var updateNameMessage = function() {
+            form.getElementsByClassName('formError')[0].innerHTML = name.validationMessage;
         }
 
+        var updateSurnameMessage = function() {
+            form.getElementsByClassName('formError')[1].innerHTML = surname.validationMessage;
+        }
+
+        var updateMailMessage = function() {
+            form.getElementsByClassName('formError')[2].innerHTML = mail.validationMessage;
+        }
+
+        var updateQtyMessage = function() {
+            form.getElementsByClassName('formError')[3].innerHTML = qty.validationMessage;
+        }
+
+        name.addEventListener('change', checkNameValidity, false);
+        name.addEventListener('keyup', checkNameValidity, false);
+        surname.addEventListener('change', checkSurnameValidity, false);
+        surname.addEventListener('keyup', checkSurnameValidity, false);
         mail.addEventListener('change', checkMailValidity, false);
+        mail.addEventListener('keyup', checkMailValidity, false);
+        qty.addEventListener('change', checkQtyValidity, false);
+        qty.addEventListener('keyup', checkQtyValidity, false);
 
         form.addEventListener('submit', function(event) {
             if (form.classList) form.classList.add('submitted');
+            checkNameValidity()
+            checkSurnameValidity()
             checkMailValidity();
+            checkQtyValidity()
             if (!this.checkValidity()) {
                 event.preventDefault();
+                updateNameMessage();
+                updateSurnameMessage();
                 updateMailMessage();
+                updateQtyMessage();
             }
         }, false);
     }());
