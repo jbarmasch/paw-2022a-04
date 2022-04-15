@@ -2,16 +2,20 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.Location;
 import ar.edu.itba.paw.model.Type;
+import ar.edu.itba.paw.service.LocationService;
 import ar.edu.itba.paw.service.MailService;
 import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.form.EventForm;
 import ar.edu.itba.paw.webapp.form.BookForm;
 import ar.edu.itba.paw.webapp.form.FilterForm;
+import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -21,11 +25,13 @@ import java.time.LocalDateTime;
 @Controller
 public class EventController {
     private final EventService eventService;
+    private final LocationService locationService;
     private final MailService mailService;
 
     @Autowired
-    public EventController(final EventService eventService, final MailService mailService) {
+    public EventController(final EventService eventService, final LocationService locationService, final MailService mailService) {
         this.eventService = eventService;
+        this.locationService = locationService;
         this.mailService = mailService;
     }
 
@@ -42,12 +48,12 @@ public class EventController {
 
     @RequestMapping(value = "/events", method = { RequestMethod.GET })
     public ModelAndView browseEvents(@ModelAttribute("filterForm") final FilterForm form,
-                                     @RequestParam(value = "locations", required = false) final String[] locations,
+                                     @RequestParam(value = "locations", required = false) final Integer[] locations,
                                      @RequestParam(value = "types", required = false) final String[] types,
                                      @RequestParam(value = "minPrice", required = false) final Double minPrice,
                                      @RequestParam(value = "maxPrice", required = false) final Double maxPrice) {
         final ModelAndView mav = new ModelAndView("events");
-        mav.addObject("allLocations", Location.getNames());
+        mav.addObject("allLocations", locationService.getAll());
         mav.addObject("allTypes", Type.getNames());
         mav.addObject("events", eventService.filterBy(locations, types, minPrice, maxPrice, 1));
         return mav;
@@ -85,6 +91,7 @@ public class EventController {
     public ModelAndView eventDescription(@ModelAttribute("bookForm") final BookForm form, @PathVariable("eventId") final int eventId) {
         final ModelAndView mav = new ModelAndView("event");
         mav.addObject("event", eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new));
+        mav.addObject("location", locationService.getLocationById(eventId).orElseThrow(EventNotFoundException::new));
         return mav;
     }
 
@@ -111,7 +118,7 @@ public class EventController {
     @RequestMapping(value = "/createEvent", method = { RequestMethod.GET })
     public ModelAndView createForm(@ModelAttribute("eventForm") final EventForm form) {
         final ModelAndView mav = new ModelAndView("createEvent");
-        mav.addObject("locations", Location.getNames());
+        mav.addObject("locations", locationService.getAll());
         mav.addObject("currentDate", LocalDateTime.now().toString().substring(0,16));
         mav.addObject("types", Type.getNames());
         return mav;

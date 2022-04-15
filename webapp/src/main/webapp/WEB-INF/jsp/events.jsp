@@ -18,7 +18,9 @@
                 <b>Filtros:</b>
                 <div>
                     <form:label path="locations">Ubicación: </form:label>
-                    <form:select class="uk-select" htmlEscape="true" multiple="true" path="locations" items="${allLocations}"/>
+                    <form:select class="uk-select" htmlEscape="true" multiple="true" path="locations">
+                        <form:options items="${allLocations}" itemValue="id" itemLabel="name"/>
+                    </form:select>
                     <form:errors path="locations" cssClass="error-message" element="span"/>
                 </div>
                 <div>
@@ -61,17 +63,18 @@
                             <h3 class="uk-card-title"><c:out value="${event.name}"/></h3>
                             <div class="container card_body">
                                 <div class="card_info">
+                                    <img class="icon" src="<c:url value="/resources/svg/price-tag.svg"/>" alt="Price icon"/>
                                     <span>
                                         <c:choose>
                                             <c:when test="${event.price == 0}">Gratis</c:when>
                                             <c:otherwise>$<c:out value="${event.price}"/></c:otherwise>
                                         </c:choose>
                                     </span>
-                                    <span><c:out value="${event.location}"/></span>
+                                    <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${event.location}"/></span>
                                 </div>
                                 <div class="card_info">
-                                    <span><c:out value="${event.dateFormatted}"/></span>
-                                    <span><c:out value="${event.timeFormatted}"/></span>
+                                    <img class="icon" src="<c:url value="/resources/svg/date.svg"/>" alt="Date icon"/><span><c:out value="${event.dateFormatted}"/></span>
+                                    <img class="icon" src="<c:url value="/resources/svg/time.svg"/>" alt="Time icon"/><span><c:out value="${event.timeFormatted}"/></span>
                                 </div>
                             </div>
                         </div>
@@ -104,11 +107,11 @@
             if (maxPrice.validity.typeMismatch) {
                 maxPrice.setCustomValidity('${maxPriceTypeError}');
                 updateMaxPriceMessage();
-            } else if (minPrice.validity.rangeUnderflow) {
-                minPrice.setCustomValidity('${maxPriceMinError}');
+            } else if (maxPrice.validity.rangeUnderflow) {
+                maxPrice.setCustomValidity('${maxPriceMinError}');
                 updateMaxPriceMessage();
             } else {
-                minPrice.setCustomValidity('');
+                maxPrice.setCustomValidity('');
             }
         };
 

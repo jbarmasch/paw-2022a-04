@@ -4,6 +4,7 @@ import ar.edu.itba.paw.model.Event;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
@@ -20,7 +21,7 @@ public class EventJdbcDao implements EventDao {
             rs.getInt("eventId"),
             rs.getString("name"),
             rs.getString("description"),
-            rs.getString("location"),
+            rs.getInt("locationId"),
             rs.getInt("maxCapacity"),
             rs.getDouble("price"),
             rs.getString("type"),
@@ -40,21 +41,21 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public Event create(String name, String description, String location, int maxCapacity, double price, String type, Timestamp date) {
+    public Event create(String name, String description, Integer locationId, int maxCapacity, double price, String type, Timestamp date) {
         final Map<String, Object> eventData = new HashMap<>();
         eventData.put("name", name);
         eventData.put("description", description);
-        eventData.put("location", location);
+        eventData.put("locationId", locationId);
         eventData.put("maxCapacity", maxCapacity);
         eventData.put("price", price);
         eventData.put("type", type);
         eventData.put("date", date);
 
         final Number eventId = jdbcInsert.executeAndReturnKey(eventData);
-        return new Event(eventId.intValue(), name, description, location, maxCapacity, price, type, date);
+        return new Event(eventId.intValue(), name, description, locationId, maxCapacity, price, type, date);
     }
 
-    public List<Event> filterBy(String[] locations, String[] types , Double minPrice, Double maxPrice, int page) {
+    public List<Event> filterBy(Integer[] locations, String[] types , Double minPrice, Double maxPrice, int page) {
         StringBuilder query = new StringBuilder("SELECT * FROM events");
 
         if (locations != null || minPrice != null || maxPrice != null || types != null) {
@@ -62,9 +63,9 @@ public class EventJdbcDao implements EventDao {
             query.append(" WHERE ");
             if (locations != null && locations.length > 0) {
                 append = true;
-                String lastLocation = locations[locations.length - 1];
-                query.append("location IN (");
-                for (String location : locations) {
+                Integer lastLocation = locations[locations.length - 1];
+                query.append("locationId IN (");
+                for (Integer location : locations) {
                     query.append("'").append(location).append("'");
                     if (!Objects.equals(location, lastLocation))
                         query.append(", ");

@@ -29,12 +29,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Event create(String name, String description, String location, int maxCapacity, double price, String type, Timestamp date) {
+    public Event create(String name, String description, Integer location, int maxCapacity, double price, String type, Timestamp date) {
         return eventDao.create(name, description, location, maxCapacity, price, type, date);
     }
 
     @Override
-    public List<Event> filterBy(String[] locations, String[] types, Double minPrice, Double maxPrice, int page) {
+    public List<Event> filterBy(Integer[] locations, String[] types, Double minPrice, Double maxPrice, int page) {
         return eventDao.filterBy(locations, types, minPrice, maxPrice, page);
     }
 }

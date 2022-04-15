@@ -14,8 +14,8 @@ public class EventForm {
     @Size(max = 100)
     private String description;
 
-    @NotEmpty
-    private String location;
+    @NotNull
+    private Integer location;
 
     @Min(0)
     @NotNull
@@ -58,7 +58,7 @@ public class EventForm {
         return description;
     }
 
-    public String getLocation() {
+    public Integer getLocation() {
         return location;
     }
 
@@ -86,7 +86,7 @@ public class EventForm {
         this.description = description;
     }
 
-    public void setLocation(String location) {
+    public void setLocation(Integer location) {
         this.location = location;
     }
 
