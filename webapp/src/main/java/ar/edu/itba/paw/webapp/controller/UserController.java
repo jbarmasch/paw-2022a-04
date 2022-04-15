@@ -28,6 +28,16 @@ public class UserController {
         return new ModelAndView("error");
     }
 
+    @RequestMapping(value = "/login", method = RequestMethod.GET)
+    public ModelAndView login() {
+        return new ModelAndView("login");
+    }
+
+    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    public ModelAndView redirectLogin() {
+        return new ModelAndView("redirect:/events");
+    }
+
     @RequestMapping("/profile/{userId}")
     public ModelAndView userProfile(@PathVariable("userId") final long userId) {
         final ModelAndView mav = new ModelAndView("profile");
@@ -35,17 +45,17 @@ public class UserController {
         return mav;
     }
 
-    @RequestMapping(value = "/createUser", method = { RequestMethod.GET })
+    @RequestMapping(value = "/register", method = { RequestMethod.GET })
     public ModelAndView createForm(@ModelAttribute("registerForm") final UserForm form) {
         return new ModelAndView("register");
     }
 
-    @RequestMapping(value = "/createUser", method = { RequestMethod.POST })
+    @RequestMapping(value = "/register", method = { RequestMethod.POST })
     public ModelAndView create(@Valid @ModelAttribute("registerForm") final UserForm form, final BindingResult errors) {
         if (errors.hasErrors()) {
             return createForm(form);
         }
         final User u = userService.create(form.getUsername(), form.getPassword(), form.getUsername());
-        return new ModelAndView("redirect:/profile/" + u.getId());
+        return new ModelAndView("redirect:/login/");
     }
 }

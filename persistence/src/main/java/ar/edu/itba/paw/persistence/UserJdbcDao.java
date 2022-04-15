@@ -50,4 +50,9 @@ public class UserJdbcDao implements UserDao {
     public List<User> getAll(int page) {
         return jdbcTemplate.query("SELECT * FROM users LIMIT 10 OFFSET ?", new Object[] { (page - 1) * 10 }, ROW_MAPPER);
     }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return jdbcTemplate.query("SELECT * FROM users WHERE username = ?", new Object[] { username }, ROW_MAPPER).stream().findFirst();
+    }
 }
