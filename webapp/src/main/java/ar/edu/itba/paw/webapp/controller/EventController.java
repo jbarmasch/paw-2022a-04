@@ -42,7 +42,6 @@ public class EventController {
 
     @RequestMapping(value = "/events", method = { RequestMethod.GET })
     public ModelAndView browseEvents(@ModelAttribute("filterForm") final FilterForm form,
-                                     @RequestParam(value = "filterBy", required = false) final String[] filterBy,
                                      @RequestParam(value = "locations", required = false) final String[] locations,
                                      @RequestParam(value = "types", required = false) final String[] types,
                                      @RequestParam(value = "minPrice", required = false) final Double minPrice,
@@ -50,69 +49,63 @@ public class EventController {
         final ModelAndView mav = new ModelAndView("events");
         mav.addObject("allLocations", Location.getNames());
         mav.addObject("allTypes", Type.getNames());
-        if (filterBy != null)
-            mav.addObject("events", eventService.filterBy(filterBy, locations, types, minPrice, maxPrice, 1));
-        else
-            mav.addObject("events", eventService.getAll(1));
+        mav.addObject("events", eventService.filterBy(locations, types, minPrice, maxPrice, 1));
         return mav;
     }
 
     @RequestMapping(value = "/events", method = { RequestMethod.POST })
     public ModelAndView browseByFilters(@Valid @ModelAttribute("filterForm") final FilterForm form, final BindingResult errors) {
         if (errors.hasErrors()) {
-            return browseEvents(form, null, null, null, null, null);
+            return new ModelAndView("error");
         }
-        String filters = "";
+        boolean hasFilter = false;
         String endURL = "";
         if (form.getLocations() != null) {
-            filters += "location";
+            hasFilter = true;
             endURL += "&locations=" + form.getLocations();
         }
         if (form.getTypes() != null) {
-            if (!filters.isEmpty())
-                filters += ", ";
-            filters += "type";
+            hasFilter = true;
             endURL += "&types=" + form.getTypes();
         }
-        if (form.getMaxPrice() != null || form.getMinPrice() != null) {
-            if (!filters.isEmpty())
-                filters += ", ";
-            filters += "price";
-            if (form.getMinPrice() != null)
-                endURL += "&minPrice=" + form.getMinPrice();
-            if (form.getMaxPrice() != null)
-                endURL += "&maxPrice=" + form.getMaxPrice();
+        if (form.getMinPrice() != null) {
+            hasFilter = true;
+            endURL += "&minPrice=" + form.getMinPrice();
         }
-        if (filters.isEmpty())
+        if (form.getMaxPrice() != null) {
+            hasFilter = true;
+            endURL += "&maxPrice=" + form.getMaxPrice();
+        }
+        if (!hasFilter)
             return new ModelAndView("redirect:/events");
-        return new ModelAndView("redirect:/events?filterBy=" + filters + endURL);
+        return new ModelAndView("redirect:/events?" + endURL);
     }
 
-    @RequestMapping(value = "/event/{eventId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/events/{eventId}", method = RequestMethod.GET)
     public ModelAndView eventDescription(@ModelAttribute("bookForm") final BookForm form, @PathVariable("eventId") final int eventId) {
         final ModelAndView mav = new ModelAndView("event");
         mav.addObject("event", eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new));
         return mav;
     }
 
-    @RequestMapping(value = "/event/{eventId}", method = { RequestMethod.POST }, params = "submit")
+    @RequestMapping(value = "/events/{eventId}", method = { RequestMethod.POST }, params = "submit")
     public ModelAndView bookEvent(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors) {
         if (errors.hasErrors()) {
             return eventDescription(form, form.getEventId());
         }
         final Event e = eventService.getEventById(form.getEventId()).orElseThrow(EventNotFoundException::new);
         mailService.sendMail(form.getMail(), "Reserva recibida", "Se ha recibido una reserva de " + form.getQty() + " entradas a nombre de " + form.getName() + " " + form.getSurname() + " para " + e.getName() + ".");
-        return new ModelAndView("redirect:/event/" + e.getId());
+        return new ModelAndView("redirect:/events/" + e.getId());
     }
 
-    @RequestMapping(value = "/event/{eventId}", method = { RequestMethod.POST }, params = "cancel")
+    @RequestMapping(value = "/events/{eventId}", method = { RequestMethod.POST }, params = "cancel")
     public ModelAndView cancelBooking(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors) {
         if (errors.hasErrors()) {
             return eventDescription(form, form.getEventId());
         }
         final Event e = eventService.getEventById(form.getEventId()).orElseThrow(EventNotFoundException::new);
         mailService.sendMail(form.getMail(), "Cancel", "Cancel event " + e.getName());
-        return new ModelAndView("redirect:/event/" + e.getId());
+        return new ModelAndView("redirect:/events/" + e.getId());
     }
 
     @RequestMapping(value = "/createEvent", method = { RequestMethod.GET })
@@ -130,6 +123,6 @@ public class EventController {
             return createForm(form);
         }
         final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(), form.getType(), form.getTimestamp());
-        return new ModelAndView("redirect:/event/" + e.getId());
+        return new ModelAndView("redirect:/events/" + e.getId());
     }
 }

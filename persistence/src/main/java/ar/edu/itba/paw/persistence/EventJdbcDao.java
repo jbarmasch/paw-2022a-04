@@ -54,59 +54,54 @@ public class EventJdbcDao implements EventDao {
         return new Event(eventId.intValue(), name, description, location, maxCapacity, price, type, date);
     }
 
-    public List<Event> filterBy(String[] filters, String[] locations, String[] types , Double minPrice, Double maxPrice, int page) {
-        int size = filters.length;
-        String lastElement = null;
-        if (size > 0)
-            lastElement = filters[size - 1];
-        StringBuilder query = new StringBuilder("SELECT * FROM events WHERE ");
-        for (String filter : filters) {
-            switch (filter) {
-                case "location":
-                    String lastLocation = null;
-                    if (locations.length > 0)
-                        lastLocation = locations[locations.length - 1];
-                    query.append("location IN (");
-                    for (String location : locations) {
-                        query.append("'").append(location).append("'");
-                        if (!Objects.equals(location, lastLocation))
-                            query.append(", ");
-                    }
-                    query.append(")");
-                    break;
-                case "price":
-                    if (minPrice != null) {
-                        query.append("price >= ").append(minPrice);
-                        if (maxPrice != null)
-                            query.append(" AND ");
-                    }
-                    if (maxPrice != null)
-                        query.append("price <= ").append(maxPrice);
-                    break;
-                case "type":
-                    String lastType = null;
-                    if (types.length > 0)
-                        lastType = types[types.length - 1];
-                    query.append("type IN (");
-                    for (String type : types) {
-                        query.append("'").append(type).append("'");
-                        if (!Objects.equals(type, lastType))
-                            query.append(", ");
-                    }
-                    query.append(")");
-                    break;
+    public List<Event> filterBy(String[] locations, String[] types , Double minPrice, Double maxPrice, int page) {
+        StringBuilder query = new StringBuilder("SELECT * FROM events");
+
+        if (locations != null || minPrice != null || maxPrice != null || types != null) {
+            boolean append = false;
+            query.append(" WHERE ");
+            if (locations != null && locations.length > 0) {
+                append = true;
+                String lastLocation = locations[locations.length - 1];
+                query.append("location IN (");
+                for (String location : locations) {
+                    query.append("'").append(location).append("'");
+                    if (!Objects.equals(location, lastLocation))
+                        query.append(", ");
+                }
+                query.append(")");
             }
-            if (!filter.equals(lastElement))
-                query.append(" AND ");
+            if (minPrice != null) {
+                if (append)
+                    query.append(" AND ");
+                append = true;
+                query.append("price >= ").append(minPrice);
+            }
+            if (maxPrice != null) {
+                if (append)
+                    query.append(" AND ");
+                append = true;
+                query.append("price <= ").append(maxPrice);
+            }
+            if (types != null && types.length > 0) {
+                if (append)
+                    query.append(" AND ");
+                String lastType = types[types.length - 1];
+                query.append("type IN (");
+                for (String type : types) {
+                    query.append("'").append(type).append("'");
+                    if (!Objects.equals(type, lastType))
+                        query.append(", ");
+                }
+                query.append(")");
+            }
         }
 
-//        return jdbcTemplate.query(query + " LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
-        return jdbcTemplate.query(query + " LIMIT 1000 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
+        return jdbcTemplate.query(query + " LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
     }
 
     @Override
     public List<Event> getAll(int page) {
-//        return jdbcTemplate.query("SELECT * FROM events LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
-        return jdbcTemplate.query("SELECT * FROM events LIMIT 1000 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
+        return jdbcTemplate.query("SELECT * FROM events LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
     }
 }

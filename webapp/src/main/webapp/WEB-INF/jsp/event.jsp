@@ -20,26 +20,26 @@
                 <h3><c:out value="${event.name}"/></h3>
                 <p><c:out value="${event.description}"/></p>
                 <div class="container">
-                    <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location emoji"/><span><c:out value="${event.location}"/></span>
+                    <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${event.location}"/></span>
                 </div>
                     <div class="container">
-                <img class="icon" src="<c:url value="/resources/svg/price-tag.svg"/>" alt="Price"/><span>$<c:out value="${event.price}"/></span>
+                <img class="icon" src="<c:url value="/resources/svg/price-tag.svg"/>" alt="Price icon"/><span><c:out value="${event.price == 0 ? '$' + event.price : 'Gratis'}"/></span>
                 </div>
                 <div class="container">
-                    <img class="icon" src="<c:url value="/resources/svg/date.svg"/>"/><span><c:out value="${event.dateFormatted}"/></span>
+                    <img class="icon" src="<c:url value="/resources/svg/date.svg"/>" alt="Date icon"/><span><c:out value="${event.dateFormatted}"/></span>
                 </div>
                 <div class="container">
-                    <img class="icon" src="<c:url value="/resources/svg/time.svg"/>"/><span><c:out value="${event.timeFormatted}"/></span>
+                    <img class="icon" src="<c:url value="/resources/svg/time.svg"/>" alt="Time icon"/><span><c:out value="${event.timeFormatted}"/></span>
                 </div>
                 <div class="container">
-                    <img class="icon" src="<c:url value="/resources/svg/party.svg"/>"/><span><c:out value="${event.type}"/></span>
+                    <img class="icon" src="<c:url value="/resources/svg/party.svg"/>" alt="Type icon"/><span><c:out value="${event.type}"/></span>
                 </div>
             </div>
         </div>
 
         <c:url value="/event/${event.id}" var="postPath"/>
         <form:form novalidate="true" modelAttribute="bookForm" action="${postPath}" method="post" id="bookForm">
-
+            <span class="required">* </span>
             <form:label path="name">Nombre: </form:label>
             <form:input class="uk-input" type="text" path="name" maxlength="100" required="true"/>
             <form:errors path="name" cssClass="error-message" element="span" required="true"/>
@@ -47,6 +47,7 @@
             <spring:message code="Size.bookForm.name" var="nameSizeError"/>
             <span class="formError"></span>
 
+            <span class="required">* </span>
             <form:label path="surname">Apellido: </form:label>
             <form:input class="uk-input" type="text" path="surname" maxlength="100" required="true" id="surname"/>
             <form:errors path="surname" cssClass="error-message" element="span" required="true"/>
@@ -54,11 +55,7 @@
             <spring:message code="Size.bookForm.surname" var="surnameSizeError"/>
             <span class="formError"></span>
 
-<%--            <form:label path="dni">DNI: </form:label>--%>
-<%--            <form:input class="uk-input dni" type="number" path="dni" min="0" required="true"/>--%>
-<%--            <form:errors path="dni" cssClass="error-message" element="span"/>--%>
-<%--            <span class="error"></span>--%>
-
+            <span class="required">* </span>
             <form:label path="mail">Mail: </form:label>
             <form:input class="uk-input" type="email" path="mail" maxlength="100" required="true" id="mail"/>
             <form:errors path="mail" cssClass="error-message" element="span"/>
@@ -67,6 +64,7 @@
             <spring:message code="Size.bookForm.mail" var="mailSizeError"/>
             <span class="formError"></span>
 
+            <span class="required">* </span>
             <form:label path="qty">Cantidad de entradas: </form:label>
             <form:input class="uk-input" type="number" path="qty" min="1" required="true" id="qty"/>
             <form:errors path="qty" cssClass="error-message" element="span"/>
@@ -172,10 +170,10 @@
 
         form.addEventListener('submit', function(event) {
             if (form.classList) form.classList.add('submitted');
-            checkNameValidity()
-            checkSurnameValidity()
+            checkNameValidity();
+            checkSurnameValidity();
             checkMailValidity();
-            checkQtyValidity()
+            checkQtyValidity();
             if (!this.checkValidity()) {
                 event.preventDefault();
                 updateNameMessage();

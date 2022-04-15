@@ -41,7 +41,7 @@
 
 .appbar {
     box-shadow: 0 5px 5px 0 rgba(0,0,0,0.2);
-    justify-content: flex-start;
+    justify-content: space-evenly;
     align-items: center;
     padding: 5px 10px 5px 10px;
     background-color: aliceblue;
@@ -53,10 +53,13 @@
 
 .appbar_buttons {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    width: 100%;
-    margin-left: 15px;
+}
+
+.appbar_buttons > * {
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 .browse {
@@ -65,6 +68,10 @@
     margin: 10px 4% 0 4%;
     flex-wrap: wrap;
     height: 100%;
+}
+
+.required {
+    color: #666666;
 }
 
 .event_info {

@@ -1,10 +1,15 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt"%>
 
 <html>
 <head>
-    <title>Error 404</title>
+    <%@ include file="include.jsp"%>
+    <title>BotPass</title>
 </head>
 <body>
-Error 404.
+<%@ include file="appbar.jsp"%>
+<div class="container only-element">
+    <h1>Error 404: Page Not Found</h1>
+</div>
 </body>
 </html>
