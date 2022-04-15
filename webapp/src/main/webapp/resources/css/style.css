@@ -209,6 +209,14 @@ input[type=number] {
     -moz-appearance: textfield;
 }
 
-.formError { display: none; color: red; font-weight: bold; }
-.submitted :invalid + .formError { display: block; }
-.submitted :invalid { border: 1px solid red; }
+.formError {
+    display: none;
+    color: red;
+    font-weight: bold;
+}
+.submitted :invalid + .formError {
+    display: block;
+}
+.submitted :invalid {
+    border: 1px solid red;
+}

@@ -2,6 +2,10 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <html>
+<head>
+    <%@ include file="include.jsp"%>
+    <title>BotPass</title>
+</head>
 <body>
 <c:url value="/login" var="loginUrl" />
 <form action="${loginUrl}" method="post" enctype="application/x-www-form-urlencoded">

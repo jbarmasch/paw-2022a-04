@@ -35,7 +35,7 @@
                 <form:label path="location">Ubicación: </form:label>
                 <form:select class="uk-select" htmlEscape="true" multiple="false" path="location" required="true">
                     <form:option value="" hidden="true" selected="true" label="Seleccione una ubicación"/>
-                    <form:options items="${locations}"/>
+                    <form:options items="${locations}" itemValue="id" itemLabel="name"/>
                 </form:select>
                 <form:errors path="location" cssClass="error-message" element="span"/>
                 <spring:message code="NotEmpty.eventForm.location" var="locationEmptyError"/>
@@ -162,7 +162,7 @@
             } else if (price.validity.valueMissing) {
                 price.setCustomValidity('${priceNullError}');
                 updatePriceMessage();
-            } else if (price.validity.valueMissing) {
+            } else if (price.validity.rangeUnderflow) {
                 price.setCustomValidity('${priceMinError}');
                 updatePriceMessage();
             } else {
