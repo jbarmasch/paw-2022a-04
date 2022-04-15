@@ -61,7 +61,12 @@
                             <h3 class="uk-card-title"><c:out value="${event.name}"/></h3>
                             <div class="container card_body">
                                 <div class="card_info">
-                                    <span>$<c:out value="${event.price}"/></span>
+                                    <span>
+                                        <c:choose>
+                                            <c:when test="${event.price == 0}">Gratis</c:when>
+                                            <c:otherwise>$<c:out value="${event.price}"/></c:otherwise>
+                                        </c:choose>
+                                    </span>
                                     <span><c:out value="${event.location}"/></span>
                                 </div>
                                 <div class="card_info">
