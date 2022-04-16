@@ -20,7 +20,8 @@
                 <h3><c:out value="${event.name}"/></h3>
                 <p><c:out value="${event.description}"/></p>
                 <div class="container">
-                    <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${event.location}"/></span>
+<%--                    <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${event.location}"/></span>--%>
+                    <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${location.name}"/></span>
                 </div>
                     <div class="container">
                     <img class="icon" src="<c:url value="/resources/svg/price-tag.svg"/>" alt="Price icon"/>
@@ -43,7 +44,7 @@
             </div>
         </div>
 
-        <c:url value="/event/${event.id}" var="postPath"/>
+        <c:url value="/events/${event.id}" var="postPath"/>
         <form:form novalidate="true" modelAttribute="bookForm" action="${postPath}" method="post" id="bookForm">
             <span class="required">* </span>
             <form:label path="name">Nombre: </form:label>

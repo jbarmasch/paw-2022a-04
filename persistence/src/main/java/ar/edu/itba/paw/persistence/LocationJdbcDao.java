@@ -29,7 +29,7 @@ public class LocationJdbcDao implements LocationDao {
 
     @Override
     public Optional<Location> getLocationById(long id) {
-        List<Location> query = jdbcTemplate.query("SELECT * FROM locations WHERE locationId = ?", ROW_MAPPER);
+        List<Location> query = jdbcTemplate.query("SELECT * FROM locations WHERE locationId = ?", new Object[] {id}, ROW_MAPPER);
         return query.stream().findFirst();
     }
 }
