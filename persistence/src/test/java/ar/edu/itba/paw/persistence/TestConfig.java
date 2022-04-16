@@ -16,8 +16,8 @@ import javax.sql.DataSource;
 @ComponentScan({ "ar.edu.itba.paw.persistence" })
 @Configuration
 public class TestConfig {
-    @Value("classpath:schema.sql")
-    private Resource schemaSql;
+//    @Value("classpath:schema.sql")
+//    private Resource schemaSql;
 
     @Value("classpath:hsqldb.sql")
     private Resource hsqldbSql;
@@ -42,7 +42,7 @@ public class TestConfig {
     private DatabasePopulator databasePopulator() {
         final ResourceDatabasePopulator dbp = new ResourceDatabasePopulator();
         dbp.addScript(hsqldbSql);
-        dbp.addScript(schemaSql);
+//        dbp.addScript(schemaSql);
         return dbp;
     }
 
