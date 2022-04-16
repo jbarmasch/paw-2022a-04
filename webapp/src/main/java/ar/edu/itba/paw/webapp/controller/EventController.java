@@ -90,8 +90,9 @@ public class EventController {
     @RequestMapping(value = "/events/{eventId}", method = RequestMethod.GET)
     public ModelAndView eventDescription(@ModelAttribute("bookForm") final BookForm form, @PathVariable("eventId") final int eventId) {
         final ModelAndView mav = new ModelAndView("event");
-        mav.addObject("event", eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new));
-        mav.addObject("location", locationService.getLocationById(eventId).orElseThrow(EventNotFoundException::new));
+        final Event event = eventService.getEventById(form.getEventId()).orElseThrow(EventNotFoundException::new);
+        mav.addObject("event", event);
+        mav.addObject("location", locationService.getLocationById(event.getLocation()).orElseThrow(EventNotFoundException::new));
         return mav;
     }
 
