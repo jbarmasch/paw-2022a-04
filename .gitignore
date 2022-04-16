@@ -17,3 +17,7 @@ target/
 *.jar
 *.war
 *.ear
+
+## SQL
+locations.sql
+paw.sql

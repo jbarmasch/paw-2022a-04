@@ -1,16 +1,20 @@
 package ar.edu.itba.paw.webapp.controller;
 
+import ar.edu.itba.paw.model.Image;
 import ar.edu.itba.paw.model.Location;
 import ar.edu.itba.paw.model.Type;
+import ar.edu.itba.paw.service.ImageService;
 import ar.edu.itba.paw.service.LocationService;
 import ar.edu.itba.paw.service.MailService;
 import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.form.EventForm;
 import ar.edu.itba.paw.webapp.form.BookForm;
 import ar.edu.itba.paw.webapp.form.FilterForm;
+import ar.edu.itba.paw.webapp.form.ImageForm;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.service.EventService;
@@ -18,20 +22,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 @Controller
 public class EventController {
     private final EventService eventService;
     private final LocationService locationService;
+    private final ImageService imageService;
     private final MailService mailService;
 
     @Autowired
-    public EventController(final EventService eventService, final LocationService locationService, final MailService mailService) {
+    public EventController(final EventService eventService, final LocationService locationService, final ImageService imageService, final MailService mailService) {
         this.eventService = eventService;
         this.locationService = locationService;
+        this.imageService = imageService;
         this.mailService = mailService;
     }
 
@@ -93,6 +102,9 @@ public class EventController {
         final Event event = eventService.getEventById(form.getEventId()).orElseThrow(EventNotFoundException::new);
         mav.addObject("event", event);
         mav.addObject("location", locationService.getLocationById(event.getLocation()).orElseThrow(EventNotFoundException::new));
+//        final Image image = imageService.getImageById(event.getImg()).orElseThrow(EventNotFoundException::new);
+        final Image image = imageService.getImageById(1).orElseThrow(EventNotFoundException::new);
+        mav.addObject("image", imageService.getFormattedImage(image.getImage()));
         return mav;
     }
 
@@ -132,5 +144,16 @@ public class EventController {
         }
         final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(), form.getType(), form.getTimestamp());
         return new ModelAndView("redirect:/events/" + e.getId());
+    }
+
+    @RequestMapping(value = "/addImage", method = { RequestMethod.GET })
+    public ModelAndView getImageForm(@ModelAttribute("imageForm") final ImageForm form) {
+        return new ModelAndView("image");
+    }
+
+    @RequestMapping(value = "/addImage", method = { RequestMethod.POST }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ModelAndView addImage(@RequestParam("image") CommonsMultipartFile imageFile) {
+        imageService.addEventImage(imageFile.getBytes());
+        return new ModelAndView("redirect:/events/1");
     }
 }

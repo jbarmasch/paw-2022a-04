@@ -9,7 +9,7 @@ public class Event {
     private int location;
     private int maxCapacity;
     private int attendance = 0;
-    private String img = null;
+    private int img;
     private double price;
     private Timestamp date;
     private String type;
@@ -42,7 +42,7 @@ public class Event {
         return location;
     }
 
-    public String getImg() {
+    public int getImg() {
         return img;
     }
 

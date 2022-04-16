@@ -14,7 +14,8 @@
     <div class="container event">
         <div class="container">
             <div>
-                <img class="event_img" src="https://media.istockphoto.com/photos/dancing-friends-picture-id501387734?k=20&m=501387734&s=612x612&w=0&h=1mli5b7kpDg428fFZfsDPJ9dyVHsWsGK-EVYZUGWHpI=" alt="Party img"/>
+<%--                <img class="event_img" src="https://media.istockphoto.com/photos/dancing-friends-picture-id501387734?k=20&m=501387734&s=612x612&w=0&h=1mli5b7kpDg428fFZfsDPJ9dyVHsWsGK-EVYZUGWHpI=" alt="Party img"/>--%>
+                <img class="event_img" alt="Event image" src="data:image/jpeg;base64,${image}"/>
             </div>
             <div class="event_info">
                 <h3><c:out value="${event.name}"/></h3>
