@@ -15,6 +15,11 @@ CREATE TABLE IF NOT EXISTS types (
     name VARCHAR(100)
 );
 
+CREATE TABLE IF NOT EXISTS tags (
+    tagId SERIAL PRIMARY KEY,
+    name VARCHAR(100)
+);
+
 CREATE TABLE IF NOT EXISTS images (
     imageId SERIAL PRIMARY KEY,
     image BYTEA
@@ -34,8 +39,8 @@ CREATE TABLE IF NOT EXISTS events (
 
 CREATE TABLE IF NOT EXISTS eventTags (
     eventId INTEGER REFERENCES events,
-    tag VARCHAR(100),
-    PRIMARY KEY (eventId, tag)
+    tagId INTEGER REFERENCES tags,
+    PRIMARY KEY (eventId, tagId)
 );
 
 CREATE TABLE IF NOT EXISTS tickets (

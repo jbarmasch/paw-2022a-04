@@ -32,6 +32,9 @@ public class EventForm {
     @Future
     private String date;
 
+    @NotEmpty
+    private Integer[] tags;
+
     public String getDate() {
         return date;
     }
@@ -96,5 +99,13 @@ public class EventForm {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public Integer[] getTags() {
+        return tags;
+    }
+
+    public void setTags(Integer[] tags) {
+        this.tags = tags;
     }
 }

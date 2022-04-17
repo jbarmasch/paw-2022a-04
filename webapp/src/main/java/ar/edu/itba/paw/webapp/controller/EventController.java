@@ -1,33 +1,26 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.model.Image;
-import ar.edu.itba.paw.model.Location;
-import ar.edu.itba.paw.model.Type;
 import ar.edu.itba.paw.service.ImageService;
 import ar.edu.itba.paw.service.LocationService;
 import ar.edu.itba.paw.service.TypeService;
+import ar.edu.itba.paw.service.TagService;
 import ar.edu.itba.paw.service.MailService;
 import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.form.EventForm;
 import ar.edu.itba.paw.webapp.form.BookForm;
 import ar.edu.itba.paw.webapp.form.FilterForm;
 import ar.edu.itba.paw.webapp.form.ImageForm;
-import org.springframework.beans.factory.annotation.Lookup;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -38,14 +31,16 @@ public class EventController {
     private final ImageService imageService;
     private final MailService mailService;
     private final TypeService typeService;
+    private final TagService tagService;
 
     @Autowired
-    public EventController(final EventService eventService, final LocationService locationService, final ImageService imageService, final MailService mailService, final TypeService typeService) {
+    public EventController(final EventService eventService, final LocationService locationService, final ImageService imageService, final MailService mailService, final TypeService typeService, TagService tagService) {
         this.eventService = eventService;
         this.locationService = locationService;
         this.imageService = imageService;
         this.mailService = mailService;
         this.typeService = typeService;
+        this.tagService = tagService;
     }
 
     @ExceptionHandler(EventNotFoundException.class)
@@ -110,8 +105,8 @@ public class EventController {
         mav.addObject("location", locationService.getLocationById(event.getLocation()).orElseThrow(EventNotFoundException::new));
         mav.addObject("location", typeService.getTypeById(event.getType()).orElseThrow(EventNotFoundException::new));
 //        final Image image = imageService.getImageById(event.getImg()).orElseThrow(EventNotFoundException::new);
-        final Image image = imageService.getImageById(1).orElseThrow(EventNotFoundException::new);
-        mav.addObject("image", imageService.getFormattedImage(image.getImage()));
+//        final Image image = imageService.getImageById(1).orElseThrow(EventNotFoundException::new);
+//        mav.addObject("image", imageService.getFormattedImage(image.getImage()));
         return mav;
     }
 
@@ -141,6 +136,7 @@ public class EventController {
         mav.addObject("locations", locationService.getAll());
         mav.addObject("currentDate", LocalDateTime.now().toString().substring(0,16));
         mav.addObject("types", typeService.getAll());
+        mav.addObject("allTags", tagService.getAll());
         return mav;
     }
 

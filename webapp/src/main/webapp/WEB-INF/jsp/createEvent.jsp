@@ -82,6 +82,13 @@
                 <spring:message code="Pattern.eventForm.date" var="dateTypeError"/>
                 <span class="formError"></span>
             </div>
+            <div>
+                <form:label path="tags" for="tags">Tags: </form:label>
+                <form:select id="type" class="uk-select" htmlEscape="true" multiple="false" path="tags" required="true">
+                    <form:options items="${allTags}" itemValue="id" itemLabel="name"/>
+                </form:select>
+                <form:errors path="type" cssClass="error-message" element="span"/>
+            </div>
             <div class="container event">
                 <input class="filter_button" type="submit" value="Crear"/>
             </div>
