@@ -33,8 +33,17 @@
         <div>
             <span class="required">* </span>
             <form:label path="location">Ubicación: </form:label>
-            <form:select class="uk-select" htmlEscape="true" multiple="false" path="location" required="true" itemValue="${event.location}">
-                <form:options items="${locations}" itemValue="id" itemLabel="name"/>
+            <form:select class="uk-select" htmlEscape="true" multiple="false" path="location" required="true">
+                <c:forEach var="item" items="${locations}">
+                    <c:choose>
+                        <c:when test="${item.id == event.location}">
+                            <form:option value="${item.id}" selected="selected" >${item.name}</form:option>
+                        </c:when>
+                        <c:otherwise>
+                            <form:option value="${item.id}">${item.name}</form:option>
+                        </c:otherwise>
+                    </c:choose>
+                </c:forEach>
             </form:select>
             <form:errors path="location" cssClass="error-message" element="span"/>
             <spring:message code="NotEmpty.eventForm.location" var="locationEmptyError"/>
@@ -43,8 +52,17 @@
         <div>
             <span class="required">* </span>
             <form:label path="type" for="type">Tipo: </form:label>
-            <form:select id="type" class="uk-select" htmlEscape="true" multiple="false" path="type" required="true" itemValue="${event.type}">
-                <form:options items="${types}"/>
+            <form:select id="type" class="uk-select" htmlEscape="true" multiple="false" path="type" required="true">
+                <c:forEach var="item" items="${types}">
+                    <c:choose>
+                        <c:when test="${item.id == event.location}">
+                            <form:option value="${item.id}" selected="selected" >${item.name}</form:option>
+                        </c:when>
+                        <c:otherwise>
+                            <form:option value="${item.id}">${item.name}</form:option>
+                        </c:otherwise>
+                    </c:choose>
+                </c:forEach>
             </form:select>
             <form:errors path="type" cssClass="error-message" element="span"/>
             <spring:message code="NotEmpty.eventForm.type" var="typeEmptyError"/>
