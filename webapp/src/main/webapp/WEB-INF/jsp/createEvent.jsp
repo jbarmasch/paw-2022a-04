@@ -35,7 +35,7 @@
                 <form:label path="location">Ubicación: </form:label>
                 <form:select class="uk-select" htmlEscape="true" multiple="false" path="location" required="true">
                     <form:option value="" hidden="true" selected="true" label="Seleccione una ubicación"/>
-                    <form:options items="${locations}" itemValue="id" itemLabel="name"/>
+                    <form:options items="${locations}"  itemValue="id" itemLabel="name"/>
                 </form:select>
                 <form:errors path="location" cssClass="error-message" element="span"/>
                 <spring:message code="NotEmpty.eventForm.location" var="locationEmptyError"/>
@@ -46,7 +46,7 @@
                 <form:label path="type" for="type">Tipo: </form:label>
                 <form:select id="type" class="uk-select" htmlEscape="true" multiple="false" path="type" required="true">
                     <form:option hidden="true" value="" selected="true" label="Seleccione un tipo"/>
-                    <form:options items="${types}"/>
+                    <form:options items="${types}" itemValue="id" itemLabel="name"/>
                 </form:select>
                 <form:errors path="type" cssClass="error-message" element="span"/>
                 <spring:message code="NotEmpty.eventForm.type" var="typeEmptyError"/>

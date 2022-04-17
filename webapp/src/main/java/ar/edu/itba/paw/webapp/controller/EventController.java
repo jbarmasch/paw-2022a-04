@@ -5,6 +5,7 @@ import ar.edu.itba.paw.model.Location;
 import ar.edu.itba.paw.model.Type;
 import ar.edu.itba.paw.service.ImageService;
 import ar.edu.itba.paw.service.LocationService;
+import ar.edu.itba.paw.service.TypeService;
 import ar.edu.itba.paw.service.MailService;
 import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.form.EventForm;
@@ -28,6 +29,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Controller
 public class EventController {
@@ -35,13 +37,15 @@ public class EventController {
     private final LocationService locationService;
     private final ImageService imageService;
     private final MailService mailService;
+    private final TypeService typeService;
 
     @Autowired
-    public EventController(final EventService eventService, final LocationService locationService, final ImageService imageService, final MailService mailService) {
+    public EventController(final EventService eventService, final LocationService locationService, final ImageService imageService, final MailService mailService, final TypeService typeService) {
         this.eventService = eventService;
         this.locationService = locationService;
         this.imageService = imageService;
         this.mailService = mailService;
+        this.typeService = typeService;
     }
 
     @ExceptionHandler(EventNotFoundException.class)
@@ -63,8 +67,10 @@ public class EventController {
                                      @RequestParam(value = "maxPrice", required = false) final Double maxPrice) {
         final ModelAndView mav = new ModelAndView("events");
         mav.addObject("allLocations", locationService.getAll());
-        mav.addObject("allTypes", Type.getNames());
-        mav.addObject("events", eventService.filterBy(locations, types, minPrice, maxPrice, 1));
+        mav.addObject("allTypes", typeService.getAll());
+        List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, 1);
+        mav.addObject("events", events);
+        mav.addObject("size", events.size());
         return mav;
     }
 
@@ -102,6 +108,7 @@ public class EventController {
         final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         mav.addObject("event", event);
         mav.addObject("location", locationService.getLocationById(event.getLocation()).orElseThrow(EventNotFoundException::new));
+        mav.addObject("location", typeService.getTypeById(event.getType()).orElseThrow(EventNotFoundException::new));
 //        final Image image = imageService.getImageById(event.getImg()).orElseThrow(EventNotFoundException::new);
         final Image image = imageService.getImageById(1).orElseThrow(EventNotFoundException::new);
         mav.addObject("image", imageService.getFormattedImage(image.getImage()));
@@ -133,7 +140,7 @@ public class EventController {
         final ModelAndView mav = new ModelAndView("createEvent");
         mav.addObject("locations", locationService.getAll());
         mav.addObject("currentDate", LocalDateTime.now().toString().substring(0,16));
-        mav.addObject("types", Type.getNames());
+        mav.addObject("types", typeService.getAll());
         return mav;
     }
 
@@ -152,7 +159,7 @@ public class EventController {
         final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         mav.addObject("locations", locationService.getAll());
         mav.addObject("currentDate", LocalDateTime.now().toString().substring(0,16));
-        mav.addObject("types", Type.getNames());
+        mav.addObject("types", locationService.getAll());
         mav.addObject("event", e);
         mav.addObject("date", e.getDate().toLocalDateTime());
         return mav;

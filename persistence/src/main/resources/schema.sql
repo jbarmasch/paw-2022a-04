@@ -10,6 +10,11 @@ CREATE TABLE IF NOT EXISTS locations (
     name VARCHAR(100)
 );
 
+CREATE TABLE IF NOT EXISTS types (
+    typeId SERIAL PRIMARY KEY,
+    name VARCHAR(100)
+);
+
 CREATE TABLE IF NOT EXISTS images (
     imageId SERIAL PRIMARY KEY,
     image BYTEA
@@ -23,7 +28,7 @@ CREATE TABLE IF NOT EXISTS events (
     maxCapacity INTEGER NOT NULL,
     price DOUBLE PRECISION NOT NULL,
     date TIMESTAMP NOT NULL,
-    type VARCHAR(100),
+    typeId INTEGER REFERENCES types,
     userId INTEGER REFERENCES users
 );
 

@@ -29,7 +29,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Event create(String name, String description, Integer location, int maxCapacity, double price, String type, Timestamp date) {
+    public Event create(String name, String description, Integer location, int maxCapacity, double price, int type, Timestamp date) {
         return eventDao.create(name, description, location, maxCapacity, price, type, date);
     }
 
@@ -39,7 +39,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, String type, Timestamp date) {
+    public void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int type, Timestamp date) {
         eventDao.updateEvent(id, name, description, locationId, maxCapacity, price, type, date);
     }
 }

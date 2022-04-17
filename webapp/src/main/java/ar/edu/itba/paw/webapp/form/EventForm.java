@@ -25,22 +25,12 @@ public class EventForm {
     @NotNull
     private Double price;
 
-    @NotEmpty
-    public String type;
+    @NotNull
+    private Integer type;
 
     @NotEmpty
     @Future
     private String date;
-
-//    private int eventId;
-//
-//    public int getEventId() {
-//        return eventId;
-//    }
-//
-//    public void setEventId(int eventId) {
-//        this.eventId = eventId;
-//    }
 
     public String getDate() {
         return date;
@@ -84,11 +74,11 @@ public class EventForm {
         this.name = name;
     }
 
-    public String getType() {
+    public Integer getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Integer type) {
         this.type = type;
     }
 

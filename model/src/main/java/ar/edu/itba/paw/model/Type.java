@@ -2,22 +2,28 @@ package ar.edu.itba.paw.model;
 
 import java.util.stream.Stream;
 
-public enum Type {
-    AFTER("After"),
-    FIESTA( "Fiesta"),
-    PREVIA( "Previa");
+public class Type {
+    private long id;
+    private String name;
 
-    private final String name;
-
-    Type(String name) {
+    public Type(long id, String name) {
+        this.id = id;
         this.name = name;
     }
 
-    public String getName(){
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getName() {
         return name;
     }
 
-    public static String[] getNames() {
-        return Stream.of(Type.values()).map(Type::getName).toArray(String[]::new);
+    public void setName(String name) {
+        this.name = name;
     }
 }

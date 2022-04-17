@@ -24,7 +24,7 @@ public class EventJdbcDao implements EventDao {
             rs.getInt("locationId"),
             rs.getInt("maxCapacity"),
             rs.getDouble("price"),
-            rs.getString("type"),
+            rs.getInt("typeId"),
             rs.getTimestamp("date")
     );
 
@@ -41,18 +41,18 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public Event create(String name, String description, Integer locationId, int maxCapacity, double price, String type, Timestamp date) {
+    public Event create(String name, String description, Integer locationId, int maxCapacity, double price, int typeId, Timestamp date) {
         final Map<String, Object> eventData = new HashMap<>();
         eventData.put("name", name);
         eventData.put("description", description);
         eventData.put("locationId", locationId);
         eventData.put("maxCapacity", maxCapacity);
         eventData.put("price", price);
-        eventData.put("type", type);
+        eventData.put("typeId", typeId);
         eventData.put("date", date);
 
         final Number eventId = jdbcInsert.executeAndReturnKey(eventData);
-        return new Event(eventId.intValue(), name, description, locationId, maxCapacity, price, type, date);
+        return new Event(eventId.intValue(), name, description, locationId, maxCapacity, price, typeId, date);
     }
 
     public List<Event> filterBy(Integer[] locations, String[] types , Double minPrice, Double maxPrice, int page) {
@@ -88,7 +88,7 @@ public class EventJdbcDao implements EventDao {
                 if (append)
                     query.append(" AND ");
                 String lastType = types[types.length - 1];
-                query.append("type IN (");
+                query.append("typeId IN (");
                 for (String type : types) {
                     query.append("'").append(type).append("'");
                     if (!Objects.equals(type, lastType))
@@ -107,7 +107,7 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, String type, Timestamp date) {
+    public void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int type, Timestamp date) {
         this.jdbcTemplate.update("UPDATE events SET name = ?, description = ?, locationid = ?, maxcapacity = ?, price = ?, type = ?, date = ? WHERE eventid = ?",
                 name, description, locationId, maxCapacity, price, type, date, id);
     }
