@@ -9,6 +9,10 @@
     white-space: nowrap;
 }
 
+h3 {
+    margin-top: 0;
+}
+
 .uk-button-text {
     font-size: medium;
     font-weight: 500;

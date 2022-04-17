@@ -1,5 +1,8 @@
 package ar.edu.itba.paw.webapp.controller;
 
+import ar.edu.itba.paw.model.Image;
+import ar.edu.itba.paw.model.Location;
+import ar.edu.itba.paw.model.Type;
 import ar.edu.itba.paw.service.ImageService;
 import ar.edu.itba.paw.service.LocationService;
 import ar.edu.itba.paw.service.TypeService;
@@ -103,10 +106,10 @@ public class EventController {
         final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         mav.addObject("event", event);
         mav.addObject("location", locationService.getLocationById(event.getLocation()).orElseThrow(EventNotFoundException::new));
-        mav.addObject("location", typeService.getTypeById(event.getType()).orElseThrow(EventNotFoundException::new));
+        mav.addObject("type", typeService.getTypeById(event.getType()).orElseThrow(EventNotFoundException::new));
 //        final Image image = imageService.getImageById(event.getImg()).orElseThrow(EventNotFoundException::new);
-//        final Image image = imageService.getImageById(1).orElseThrow(EventNotFoundException::new);
-//        mav.addObject("image", imageService.getFormattedImage(image.getImage()));
+        final Image image = imageService.getImageById(1).orElseThrow(EventNotFoundException::new);
+        mav.addObject("image", imageService.getFormattedImage(image.getImage()));
         return mav;
     }
 
@@ -149,25 +152,34 @@ public class EventController {
         return new ModelAndView("redirect:/events/" + e.getId());
     }
 
-    @RequestMapping(value = "/modifyEvent/{eventId}", method = { RequestMethod.GET })
+    @RequestMapping(value = "/events/{eventId}/modify", method = { RequestMethod.GET })
     public ModelAndView modifyForm(@ModelAttribute("eventForm") final EventForm form, @PathVariable("eventId") final int eventId) {
         final ModelAndView mav = new ModelAndView("modifyEvent");
         final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         mav.addObject("locations", locationService.getAll());
         mav.addObject("currentDate", LocalDateTime.now().toString().substring(0,16));
-        mav.addObject("types", locationService.getAll());
+        mav.addObject("types", typeService.getAll());
+//        mav.addObject("types", typeService.getAll().stream().map(Type::getName).toArray());
         mav.addObject("event", e);
+        mav.addObject("location", locationService.getLocationById(e.getLocation()).orElseThrow(EventNotFoundException::new).getName());
+        mav.addObject("type", typeService.getTypeById(e.getType()).orElseThrow(EventNotFoundException::new).getName());
         mav.addObject("date", e.getDate().toLocalDateTime());
         return mav;
     }
 
-    @RequestMapping(value = "/modifyEvent/{eventId}", method = { RequestMethod.POST })
-    public ModelAndView createEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors, @PathVariable("eventId") final int eventId) {
+    @RequestMapping(value = "/events/{eventId}/modify", method = { RequestMethod.POST })
+    public ModelAndView modifyEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors, @PathVariable("eventId") final int eventId) {
         if (errors.hasErrors()) {
             return modifyForm(form, eventId);
         }
         eventService.updateEvent(eventId, form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(), form.getType(), form.getTimestamp());
         return new ModelAndView("redirect:/events/" + eventId);
+    }
+
+    @RequestMapping(value = "/events/{eventId}/delete", method = { RequestMethod.POST })
+    public ModelAndView deleteEvent(@PathVariable("eventId") final int eventId) {
+        eventService.deleteEvent(eventId);
+        return new ModelAndView("redirect:/events");
     }
 
     @RequestMapping(value = "/addImage", method = { RequestMethod.GET })

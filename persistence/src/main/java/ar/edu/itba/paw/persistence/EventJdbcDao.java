@@ -4,12 +4,10 @@ import ar.edu.itba.paw.model.Event;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -108,7 +106,12 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int type, Timestamp date) {
-        this.jdbcTemplate.update("UPDATE events SET name = ?, description = ?, locationid = ?, maxcapacity = ?, price = ?, type = ?, date = ? WHERE eventid = ?",
+        jdbcTemplate.update("UPDATE events SET name = ?, description = ?, locationid = ?, maxcapacity = ?, price = ?, type = ?, date = ? WHERE eventid = ?",
                 name, description, locationId, maxCapacity, price, type, date, id);
+    }
+
+    @Override
+    public void deleteEvent(int id) {
+        jdbcTemplate.update("DELETE FROM events WHERE eventId = ?", id);
     }
 }

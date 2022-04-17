@@ -12,4 +12,5 @@ public interface EventDao {
     Event create(String name, String description, Integer location, int maxCapacity, double price, int type, Timestamp date);
     List<Event> filterBy(Integer[] locations, String[] types, Double minPrice, Double maxPrice, int page);
     void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int type, Timestamp date);
+    void deleteEvent(int id);
 }

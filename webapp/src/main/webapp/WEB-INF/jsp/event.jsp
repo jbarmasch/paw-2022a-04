@@ -18,6 +18,12 @@
                 <img class="event_img" alt="Event image" src="data:image/jpeg;base64,${image}"/>
             </div>
             <div class="event_info">
+                <div class="event_actions">
+                    <img class="icon" src="<c:url value="/resources/svg/edit.svg"/>" alt="Trash icon" onclick="location.href='<c:url value="/events/${event.id}/modify"/>'"/>
+                    <form action="/events/${event.id}/delete" method="post">
+                        <input class="icon" src="<c:url value="/resources/svg/trash.svg"/>" alt="Trash icon" type="image" name="submit" value=""/>
+                    </form>
+                </div>
                 <h3><c:out value="${event.name}"/></h3>
                 <p><c:out value="${event.description}"/></p>
                 <div class="container">
@@ -40,7 +46,7 @@
                     <img class="icon" src="<c:url value="/resources/svg/time.svg"/>" alt="Time icon"/><span><c:out value="${event.timeFormatted}"/></span>
                 </div>
                 <div class="container">
-                    <img class="icon" src="<c:url value="/resources/svg/party.svg"/>" alt="Type icon"/><span><c:out value="${event.type}"/></span>
+                    <img class="icon" src="<c:url value="/resources/svg/party.svg"/>" alt="Type icon"/><span><c:out value="${type.name}"/></span>
                 </div>
             </div>
         </div>

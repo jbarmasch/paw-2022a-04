@@ -42,4 +42,9 @@ public class EventServiceImpl implements EventService {
     public void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int type, Timestamp date) {
         eventDao.updateEvent(id, name, description, locationId, maxCapacity, price, type, date);
     }
+
+    @Override
+    public void deleteEvent(int id) {
+        eventDao.deleteEvent(id);
+    }
 }
