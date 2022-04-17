@@ -14,16 +14,10 @@ public class BookForm {
     @NotEmpty
     private String surname;
 
-    @Min(0)
-    @NotNull
-    private Integer dni;
-
     @Size(max = 100)
     @NotEmpty
     @Email
     private String mail;
-
-    private int eventId;
 
     @Min(1)
     @NotNull
@@ -35,14 +29,6 @@ public class BookForm {
 
     public void setMail(String mail) {
         this.mail = mail;
-    }
-
-    public int getEventId() {
-        return eventId;
-    }
-
-    public void setEventId(Integer eventId) {
-        this.eventId = eventId;
     }
 
     public Integer getQty() {
@@ -67,13 +53,5 @@ public class BookForm {
 
     public void setSurname(String surname) {
         this.surname = surname;
-    }
-
-    public Integer getDni() {
-        return dni;
-    }
-
-    public void setDni(Integer dni) {
-        this.dni = dni;
     }
 }

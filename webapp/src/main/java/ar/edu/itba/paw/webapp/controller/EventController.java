@@ -99,7 +99,7 @@ public class EventController {
     @RequestMapping(value = "/events/{eventId}", method = RequestMethod.GET)
     public ModelAndView eventDescription(@ModelAttribute("bookForm") final BookForm form, @PathVariable("eventId") final int eventId) {
         final ModelAndView mav = new ModelAndView("event");
-        final Event event = eventService.getEventById(form.getEventId()).orElseThrow(EventNotFoundException::new);
+        final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         mav.addObject("event", event);
         mav.addObject("location", locationService.getLocationById(event.getLocation()).orElseThrow(EventNotFoundException::new));
 //        final Image image = imageService.getImageById(event.getImg()).orElseThrow(EventNotFoundException::new);
@@ -109,21 +109,21 @@ public class EventController {
     }
 
     @RequestMapping(value = "/events/{eventId}", method = { RequestMethod.POST }, params = "submit")
-    public ModelAndView bookEvent(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors) {
+    public ModelAndView bookEvent(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors, @PathVariable("eventId") final int eventId) {
         if (errors.hasErrors()) {
-            return eventDescription(form, form.getEventId());
+            return eventDescription(form, eventId);
         }
-        final Event e = eventService.getEventById(form.getEventId()).orElseThrow(EventNotFoundException::new);
+        final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         mailService.sendMail(form.getMail(), "Reserva recibida", "Se ha recibido una reserva de " + form.getQty() + " entradas a nombre de " + form.getName() + " " + form.getSurname() + " para " + e.getName() + ".");
         return new ModelAndView("redirect:/events/" + e.getId());
     }
 
     @RequestMapping(value = "/events/{eventId}", method = { RequestMethod.POST }, params = "cancel")
-    public ModelAndView cancelBooking(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors) {
+    public ModelAndView cancelBooking(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors, @PathVariable("eventId") final int eventId) {
         if (errors.hasErrors()) {
-            return eventDescription(form, form.getEventId());
+            return eventDescription(form, eventId);
         }
-        final Event e = eventService.getEventById(form.getEventId()).orElseThrow(EventNotFoundException::new);
+        final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         mailService.sendMail(form.getMail(), "Cancel", "Cancel event " + e.getName());
         return new ModelAndView("redirect:/events/" + e.getId());
     }

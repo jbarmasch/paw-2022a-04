@@ -80,8 +80,6 @@
             <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
             <span class="formError"></span>
 
-            <form:input class="uk-input hidden" type="text" path="eventId" value="${event.id}"/>
-
             <div class="container event_buttons">
                 <input class="uk-button" type="submit" name="submit" value="Reservar"/>
                 <input class="uk-button cancel_button" type="submit" name="cancel" value="Cancelar"/>
