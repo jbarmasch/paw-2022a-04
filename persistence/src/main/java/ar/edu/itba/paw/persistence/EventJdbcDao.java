@@ -105,4 +105,10 @@ public class EventJdbcDao implements EventDao {
     public List<Event> getAll(int page) {
         return jdbcTemplate.query("SELECT * FROM events LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
     }
+
+    @Override
+    public void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, String type, Timestamp date) {
+        this.jdbcTemplate.update("UPDATE events SET name = ?, description = ?, locationid = ?, maxcapacity = ?, price = ?, type = ?, date = ? WHERE eventid = ?",
+                name, description, locationId, maxCapacity, price, type, date, id);
+    }
 }

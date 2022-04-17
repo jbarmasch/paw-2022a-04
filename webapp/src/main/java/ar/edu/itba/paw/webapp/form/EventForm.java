@@ -32,6 +32,16 @@ public class EventForm {
     @Future
     private String date;
 
+//    private int eventId;
+//
+//    public int getEventId() {
+//        return eventId;
+//    }
+//
+//    public void setEventId(int eventId) {
+//        this.eventId = eventId;
+//    }
+
     public String getDate() {
         return date;
     }

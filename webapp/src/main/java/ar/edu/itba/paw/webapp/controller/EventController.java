@@ -146,6 +146,27 @@ public class EventController {
         return new ModelAndView("redirect:/events/" + e.getId());
     }
 
+    @RequestMapping(value = "/modifyEvent/{eventId}", method = { RequestMethod.GET })
+    public ModelAndView modifyForm(@ModelAttribute("eventForm") final EventForm form, @PathVariable("eventId") final int eventId) {
+        final ModelAndView mav = new ModelAndView("modifyEvent");
+        final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
+        mav.addObject("locations", locationService.getAll());
+        mav.addObject("currentDate", LocalDateTime.now().toString().substring(0,16));
+        mav.addObject("types", Type.getNames());
+        mav.addObject("event", e);
+        mav.addObject("date", e.getDate().toLocalDateTime());
+        return mav;
+    }
+
+    @RequestMapping(value = "/modifyEvent/{eventId}", method = { RequestMethod.POST })
+    public ModelAndView createEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors, @PathVariable("eventId") final int eventId) {
+        if (errors.hasErrors()) {
+            return modifyForm(form, eventId);
+        }
+        eventService.updateEvent(eventId, form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(), form.getType(), form.getTimestamp());
+        return new ModelAndView("redirect:/events/" + eventId);
+    }
+
     @RequestMapping(value = "/addImage", method = { RequestMethod.GET })
     public ModelAndView getImageForm(@ModelAttribute("imageForm") final ImageForm form) {
         return new ModelAndView("image");
