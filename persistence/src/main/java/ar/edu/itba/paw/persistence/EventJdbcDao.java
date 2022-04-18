@@ -8,7 +8,9 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Repository
@@ -23,7 +25,7 @@ public class EventJdbcDao implements EventDao {
             rs.getInt("maxCapacity"),
             rs.getDouble("price"),
             rs.getInt("typeId"),
-            rs.getTimestamp("date")
+            rs.getTimestamp("date").toLocalDateTime()
     );
 
     @Autowired
@@ -39,7 +41,7 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public Event create(String name, String description, Integer locationId, int maxCapacity, double price, int typeId, Timestamp date) {
+    public Event create(String name, String description, Integer locationId, int maxCapacity, double price, int typeId, LocalDateTime date) {
         final Map<String, Object> eventData = new HashMap<>();
         eventData.put("name", name);
         eventData.put("description", description);
@@ -47,7 +49,7 @@ public class EventJdbcDao implements EventDao {
         eventData.put("maxCapacity", maxCapacity);
         eventData.put("price", price);
         eventData.put("typeId", typeId);
-        eventData.put("date", date);
+        eventData.put("date", Timestamp.valueOf(date));
 
         final Number eventId = jdbcInsert.executeAndReturnKey(eventData);
         return new Event(eventId.intValue(), name, description, locationId, maxCapacity, price, typeId, date);
@@ -105,9 +107,9 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int type, Timestamp date) {
-        jdbcTemplate.update("UPDATE events SET name = ?, description = ?, locationid = ?, maxcapacity = ?, price = ?, type = ?, date = ? WHERE eventid = ?",
-                name, description, locationId, maxCapacity, price, type, date, id);
+    public void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int type, LocalDateTime date) {
+        jdbcTemplate.update("UPDATE events SET name = ?, description = ?, locationid = ?, maxcapacity = ?, price = ?, typeid = ?, date = ? WHERE eventid = ?",
+                name, description, locationId, maxCapacity, price, type, Timestamp.valueOf(date), id);
     }
 
     @Override

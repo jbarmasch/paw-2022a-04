@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +30,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Event create(String name, String description, Integer location, int maxCapacity, double price, int type, Timestamp date) {
+    public Event create(String name, String description, Integer location, int maxCapacity, double price, int type, LocalDateTime date) {
         return eventDao.create(name, description, location, maxCapacity, price, type, date);
     }
 
@@ -39,7 +40,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int type, Timestamp date) {
+    public void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int type, LocalDateTime date) {
         eventDao.updateEvent(id, name, description, locationId, maxCapacity, price, type, date);
     }
 

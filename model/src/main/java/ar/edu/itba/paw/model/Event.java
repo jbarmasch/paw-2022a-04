@@ -1,6 +1,6 @@
 package ar.edu.itba.paw.model;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 public class Event {
     private long id;
@@ -11,10 +11,10 @@ public class Event {
     private int attendance = 0;
     private int img;
     private double price;
-    private Timestamp date;
+    private LocalDateTime date;
     private int type;
 
-    public Event(long id, String name, String description, int location, int maxCapacity, double price, int type, Timestamp date) {
+    public Event(long id, String name, String description, int location, int maxCapacity, double price, int type, LocalDateTime date) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -46,16 +46,8 @@ public class Event {
         return img;
     }
 
-    public Timestamp getDate() {
+    public LocalDateTime getDate() {
         return date;
-    }
-
-    public boolean book() {
-        if (attendance < maxCapacity) {
-            attendance++;
-            return true;
-        }
-        return false;
     }
 
     public int getMaxCapacity() {

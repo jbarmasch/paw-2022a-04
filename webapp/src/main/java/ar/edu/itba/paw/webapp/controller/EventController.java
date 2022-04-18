@@ -158,12 +158,13 @@ public class EventController {
         final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         mav.addObject("locations", locationService.getAll());
         mav.addObject("currentDate", LocalDateTime.now().toString().substring(0,16));
+        mav.addObject("allTags", tagService.getAll());
         mav.addObject("types", typeService.getAll());
 //        mav.addObject("types", typeService.getAll().stream().map(Type::getName).toArray());
         mav.addObject("event", e);
         mav.addObject("location", locationService.getLocationById(e.getLocation()).orElseThrow(EventNotFoundException::new).getName());
         mav.addObject("type", typeService.getTypeById(e.getType()).orElseThrow(EventNotFoundException::new).getName());
-        mav.addObject("date", e.getDate().toLocalDateTime());
+        mav.addObject("date", e.getDate());
         return mav;
     }
 

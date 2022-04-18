@@ -4,7 +4,7 @@ import ar.edu.itba.paw.webapp.validations.Future;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.*;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 public class EventForm {
     @Size(max = 100)
@@ -43,14 +43,8 @@ public class EventForm {
         this.date = date;
     }
 
-    private String parseDate(String s) {
-        String date = s.substring(0,10);
-        String time = s.substring(11, 16);
-        return date + " " + time + ":00";
-    }
-
-    public Timestamp getTimestamp() {
-        return Timestamp.valueOf(parseDate(date));
+    public LocalDateTime getTimestamp() {
+        return LocalDateTime.parse(date);
     }
 
     public String getName() {
