@@ -11,7 +11,7 @@
 </head>
 <body>
 <%@ include file="appbar.jsp"%>
-<c:url value="/modifyEvent/${eventId}" var="postPath"/>
+<c:url value="/events/${eventId}/modify" var="postPath"/>
 <div class="only-element">
     <form:form novalidate="true" modelAttribute="eventForm" action="${postPath}" method="post" id="eventForm">
         <div>
@@ -96,6 +96,14 @@
             <spring:message code="NotEmpty.eventForm.date" var="dateEmptyError"/>
             <spring:message code="Future.eventForm.date" var="dateMinError"/>
             <spring:message code="Pattern.eventForm.date" var="dateTypeError"/>
+            <span class="formError"></span>
+        </div>
+        <div>
+            <form:label path="tags" for="tags">Tags: </form:label>
+            <form:select id="type" class="uk-select" htmlEscape="true" multiple="false" path="tags" required="true">
+                <form:options items="${allTags}" itemValue="id" itemLabel="name"/>
+            </form:select>
+            <form:errors path="type" cssClass="error-message" element="span"/>
             <span class="formError"></span>
         </div>
         <div class="container event">

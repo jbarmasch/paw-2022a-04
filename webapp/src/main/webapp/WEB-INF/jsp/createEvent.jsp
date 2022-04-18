@@ -88,6 +88,7 @@
                     <form:options items="${allTags}" itemValue="id" itemLabel="name"/>
                 </form:select>
                 <form:errors path="type" cssClass="error-message" element="span"/>
+                <span class="formError"></span>
             </div>
             <div class="container event">
                 <input class="filter_button" type="submit" value="Crear"/>
