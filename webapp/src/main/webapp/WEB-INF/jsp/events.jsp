@@ -62,7 +62,7 @@
                     <c:forEach var="event" items="${events}">
                         <div class="card uk-card uk-card-default" onclick="location.href='<c:url value="/events/${event.id}"/>'">
                             <div class="uk-card-media-top">
-                                <img class="card_img" src="https://media.istockphoto.com/photos/dancing-friends-picture-id501387734?k=20&m=501387734&s=612x612&w=0&h=1mli5b7kpDg428fFZfsDPJ9dyVHsWsGK-EVYZUGWHpI=" alt="Party Image">
+                                <img class="card_img" src="data:image/jpeg;base64,${event.img.formatted}" alt="Party Image">
                             </div>
                             <div class="uk-card-body">
                                 <h3 class="uk-card-title"><c:out value="${event.name}"/></h3>
@@ -75,7 +75,7 @@
                                                 <c:otherwise>$<c:out value="${event.price}"/></c:otherwise>
                                             </c:choose>
                                         </span>
-                                        <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${event.location}"/></span>
+                                        <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${event.location.name}"/></span>
                                     </div>
                                     <div class="card_info">
                                         <img class="icon" src="<c:url value="/resources/svg/date.svg"/>" alt="Date icon"/><span><c:out value="${event.dateFormatted}"/></span>

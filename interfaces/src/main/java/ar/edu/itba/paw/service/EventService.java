@@ -9,8 +9,8 @@ import java.util.Optional;
 public interface EventService {
     List<Event> getAll(int page);
     Optional<Event> getEventById(long id);
-    Event create(String name, String description, Integer location, int maxCapacity, double price, int type, LocalDateTime date);
+    Event create(String name, String description, int locationId, int maxCapacity, double price, int typeId, LocalDateTime date, int imgId, Integer[] tagIds);
     List<Event> filterBy(Integer[] locations, String[] types, Double minPrice, Double maxPrice, int page);
-    void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int type, LocalDateTime date);
+    void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int typeId, LocalDateTime date, int imgId, Integer[] tagIds);
     void deleteEvent(int id);
 }

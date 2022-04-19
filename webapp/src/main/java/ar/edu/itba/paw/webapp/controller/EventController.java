@@ -1,8 +1,5 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.model.Image;
-import ar.edu.itba.paw.model.Location;
-import ar.edu.itba.paw.model.Type;
 import ar.edu.itba.paw.service.ImageService;
 import ar.edu.itba.paw.service.LocationService;
 import ar.edu.itba.paw.service.TypeService;
@@ -13,6 +10,7 @@ import ar.edu.itba.paw.webapp.form.EventForm;
 import ar.edu.itba.paw.webapp.form.BookForm;
 import ar.edu.itba.paw.webapp.form.FilterForm;
 import ar.edu.itba.paw.webapp.form.ImageForm;
+import ar.edu.itba.paw.webapp.helper.FilterUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -77,25 +75,8 @@ public class EventController {
         if (errors.hasErrors()) {
             return new ModelAndView("error");
         }
-        boolean hasFilter = false;
-        String endURL = "";
-        if (form.getLocations() != null) {
-            hasFilter = true;
-            endURL += "&locations=" + form.getLocations();
-        }
-        if (form.getTypes() != null) {
-            hasFilter = true;
-            endURL += "&types=" + form.getTypes();
-        }
-        if (form.getMinPrice() != null) {
-            hasFilter = true;
-            endURL += "&minPrice=" + form.getMinPrice();
-        }
-        if (form.getMaxPrice() != null) {
-            hasFilter = true;
-            endURL += "&maxPrice=" + form.getMaxPrice();
-        }
-        if (!hasFilter)
+        String endURL = FilterUtils.createFilter(form.getLocations(), form.getTypes(), form.getMinPrice(), form.getMaxPrice());
+        if (endURL.isEmpty())
             return new ModelAndView("redirect:/events");
         return new ModelAndView("redirect:/events?" + endURL);
     }
@@ -105,11 +86,6 @@ public class EventController {
         final ModelAndView mav = new ModelAndView("event");
         final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         mav.addObject("event", event);
-        mav.addObject("location", locationService.getLocationById(event.getLocation()).orElseThrow(EventNotFoundException::new));
-        mav.addObject("type", typeService.getTypeById(event.getType()).orElseThrow(EventNotFoundException::new));
-//        final Image image = imageService.getImageById(event.getImg()).orElseThrow(EventNotFoundException::new);
-        final Image image = imageService.getImageById(1).orElseThrow(EventNotFoundException::new);
-        mav.addObject("image", imageService.getFormattedImage(image.getImage()));
         return mav;
     }
 
@@ -148,7 +124,7 @@ public class EventController {
         if (errors.hasErrors()) {
             return createForm(form);
         }
-        final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(), form.getType(), form.getTimestamp());
+        final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(), form.getType(), form.getTimestamp(), 1, form.getTags());
         return new ModelAndView("redirect:/events/" + e.getId());
     }
 
@@ -162,9 +138,6 @@ public class EventController {
         mav.addObject("types", typeService.getAll());
 //        mav.addObject("types", typeService.getAll().stream().map(Type::getName).toArray());
         mav.addObject("event", e);
-        mav.addObject("location", locationService.getLocationById(e.getLocation()).orElseThrow(EventNotFoundException::new).getName());
-        mav.addObject("type", typeService.getTypeById(e.getType()).orElseThrow(EventNotFoundException::new).getName());
-        mav.addObject("date", e.getDate());
         return mav;
     }
 
@@ -173,7 +146,7 @@ public class EventController {
         if (errors.hasErrors()) {
             return modifyForm(form, eventId);
         }
-        eventService.updateEvent(eventId, form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(), form.getType(), form.getTimestamp());
+        eventService.updateEvent(eventId, form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(), form.getType(), form.getTimestamp(), 1, form.getTags());
         return new ModelAndView("redirect:/events/" + eventId);
     }
 

@@ -1,20 +1,22 @@
 package ar.edu.itba.paw.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class Event {
     private long id;
     private String name;
     private String description;
-    private int location;
+    private Location location;
     private int maxCapacity;
     private int attendance = 0;
-    private int img;
+    private Image img;
     private double price;
-    private LocalDateTime date;
-    private int type;
+    private LocalDateTime date;;
+    private Type type;
+    private List<Tag> tags;
 
-    public Event(long id, String name, String description, int location, int maxCapacity, double price, int type, LocalDateTime date) {
+    public Event(long id, String name, String description, Location location, int maxCapacity, double price, Type type, LocalDateTime date, Image img, List<Tag> tags) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -23,7 +25,9 @@ public class Event {
         this.attendance = 0;
         this.price = price;
         this.date = date;
+        this.img = img;
         this.type = type;
+        this.tags = tags;
     }
 
     public long getId() {
@@ -38,11 +42,11 @@ public class Event {
         return description;
     }
     
-    public int getLocation() {
+    public Location getLocation() {
         return location;
     }
 
-    public int getImg() {
+    public Image getImg() {
         return img;
     }
 
@@ -62,7 +66,7 @@ public class Event {
         return price;
     }
 
-    public int getType() {
+    public Type getType() {
         return type;
     }
 
@@ -77,4 +81,9 @@ public class Event {
     public String getTimeFormatted() {
         return date.toString().substring(11, 16);
     }
+
+    public List<Tag> getTags() {
+        return tags;
+    }
+
 }

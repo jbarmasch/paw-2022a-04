@@ -23,11 +23,6 @@ public class ImageServiceImpl implements ImageService {
         return imageDao.getImageById(id);
     }
 
-    public String getFormattedImage(byte[] imageArray) {
-        byte[] encodeBase64 = Base64.getEncoder().encode(imageArray);
-        return new String(encodeBase64, StandardCharsets.UTF_8);
-    }
-
     @Override
     public void addEventImage(byte[] image) {
         imageDao.addEventImage(image);

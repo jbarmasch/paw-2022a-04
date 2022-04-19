@@ -15,7 +15,7 @@
         <div class="container">
             <div>
 <%--                <img class="event_img" src="https://media.istockphoto.com/photos/dancing-friends-picture-id501387734?k=20&m=501387734&s=612x612&w=0&h=1mli5b7kpDg428fFZfsDPJ9dyVHsWsGK-EVYZUGWHpI=" alt="Party img"/>--%>
-                <img class="event_img" alt="Event image" src="data:image/jpeg;base64,${image}"/>
+                <img class="event_img" alt="Event image" src="data:image/jpeg;base64,${event.img.formatted}"/>
             </div>
             <div class="event_info">
                 <div class="event_actions">
@@ -28,7 +28,7 @@
                 <p><c:out value="${event.description}"/></p>
                 <div class="container">
 <%--                    <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${event.location}"/></span>--%>
-                    <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${location.name}"/></span>
+                    <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${event.location.name}"/></span>
                 </div>
                     <div class="container">
                     <img class="icon" src="<c:url value="/resources/svg/price-tag.svg"/>" alt="Price icon"/>
@@ -46,7 +46,7 @@
                     <img class="icon" src="<c:url value="/resources/svg/time.svg"/>" alt="Time icon"/><span><c:out value="${event.timeFormatted}"/></span>
                 </div>
                 <div class="container">
-                    <img class="icon" src="<c:url value="/resources/svg/party.svg"/>" alt="Type icon"/><span><c:out value="${type.name}"/></span>
+                    <img class="icon" src="<c:url value="/resources/svg/party.svg"/>" alt="Type icon"/><span><c:out value="${event.type.name}"/></span>
                 </div>
             </div>
         </div>

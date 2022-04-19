@@ -2,10 +2,10 @@ package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.persistence.EventDao;
+import ar.edu.itba.paw.persistence.TagDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +13,7 @@ import java.util.Optional;
 @Service
 public class EventServiceImpl implements EventService {
     private final EventDao eventDao;
+//    private final TagDao tagDao;
 
     @Autowired
     public EventServiceImpl(final EventDao eventDao) {
@@ -30,8 +31,10 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Event create(String name, String description, Integer location, int maxCapacity, double price, int type, LocalDateTime date) {
-        return eventDao.create(name, description, location, maxCapacity, price, type, date);
+    public Event create(String name, String description, int locationId, int maxCapacity, double price, int typeId, LocalDateTime date, int imgId, Integer[] tagIds) {
+        Event event = eventDao.create(name, description, locationId, maxCapacity, price, typeId, date, imgId, tagIds);
+//        tagDao.
+        return event;
     }
 
     @Override
@@ -40,8 +43,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int type, LocalDateTime date) {
-        eventDao.updateEvent(id, name, description, locationId, maxCapacity, price, type, date);
+    public void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int typeId, LocalDateTime date, int imgId, Integer[] tagIds) {
+        eventDao.updateEvent(id, name, description, locationId, maxCapacity, price, typeId, date, imgId, tagIds);
     }
 
     @Override

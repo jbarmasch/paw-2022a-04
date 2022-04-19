@@ -36,7 +36,7 @@
             <form:select class="uk-select" htmlEscape="true" multiple="false" path="location" required="true">
                 <c:forEach var="item" items="${locations}">
                     <c:choose>
-                        <c:when test="${item.id == event.location}">
+                        <c:when test="${item.id == event.location.id}">
                             <form:option value="${item.id}" selected="selected" >${item.name}</form:option>
                         </c:when>
                         <c:otherwise>
@@ -55,7 +55,7 @@
             <form:select id="type" class="uk-select" htmlEscape="true" multiple="false" path="type" required="true">
                 <c:forEach var="item" items="${types}">
                     <c:choose>
-                        <c:when test="${item.id == event.location}">
+                        <c:when test="${item.id == event.type.id}">
                             <form:option value="${item.id}" selected="selected" >${item.name}</form:option>
                         </c:when>
                         <c:otherwise>
@@ -91,7 +91,7 @@
         <div>
             <span class="required">* </span>
             <form:label path="date">Fecha: </form:label>
-            <form:input class="uk-input" type="datetime-local" min="${currentDate}" path="date" required="true" value="${date}"/>
+            <form:input class="uk-input" type="datetime-local" min="${currentDate}" path="date" required="true" value="${event.date}"/>
             <form:errors path="date" cssClass="error-message" element="span"/>
             <spring:message code="NotEmpty.eventForm.date" var="dateEmptyError"/>
             <spring:message code="Future.eventForm.date" var="dateMinError"/>
