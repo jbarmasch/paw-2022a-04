@@ -7,4 +7,5 @@ import java.util.Optional;
 public interface LocationDao {
     List<Location> getAll();
     Optional<Location> getLocationById(long id);
+    Optional<Location> getLocationFromEventId(int eventId);
 }

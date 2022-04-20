@@ -1,10 +1,6 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Event;
-import ar.edu.itba.paw.model.Tag;
-import ar.edu.itba.paw.model.Type;
-import ar.edu.itba.paw.model.Location;
-import ar.edu.itba.paw.model.Image;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -20,39 +16,33 @@ import java.util.*;
 public class EventJdbcDao implements EventDao {
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
+    private TagDao tagDao;
+    private ImageDao imageDao;
+    private TypeDao typeDao;
+    private LocationDao locationDao;
+    private final EventTagDao eventTagDao;
     private final RowMapper<Event> ROW_MAPPER = (rs, rowNum) -> new Event(
-        rs.getInt("eventId"),
-        rs.getString("name"),
-        rs.getString("description"),
-        getLocationFromEventId(rs.getInt("eventId")).orElseThrow(RuntimeException::new),
-        rs.getInt("maxCapacity"),
-        rs.getDouble("price"),
-        getTypeFromEventId(rs.getInt("eventId")).orElseThrow(RuntimeException::new),
-        rs.getTimestamp("date").toLocalDateTime(),
-        getImgFromEventId(rs.getInt("eventId")).orElseThrow(RuntimeException::new),
-        getTagsFromEventId(rs.getInt("eventId"))
-    );
-    private static final RowMapper<Tag> ROW_MAPPER_TAG = (rs, rowNum) -> new Tag(
-        rs.getInt("tagId"),
-        rs.getString("name")
-    );
-    private static final RowMapper<Image> ROW_MAPPER_IMAGE = (rs, rowNum) -> new Image(
-        rs.getInt("imageId"),
-        rs.getBytes("image")
-    );
-    private static final RowMapper<Type> ROW_MAPPER_TYPE = (rs, rowNum) -> new Type(
-        rs.getInt("typeId"),
-        rs.getString("name")
-    );
-    private static final RowMapper<Location> ROW_MAPPER_LOCATION = (rs, rowNum) -> new Location(
-        rs.getInt("locationId"),
-        rs.getString("name")
+            rs.getInt("eventId"),
+            rs.getString("name"),
+            rs.getString("description"),
+            locationDao.getLocationFromEventId(rs.getInt("eventId")).orElse(null),
+            rs.getInt("maxCapacity"),
+            rs.getDouble("price"),
+            typeDao.getTypeFromEventId(rs.getInt("eventId")).orElse(null),
+            rs.getTimestamp("date").toLocalDateTime(),
+            imageDao.getImgFromEventId(rs.getInt("eventId")).orElse(null),
+            tagDao.getTagsFromEventId(rs.getInt("eventId"))
     );
 
     @Autowired
-    public EventJdbcDao(final DataSource ds) {
+    public EventJdbcDao(final DataSource ds, final TagDao tagDao, final ImageDao imageDao, final TypeDao typeDao, final LocationDao locationDao, final EventTagDao eventTagDao) {
         jdbcTemplate = new JdbcTemplate(ds);
         jdbcInsert = new SimpleJdbcInsert(ds).withTableName("events").usingGeneratedKeyColumns("eventid");
+        this.tagDao = tagDao;
+        this.imageDao = imageDao;
+        this.typeDao = typeDao;
+        this.locationDao = locationDao;
+        this.eventTagDao = eventTagDao;
     }
 
     @Override
@@ -71,20 +61,23 @@ public class EventJdbcDao implements EventDao {
         eventData.put("price", price);
         eventData.put("typeId", typeId);
         eventData.put("date", Timestamp.valueOf(date));
-//        eventData.put("imgId", imgId);
-//        eventData.put("tagId", tagIds);
 
         final int eventId = jdbcInsert.executeAndReturnKey(eventData).intValue();
+
+        for (Integer tagId : tagIds) {
+            eventTagDao.addTagToEvent(eventId, tagId);
+        }
+
         return new Event(eventId,
                 name,
                 description,
-                getLocationFromEventId(eventId).orElseThrow(RuntimeException::new),
+                locationDao.getLocationFromEventId(eventId).orElse(null),
                 maxCapacity,
                 price,
-                getTypeFromEventId(eventId).orElseThrow(RuntimeException::new),
+                typeDao.getTypeFromEventId(eventId).orElse(null),
                 date,
-                getImgFromEventId(eventId).orElseThrow(RuntimeException::new),
-                getTagsFromEventId(eventId));
+                imageDao.getImgFromEventId(eventId).orElse(null),
+                tagDao.getTagsFromEventId(eventId));
     }
 
     public List<Event> filterBy(Integer[] locations, String[] types , Double minPrice, Double maxPrice, int page) {
@@ -140,24 +133,13 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int typeId, LocalDateTime date, int imgId, Integer[] tagIds) {
-        jdbcTemplate.update("UPDATE events SET name = ?, description = ?, locationid = ?, maxcapacity = ?, price = ?, typeid = ?, date = ?, imgid = ?, tagids = ? WHERE eventid = ?",
-                name, description, locationId, maxCapacity, price, typeId, Timestamp.valueOf(date), imgId, tagIds, id);
-    }
+        jdbcTemplate.update("UPDATE events SET name = ?, description = ?, locationid = ?, maxcapacity = ?, price = ?, typeid = ?, date = ?, imageid = ? WHERE eventid = ?",
+                name, description, locationId, maxCapacity, price, typeId, Timestamp.valueOf(date), imgId, id);
+        eventTagDao.cleanTagsFromEvent(id);
 
-    public List<Tag> getTagsFromEventId(int id) {
-        return jdbcTemplate.query("SELECT tagid, tags.name FROM eventtags NATURAL JOIN tags WHERE eventid = ?", new Object[]{id}, ROW_MAPPER_TAG);
-    }
-
-    public Optional<Image> getImgFromEventId(int id) {
-        return jdbcTemplate.query("SELECT images.imageid, images.image FROM events JOIN images ON events.imageid = images.imageid WHERE eventid = ?", new Object[]{id}, ROW_MAPPER_IMAGE).stream().findFirst();
-    }
-
-    public Optional<Type> getTypeFromEventId(int id) {
-        return jdbcTemplate.query("SELECT types.typeid, types.name FROM events JOIN types ON events.typeid = types.typeid WHERE eventid = ?", new Object[]{id}, ROW_MAPPER_TYPE).stream().findFirst();
-    }
-
-    public Optional<Location> getLocationFromEventId(int id) {
-        return jdbcTemplate.query("SELECT locations.locationid, locations.name FROM events JOIN locations ON events.locationid = locations.locationid WHERE eventid = ?", new Object[]{id}, ROW_MAPPER_LOCATION).stream().findFirst();
+        for (Integer tagId : tagIds) {
+            eventTagDao.addTagToEvent(id, tagId);
+        }
     }
 
     @Override

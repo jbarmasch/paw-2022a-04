@@ -32,4 +32,9 @@ public class TagJdbcDao implements TagDao {
         List<Tag> query = jdbcTemplate.query("SELECT * FROM tags WHERE tagId = ?", new Object[] {id}, ROW_MAPPER);
         return query.stream().findFirst();
     }
+
+    @Override
+    public List<Tag> getTagsFromEventId(int eventId) {
+        return jdbcTemplate.query("SELECT tagid, tags.name FROM eventtags NATURAL JOIN tags WHERE eventid = ?", new Object[]{eventId}, ROW_MAPPER);
+    }
 }

@@ -48,6 +48,11 @@
                 <div class="container">
                     <img class="icon" src="<c:url value="/resources/svg/party.svg"/>" alt="Type icon"/><span><c:out value="${event.type.name}"/></span>
                 </div>
+                <div class="container">
+                    <c:forEach var="tag" items="${event.tags}">
+                        <span><c:out value="${tag.name}"/></span>
+                    </c:forEach>
+                </div>
             </div>
         </div>
 

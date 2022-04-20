@@ -7,4 +7,5 @@ import java.util.Optional;
 public interface TagDao {
     List<Tag> getAll();
     Optional<Tag> getTagById(long id);
+    List<Tag> getTagsFromEventId(int eventId);
 }

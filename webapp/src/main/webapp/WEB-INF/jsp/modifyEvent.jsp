@@ -100,14 +100,32 @@
         </div>
         <div>
             <form:label path="tags" for="tags">Tags: </form:label>
-            <form:select id="type" class="uk-select" htmlEscape="true" multiple="false" path="tags" required="true">
+            <form:select id="type" class="uk-select" htmlEscape="true" multiple="true" path="tags" required="true">
+                <c:forEach var="tag" items="${allTags}">
+                    <c:set var="selectedTag" value="${false}"/>
+                    <c:forEach var="eventTag" items="${event.tags}">
+                        <c:choose>
+                            <c:when test="${tag.id == eventTag.id}">
+                                <c:set var="selectedTag" value="${true}"/>
+                            </c:when>
+                        </c:choose>
+                    </c:forEach>
+                    <c:choose>
+                        <c:when test="${selectedTag}">
+                            <form:option value="${tag.id}" selected="selected" >${tag.name}</form:option>
+                        </c:when>
+                        <c:otherwise>
+                            <form:option value="${tag.id}">${tag.name}</form:option>
+                        </c:otherwise>
+                    </c:choose>
+                </c:forEach>
                 <form:options items="${allTags}" itemValue="id" itemLabel="name"/>
             </form:select>
             <form:errors path="type" cssClass="error-message" element="span"/>
             <span class="formError"></span>
         </div>
         <div class="container event">
-            <input class="filter_button" type="submit" value="Crear"/>
+            <input class="filter_button" type="submit" value="Confirmar cambios"/>
         </div>
     </form:form>
 </div>

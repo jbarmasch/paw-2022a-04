@@ -7,4 +7,5 @@ import java.util.Optional;
 public interface TypeDao {
     List<Type> getAll();
     Optional<Type> getTypeById(long id);
+    Optional<Type> getTypeFromEventId(int eventId);
 }
