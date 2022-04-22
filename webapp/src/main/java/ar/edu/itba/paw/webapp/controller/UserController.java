@@ -6,6 +6,9 @@ import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +33,10 @@ public class UserController {
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public ModelAndView login() {
-        return new ModelAndView("login");
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth instanceof AnonymousAuthenticationToken)
+            return new ModelAndView("login");
+        return new ModelAndView("redirect:/");
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
@@ -47,7 +53,10 @@ public class UserController {
 
     @RequestMapping(value = "/register", method = { RequestMethod.GET })
     public ModelAndView createForm(@ModelAttribute("registerForm") final UserForm form) {
-        return new ModelAndView("register");
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth instanceof AnonymousAuthenticationToken)
+            return new ModelAndView("register");
+        return new ModelAndView("redirect:/");
     }
 
     @RequestMapping(value = "/register", method = { RequestMethod.POST })
@@ -61,6 +70,9 @@ public class UserController {
 
     @RequestMapping(value = "/forgotPass", method = RequestMethod.GET)
     public ModelAndView forgotPass() {
-        return new ModelAndView("forgotPass");
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth instanceof AnonymousAuthenticationToken)
+            return new ModelAndView("forgotPass");
+        return new ModelAndView("redirect:/");
     }
 }

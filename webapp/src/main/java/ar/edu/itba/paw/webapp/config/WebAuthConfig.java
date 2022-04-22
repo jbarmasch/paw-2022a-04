@@ -24,12 +24,13 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
-        http.sessionManagement()
+        http //.sessionManagement()
 //                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
 //                    .sessionFixation().migrateSession()
-                    .invalidSessionUrl("/login")
-                .and().authorizeRequests()
-                    .antMatchers("/login", "/register").anonymous()
+//                    .invalidSessionUrl("/login")
+//                .and()
+                .authorizeRequests()
+                    .antMatchers("/login", "/register", "/forgotPass").permitAll()
                     .antMatchers("/createEvent").hasRole("ADMIN")
 //                    .antMatchers( "/events", "/").permitAll()
                     .antMatchers("/**").authenticated()
@@ -41,7 +42,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .and().rememberMe()
                     .rememberMeParameter("j_rememberme")
                     .userDetailsService(userDetailsService)
-                    .key("mysupersecretketthatnobodyknowsabout") // no hacer esto, crear una aleatoria segura suficientemente grande y colocarla bajo src/main/resources
+                    .key("mysupersecretkeythatnobodyknowsabout") // no hacer esto, crear una aleatoria segura suficientemente grande y colocarla bajo src/main/resources
                     .tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(30))
                 .and().logout()
                     .logoutUrl("/logout")

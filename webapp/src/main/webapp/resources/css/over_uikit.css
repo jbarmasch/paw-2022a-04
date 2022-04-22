@@ -18,3 +18,13 @@ h3 {
     font-weight: 500;
     color: #666666;
 }
+
+.uk-button-submit {
+    background-color: #2950cb;
+    width: 80%;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 2px 6px 2px;
+    font-weight: bold;
+}
