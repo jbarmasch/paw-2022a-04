@@ -58,4 +58,9 @@ public class UserController {
         final User u = userService.create(form.getUsername(), form.getPassword(), form.getUsername());
         return new ModelAndView("redirect:/login/");
     }
+
+    @RequestMapping(value = "/forgotPass", method = RequestMethod.GET)
+    public ModelAndView forgotPass() {
+        return new ModelAndView("forgotPass");
+    }
 }

@@ -13,23 +13,24 @@
 <form action="${loginUrl}" method="post" enctype="application/x-www-form-urlencoded">
     <h3>Login</h3>
     <div class="space-bet sep-top">
-        <label for="username" class="sep-right">Username: </label>
-        <input id="username" class="sep-left" name="j_username" type="text"/>
+        <input id="username" placeholder="Username" name="j_username" type="text"/>
     </div>
     <div class="space-bet sep-top">
-        <label for="password" class="sep-right">Password: </label>
-        <input id="password" class="sep-left" name="j_password" type="password"/>
+        <input id="password" placeholder="Password" name="j_password" type="password"/>
     </div>
     <div class="sep-top">
 <%--        <label><input name="j_rememberme" type="checkbox"/><spring:message code="remember_me"/></label>--%>
         <label class="small-text align-center"><input name="j_rememberme" type="checkbox"/>Remember me</label>
     </div>
-    <hr/>
-    <div class="center">
+    <div class="center sep-top-xl">
         <input type="submit" value="Login"/>
     </div>
     <div class="center">
-        <a href="<c:url value="/register"/>" class="small-text">Register</a>
+        <a href="<c:url value="/forgotPass"/>" class="small-text">Forgot your password?</a>
+    </div>
+    <hr/>
+    <div class="center">
+        <a onclick="location.href='<c:url value="/register"/>'" class="uk-button-submit">Register</a>
     </div>
 </form>
 </div>

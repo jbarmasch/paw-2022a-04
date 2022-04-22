@@ -90,7 +90,11 @@
 }
 
 .sep-top {
-    margin-top: 5px;
+    margin-top: 8px;
+}
+
+.sep-top-xl {
+    margin-top: 16px;
 }
 
 a {
@@ -100,6 +104,18 @@ a {
 
 a:hover {
    color: #444444;
+}
+
+input {
+    padding: 4px 4px;
+    font-size: 0.9em;
+}
+
+.profile-pic {
+    size: 50px;
+    height: 50px;
+    border-radius: 100%;
+    background-color: #BBBBBB;
 }
 
 .browse {
