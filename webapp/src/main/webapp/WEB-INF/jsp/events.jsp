@@ -87,7 +87,6 @@
                     </c:forEach>
                 </c:when>
                 <c:otherwise>
-                    <h1>Puan.</h1>
                     No se encontraron eventos.
                 </c:otherwise>
             </c:choose>

@@ -62,6 +62,46 @@
     margin-right: 10px;
 }
 
+.center {
+    display: flex;
+    justify-content: center;
+}
+
+.small-text {
+    font-size: small;
+}
+
+.align-center {
+    align-items: center;
+    display: flex;
+}
+
+.space-bet {
+    display: flex;
+    justify-content: space-between;
+}
+
+.sep-right {
+    margin-right: 5px;
+}
+
+.sep-left {
+    margin-left: 5px;
+}
+
+.sep-top {
+    margin-top: 5px;
+}
+
+a {
+    text-decoration: underline;
+    color: black;
+}
+
+a:hover {
+   color: #444444;
+}
+
 .browse {
     justify-content: flex-start;
     align-items: flex-start;
