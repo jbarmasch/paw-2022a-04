@@ -15,13 +15,22 @@ public class FilterUtils {
     public static String createFilter(String locations, String types, Double minPrice, Double maxPrice) {
         StringBuilder queryBuilder = new StringBuilder();
         if (locations != null)
-            queryBuilder.append("&locations=").append(locations);
-        if (types != null)
-            queryBuilder.append("&types=").append(locations);
-        if (minPrice != null)
+            queryBuilder.append("locations=").append(locations);
+        if (types != null) {
+            if (queryBuilder.length() > 0)
+                queryBuilder.append("&");
+            queryBuilder.append("types=").append(types);
+        }
+        if (minPrice != null) {
+            if (queryBuilder.length() > 0)
+                queryBuilder.append("&");
             queryBuilder.append("&minPrice=").append(minPrice);
-        if (maxPrice != null)
+        }
+        if (maxPrice != null) {
+            if (queryBuilder.length() > 0)
+                queryBuilder.append("&");
             queryBuilder.append("&maxPrice=").append(maxPrice);
+        }
         return queryBuilder.toString();
     }
 }
