@@ -181,9 +181,11 @@ public class EventController {
     public ModelAndView myEvents()  {
         String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
-        
+
         final ModelAndView mav = new ModelAndView("myEvents");
-        mav.addObject("myEvents", eventService.getUserEvents(userId));
+        List<Event> events = eventService.getUserEvents(userId);
+        mav.addObject("myEvents", events);
+        mav.addObject("size", events.size());
         return mav;
     }
 

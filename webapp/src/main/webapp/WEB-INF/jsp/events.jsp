@@ -110,8 +110,12 @@
             <c:param name="page" value="${page + 1}" />
         </c:url>
         <div class="pagination">
-            <a href="${prevUrl}">Anterior</a>
-            <a href="${nextUrl}">Siguiente</a>
+            <c:if test="${page > 1}">
+                <a href="${prevUrl}">Anterior</a>
+            </c:if>
+            <c:if test="${size == 10}">
+                <a href="${nextUrl}">Siguiente</a>
+            </c:if>
         </div>
     </div>
 </body>

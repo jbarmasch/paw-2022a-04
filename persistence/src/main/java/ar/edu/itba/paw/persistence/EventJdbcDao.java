@@ -152,7 +152,10 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public List<Event> getUserEvents(long id) {
-        return jdbcTemplate.query("SELECT * FROM events WHERE userid = ?", new Object[]{id}, ROW_MAPPER);
+        return jdbcTemplate.query("SELECT events.eventid, events.name, events.description, events.locationid, events.maxcapacity, events.price, " +
+                "events.typeid, events.date, events.imageid, events.userid, locations.name AS locName, images.image, types.name AS typeName " +
+                "FROM events JOIN locations ON events.locationid = locations.locationid JOIN images ON events.imageid = images.imageid " +
+                "JOIN types ON events.typeid = types.typeid WHERE userid = ?", new Object[]{id}, ROW_MAPPER);
     }
 
 

@@ -22,7 +22,7 @@ public class UserJdbcDao implements UserDao {
     );
 
     private final static RowMapper<Booking> BOOKING_ROW_MAPPER = (rs, rowNum) -> new Booking(
-            rs.getInt("userid"),
+            rs.getInt("bookId"),
             new Event(
                 rs.getInt("eventId"),
                 rs.getString("name"),
@@ -73,9 +73,9 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public List<Booking> getAllBookingsFromUser(long id) {
-        return jdbcTemplate.query("SELECT bookings.userid, bookings.qty, events.eventid, events.name, events.description, events.locationid, events.maxcapacity, events.price, " +
+        return jdbcTemplate.query("SELECT bookings.userid AS bookId, bookings.qty, events.eventid, events.name, events.description, events.locationid, events.maxcapacity, events.price, " +
                 "events.typeid, events.date, events.imageid, events.userid, locations.name AS locName, images.image, types.name AS typeName " +
                 "FROM bookings JOIN events ON bookings.eventid = events.eventid JOIN locations ON events.locationid = locations.locationid JOIN images ON " +
-                "events.imageid = images.imageid JOIN types ON events.typeid = types.typeid WHERE eventid = ?", new Object[] { id }, BOOKING_ROW_MAPPER);
+                "events.imageid = images.imageid JOIN types ON events.typeid = types.typeid WHERE bookings.userid = ?", new Object[] { id }, BOOKING_ROW_MAPPER);
     }
 }

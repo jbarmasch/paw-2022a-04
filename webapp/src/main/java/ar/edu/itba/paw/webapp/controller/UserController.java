@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.webapp.controller;
 
+import ar.edu.itba.paw.model.Booking;
 import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.UserService;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
+import java.util.Arrays;
+import java.util.List;
 
 @Controller
 public class UserController {
@@ -77,7 +80,11 @@ public class UserController {
         int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
 
         final ModelAndView mav = new ModelAndView("bookings");
-        mav.addObject("bookings", userService.getAllBookingsFromUser(userId));
+        List<Booking> bookings = userService.getAllBookingsFromUser(userId);
+        System.out.println(userId);
+        System.out.println(Arrays.toString(Arrays.stream(bookings.toArray()).toArray()));
+        mav.addObject("bookings", bookings);
+        mav.addObject("size", bookings.size());
         return mav;
     }
 
