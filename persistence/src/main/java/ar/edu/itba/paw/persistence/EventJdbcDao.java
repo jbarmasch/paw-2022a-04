@@ -1,6 +1,6 @@
 package ar.edu.itba.paw.persistence;
 
-import ar.edu.itba.paw.model.Event;
+import ar.edu.itba.paw.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -16,44 +16,48 @@ import java.util.*;
 public class EventJdbcDao implements EventDao {
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
-    private TagDao tagDao;
-    private ImageDao imageDao;
-    private TypeDao typeDao;
-    private LocationDao locationDao;
-    private final EventTagDao eventTagDao;
-    private final RowMapper<Event> ROW_MAPPER = (rs, rowNum) -> new Event(
-            rs.getInt("eventId"),
-            rs.getString("name"),
-            rs.getString("description"),
-            locationDao.getLocationFromEventId(rs.getInt("eventId")).orElse(null),
-            rs.getInt("maxCapacity"),
-            rs.getDouble("price"),
-            typeDao.getTypeFromEventId(rs.getInt("eventId")).orElse(null),
-            rs.getTimestamp("date").toLocalDateTime(),
-            imageDao.getImgFromEventId(rs.getInt("eventId")).orElse(null),
-            tagDao.getTagsFromEventId(rs.getInt("eventId")),
-            rs.getInt("userId")
-    );
+    private final SimpleJdbcInsert jdbcTagInsert;
+    private final RowMapper<Event> ROW_MAPPER = (rs, i) -> {
+        Location location = new Location(rs.getInt("locationId"), rs.getString("locName"));
+        Type type = new Type(rs.getInt("typeId"), rs.getString("typeName"));
+        Image image = ImageJdbcDao.ROW_MAPPER.mapRow(rs, i);
+//        Image image = new Image(rs.getInt("imageId"), rs.getBytes("image"));
+
+        return new Event(
+                rs.getInt("eventId"),
+                rs.getString("name"),
+                rs.getString("description"),
+                location,
+                rs.getInt("maxCapacity"),
+                rs.getDouble("price"),
+                type,
+                rs.getTimestamp("date").toLocalDateTime(),
+                image,
+                getTagsFromEventId(rs.getInt("eventId")),
+                rs.getInt("userId")
+        );
+    };
 
     @Autowired
-    public EventJdbcDao(final DataSource ds, final TagDao tagDao, final ImageDao imageDao, final TypeDao typeDao, final LocationDao locationDao, final EventTagDao eventTagDao) {
+    public EventJdbcDao(final DataSource ds) {
         jdbcTemplate = new JdbcTemplate(ds);
         jdbcInsert = new SimpleJdbcInsert(ds).withTableName("events").usingGeneratedKeyColumns("eventid");
-        this.tagDao = tagDao;
-        this.imageDao = imageDao;
-        this.typeDao = typeDao;
-        this.locationDao = locationDao;
-        this.eventTagDao = eventTagDao;
+        jdbcTagInsert = new SimpleJdbcInsert(ds).withTableName("eventtags");
     }
 
     @Override
     public Optional<Event> getEventById(long id) {
-        List<Event> query = jdbcTemplate.query("SELECT * FROM events WHERE eventid = ?", new Object[]{id}, ROW_MAPPER);
+        List<Event> query = jdbcTemplate.query(
+                "SELECT events.eventid, events.name, events.description, events.locationid, events.maxcapacity, events.price, " +
+                        "events.typeid, events.date, events.imageid, events.userid, locations.name AS locName, images.image, types.name AS typeName " +
+                        "FROM events JOIN locations ON events.locationid = locations.locationid JOIN images ON events.imageid = images.imageid " +
+                        "JOIN types ON events.typeid = types.typeid WHERE eventid = ?",
+                new Object[]{id}, ROW_MAPPER);
         return query.stream().findFirst();
     }
 
     @Override
-    public Event create(String name, String description, int locationId, int maxCapacity, double price, int typeId, LocalDateTime date, int imgId, Integer[] tagIds, int userId) {
+    public Event create(String name, String description, int locationId, int maxCapacity, double price, int typeId, LocalDateTime date, int imageId, Integer[] tagIds, int userId) {
         final Map<String, Object> eventData = new HashMap<>();
         eventData.put("name", name);
         eventData.put("description", description);
@@ -62,38 +66,34 @@ public class EventJdbcDao implements EventDao {
         eventData.put("price", price);
         eventData.put("typeId", typeId);
         eventData.put("date", Timestamp.valueOf(date));
+        eventData.put("imageId", imageId);
         eventData.put("userId", userId);
 
         final int eventId = jdbcInsert.executeAndReturnKey(eventData).intValue();
 
         for (Integer tagId : tagIds) {
-            eventTagDao.addTagToEvent(eventId, tagId);
+            addTagToEvent(eventId, tagId);
         }
 
-        return new Event(eventId,
-                name,
-                description,
-                locationDao.getLocationFromEventId(eventId).orElse(null),
-                maxCapacity,
-                price,
-                typeDao.getTypeFromEventId(eventId).orElse(null),
-                date,
-                imageDao.getImgFromEventId(eventId).orElse(null),
-                tagDao.getTagsFromEventId(eventId),
-                userId);
+        return getEventById(eventId).orElseThrow(RuntimeException::new);
     }
 
-    public List<Event> filterBy(Integer[] locations, String[] types , Double minPrice, Double maxPrice, int page) {
-        StringBuilder query = new StringBuilder("SELECT * FROM events");
+    public List<Event> filterBy(String[] locations, String[] types , Double minPrice, Double maxPrice, int page) {
+        StringBuilder query = new StringBuilder(
+                "SELECT events.eventid, events.name, events.description, events.locationid, events.maxcapacity, events.price, " +
+                "events.typeid, events.date, events.imageid, locations.name AS locName, images.image, types.name AS typeName " +
+                "FROM events JOIN locations ON events.locationid = locations.locationid JOIN images ON events.imageid = images.imageid " +
+                "JOIN types ON events.typeid = types.typeid"
+        );
 
         if (locations != null || minPrice != null || maxPrice != null || types != null) {
             boolean append = false;
             query.append(" WHERE ");
             if (locations != null && locations.length > 0) {
                 append = true;
-                Integer lastLocation = locations[locations.length - 1];
-                query.append("locationId IN (");
-                for (Integer location : locations) {
+                String lastLocation = locations[locations.length - 1];
+                query.append("events.locationid IN (");
+                for (String location : locations) {
                     query.append("'").append(location).append("'");
                     if (!Objects.equals(location, lastLocation))
                         query.append(", ");
@@ -116,7 +116,7 @@ public class EventJdbcDao implements EventDao {
                 if (append)
                     query.append(" AND ");
                 String lastType = types[types.length - 1];
-                query.append("typeId IN (");
+                query.append("events.typeid IN (");
                 for (String type : types) {
                     query.append("'").append(type).append("'");
                     if (!Objects.equals(type, lastType))
@@ -138,15 +138,35 @@ public class EventJdbcDao implements EventDao {
     public void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int typeId, LocalDateTime date, int imgId, Integer[] tagIds) {
         jdbcTemplate.update("UPDATE events SET name = ?, description = ?, locationid = ?, maxcapacity = ?, price = ?, typeid = ?, date = ?, imageid = ? WHERE eventid = ?",
                 name, description, locationId, maxCapacity, price, typeId, Timestamp.valueOf(date), imgId, id);
-        eventTagDao.cleanTagsFromEvent(id);
 
+        cleanTagsFromEvent(id);
         for (Integer tagId : tagIds) {
-            eventTagDao.addTagToEvent(id, tagId);
+            addTagToEvent(id, tagId);
         }
     }
 
     @Override
     public void deleteEvent(int id) {
         jdbcTemplate.update("DELETE FROM events WHERE eventid = ?", id);
+    }
+
+
+//    @Override
+    public void addTagToEvent(int eventId, int tagId) {
+        final Map<String, Object> eventData = new HashMap<>();
+        eventData.put("eventId", eventId);
+        eventData.put("tagId", tagId);
+
+        jdbcTagInsert.execute(eventData);
+    }
+
+//    @Override
+    public void cleanTagsFromEvent(int eventId) {
+        jdbcTemplate.update("DELETE FROM eventtags WHERE eventid = ?", eventId);
+    }
+
+//    @Override
+    public List<Tag> getTagsFromEventId(int eventId) {
+        return jdbcTemplate.query("SELECT tagid, tags.name FROM eventtags NATURAL JOIN tags WHERE eventid = ?", new Object[]{eventId}, TagJdbcDao.ROW_MAPPER);
     }
 }

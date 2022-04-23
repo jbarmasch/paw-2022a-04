@@ -11,8 +11,7 @@ import java.util.*;
 @Repository
 public class TagJdbcDao implements TagDao {
     private final JdbcTemplate jdbcTemplate;
-
-    private final static RowMapper<Tag> ROW_MAPPER = (rs, rowNum) -> new Tag(
+    public final static RowMapper<Tag> ROW_MAPPER = (rs, rowNum) -> new Tag(
             rs.getInt("tagId"),
             rs.getString("name")
     );

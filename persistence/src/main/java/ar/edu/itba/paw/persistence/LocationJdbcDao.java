@@ -11,8 +11,7 @@ import java.util.*;
 @Repository
 public class LocationJdbcDao implements LocationDao {
     private final JdbcTemplate jdbcTemplate;
-
-    private final static RowMapper<Location> ROW_MAPPER = (rs, rowNum) -> new Location(
+    public final static RowMapper<Location> ROW_MAPPER = (rs, rowNum) -> new Location(
             rs.getInt("locationId"),
             rs.getString("name")
     );

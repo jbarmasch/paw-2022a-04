@@ -6,6 +6,6 @@ import java.util.Optional;
 
 public interface ImageDao {
     Optional<Image> getImageById(long id);
-    void addEventImage(byte[] image);
+    int addEventImage(byte[] image);
     Optional<Image> getImgFromEventId(int eventId);
 }

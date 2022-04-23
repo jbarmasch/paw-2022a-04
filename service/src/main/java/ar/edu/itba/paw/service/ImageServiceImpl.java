@@ -24,7 +24,7 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    public void addEventImage(byte[] image) {
-        imageDao.addEventImage(image);
+    public int addEventImage(byte[] image) {
+        return imageDao.addEventImage(image);
     }
 }

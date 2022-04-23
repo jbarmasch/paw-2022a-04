@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.form;
 
 import ar.edu.itba.paw.webapp.validations.Future;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.*;
 import java.time.LocalDateTime;
@@ -34,6 +35,16 @@ public class EventForm {
 
     @NotEmpty
     private Integer[] tags;
+
+    private MultipartFile image;
+
+    public void setImage(MultipartFile image) {
+        this.image = image;
+    }
+
+    public MultipartFile getImage() {
+        return image;
+    }
 
     public String getDate() {
         return date;
