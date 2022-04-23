@@ -80,11 +80,13 @@ public class EventController {
                                      @RequestParam(value = "locations", required = false) @IntegerArray final String[] locations,
                                      @RequestParam(value = "types", required = false) @IntegerArray final String[] types,
                                      @RequestParam(value = "minPrice", required = false) @DecimalMin("0.00") final Double minPrice,
-                                     @RequestParam(value = "maxPrice", required = false) @DecimalMin("0.00") final Double maxPrice) {
+                                     @RequestParam(value = "maxPrice", required = false) @DecimalMin("0.00") final Double maxPrice,
+                                     @RequestParam(value = "page", required = false, defaultValue = "1") final int page) {
         final ModelAndView mav = new ModelAndView("events");
+        mav.addObject("page", page);
         mav.addObject("allLocations", locationService.getAll());
         mav.addObject("allTypes", typeService.getAll());
-        List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, 1);
+        List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, page);
         mav.addObject("events", events);
         mav.addObject("size", events.size());
         return mav;

@@ -91,6 +91,28 @@
                 </c:otherwise>
             </c:choose>
         </div>
+        <c:if test="${page > 1}">
+            <c:url var="prevUrl" value="">
+                <c:forEach items="${param}" var="entry">
+                    <c:if test="${entry.key != 'page'}">
+                        <c:param name="${entry.key}" value="${entry.value}" />
+                    </c:if>
+                </c:forEach>
+                <c:param name="page" value="${page - 1}" />
+            </c:url>
+        </c:if>
+        <c:url var="nextUrl" value="">
+            <c:forEach items="${param}" var="entry">
+                <c:if test="${entry.key != 'page'}">
+                    <c:param name="${entry.key}" value="${entry.value}" />
+                </c:if>
+            </c:forEach>
+            <c:param name="page" value="${page + 1}" />
+        </c:url>
+        <div class="pagination">
+            <a href="${prevUrl}">Anterior</a>
+            <a href="${nextUrl}">Siguiente</a>
+        </div>
     </div>
 </body>
 </html>

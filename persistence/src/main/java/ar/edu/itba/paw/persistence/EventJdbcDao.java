@@ -81,7 +81,7 @@ public class EventJdbcDao implements EventDao {
     public List<Event> filterBy(String[] locations, String[] types , Double minPrice, Double maxPrice, int page) {
         StringBuilder query = new StringBuilder(
                 "SELECT events.eventid, events.name, events.description, events.locationid, events.maxcapacity, events.price, " +
-                "events.typeid, events.date, events.imageid, locations.name AS locName, images.image, types.name AS typeName " +
+                "events.typeid, events.date, events.imageid, events.userid, locations.name AS locName, images.image, types.name AS typeName " +
                 "FROM events JOIN locations ON events.locationid = locations.locationid JOIN images ON events.imageid = images.imageid " +
                 "JOIN types ON events.typeid = types.typeid"
         );
