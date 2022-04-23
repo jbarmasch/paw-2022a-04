@@ -11,8 +11,7 @@ import java.util.*;
 @Repository
 public class TypeJdbcDao implements TypeDao {
     private final JdbcTemplate jdbcTemplate;
-
-    private final static RowMapper<Type> ROW_MAPPER = (rs, rowNum) -> new Type(
+    public final static RowMapper<Type> ROW_MAPPER = (rs, rowNum) -> new Type(
             rs.getInt("typeId"),
             rs.getString("name")
     );
