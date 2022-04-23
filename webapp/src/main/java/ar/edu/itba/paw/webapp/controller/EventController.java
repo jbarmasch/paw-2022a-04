@@ -23,7 +23,9 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class EventController {
@@ -75,7 +77,14 @@ public class EventController {
         if (errors.hasErrors()) {
             return new ModelAndView("error");
         }
-        String endURL = FilterUtils.createFilter(form.getLocations(), form.getTypes(), form.getMinPrice(), form.getMaxPrice());
+        
+        Map<String, Object> filters = new HashMap<>();
+        filters.put("locations", form.getLocations());
+        filters.put("types", form.getTypes());
+        filters.put("minPrice", form.getMinPrice());
+        filters.put("maxPrice", form.getMaxPrice());
+        String endURL = FilterUtils.createFilter(filters);
+
         if (endURL.isEmpty())
             return new ModelAndView("redirect:/events");
         return new ModelAndView("redirect:/events?" + endURL);
