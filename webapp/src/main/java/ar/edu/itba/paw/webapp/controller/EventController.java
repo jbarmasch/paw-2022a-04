@@ -10,6 +10,9 @@ import ar.edu.itba.paw.webapp.form.EventForm;
 import ar.edu.itba.paw.webapp.form.BookForm;
 import ar.edu.itba.paw.webapp.form.FilterForm;
 import ar.edu.itba.paw.webapp.helper.FilterUtils;
+import ar.edu.itba.paw.webapp.validations.IntegerArray;
+import ar.edu.itba.paw.webapp.validations.Price;
+import org.hibernate.validator.method.MethodConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -17,15 +20,23 @@ import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Validated
 @Controller
 public class EventController {
     private final EventService eventService;
@@ -51,6 +62,14 @@ public class EventController {
         return new ModelAndView("error");
     }
 
+    @ExceptionHandler(MethodConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ModelAndView constraintViolation(MethodConstraintViolationException e) {
+        final ModelAndView mav = new ModelAndView("error");
+        mav.addObject("message", e.getMessage());
+        return mav;
+    }
+
     @RequestMapping("/")
     public ModelAndView home() {
         return new ModelAndView("index");
@@ -58,10 +77,10 @@ public class EventController {
 
     @RequestMapping(value = "/events", method = { RequestMethod.GET })
     public ModelAndView browseEvents(@ModelAttribute("filterForm") final FilterForm form,
-                                     @RequestParam(value = "locations", required = false) final Integer[] locations,
-                                     @RequestParam(value = "types", required = false) final String[] types,
-                                     @RequestParam(value = "minPrice", required = false) final Double minPrice,
-                                     @RequestParam(value = "maxPrice", required = false) final Double maxPrice) {
+                                     @RequestParam(value = "locations", required = false) @IntegerArray final String[] locations,
+                                     @RequestParam(value = "types", required = false) @IntegerArray final String[] types,
+                                     @RequestParam(value = "minPrice", required = false) @DecimalMin("0.00") final Double minPrice,
+                                     @RequestParam(value = "maxPrice", required = false) @DecimalMin("0.00") final Double maxPrice) {
         final ModelAndView mav = new ModelAndView("events");
         mav.addObject("allLocations", locationService.getAll());
         mav.addObject("allTypes", typeService.getAll());
