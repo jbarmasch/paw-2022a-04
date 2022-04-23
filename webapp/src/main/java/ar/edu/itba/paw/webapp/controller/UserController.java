@@ -1,7 +1,9 @@
 package ar.edu.itba.paw.webapp.controller;
 
+import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.UserService;
+import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -66,6 +69,16 @@ public class UserController {
         }
         final User u = userService.create(form.getUsername(), form.getPassword(), form.getUsername());
         return new ModelAndView("redirect:/login/");
+    }
+
+    @RequestMapping(value = "/bookings", method = { RequestMethod.GET })
+    public ModelAndView bookings() {
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
+
+        final ModelAndView mav = new ModelAndView("bookings");
+        mav.addObject("bookings", userService.getAllBookingsFromUser(userId));
+        return mav;
     }
 
     @RequestMapping(value = "/forgotPass", method = RequestMethod.GET)

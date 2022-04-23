@@ -1,6 +1,6 @@
 package ar.edu.itba.paw.persistence;
 
-import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -8,10 +8,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 public class UserJdbcDao implements UserDao {
@@ -22,6 +19,24 @@ public class UserJdbcDao implements UserDao {
             rs.getString("username"),
             rs.getString("password"),
             rs.getString("mail")
+    );
+
+    private final static RowMapper<Booking> BOOKING_ROW_MAPPER = (rs, rowNum) -> new Booking(
+            rs.getInt("userid"),
+            new Event(
+                rs.getInt("eventId"),
+                rs.getString("name"),
+                rs.getString("description"),
+                new Location(rs.getInt("locationId"), rs.getString("locName")),
+                rs.getInt("maxCapacity"),
+                rs.getDouble("price"),
+                new Type(rs.getInt("typeId"), rs.getString("typeName")),
+                rs.getTimestamp("date").toLocalDateTime(),
+                ImageJdbcDao.ROW_MAPPER.mapRow(rs, rowNum),
+                new ArrayList<>(),
+                rs.getInt("userId")
+            ),
+            rs.getInt("qty")
     );
 
     @Autowired
@@ -54,5 +69,13 @@ public class UserJdbcDao implements UserDao {
     @Override
     public Optional<User> findByUsername(String username) {
         return jdbcTemplate.query("SELECT * FROM users WHERE username = ?", new Object[] { username }, ROW_MAPPER).stream().findFirst();
+    }
+
+    @Override
+    public List<Booking> getAllBookingsFromUser(long id) {
+        return jdbcTemplate.query("SELECT bookings.userid, bookings.qty, events.eventid, events.name, events.description, events.locationid, events.maxcapacity, events.price, " +
+                "events.typeid, events.date, events.imageid, events.userid, locations.name AS locName, images.image, types.name AS typeName " +
+                "FROM bookings JOIN events ON bookings.eventid = events.eventid JOIN locations ON events.locationid = locations.locationid JOIN images ON " +
+                "events.imageid = images.imageid JOIN types ON events.typeid = types.typeid WHERE eventid = ?", new Object[] { id }, BOOKING_ROW_MAPPER);
     }
 }

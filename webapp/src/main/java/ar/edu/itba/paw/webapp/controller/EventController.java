@@ -177,6 +177,16 @@ public class EventController {
         return mav;
     }
 
+    @RequestMapping(value = "/myEvents", method = { RequestMethod.GET })
+    public ModelAndView myEvents()  {
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
+        
+        final ModelAndView mav = new ModelAndView("myEvents");
+        mav.addObject("myEvents", eventService.getUserEvents(userId));
+        return mav;
+    }
+
     @RequestMapping(value = "/events/{eventId}/modify", method = { RequestMethod.POST })
     public ModelAndView modifyEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors, @PathVariable("eventId") final int eventId) {
         if (errors.hasErrors()) {

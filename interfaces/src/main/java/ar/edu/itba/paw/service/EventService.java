@@ -13,4 +13,5 @@ public interface EventService {
     List<Event> filterBy(String[] locations, String[] types, Double minPrice, Double maxPrice, int page);
     void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int typeId, LocalDateTime date, int imgId, Integer[] tagIds);
     void deleteEvent(int id);
+    List<Event> getUserEvents(long id);
 }

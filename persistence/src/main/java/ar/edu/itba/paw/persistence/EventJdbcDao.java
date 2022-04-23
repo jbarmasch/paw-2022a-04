@@ -150,8 +150,13 @@ public class EventJdbcDao implements EventDao {
         jdbcTemplate.update("DELETE FROM events WHERE eventid = ?", id);
     }
 
+    @Override
+    public List<Event> getUserEvents(long id) {
+        return jdbcTemplate.query("SELECT * FROM events WHERE userid = ?", new Object[]{id}, ROW_MAPPER);
+    }
 
-//    @Override
+
+    //    @Override
     public void addTagToEvent(int eventId, int tagId) {
         final Map<String, Object> eventData = new HashMap<>();
         eventData.put("eventId", eventId);
