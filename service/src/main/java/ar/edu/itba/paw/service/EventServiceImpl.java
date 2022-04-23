@@ -31,8 +31,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Event create(String name, String description, int locationId, int maxCapacity, double price, int typeId, LocalDateTime date, int imgId, Integer[] tagIds) {
-        Event event = eventDao.create(name, description, locationId, maxCapacity, price, typeId, date, imgId, tagIds);
+    public Event create(String name, String description, int locationId, int maxCapacity, double price, int typeId, LocalDateTime date, int imgId, Integer[] tagIds, int userId) {
+        Event event = eventDao.create(name, description, locationId, maxCapacity, price, typeId, date, imgId, tagIds, userId);
 //        tagDao.
         return event;
     }

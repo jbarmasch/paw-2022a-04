@@ -5,7 +5,6 @@ import javax.validation.constraints.DecimalMin;
 
 @Price
 public class FilterForm {
-    private String filters;
     private String locations;
     private String types;
 
@@ -37,14 +36,6 @@ public class FilterForm {
 
     public void setLocations(String locations) {
         this.locations = locations;
-    }
-
-    public String getFilters() {
-        return filters;
-    }
-
-    public void setFilters(String filters) {
-        this.filters = filters;
     }
 
     public String getTypes() {

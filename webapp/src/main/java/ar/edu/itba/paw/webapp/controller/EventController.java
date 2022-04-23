@@ -1,11 +1,8 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.service.ImageService;
-import ar.edu.itba.paw.service.LocationService;
-import ar.edu.itba.paw.service.TypeService;
-import ar.edu.itba.paw.service.TagService;
-import ar.edu.itba.paw.service.MailService;
+import ar.edu.itba.paw.service.*;
 import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
+import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.EventForm;
 import ar.edu.itba.paw.webapp.form.BookForm;
 import ar.edu.itba.paw.webapp.form.FilterForm;
@@ -15,9 +12,10 @@ import ar.edu.itba.paw.webapp.validations.Price;
 import org.hibernate.validator.method.MethodConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import ar.edu.itba.paw.model.Event;
-import ar.edu.itba.paw.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -45,15 +43,17 @@ public class EventController {
     private final MailService mailService;
     private final TypeService typeService;
     private final TagService tagService;
+    private final UserService userService;
 
     @Autowired
-    public EventController(final EventService eventService, final LocationService locationService, final ImageService imageService, final MailService mailService, final TypeService typeService, TagService tagService) {
+    public EventController(final EventService eventService, final LocationService locationService, final ImageService imageService, final MailService mailService, final TypeService typeService, TagService tagService, UserService userService) {
         this.eventService = eventService;
         this.locationService = locationService;
         this.imageService = imageService;
         this.mailService = mailService;
         this.typeService = typeService;
         this.tagService = tagService;
+        this.userService = userService;
     }
 
     @ExceptionHandler(EventNotFoundException.class)
@@ -151,15 +151,22 @@ public class EventController {
         if (errors.hasErrors()) {
             return createForm(form);
         }
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
         final int imageId = imageService.addEventImage(imageFile.getBytes());
-        final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(), form.getType(), form.getTimestamp(), imageId, form.getTags());
+        final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(), form.getType(), form.getTimestamp(), imageId, form.getTags(), userId);
         return new ModelAndView("redirect:/events/" + e.getId());
     }
 
     @RequestMapping(value = "/events/{eventId}/modify", method = { RequestMethod.GET })
     public ModelAndView modifyForm(@ModelAttribute("eventForm") final EventForm form, @PathVariable("eventId") final int eventId) {
-        final ModelAndView mav = new ModelAndView("modifyEvent");
         final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
+        if (e.getUserId() != userId)
+            return new ModelAndView("redirect:/events/" + e.getId());
+
+        final ModelAndView mav = new ModelAndView("modifyEvent");
         mav.addObject("locations", locationService.getAll());
         mav.addObject("currentDate", LocalDateTime.now().toString().substring(0,16));
         mav.addObject("allTags", tagService.getAll());
@@ -179,6 +186,12 @@ public class EventController {
 
     @RequestMapping(value = "/events/{eventId}/delete", method = { RequestMethod.POST })
     public ModelAndView deleteEvent(@PathVariable("eventId") final int eventId) {
+        final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
+        if (e.getUserId() != userId)
+            return new ModelAndView("redirect:/events/" + e.getId());
+
         eventService.deleteEvent(eventId);
         return new ModelAndView("redirect:/events");
     }

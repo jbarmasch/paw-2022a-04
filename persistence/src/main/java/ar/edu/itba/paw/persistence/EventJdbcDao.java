@@ -33,7 +33,8 @@ public class EventJdbcDao implements EventDao {
                 type,
                 rs.getTimestamp("date").toLocalDateTime(),
                 image,
-                getTagsFromEventId(rs.getInt("eventId"))
+                getTagsFromEventId(rs.getInt("eventId")),
+                rs.getInt("userId")
         );
     };
 
@@ -48,7 +49,7 @@ public class EventJdbcDao implements EventDao {
     public Optional<Event> getEventById(long id) {
         List<Event> query = jdbcTemplate.query(
                 "SELECT events.eventid, events.name, events.description, events.locationid, events.maxcapacity, events.price, " +
-                        "events.typeid, events.date, events.imageid, locations.name AS locName, images.image, types.name AS typeName " +
+                        "events.typeid, events.date, events.imageid, events.userid, locations.name AS locName, images.image, types.name AS typeName " +
                         "FROM events JOIN locations ON events.locationid = locations.locationid JOIN images ON events.imageid = images.imageid " +
                         "JOIN types ON events.typeid = types.typeid WHERE eventid = ?",
                 new Object[]{id}, ROW_MAPPER);
@@ -56,7 +57,7 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public Event create(String name, String description, int locationId, int maxCapacity, double price, int typeId, LocalDateTime date, int imageId, Integer[] tagIds) {
+    public Event create(String name, String description, int locationId, int maxCapacity, double price, int typeId, LocalDateTime date, int imageId, Integer[] tagIds, int userId) {
         final Map<String, Object> eventData = new HashMap<>();
         eventData.put("name", name);
         eventData.put("description", description);
@@ -66,6 +67,7 @@ public class EventJdbcDao implements EventDao {
         eventData.put("typeId", typeId);
         eventData.put("date", Timestamp.valueOf(date));
         eventData.put("imageId", imageId);
+        eventData.put("userId", userId);
 
         final int eventId = jdbcInsert.executeAndReturnKey(eventData).intValue();
 
@@ -74,17 +76,6 @@ public class EventJdbcDao implements EventDao {
         }
 
         return getEventById(eventId).orElseThrow(RuntimeException::new);
-
-//        return new Event(eventId,
-//                name,
-//                description,
-//                locationDao.getLocationFromEventId(eventId).orElse(null),
-//                maxCapacity,
-//                price,
-//                typeDao.getTypeFromEventId(eventId).orElse(null),
-//                date,
-//                imageDao.getImgFromEventId(eventId).orElse(null),
-//                tagDao.getTagsFromEventId(eventId));
     }
 
     public List<Event> filterBy(String[] locations, String[] types , Double minPrice, Double maxPrice, int page) {
