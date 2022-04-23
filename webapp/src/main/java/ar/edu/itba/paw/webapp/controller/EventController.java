@@ -9,7 +9,6 @@ import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.form.EventForm;
 import ar.edu.itba.paw.webapp.form.BookForm;
 import ar.edu.itba.paw.webapp.form.FilterForm;
-import ar.edu.itba.paw.webapp.form.ImageForm;
 import ar.edu.itba.paw.webapp.helper.FilterUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -77,7 +76,7 @@ public class EventController {
         if (errors.hasErrors()) {
             return new ModelAndView("error");
         }
-        
+
         Map<String, Object> filters = new HashMap<>();
         filters.put("locations", form.getLocations());
         filters.put("types", form.getTypes());
@@ -128,12 +127,13 @@ public class EventController {
         return mav;
     }
 
-    @RequestMapping(value = "/createEvent", method = { RequestMethod.POST })
-    public ModelAndView createEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors) {
+    @RequestMapping(value = "/createEvent", method = { RequestMethod.POST }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ModelAndView createEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors, @RequestParam("image") CommonsMultipartFile imageFile) {
         if (errors.hasErrors()) {
             return createForm(form);
         }
-        final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(), form.getType(), form.getTimestamp(), 1, form.getTags());
+        final int imageId = imageService.addEventImage(imageFile.getBytes());
+        final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(), form.getType(), form.getTimestamp(), imageId, form.getTags());
         return new ModelAndView("redirect:/events/" + e.getId());
     }
 
@@ -145,7 +145,6 @@ public class EventController {
         mav.addObject("currentDate", LocalDateTime.now().toString().substring(0,16));
         mav.addObject("allTags", tagService.getAll());
         mav.addObject("types", typeService.getAll());
-//        mav.addObject("types", typeService.getAll().stream().map(Type::getName).toArray());
         mav.addObject("event", e);
         return mav;
     }
@@ -163,16 +162,5 @@ public class EventController {
     public ModelAndView deleteEvent(@PathVariable("eventId") final int eventId) {
         eventService.deleteEvent(eventId);
         return new ModelAndView("redirect:/events");
-    }
-
-    @RequestMapping(value = "/addImage", method = { RequestMethod.GET })
-    public ModelAndView getImageForm(@ModelAttribute("imageForm") final ImageForm form) {
-        return new ModelAndView("image");
-    }
-
-    @RequestMapping(value = "/addImage", method = { RequestMethod.POST }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ModelAndView addImage(@RequestParam("image") CommonsMultipartFile imageFile) {
-        imageService.addEventImage(imageFile.getBytes());
-        return new ModelAndView("redirect:/events/1");
     }
 }

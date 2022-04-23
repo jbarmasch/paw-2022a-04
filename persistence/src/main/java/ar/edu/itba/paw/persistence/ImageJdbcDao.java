@@ -33,12 +33,12 @@ public class ImageJdbcDao implements ImageDao {
     }
 
     @Override
-    public void addEventImage(byte[] image) {
+    public int addEventImage(byte[] image) {
         final Map<String, Object> imageData = new HashMap<>();
         imageData.put("image", image);
 
         final Number imageId = jdbcInsert.executeAndReturnKey(imageData);
-        new Image(imageId.intValue(), image);
+        return imageId.intValue();
     }
 
     @Override
