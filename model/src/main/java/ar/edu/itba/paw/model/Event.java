@@ -15,8 +15,9 @@ public class Event {
     private LocalDateTime date;;
     private Type type;
     private List<Tag> tags;
+    private long userId;
 
-    public Event(long id, String name, String description, Location location, int maxCapacity, double price, Type type, LocalDateTime date, Image img, List<Tag> tags) {
+    public Event(long id, String name, String description, Location location, int maxCapacity, double price, Type type, LocalDateTime date, Image img, List<Tag> tags, long userId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -28,6 +29,7 @@ public class Event {
         this.img = img;
         this.type = type;
         this.tags = tags;
+        this.userId = userId;
     }
 
     public long getId() {
@@ -86,4 +88,11 @@ public class Event {
         return tags;
     }
 
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
+    }
 }

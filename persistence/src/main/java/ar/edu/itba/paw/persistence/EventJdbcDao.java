@@ -31,7 +31,8 @@ public class EventJdbcDao implements EventDao {
             typeDao.getTypeFromEventId(rs.getInt("eventId")).orElse(null),
             rs.getTimestamp("date").toLocalDateTime(),
             imageDao.getImgFromEventId(rs.getInt("eventId")).orElse(null),
-            tagDao.getTagsFromEventId(rs.getInt("eventId"))
+            tagDao.getTagsFromEventId(rs.getInt("eventId")),
+            rs.getInt("userId")
     );
 
     @Autowired
@@ -52,7 +53,7 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public Event create(String name, String description, int locationId, int maxCapacity, double price, int typeId, LocalDateTime date, int imgId, Integer[] tagIds) {
+    public Event create(String name, String description, int locationId, int maxCapacity, double price, int typeId, LocalDateTime date, int imgId, Integer[] tagIds, int userId) {
         final Map<String, Object> eventData = new HashMap<>();
         eventData.put("name", name);
         eventData.put("description", description);
@@ -61,6 +62,7 @@ public class EventJdbcDao implements EventDao {
         eventData.put("price", price);
         eventData.put("typeId", typeId);
         eventData.put("date", Timestamp.valueOf(date));
+        eventData.put("userId", userId);
 
         final int eventId = jdbcInsert.executeAndReturnKey(eventData).intValue();
 
@@ -77,7 +79,8 @@ public class EventJdbcDao implements EventDao {
                 typeDao.getTypeFromEventId(eventId).orElse(null),
                 date,
                 imageDao.getImgFromEventId(eventId).orElse(null),
-                tagDao.getTagsFromEventId(eventId));
+                tagDao.getTagsFromEventId(eventId),
+                userId);
     }
 
     public List<Event> filterBy(Integer[] locations, String[] types , Double minPrice, Double maxPrice, int page) {
