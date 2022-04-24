@@ -1,5 +1,8 @@
 package ar.edu.itba.paw.webapp.form;
 
+import org.hibernate.validator.constraints.Email;
+
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
@@ -13,6 +16,10 @@ public class UserForm {
 
     @Size(min = 6, max = 100)
     private String repeatPassword;
+
+    @Email
+    @NotNull
+    private String mail;
 
     public String getUsername() {
         return username;
@@ -36,5 +43,13 @@ public class UserForm {
 
     public void setRepeatPassword(String repeatPassword) {
         this.repeatPassword = repeatPassword;
+    }
+
+    public String getMail() {
+        return mail;
+    }
+
+    public void setMail(String mail) {
+        this.mail = mail;
     }
 }

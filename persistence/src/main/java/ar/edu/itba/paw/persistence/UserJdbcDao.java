@@ -2,6 +2,7 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -28,7 +29,7 @@ public class UserJdbcDao implements UserDao {
                 rs.getString("name"),
                 rs.getString("description"),
                 new Location(rs.getInt("locationId"), rs.getString("locName")),
-                rs.getInt("maxCapacity"),
+                rs.getInt("ticketsLeft"),
                 rs.getDouble("price"),
                 new Type(rs.getInt("typeId"), rs.getString("typeName")),
                 rs.getTimestamp("date").toLocalDateTime(),
@@ -73,9 +74,33 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public List<Booking> getAllBookingsFromUser(long id) {
-        return jdbcTemplate.query("SELECT bookings.userid AS bookId, bookings.qty, events.eventid, events.name, events.description, events.locationid, events.maxcapacity, events.price, " +
+        return jdbcTemplate.query("SELECT bookings.userid AS bookId, bookings.qty, events.eventid, events.name, events.description, events.locationid, events.ticketsleft, events.price, " +
                 "events.typeid, events.date, events.imageid, events.userid, locations.name AS locName, images.image, types.name AS typeName " +
                 "FROM bookings JOIN events ON bookings.eventid = events.eventid JOIN locations ON events.locationid = locations.locationid JOIN images ON " +
                 "events.imageid = images.imageid JOIN types ON events.typeid = types.typeid WHERE bookings.userid = ?", new Object[] { id }, BOOKING_ROW_MAPPER);
+    }
+
+    @Override
+    public Optional<Booking> getBookingFromUser(long userId, long eventId) {
+        return jdbcTemplate.query("SELECT bookings.userid AS bookId, bookings.qty, events.eventid, events.name, events.description, events.locationid, events.ticketsleft, events.price, " +
+                "events.typeid, events.date, events.imageid, events.userid, locations.name AS locName, images.image, types.name AS typeName " +
+                "FROM bookings JOIN events ON bookings.eventid = events.eventid JOIN locations ON events.locationid = locations.locationid JOIN images ON " +
+                "events.imageid = images.imageid JOIN types ON events.typeid = types.typeid WHERE bookings.userid = ? AND events.eventId = ?", new Object[] { userId, eventId }, BOOKING_ROW_MAPPER).stream().findFirst();
+    }
+
+    @Override
+    public boolean cancelBooking(long userId, long eventId, int qty) {
+        int rowsUpdated;
+        try {
+            rowsUpdated = jdbcTemplate.update("UPDATE bookings SET qty = qty - ? WHERE eventId = ?", qty, eventId);
+        } catch (DataAccessException e) {
+            return false;
+        }
+
+        if (rowsUpdated <= 0)
+            return false;
+
+        rowsUpdated = jdbcTemplate.update("UPDATE events SET ticketsLeft = ticketsLeft + ? WHERE eventId = ?", qty, eventId);
+        return rowsUpdated > 0;
     }
 }

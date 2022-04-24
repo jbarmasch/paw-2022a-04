@@ -14,4 +14,6 @@ public interface EventService {
     void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int typeId, LocalDateTime date, int imgId, Integer[] tagIds);
     void deleteEvent(int id);
     List<Event> getUserEvents(long id);
+    boolean book(int qty, long userId, long eventId);
+    Integer getAttendanceOfEventId(long eventId);
 }

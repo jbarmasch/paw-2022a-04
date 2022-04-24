@@ -33,6 +33,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers("/login", "/register", "/forgotPass").permitAll()
                     .antMatchers("/createEvent").hasRole("ADMIN")
 //                    .antMatchers( "/events", "/").permitAll()
+                .antMatchers( "/events/**").permitAll()
                     .antMatchers("/**").authenticated()
                 .and().formLogin()
                     .usernameParameter("j_username")

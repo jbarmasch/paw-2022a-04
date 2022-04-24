@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.webapp.controller;
 
+import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.*;
 import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
@@ -8,10 +9,11 @@ import ar.edu.itba.paw.webapp.form.BookForm;
 import ar.edu.itba.paw.webapp.form.FilterForm;
 import ar.edu.itba.paw.webapp.helper.FilterUtils;
 import ar.edu.itba.paw.webapp.validations.IntegerArray;
-import ar.edu.itba.paw.webapp.validations.Price;
 import org.hibernate.validator.method.MethodConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -23,12 +25,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -112,29 +110,40 @@ public class EventController {
 
     @RequestMapping(value = "/events/{eventId}", method = RequestMethod.GET)
     public ModelAndView eventDescription(@ModelAttribute("bookForm") final BookForm form, @PathVariable("eventId") final int eventId) {
+        final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
+        boolean isLogged = false, isOwner = false;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && !(auth instanceof AnonymousAuthenticationToken)) {
+            isLogged = true;
+            String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+            User user = userService.findByUsername(username).orElseThrow(UserNotFoundException::new);
+            if (e.getUserId() == user.getId()) {
+                isOwner = true;
+            }
+        }
+
         final ModelAndView mav = new ModelAndView("event");
         final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         mav.addObject("event", event);
+        mav.addObject("isOwner", isOwner);
+        mav.addObject("isLogged", isLogged);
         return mav;
     }
 
     @RequestMapping(value = "/events/{eventId}", method = { RequestMethod.POST }, params = "submit")
     public ModelAndView bookEvent(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors, @PathVariable("eventId") final int eventId) {
-        if (errors.hasErrors()) {
-            return eventDescription(form, eventId);
-        }
         final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
-        mailService.sendMail(form.getMail(), "Reserva recibida", "Se ha recibido una reserva de " + form.getQty() + " entradas a nombre de " + form.getName() + " " + form.getSurname() + " para " + e.getName() + ".");
-        return new ModelAndView("redirect:/events/" + e.getId());
-    }
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        User user = userService.findByUsername(username).orElseThrow(UserNotFoundException::new);
 
-    @RequestMapping(value = "/events/{eventId}", method = { RequestMethod.POST }, params = "cancel")
-    public ModelAndView cancelBooking(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors, @PathVariable("eventId") final int eventId) {
         if (errors.hasErrors()) {
             return eventDescription(form, eventId);
         }
-        final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
-        mailService.sendMail(form.getMail(), "Cancel", "Cancel event " + e.getName());
+        if (eventService.book(form.getQty(), user.getId(), e.getId())) {
+            mailService.sendMail(userService.getUserById(e.getUserId()).orElseThrow(UserNotFoundException::new).getMail(), "BotPass - Reserva " + e.getName(), "El usuario " + user.getUsername() + " ha reservado " + form.getQty() + " para " + e.getName() + ".");
+            mailService.sendMail(user.getMail(), "Reserva recibida", "Se ha recibido una reserva de " + form.getQty() + " entradas a nombre de " + user.getUsername() + " para " + e.getName() + ".");
+        }
+        else mailService.sendMail(user.getMail(), "Error reserva", "Ha habido un error al reservar entradas para " + e.getName() + ".");
         return new ModelAndView("redirect:/events/" + e.getId());
     }
 

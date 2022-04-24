@@ -11,4 +11,6 @@ public interface UserDao {
     User create(String username, String password, String mail);
     Optional<User> findByUsername(String username);
     List<Booking> getAllBookingsFromUser(long id);
+    Optional<Booking> getBookingFromUser(long userId, long eventId);
+    boolean cancelBooking(long userId, long eventId, int qty);
 }

@@ -2,7 +2,6 @@ package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.persistence.EventDao;
-import ar.edu.itba.paw.persistence.TagDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -56,4 +55,16 @@ public class EventServiceImpl implements EventService {
     public List<Event> getUserEvents(long id) {
         return eventDao.getUserEvents(id);
     }
+
+    @Override
+    public boolean book(int qty, long userId, long eventId) {
+        return eventDao.book(qty, userId, eventId);
+    }
+
+    @Override
+    public Integer getAttendanceOfEventId(long eventId) {
+        return eventDao.getAttendanceOfEventId(eventId);
+    }
 }
+
+

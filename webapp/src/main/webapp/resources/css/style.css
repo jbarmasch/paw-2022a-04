@@ -5,6 +5,13 @@
     cursor: pointer;
 }
 
+.booking-card {
+    .card;
+    display: flex;
+    flex-direction: row;
+    max-width: 500px;
+}
+
 .logo {
     width: 60px;
     height: 60px;

@@ -3,9 +3,12 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.model.Booking;
 import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.service.EventService;
+import ar.edu.itba.paw.service.MailService;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
+import ar.edu.itba.paw.webapp.form.BookForm;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,10 +28,15 @@ import java.util.List;
 @Controller
 public class UserController {
     private final UserService userService;
+    private final EventService eventService;
+    private final MailService mailService;
+
 
     @Autowired
-    public UserController(final UserService userService) {
+    public UserController(final UserService userService, final EventService eventService, final MailService mailService) {
         this.userService = userService;
+        this.eventService = eventService;
+        this.mailService = mailService;
     }
 
     @ExceptionHandler(UserNotFoundException.class)
@@ -70,19 +78,17 @@ public class UserController {
         if (errors.hasErrors()) {
             return createForm(form);
         }
-        final User u = userService.create(form.getUsername(), form.getPassword(), form.getUsername());
+        final User u = userService.create(form.getUsername(), form.getPassword(), form.getMail());
         return new ModelAndView("redirect:/login/");
     }
 
     @RequestMapping(value = "/bookings", method = { RequestMethod.GET })
-    public ModelAndView bookings() {
+    public ModelAndView bookings(@ModelAttribute("bookForm") final BookForm form) {
         String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
 
         final ModelAndView mav = new ModelAndView("bookings");
         List<Booking> bookings = userService.getAllBookingsFromUser(userId);
-        System.out.println(userId);
-        System.out.println(Arrays.toString(Arrays.stream(bookings.toArray()).toArray()));
         mav.addObject("bookings", bookings);
         mav.addObject("size", bookings.size());
         return mav;
@@ -94,5 +100,24 @@ public class UserController {
         if (auth == null || auth instanceof AnonymousAuthenticationToken)
             return new ModelAndView("forgotPass");
         return new ModelAndView("redirect:/");
+    }
+
+
+    @RequestMapping(value = "/bookings/cancel/{eventId}", method = { RequestMethod.POST })
+    public ModelAndView cancelBooking(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors, @PathVariable("eventId") final int eventId) {
+        final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+
+        User user = userService.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        if (errors.hasErrors()) {
+            return bookings(form);
+        }
+
+        if (!userService.cancelBooking(user.getId(), eventId, form.getQty()))
+            System.out.println("error");
+
+        mailService.sendMail(user.getMail(), "Cancelación de reserva", "Se ha cancelado una reserva de " + form.getQty() + " entradas a nombre de " + user.getUsername() + " para " + e.getName() + ".");
+        mailService.sendMail(userService.getUserById(e.getUserId()).orElseThrow(UserNotFoundException::new).getMail(), "BotPass - Cancelación " + e.getName(), "El usuario " + user.getUsername() + " ha cancelado " + form.getQty() + " para " + e.getName() + ".");
+        return new ModelAndView("redirect:/bookings/");
     }
 }

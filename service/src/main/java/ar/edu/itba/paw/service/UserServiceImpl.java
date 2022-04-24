@@ -40,4 +40,12 @@ public class UserServiceImpl implements UserService {
     public List<Booking> getAllBookingsFromUser(long id) {
         return userDao.getAllBookingsFromUser(id);
     }
+
+    public Optional<Booking> getBookingFromUser(long userId, long eventId) {
+        return userDao.getBookingFromUser(userId, eventId);
+    }
+
+    public boolean cancelBooking(long userId, long eventId, int qty) {
+        return userDao.cancelBooking(userId, eventId, qty);
+    }
 }

@@ -18,12 +18,14 @@
                 <img class="event_img" alt="Event image" src="data:image/jpeg;base64,${event.img.formatted}"/>
             </div>
             <div class="event_info">
-                <div class="event_actions">
-                    <img class="icon" src="<c:url value="/resources/svg/edit.svg"/>" alt="Trash icon" onclick="location.href='<c:url value="/events/${event.id}/modify"/>'"/>
-                    <form action="/events/${event.id}/delete" method="post">
-                        <input class="icon" src="<c:url value="/resources/svg/trash.svg"/>" alt="Trash icon" type="image" name="submit" value=""/>
-                    </form>
-                </div>
+                <c:if test="${isOwner}">
+                    <div class="event_actions">
+                        <img class="icon" src="<c:url value="/resources/svg/edit.svg"/>" alt="Trash icon" onclick="location.href='<c:url value="/events/${event.id}/modify"/>'"/>
+                        <form action="/events/${event.id}/delete" method="post">
+                            <input class="icon" src="<c:url value="/resources/svg/trash.svg"/>" alt="Trash icon" type="image" name="submit" value=""/>
+                        </form>
+                    </div>
+                </c:if>
                 <h3><c:out value="${event.name}"/></h3>
                 <p><c:out value="${event.description}"/></p>
                 <div class="container">
@@ -56,46 +58,48 @@
             </div>
         </div>
 
+        <c:if test="${isLogged}">
         <c:url value="/events/${event.id}" var="postPath"/>
         <form:form novalidate="true" modelAttribute="bookForm" action="${postPath}" method="post" id="bookForm">
-            <span class="required">* </span>
-            <form:label path="name">Nombre: </form:label>
-            <form:input class="uk-input" type="text" path="name" maxlength="100" required="true"/>
-            <form:errors path="name" cssClass="error-message" element="span" required="true"/>
-            <spring:message code="NotEmpty.bookForm.name" var="nameEmptyError"/>
-            <spring:message code="Size.bookForm.name" var="nameSizeError"/>
-            <span class="formError"></span>
+<%--            <span class="required">* </span>
+                <form:label path="name">Nombre: </form:label>
+                <form:input class="uk-input" type="text" path="name" maxlength="100" required="true"/>
+                <form:errors path="name" cssClass="error-message" element="span" required="true"/>
+                <spring:message code="NotEmpty.bookForm.name" var="nameEmptyError"/>
+                <spring:message code="Size.bookForm.name" var="nameSizeError"/>
+                <span class="formError"></span>
 
-            <span class="required">* </span>
-            <form:label path="surname">Apellido: </form:label>
-            <form:input class="uk-input" type="text" path="surname" maxlength="100" required="true" id="surname"/>
-            <form:errors path="surname" cssClass="error-message" element="span" required="true"/>
-            <spring:message code="NotEmpty.bookForm.surname" var="surnameEmptyError"/>
-            <spring:message code="Size.bookForm.surname" var="surnameSizeError"/>
-            <span class="formError"></span>
+                <span class="required">* </span>
+                <form:label path="surname">Apellido: </form:label>
+                <form:input class="uk-input" type="text" path="surname" maxlength="100" required="true" id="surname"/>
+                <form:errors path="surname" cssClass="error-message" element="span" required="true"/>
+                <spring:message code="NotEmpty.bookForm.surname" var="surnameEmptyError"/>
+                <spring:message code="Size.bookForm.surname" var="surnameSizeError"/>
+                <span class="formError"></span>
 
-            <span class="required">* </span>
-            <form:label path="mail">Mail: </form:label>
-            <form:input class="uk-input" type="email" path="mail" maxlength="100" required="true" id="mail"/>
-            <form:errors path="mail" cssClass="error-message" element="span"/>
-            <spring:message code="NotEmpty.bookForm.mail" var="mailEmptyError"/>
-            <spring:message code="Email.bookForm.mail" var="mailTypeError"/>
-            <spring:message code="Size.bookForm.mail" var="mailSizeError"/>
-            <span class="formError"></span>
+                <span class="required">* </span>
+                <form:label path="mail">Mail: </form:label>
+                <form:input class="uk-input" type="email" path="mail" maxlength="100" required="true" id="mail"/>
+                <form:errors path="mail" cssClass="error-message" element="span"/>
+                <spring:message code="NotEmpty.bookForm.mail" var="mailEmptyError"/>
+                <spring:message code="Email.bookForm.mail" var="mailTypeError"/>
+                <spring:message code="Size.bookForm.mail" var="mailSizeError"/>
+                <span class="formError"></span> --%>
 
-            <span class="required">* </span>
-            <form:label path="qty">Cantidad de entradas: </form:label>
-            <form:input class="uk-input" type="number" path="qty" min="1" required="true" id="qty"/>
-            <form:errors path="qty" cssClass="error-message" element="span"/>
-            <spring:message code="Min.bookForm.qty" var="qtySizeError"/>
-            <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
-            <span class="formError"></span>
+                <span class="required">* </span>
+                <form:label path="qty">Cantidad de entradas: </form:label>
+                <form:input class="uk-input" type="number" path="qty" min="1" required="true" id="qty"/>
+                <form:errors path="qty" cssClass="error-message" element="span"/>
+                <spring:message code="Min.bookForm.qty" var="qtySizeError"/>
+                <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
+                <span class="formError"></span>
 
-            <div class="container event_buttons">
-                <input class="uk-button" type="submit" name="submit" value="Reservar"/>
-                <input class="uk-button cancel_button" type="submit" name="cancel" value="Cancelar"/>
-            </div>
-        </form:form>
+                <div class="container event_buttons">
+                    <input class="uk-button" type="submit" name="submit" value="Reservar"/>
+                    <%-- <input class="uk-button cancel_button" type="submit" name="cancel" value="Cancelar"/> --%>
+                </div>
+            </form:form>
+        </c:if>
     </div>
 
 </body>

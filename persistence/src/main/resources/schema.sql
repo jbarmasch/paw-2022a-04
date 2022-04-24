@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS events (
     name VARCHAR(100) NOT NULL,
     description VARCHAR(100) NOT NULL,
     locationId INTEGER REFERENCES locations,
-    maxCapacity INTEGER NOT NULL,
+    ticketsLeft INTEGER NOT NULL CHECK (ticketsLeft >= 0),
     price DOUBLE PRECISION NOT NULL,
     date TIMESTAMP NOT NULL,
     typeId INTEGER REFERENCES types,
@@ -57,6 +57,6 @@ CREATE TABLE IF NOT EXISTS bookings (
     userId INTEGER REFERENCES users,
     eventId INTEGER REFERENCES events,
     name VARCHAR(100),
-    qty INTEGER,
+    qty INTEGER CHECK (qty > 0),
     PRIMARY KEY (userId, eventId, name)
 );
