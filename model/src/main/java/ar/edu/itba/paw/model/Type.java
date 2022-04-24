@@ -1,7 +1,5 @@
 package ar.edu.itba.paw.model;
 
-import java.util.stream.Stream;
-
 public class Type {
     private long id;
     private String name;
@@ -15,15 +13,7 @@ public class Type {
         return id;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getName() {
+   public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 }

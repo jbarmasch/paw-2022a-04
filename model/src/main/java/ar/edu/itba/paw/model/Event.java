@@ -9,7 +9,7 @@ public class Event {
     private String description;
     private Location location;
     private int maxCapacity;
-    private int attendance = 0;
+    private int attendance;
     private Image img;
     private double price;
     private LocalDateTime date;;
@@ -90,9 +90,5 @@ public class Event {
 
     public long getUserId() {
         return userId;
-    }
-
-    public void setUserId(long userId) {
-        this.userId = userId;
     }
 }

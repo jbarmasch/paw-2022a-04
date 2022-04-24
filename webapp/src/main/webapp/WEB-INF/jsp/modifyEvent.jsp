@@ -13,7 +13,7 @@
 <%@ include file="appbar.jsp"%>
 <c:url value="/events/${eventId}/modify" var="postPath"/>
 <div class="only-element">
-    <form:form novalidate="true" modelAttribute="eventForm" action="${postPath}" method="post" id="eventForm">
+    <form:form novalidate="true" modelAttribute="eventForm" action="${postPath}" method="post" id="eventForm" enctype="multipart/form-data">
         <div>
             <span class="required">* </span>
             <form:label path="name">Nombre: </form:label>
@@ -124,6 +124,13 @@
             <form:errors path="type" cssClass="error-message" element="span"/>
             <span class="formError"></span>
         </div>
+        <div>
+            <form:label path="image">Imagen: </form:label>
+            <form:input type="file" path="image" accept="image/png, image/jpeg"/>
+            <form:errors path="image" cssClass="error-message" element="span"/>
+            <span class="formError"></span>
+        </div>
+
         <div class="container event">
             <input class="filter_button" type="submit" value="Confirmar cambios"/>
         </div>

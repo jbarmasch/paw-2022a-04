@@ -91,10 +91,9 @@
                 <span class="formError"></span>
             </div>
             <div>
-                <span class="required">* </span>
                 <form:label path="image">Imagen: </form:label>
                 <form:input type="file" path="image" accept="image/png, image/jpeg"/>
-                <form:errors path="image" cssClass="error-message" element="span" required="true"/>
+                <form:errors path="image" cssClass="error-message" element="span"/>
                 <span class="formError"></span>
             </div>
 

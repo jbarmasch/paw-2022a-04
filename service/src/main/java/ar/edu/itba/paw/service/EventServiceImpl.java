@@ -1,6 +1,8 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.model.Event;
+import ar.edu.itba.paw.model.Image;
+import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.EventDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,11 +14,14 @@ import java.util.Optional;
 @Service
 public class EventServiceImpl implements EventService {
     private final EventDao eventDao;
-//    private final TagDao tagDao;
+    private final MailService mailService;
+    private final ImageService imageService;
 
     @Autowired
-    public EventServiceImpl(final EventDao eventDao) {
+    public EventServiceImpl(final EventDao eventDao, final MailService mailService, final ImageService imageService) {
         this.eventDao = eventDao;
+        this.mailService = mailService;
+        this.imageService = imageService;
     }
 
     @Override
@@ -30,10 +35,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Event create(String name, String description, int locationId, int maxCapacity, double price, int typeId, LocalDateTime date, int imgId, Integer[] tagIds, int userId) {
-        Event event = eventDao.create(name, description, locationId, maxCapacity, price, typeId, date, imgId, tagIds, userId);
-//        tagDao.
-        return event;
+    public Event create(String name, String description, int locationId, int maxCapacity, double price, int typeId, LocalDateTime date, byte[] imageArray, Integer[] tagIds, int userId) {
+        int imageId = 1;
+        if (imageArray != null)
+            imageId = imageService.addEventImage(imageArray);
+        return eventDao.create(name, description, locationId, maxCapacity, price, typeId, date, imageId, tagIds, userId);
     }
 
     @Override
@@ -42,8 +48,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int typeId, LocalDateTime date, int imgId, Integer[] tagIds) {
-        eventDao.updateEvent(id, name, description, locationId, maxCapacity, price, typeId, date, imgId, tagIds);
+    public void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int typeId, LocalDateTime date, byte[] imageArray, Integer[] tagIds) {
+        int imageId = 1;
+        if (imageArray != null)
+            imageId = imageService.addEventImage(imageArray);
+        eventDao.updateEvent(id, name, description, locationId, maxCapacity, price, typeId, date, imageId, tagIds);
     }
 
     @Override
@@ -57,8 +66,13 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public boolean book(int qty, long userId, long eventId) {
-        return eventDao.book(qty, userId, eventId);
+    public boolean book(int qty, long userId, String username, String userMail, long eventId, String eventName, String eventMail) {
+        if (eventDao.book(qty, userId, eventId)) {
+            mailService.sendBookMail(userMail, username, eventMail, eventName, qty);
+            return true;
+        }
+        mailService.sendErrorMail(userMail, eventName);
+        return false;
     }
 
     @Override

@@ -1,5 +1,7 @@
 package ar.edu.itba.paw.service;
 
 public interface MailService {
-    void sendMail(String to, String subject, String text);
+    void sendBookMail(String userMail, String username, String eventMail, String eventName, int qty);
+    void sendCancelMail(String userMail, String username, String eventMail, String eventName, int qty);
+    void sendErrorMail(String userMail, String eventName);
 }

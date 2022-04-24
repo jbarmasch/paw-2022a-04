@@ -14,11 +14,13 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private final UserDao userDao;
     private final PasswordEncoder passwordEncoder;
+    private MailService mailService;
 
     @Autowired
-    public UserServiceImpl(final UserDao userDao, final PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(final UserDao userDao, final PasswordEncoder passwordEncoder, final MailService mailService) {
         this.userDao = userDao;
         this.passwordEncoder = passwordEncoder;
+        this.mailService = mailService;
     }
 
     @Override
@@ -41,11 +43,18 @@ public class UserServiceImpl implements UserService {
         return userDao.getAllBookingsFromUser(id);
     }
 
+    @Override
     public Optional<Booking> getBookingFromUser(long userId, long eventId) {
         return userDao.getBookingFromUser(userId, eventId);
     }
 
-    public boolean cancelBooking(long userId, long eventId, int qty) {
-        return userDao.cancelBooking(userId, eventId, qty);
+    @Override
+    public boolean cancelBooking(int qty, long userId, String username, String userMail, long eventId, String eventName, String eventMail) {
+        if (userDao.cancelBooking(userId, eventId, qty)) {
+            mailService.sendCancelMail(userMail, username, eventMail, eventName, qty);
+            return true;
+        }
+        mailService.sendErrorMail(userMail, eventName);
+        return false;
     }
 }

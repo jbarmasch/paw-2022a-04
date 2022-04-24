@@ -29,14 +29,12 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
     private final EventService eventService;
-    private final MailService mailService;
 
 
     @Autowired
-    public UserController(final UserService userService, final EventService eventService, final MailService mailService) {
+    public UserController(final UserService userService, final EventService eventService) {
         this.userService = userService;
         this.eventService = eventService;
-        this.mailService = mailService;
     }
 
     @ExceptionHandler(UserNotFoundException.class)
@@ -75,9 +73,9 @@ public class UserController {
 
     @RequestMapping(value = "/register", method = { RequestMethod.POST })
     public ModelAndView create(@Valid @ModelAttribute("registerForm") final UserForm form, final BindingResult errors) {
-        if (errors.hasErrors()) {
+        if (errors.hasErrors())
             return createForm(form);
-        }
+
         final User u = userService.create(form.getUsername(), form.getPassword(), form.getMail());
         return new ModelAndView("redirect:/login/");
     }
@@ -106,18 +104,16 @@ public class UserController {
     @RequestMapping(value = "/bookings/cancel/{eventId}", method = { RequestMethod.POST })
     public ModelAndView cancelBooking(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors, @PathVariable("eventId") final int eventId) {
         final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
-        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        final String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        final User user = userService.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        final User eventUser = userService.getUserById(e.getUserId()).orElseThrow(RuntimeException::new);
 
-        User user = userService.findByUsername(username).orElseThrow(UserNotFoundException::new);
-        if (errors.hasErrors()) {
+        if (errors.hasErrors())
             return bookings(form);
-        }
 
-        if (!userService.cancelBooking(user.getId(), eventId, form.getQty()))
+        if (!userService.cancelBooking(form.getQty(), user.getId(), username, user.getMail(), eventId, e.getName(), eventUser.getMail()))
             System.out.println("error");
 
-        mailService.sendMail(user.getMail(), "Cancelación de reserva", "Se ha cancelado una reserva de " + form.getQty() + " entradas a nombre de " + user.getUsername() + " para " + e.getName() + ".");
-        mailService.sendMail(userService.getUserById(e.getUserId()).orElseThrow(UserNotFoundException::new).getMail(), "BotPass - Cancelación " + e.getName(), "El usuario " + user.getUsername() + " ha cancelado " + form.getQty() + " para " + e.getName() + ".");
         return new ModelAndView("redirect:/bookings/");
     }
 }

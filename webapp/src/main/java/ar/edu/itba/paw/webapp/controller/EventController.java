@@ -37,18 +37,14 @@ import java.util.Map;
 public class EventController {
     private final EventService eventService;
     private final LocationService locationService;
-    private final ImageService imageService;
-    private final MailService mailService;
     private final TypeService typeService;
     private final TagService tagService;
     private final UserService userService;
 
     @Autowired
-    public EventController(final EventService eventService, final LocationService locationService, final ImageService imageService, final MailService mailService, final TypeService typeService, TagService tagService, UserService userService) {
+    public EventController(final EventService eventService, final LocationService locationService, final TypeService typeService, TagService tagService, UserService userService) {
         this.eventService = eventService;
         this.locationService = locationService;
-        this.imageService = imageService;
-        this.mailService = mailService;
         this.typeService = typeService;
         this.tagService = tagService;
         this.userService = userService;
@@ -60,6 +56,7 @@ public class EventController {
         return new ModelAndView("error");
     }
 
+    @SuppressWarnings("deprecation")
     @ExceptionHandler(MethodConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView constraintViolation(MethodConstraintViolationException e) {
@@ -80,11 +77,12 @@ public class EventController {
                                      @RequestParam(value = "minPrice", required = false) @DecimalMin("0.00") final Double minPrice,
                                      @RequestParam(value = "maxPrice", required = false) @DecimalMin("0.00") final Double maxPrice,
                                      @RequestParam(value = "page", required = false, defaultValue = "1") final int page) {
+        List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, page);
+
         final ModelAndView mav = new ModelAndView("events");
         mav.addObject("page", page);
         mav.addObject("allLocations", locationService.getAll());
         mav.addObject("allTypes", typeService.getAll());
-        List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, page);
         mav.addObject("events", events);
         mav.addObject("size", events.size());
         return mav;
@@ -92,9 +90,8 @@ public class EventController {
 
     @RequestMapping(value = "/events", method = { RequestMethod.POST })
     public ModelAndView browseByFilters(@Valid @ModelAttribute("filterForm") final FilterForm form, final BindingResult errors) {
-        if (errors.hasErrors()) {
+        if (errors.hasErrors())
             return new ModelAndView("error");
-        }
 
         Map<String, Object> filters = new HashMap<>();
         filters.put("locations", form.getLocations());
@@ -117,13 +114,12 @@ public class EventController {
             isLogged = true;
             String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
             User user = userService.findByUsername(username).orElseThrow(UserNotFoundException::new);
-            if (e.getUserId() == user.getId()) {
+            if (e.getUserId() == user.getId())
                 isOwner = true;
-            }
         }
 
-        final ModelAndView mav = new ModelAndView("event");
         final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
+        final ModelAndView mav = new ModelAndView("event");
         mav.addObject("event", event);
         mav.addObject("isOwner", isOwner);
         mav.addObject("isLogged", isLogged);
@@ -133,17 +129,14 @@ public class EventController {
     @RequestMapping(value = "/events/{eventId}", method = { RequestMethod.POST }, params = "submit")
     public ModelAndView bookEvent(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors, @PathVariable("eventId") final int eventId) {
         final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
-        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-        User user = userService.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        final String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        final User user = userService.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        final User eventUser = userService.getUserById(e.getUserId()).orElseThrow(RuntimeException::new);
 
-        if (errors.hasErrors()) {
+        if (errors.hasErrors())
             return eventDescription(form, eventId);
-        }
-        if (eventService.book(form.getQty(), user.getId(), e.getId())) {
-            mailService.sendMail(userService.getUserById(e.getUserId()).orElseThrow(UserNotFoundException::new).getMail(), "BotPass - Reserva " + e.getName(), "El usuario " + user.getUsername() + " ha reservado " + form.getQty() + " para " + e.getName() + ".");
-            mailService.sendMail(user.getMail(), "Reserva recibida", "Se ha recibido una reserva de " + form.getQty() + " entradas a nombre de " + user.getUsername() + " para " + e.getName() + ".");
-        }
-        else mailService.sendMail(user.getMail(), "Error reserva", "Ha habido un error al reservar entradas para " + e.getName() + ".");
+
+        boolean booked = eventService.book(form.getQty(), user.getId(), username, user.getMail(), eventId, e.getName(), eventUser.getMail());
         return new ModelAndView("redirect:/events/" + e.getId());
     }
 
@@ -159,63 +152,64 @@ public class EventController {
 
     @RequestMapping(value = "/createEvent", method = { RequestMethod.POST }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ModelAndView createEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors, @RequestParam("image") CommonsMultipartFile imageFile) {
-        if (errors.hasErrors()) {
+        if (errors.hasErrors())
             return createForm(form);
-        }
-        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-        int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
-        final int imageId = imageService.addEventImage(imageFile.getBytes());
-        final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(), form.getType(), form.getTimestamp(), imageId, form.getTags(), userId);
+
+        final String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        final int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
+        final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(), form.getType(), form.getTimestamp(), (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags(), userId);
         return new ModelAndView("redirect:/events/" + e.getId());
     }
 
     @RequestMapping(value = "/events/{eventId}/modify", method = { RequestMethod.GET })
     public ModelAndView modifyForm(@ModelAttribute("eventForm") final EventForm form, @PathVariable("eventId") final int eventId) {
-        final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
-        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-        int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
-        if (e.getUserId() != userId)
-            return new ModelAndView("redirect:/events/" + e.getId());
+        final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
+        if (!canUpdateEvent(event))
+            return new ModelAndView("redirect:/events/" + eventId);
 
         final ModelAndView mav = new ModelAndView("modifyEvent");
         mav.addObject("locations", locationService.getAll());
         mav.addObject("currentDate", LocalDateTime.now().toString().substring(0,16));
         mav.addObject("allTags", tagService.getAll());
         mav.addObject("types", typeService.getAll());
-        mav.addObject("event", e);
+        mav.addObject("event", event);
         return mav;
     }
 
-    @RequestMapping(value = "/myEvents", method = { RequestMethod.GET })
-    public ModelAndView myEvents()  {
-        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-        int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
-
-        final ModelAndView mav = new ModelAndView("myEvents");
-        List<Event> events = eventService.getUserEvents(userId);
-        mav.addObject("myEvents", events);
-        mav.addObject("size", events.size());
-        return mav;
-    }
-
-    @RequestMapping(value = "/events/{eventId}/modify", method = { RequestMethod.POST })
-    public ModelAndView modifyEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors, @PathVariable("eventId") final int eventId) {
+    @RequestMapping(value = "/events/{eventId}/modify", method = { RequestMethod.POST }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ModelAndView modifyEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors, @PathVariable("eventId") final int eventId, @RequestParam("image") CommonsMultipartFile imageFile) {
         if (errors.hasErrors()) {
             return modifyForm(form, eventId);
         }
-        eventService.updateEvent(eventId, form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(), form.getType(), form.getTimestamp(), 1, form.getTags());
+        eventService.updateEvent(eventId, form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(), form.getType(), form.getTimestamp(), (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags());
         return new ModelAndView("redirect:/events/" + eventId);
     }
 
     @RequestMapping(value = "/events/{eventId}/delete", method = { RequestMethod.POST })
     public ModelAndView deleteEvent(@PathVariable("eventId") final int eventId) {
-        final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
-        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-        int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
-        if (e.getUserId() != userId)
-            return new ModelAndView("redirect:/events/" + e.getId());
+        final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
+        if (!canUpdateEvent(event))
+            return new ModelAndView("redirect:/events/" + eventId);
 
         eventService.deleteEvent(eventId);
         return new ModelAndView("redirect:/events");
+    }
+
+    @RequestMapping(value = "/myEvents", method = { RequestMethod.GET })
+    public ModelAndView myEvents()  {
+        final String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        final int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
+
+        List<Event> events = eventService.getUserEvents(userId);
+        final ModelAndView mav = new ModelAndView("myEvents");
+        mav.addObject("myEvents", events);
+        mav.addObject("size", events.size());
+        return mav;
+    }
+
+    private boolean canUpdateEvent(Event event) {
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
+        return event.getUserId() == userId;
     }
 }
