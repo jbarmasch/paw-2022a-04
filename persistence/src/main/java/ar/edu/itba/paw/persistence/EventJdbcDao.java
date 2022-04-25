@@ -132,7 +132,7 @@ public class EventJdbcDao implements EventDao {
             }
         }
 
-        return jdbcTemplate.query(query + " LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
+        return jdbcTemplate.query(query + " AND events.state != 1 LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
     }
 
     @Override
@@ -167,11 +167,11 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public List<Event> getUserEvents(long id) {
+    public List<Event> getUserEvents(long id, int page) {
         return jdbcTemplate.query("SELECT events.eventid, events.name, events.description, events.locationid, events.ticketsLeft, events.price, " +
                 "events.typeid, events.attendance, events.state, events.date, events.imageid, events.userid, locations.name AS locName, images.image, types.name AS typeName " +
                 "FROM events JOIN locations ON events.locationid = locations.locationid JOIN images ON events.imageid = images.imageid " +
-                "JOIN types ON events.typeid = types.typeid WHERE userid = ?", new Object[]{id}, ROW_MAPPER);
+                "JOIN types ON events.typeid = types.typeid WHERE userid = ? LIMIT 10 OFFSET ?", new Object[]{id, (page - 1) * 10}, ROW_MAPPER);
     }
 
 //    @Override

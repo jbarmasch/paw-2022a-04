@@ -10,6 +10,16 @@ public class BookForm {
     @NotNull
     private Integer qty;
 
+    private int page;
+
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
     public Integer getQty() {
         return qty;
     }

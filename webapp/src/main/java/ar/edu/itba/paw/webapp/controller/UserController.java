@@ -85,12 +85,14 @@ public class UserController {
     }
 
     @RequestMapping(value = "/bookings", method = { RequestMethod.GET })
-    public ModelAndView bookings(@ModelAttribute("bookForm") final BookForm form) {
+    public ModelAndView bookings(@ModelAttribute("bookForm") final BookForm form,
+                                 @RequestParam(value = "page", required = false, defaultValue = "1") final int page) {
         String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
 
-        List<Booking> bookings = userService.getAllBookingsFromUser(userId);
+        List<Booking> bookings = userService.getAllBookingsFromUser(userId, page);
         final ModelAndView mav = new ModelAndView("bookings");
+        mav.addObject("page", page);
         mav.addObject("bookings", bookings);
         mav.addObject("size", bookings.size());
         return mav;
@@ -113,7 +115,7 @@ public class UserController {
         final User eventUser = userService.getUserById(e.getUserId()).orElseThrow(RuntimeException::new);
 
         if (errors.hasErrors())
-            return bookings(form);
+            return bookings(form, form.getPage());
 
         if (!userService.cancelBooking(form.getQty(), user.getId(), username, user.getMail(), eventId, e.getName(), eventUser.getMail()))
             System.out.println("error");

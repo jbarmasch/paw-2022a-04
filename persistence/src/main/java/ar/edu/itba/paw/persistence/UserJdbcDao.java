@@ -75,11 +75,11 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public List<Booking> getAllBookingsFromUser(long id) {
+    public List<Booking> getAllBookingsFromUser(long id, int page) {
         return jdbcTemplate.query("SELECT bookings.userid AS bookId, bookings.qty, events.eventid, events.name, events.attendance, events.description, events.locationid, events.ticketsleft, events.price, " +
                 "events.typeid, events.date, events.imageid, events.state, events.userid, locations.name AS locName, images.image, types.name AS typeName " +
                 "FROM bookings JOIN events ON bookings.eventid = events.eventid JOIN locations ON events.locationid = locations.locationid JOIN images ON " +
-                "events.imageid = images.imageid JOIN types ON events.typeid = types.typeid WHERE bookings.userid = ? ORDER BY events.date", new Object[] { id }, BOOKING_ROW_MAPPER);
+                "events.imageid = images.imageid JOIN types ON events.typeid = types.typeid WHERE bookings.userid = ? AND bookings.qty > 0 ORDER BY events.date LIMIT 10 OFFSET ?", new Object[] { id, (page - 1) * 10 }, BOOKING_ROW_MAPPER);
     }
 
     @Override

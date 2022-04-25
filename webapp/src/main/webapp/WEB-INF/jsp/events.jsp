@@ -10,7 +10,7 @@
     <title>BotPass</title>
 </head>
 <body>
-    <%@ include file="appbar.jsp"%>
+    <c:import url="appbar.jsp"/>
     <div class="home">
         <div>
             <c:url value="/events" var="postPath"/>
@@ -93,32 +93,8 @@
                 </c:otherwise>
             </c:choose>
         </div>
-        <c:if test="${page > 1}">
-            <c:url var="prevUrl" value="">
-                <c:forEach items="${param}" var="entry">
-                    <c:if test="${entry.key != 'page'}">
-                        <c:param name="${entry.key}" value="${entry.value}" />
-                    </c:if>
-                </c:forEach>
-                <c:param name="page" value="${page - 1}" />
-            </c:url>
-        </c:if>
-        <c:url var="nextUrl" value="">
-            <c:forEach items="${param}" var="entry">
-                <c:if test="${entry.key != 'page'}">
-                    <c:param name="${entry.key}" value="${entry.value}" />
-                </c:if>
-            </c:forEach>
-            <c:param name="page" value="${page + 1}" />
-        </c:url>
-        <div class="pagination">
-            <c:if test="${page > 1}">
-                <a href="${prevUrl}">Anterior</a>
-            </c:if>
-            <c:if test="${size == 10}">
-                <a href="${nextUrl}">Siguiente</a>
-            </c:if>
-        </div>
+        <c:set var="page" value="${page}" scope="request"/>
+        <c:import url="paging.jsp"/>
     </div>
 </body>
 </html>

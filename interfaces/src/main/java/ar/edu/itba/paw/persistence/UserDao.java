@@ -10,7 +10,7 @@ public interface UserDao {
     Optional<User> getUserById(long id);
     User create(String username, String password, String mail);
     Optional<User> findByUsername(String username);
-    List<Booking> getAllBookingsFromUser(long id);
+    List<Booking> getAllBookingsFromUser(long id, int page);
     Optional<Booking> getBookingFromUser(long userId, long eventId);
     boolean cancelBooking(long userId, long eventId, int qty);
 }

@@ -13,7 +13,7 @@ public interface EventService {
     List<Event> filterBy(String[] locations, String[] types, Double minPrice, Double maxPrice, int page);
     void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int typeId, LocalDateTime date, byte[] imageArray, Integer[] tagIds);
     void deleteEvent(int id);
-    List<Event> getUserEvents(long id);
+    List<Event> getUserEvents(long id, int page);
     boolean book(int qty, long userId, String username, String mail, long eventId, String eventName, String eventMail);
     Integer getAttendanceOfEventId(long eventId);
     void soldOut(int id);

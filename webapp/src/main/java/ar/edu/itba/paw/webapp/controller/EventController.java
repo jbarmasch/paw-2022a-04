@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.webapp.controller;
 
+import ar.edu.itba.paw.model.State;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.*;
 import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
@@ -68,9 +69,12 @@ public class EventController {
 
     @RequestMapping("/")
     public ModelAndView home() {
-        final ModelAndView mav = new ModelAndView("index");
-        mav.addObject("userId", getUserId());
-        return mav;
+        return new ModelAndView("index");
+    }
+
+    @RequestMapping(value = "/profile", method = { RequestMethod.GET })
+    public ModelAndView getUser() {
+        return new ModelAndView("redirect:/profile/" + getUserId());
     }
 
     @Validated
@@ -230,12 +234,13 @@ public class EventController {
     }
 
     @RequestMapping(value = "/myEvents", method = { RequestMethod.GET })
-    public ModelAndView myEvents()  {
-        final String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+    public ModelAndView myEvents(@RequestParam(value = "page", required = false, defaultValue = "1") final int page) {
+            final String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         final int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
 
-        List<Event> events = eventService.getUserEvents(userId);
+        List<Event> events = eventService.getUserEvents(userId, page);
         final ModelAndView mav = new ModelAndView("myEvents");
+        mav.addObject("page", page);
         mav.addObject("myEvents", events);
         mav.addObject("size", events.size());
         return mav;

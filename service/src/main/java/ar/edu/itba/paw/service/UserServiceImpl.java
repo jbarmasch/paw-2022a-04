@@ -39,8 +39,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Booking> getAllBookingsFromUser(long id) {
-        return userDao.getAllBookingsFromUser(id);
+    public List<Booking> getAllBookingsFromUser(long id, int page) {
+        return userDao.getAllBookingsFromUser(id, page);
     }
 
     @Override

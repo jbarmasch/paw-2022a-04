@@ -32,8 +32,8 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                     .antMatchers("/login", "/register", "/forgotPass").permitAll()
                     .antMatchers("/createEvent").hasRole("ADMIN")
-//                    .antMatchers( "/events", "/").permitAll()
-                .antMatchers( "/events/**").permitAll()
+                    .antMatchers( "/events", "/").permitAll()
+                    .antMatchers( "/events/**").permitAll()
                     .antMatchers("/**").authenticated()
                 .and().formLogin()
                     .usernameParameter("j_username")
@@ -56,7 +56,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(final WebSecurity web) throws Exception {
-        web.ignoring().antMatchers("/resources/css/**", "/resources/js/**", "/resources/svg/**", "/resources/img/**", "/favicon.ico", "/403", "/events", "/");
+        web.ignoring().antMatchers("/resources/css/**", "/resources/js/**", "/resources/svg/**", "/resources/img/**", "/favicon.ico", "/403", "/image/**");
     }
 
     @Bean
