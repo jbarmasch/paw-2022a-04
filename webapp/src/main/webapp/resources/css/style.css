@@ -6,10 +6,37 @@
 }
 
 .booking-card {
-    .card;
+    width: 70%;
+}
+
+.horizontal {
     display: flex;
     flex-direction: row;
-    max-width: 500px;
+}
+
+.fill {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.fill img {
+    object-fit: cover;
+    min-width: 100%;
+    min-height: 100%;
+}
+
+.booking-card-info {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.booking-card-body {
+    padding: 14px;
+
 }
 
 .logo {
@@ -131,6 +158,11 @@ input {
     margin: 10px 4% 0 4%;
     flex-wrap: wrap;
     height: 100%;
+}
+
+.booking-browse > * {
+    justify-content: center;
+    margin: 10px
 }
 
 .required {
@@ -315,4 +347,15 @@ input[type=number] {
 
 .pagination a:hover:not(.active) {
     background-color: #4d4d4d;
+}
+
+.transparent {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.booking-divider {
+    border-left: 1px solid #444444;
+    margin: 0 4px 0 4px;
+    min-height: 100%;
+    color: white;
 }

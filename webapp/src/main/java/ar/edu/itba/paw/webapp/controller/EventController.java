@@ -67,7 +67,9 @@ public class EventController {
 
     @RequestMapping("/")
     public ModelAndView home() {
-        return new ModelAndView("index");
+        final ModelAndView mav = new ModelAndView("index");
+        mav.addObject("userId", getUserId());
+        return mav;
     }
 
     @RequestMapping(value = "/events", method = { RequestMethod.GET })
@@ -103,6 +105,16 @@ public class EventController {
         if (endURL.isEmpty())
             return new ModelAndView("redirect:/events");
         return new ModelAndView("redirect:/events?" + endURL);
+    }
+
+    private Integer getUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && !(auth instanceof AnonymousAuthenticationToken)) {
+            String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+            User user = userService.findByUsername(username).orElseThrow(UserNotFoundException::new);
+            return user.getId();
+        }
+        return null;
     }
 
     @RequestMapping(value = "/events/{eventId}", method = RequestMethod.GET)
@@ -192,6 +204,26 @@ public class EventController {
             return new ModelAndView("redirect:/events/" + eventId);
 
         eventService.deleteEvent(eventId);
+        return new ModelAndView("redirect:/events");
+    }
+
+    @RequestMapping(value = "/events/{eventId}/soldout", method = { RequestMethod.POST })
+    public ModelAndView soldOutEvent(@PathVariable("eventId") final int eventId) {
+        final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
+        if (!canUpdateEvent(event))
+            return new ModelAndView("redirect:/events/" + eventId);
+
+        eventService.soldOut(eventId);
+        return new ModelAndView("redirect:/events");
+    }
+
+    @RequestMapping(value = "/events/{eventId}/active", method = { RequestMethod.POST })
+    public ModelAndView activeEvent(@PathVariable("eventId") final int eventId) {
+        final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
+        if (!canUpdateEvent(event))
+            return new ModelAndView("redirect:/events/" + eventId);
+
+        eventService.active(eventId);
         return new ModelAndView("redirect:/events");
     }
 

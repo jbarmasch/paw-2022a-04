@@ -25,17 +25,19 @@ public class UserJdbcDao implements UserDao {
     private final static RowMapper<Booking> BOOKING_ROW_MAPPER = (rs, rowNum) -> new Booking(
             rs.getInt("bookId"),
             new Event(
-                rs.getInt("eventId"),
-                rs.getString("name"),
-                rs.getString("description"),
-                new Location(rs.getInt("locationId"), rs.getString("locName")),
-                rs.getInt("ticketsLeft"),
-                rs.getDouble("price"),
-                new Type(rs.getInt("typeId"), rs.getString("typeName")),
-                rs.getTimestamp("date").toLocalDateTime(),
-                ImageJdbcDao.ROW_MAPPER.mapRow(rs, rowNum),
-                new ArrayList<>(),
-                rs.getInt("userId")
+                    rs.getInt("eventId"),
+                    rs.getString("name"),
+                    rs.getString("description"),
+                    new Location(rs.getInt("locationId"), rs.getString("locName")),
+                    rs.getInt("ticketsLeft"),
+                    rs.getDouble("price"),
+                    new Type(rs.getInt("typeId"), rs.getString("typeName")),
+                    rs.getTimestamp("date").toLocalDateTime(),
+                    ImageJdbcDao.ROW_MAPPER.mapRow(rs, rowNum),
+                    new ArrayList<>(),
+                    rs.getInt("userId"),
+                    rs.getInt("attendance"),
+                    State.getState(rs.getInt("state"))
             ),
             rs.getInt("qty")
     );
@@ -74,16 +76,16 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public List<Booking> getAllBookingsFromUser(long id) {
-        return jdbcTemplate.query("SELECT bookings.userid AS bookId, bookings.qty, events.eventid, events.name, events.description, events.locationid, events.ticketsleft, events.price, " +
-                "events.typeid, events.date, events.imageid, events.userid, locations.name AS locName, images.image, types.name AS typeName " +
+        return jdbcTemplate.query("SELECT bookings.userid AS bookId, bookings.qty, events.eventid, events.name, events.attendance, events.description, events.locationid, events.ticketsleft, events.price, " +
+                "events.typeid, events.date, events.imageid, events.state, events.userid, locations.name AS locName, images.image, types.name AS typeName " +
                 "FROM bookings JOIN events ON bookings.eventid = events.eventid JOIN locations ON events.locationid = locations.locationid JOIN images ON " +
-                "events.imageid = images.imageid JOIN types ON events.typeid = types.typeid WHERE bookings.userid = ?", new Object[] { id }, BOOKING_ROW_MAPPER);
+                "events.imageid = images.imageid JOIN types ON events.typeid = types.typeid WHERE bookings.userid = ? ORDER BY events.date", new Object[] { id }, BOOKING_ROW_MAPPER);
     }
 
     @Override
     public Optional<Booking> getBookingFromUser(long userId, long eventId) {
-        return jdbcTemplate.query("SELECT bookings.userid AS bookId, bookings.qty, events.eventid, events.name, events.description, events.locationid, events.ticketsleft, events.price, " +
-                "events.typeid, events.date, events.imageid, events.userid, locations.name AS locName, images.image, types.name AS typeName " +
+        return jdbcTemplate.query("SELECT bookings.userid AS bookId, bookings.qty, events.eventid, events.name, events.attendance, events.description, events.locationid, events.ticketsleft, events.price, " +
+                "events.typeid, events.date, events.imageid, events.state, events.userid, locations.name AS locName, images.image, types.name AS typeName " +
                 "FROM bookings JOIN events ON bookings.eventid = events.eventid JOIN locations ON events.locationid = locations.locationid JOIN images ON " +
                 "events.imageid = images.imageid JOIN types ON events.typeid = types.typeid WHERE bookings.userid = ? AND events.eventId = ?", new Object[] { userId, eventId }, BOOKING_ROW_MAPPER).stream().findFirst();
     }
@@ -100,7 +102,7 @@ public class UserJdbcDao implements UserDao {
         if (rowsUpdated <= 0)
             return false;
 
-        rowsUpdated = jdbcTemplate.update("UPDATE events SET ticketsLeft = ticketsLeft + ? WHERE eventId = ?", qty, eventId);
+        rowsUpdated = jdbcTemplate.update("UPDATE events SET ticketsLeft = ticketsLeft + ?, attendance = attendance - ? WHERE eventId = ?", qty, qty, eventId);
         return rowsUpdated > 0;
     }
 }

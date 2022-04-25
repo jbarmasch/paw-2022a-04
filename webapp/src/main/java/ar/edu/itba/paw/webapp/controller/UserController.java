@@ -10,6 +10,8 @@ import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.BookForm;
 import ar.edu.itba.paw.webapp.form.UserForm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -29,7 +31,7 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
     private final EventService eventService;
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     public UserController(final UserService userService, final EventService eventService) {
@@ -45,6 +47,8 @@ public class UserController {
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public ModelAndView login() {
+        LOGGER.debug("Debug");
+        LOGGER.warn("Warning");
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || auth instanceof AnonymousAuthenticationToken)
             return new ModelAndView("login");
@@ -85,8 +89,8 @@ public class UserController {
         String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
 
-        final ModelAndView mav = new ModelAndView("bookings");
         List<Booking> bookings = userService.getAllBookingsFromUser(userId);
+        final ModelAndView mav = new ModelAndView("bookings");
         mav.addObject("bookings", bookings);
         mav.addObject("size", bookings.size());
         return mav;

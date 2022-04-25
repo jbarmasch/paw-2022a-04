@@ -9,27 +9,33 @@ public class Event {
     private String description;
     private Location location;
     private int maxCapacity;
-    private int attendance;
     private Image img;
     private double price;
     private LocalDateTime date;;
     private Type type;
     private List<Tag> tags;
     private long userId;
+    private int attendance;
+    private State state;
 
-    public Event(long id, String name, String description, Location location, int maxCapacity, double price, Type type, LocalDateTime date, Image img, List<Tag> tags, long userId) {
+    public Event(long id, String name, String description, Location location, int maxCapacity, double price, Type type, LocalDateTime date, Image img, List<Tag> tags, long userId, int attendance, State state) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.location = location;
         this.maxCapacity = maxCapacity;
-        this.attendance = 0;
         this.price = price;
         this.date = date;
         this.img = img;
         this.type = type;
         this.tags = tags;
         this.userId = userId;
+        this.attendance = attendance;
+        this.state = state;
+    }
+
+    public State getState() {
+        return state;
     }
 
     public long getId() {
@@ -60,10 +66,6 @@ public class Event {
         return maxCapacity;
     }
 
-    public int getAttendance() {
-        return attendance;
-    }
-
     public double getPrice() {
         return price;
     }
@@ -90,5 +92,21 @@ public class Event {
 
     public long getUserId() {
         return userId;
+    }
+
+    public int getAttendance() {
+        return attendance;
+    }
+
+    public boolean getSoldOut() {
+        return state == State.SOLDOUT;
+    }
+    
+    public boolean getDeleted() {
+        return state == State.DELETED;
+    }
+
+    public boolean getActive() {
+        return state == State.ACTIVE;
     }
 }

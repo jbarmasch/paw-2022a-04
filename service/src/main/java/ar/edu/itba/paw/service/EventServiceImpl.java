@@ -79,6 +79,15 @@ public class EventServiceImpl implements EventService {
     public Integer getAttendanceOfEventId(long eventId) {
         return eventDao.getAttendanceOfEventId(eventId);
     }
+    @Override
+    public void soldOut(int id) {
+        eventDao.soldOut(id);
+    }
+
+    @Override
+    public void active(int id) {
+        eventDao.active(id);
+    }
 }
 
 

@@ -53,6 +53,30 @@
                         <span><c:out value="${tag.name}"/></span>
                     </c:forEach>
                 </div>
+                <div>
+                    <c:if test="${isOwner}">
+                        <span><c:out value="${event.attendance}"></c:out></span>
+                    </c:if>
+                </div>
+                <div>
+                    <c:if test="${isOwner}">
+                        <c:choose>
+                            <c:when test="${!event.soldOut && !event.deleted}">
+                                <form action="/events/${event.id}/soldout" method="post">
+                                    <input class="uk-button uk-button-text" type="submit" name="submit" value="Marcar como agotado"/>
+                                </form>
+                            </c:when>
+                            <c:when test="${event.soldOut && !event.deleted}">
+                                <form action="/events/${event.id}/active" method="post">
+                                    <input class="uk-button uk-button-text" type="submit" name="submit" value="Marcar como disponible"/>
+                                </form>
+                            </c:when>
+                        </c:choose>
+                    </c:if>
+                    <c:if test="${event.deleted}">
+                        <b>Este evento ha sido borrado.</b>
+                    </c:if>
+                </div>
             </div>
         </div>
 
@@ -67,9 +91,18 @@
                 <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
                 <span class="formError"></span>
 
-                <div class="container event_buttons">
-                    <input class="uk-button" type="submit" name="submit" value="Reservar"/>
-                </div>
+                <c:choose>
+                    <c:when test="${event.soldOut && !event.deleted}">
+                        <div class="container event_buttons">
+                            <input disabled class="uk-button" type="submit" name="submit" value="Agotado"/>
+                        </div>
+                    </c:when>
+                    <c:when test="${!event.deleted}">
+                        <div class="container event_buttons">
+                            <input class="uk-button" type="submit" name="submit" value="Reservar"/>
+                        </div>
+                    </c:when>
+                </c:choose>
             </form:form>
         </c:if>
     </div>
@@ -81,6 +114,9 @@
     (function() {
         var qty = document.getElementById('qty');
         var form = document.getElementById('bookForm');
+
+        if (qty === null || form === null)
+            return;
 
         var checkQtyValidity = function() {
             if (qty.validity.rangeOverflow) {

@@ -7,7 +7,10 @@
     <title>BotPass</title>
 </head>
 <body>
-    <%@ include file="appbar.jsp"%>
+<%--    <%@ include file="appbar.jsp"%>--%>
+    <jsp:include page="appbar.jsp">
+        <jsp:param name="userId" value="${userId}"/>
+    </jsp:include>
     <div class="container only-element">
         <h1>Bienvenido a BotPass.</h1>
     </div>

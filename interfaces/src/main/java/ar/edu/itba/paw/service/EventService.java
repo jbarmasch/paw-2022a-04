@@ -16,4 +16,6 @@ public interface EventService {
     List<Event> getUserEvents(long id);
     boolean book(int qty, long userId, String username, String mail, long eventId, String eventName, String eventMail);
     Integer getAttendanceOfEventId(long eventId);
+    void soldOut(int id);
+    void active(int id);
 }

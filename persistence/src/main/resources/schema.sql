@@ -31,11 +31,13 @@ CREATE TABLE IF NOT EXISTS events (
     description VARCHAR(100) NOT NULL,
     locationId INTEGER REFERENCES locations,
     ticketsLeft INTEGER NOT NULL CHECK (ticketsLeft >= 0),
+    attendance INTEGER NOT NULL,
     price DOUBLE PRECISION NOT NULL,
     date TIMESTAMP NOT NULL,
     typeId INTEGER REFERENCES types,
     userId INTEGER REFERENCES users,
-    imageId INTEGER REFERENCES images
+    imageId INTEGER REFERENCES images,
+    state INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS eventTags (

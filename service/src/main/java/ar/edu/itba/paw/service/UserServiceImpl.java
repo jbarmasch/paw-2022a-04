@@ -14,7 +14,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private final UserDao userDao;
     private final PasswordEncoder passwordEncoder;
-    private MailService mailService;
+    private final MailService mailService;
 
     @Autowired
     public UserServiceImpl(final UserDao userDao, final PasswordEncoder passwordEncoder, final MailService mailService) {

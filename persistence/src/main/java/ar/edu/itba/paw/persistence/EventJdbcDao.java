@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -36,7 +37,9 @@ public class EventJdbcDao implements EventDao {
                 rs.getTimestamp("date").toLocalDateTime(),
                 image,
                 getTagsFromEventId(rs.getInt("eventId")),
-                rs.getInt("userId")
+                rs.getInt("userId"),
+                rs.getInt("attendance"),
+                State.getState(rs.getInt("state"))
         );
     };
 
@@ -51,8 +54,8 @@ public class EventJdbcDao implements EventDao {
     @Override
     public Optional<Event> getEventById(long id) {
         List<Event> query = jdbcTemplate.query(
-                "SELECT events.eventid, events.name, events.description, events.locationid, events.ticketsleft, events.price, " +
-                        "events.typeid, events.date, events.imageid, events.userid, locations.name AS locName, images.image, types.name AS typeName " +
+                "SELECT events.eventid, events.name, events.description, events.locationid, events.attendance, events.ticketsleft, events.price, " +
+                        "events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, images.image, types.name AS typeName " +
                         "FROM events JOIN locations ON events.locationid = locations.locationid JOIN images ON events.imageid = images.imageid " +
                         "JOIN types ON events.typeid = types.typeid WHERE eventid = ?",
                 new Object[]{id}, ROW_MAPPER);
@@ -71,6 +74,8 @@ public class EventJdbcDao implements EventDao {
         eventData.put("date", Timestamp.valueOf(date));
         eventData.put("imageId", imageId);
         eventData.put("userId", userId);
+        eventData.put("attendance", 0);
+        eventData.put("state", State.ACTIVE.ordinal());
 
         final int eventId = jdbcInsert.executeAndReturnKey(eventData).intValue();
 
@@ -83,8 +88,8 @@ public class EventJdbcDao implements EventDao {
 
     public List<Event> filterBy(String[] locations, String[] types , Double minPrice, Double maxPrice, int page) {
         StringBuilder query = new StringBuilder(
-                "SELECT events.eventid, events.name, events.description, events.locationid, events.ticketsLeft, events.price, " +
-                "events.typeid, events.date, events.imageid, events.userid, locations.name AS locName, images.image, types.name AS typeName " +
+                "SELECT events.eventid, events.name, events.description, events.locationid, events.attendance, events.ticketsLeft, events.price, " +
+                "events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, images.image, types.name AS typeName " +
                 "FROM events JOIN locations ON events.locationid = locations.locationid JOIN images ON events.imageid = images.imageid " +
                 "JOIN types ON events.typeid = types.typeid"
         );
@@ -150,13 +155,23 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public void deleteEvent(int id) {
-        jdbcTemplate.update("DELETE FROM events WHERE eventid = ?", id);
+        jdbcTemplate.update("UPDATE events SET state = ? WHERE eventId = ?", State.DELETED.ordinal(), id);
+    }
+
+    @Override
+    public void soldOut(int id) {
+        jdbcTemplate.update("UPDATE events SET state = ? WHERE eventId = ?", State.SOLDOUT.ordinal(), id);
+    }
+
+    @Override
+    public void active(int id) {
+        jdbcTemplate.update("UPDATE events SET state = ? WHERE eventId = ?", State.ACTIVE.ordinal(), id);
     }
 
     @Override
     public List<Event> getUserEvents(long id) {
         return jdbcTemplate.query("SELECT events.eventid, events.name, events.description, events.locationid, events.ticketsLeft, events.price, " +
-                "events.typeid, events.date, events.imageid, events.userid, locations.name AS locName, images.image, types.name AS typeName " +
+                "events.typeid, events.attendance, events.state, events.date, events.imageid, events.userid, locations.name AS locName, images.image, types.name AS typeName " +
                 "FROM events JOIN locations ON events.locationid = locations.locationid JOIN images ON events.imageid = images.imageid " +
                 "JOIN types ON events.typeid = types.typeid WHERE userid = ?", new Object[]{id}, ROW_MAPPER);
     }
@@ -184,7 +199,7 @@ public class EventJdbcDao implements EventDao {
     public boolean book(int qty, long userId, long eventId) {
         int rowsUpdated;
         try {
-            rowsUpdated = jdbcTemplate.update("UPDATE events SET ticketsLeft = ticketsLeft - ? WHERE eventId = ?", qty, eventId);
+            rowsUpdated = jdbcTemplate.update("UPDATE events SET ticketsLeft = ticketsLeft - ?, attendance = attendance + ? WHERE eventId = ?", qty, qty, eventId);
         } catch (DataAccessException e) {
             return false;
         }
