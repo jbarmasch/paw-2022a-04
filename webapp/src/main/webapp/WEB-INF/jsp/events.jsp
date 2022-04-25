@@ -63,7 +63,7 @@
                         <c:if test="${!event.deleted}">
                             <div class="card uk-card uk-card-default" onclick="location.href='<c:url value="/events/${event.id}"/>'">
                                 <div class="uk-card-media-top">
-                                    <img class="card_img" src="data:image/jpeg;base64,${event.img.formatted}" alt="Party Image">
+                                    <img class="card_img" src="<c:url value="/image/${event.imageId}"/>" alt="Party Image">
                                 </div>
                                 <div class="uk-card-body">
                                     <h3 class="uk-card-title"><c:out value="${event.name}"/></h3>

@@ -9,7 +9,7 @@ public class Event {
     private String description;
     private Location location;
     private int maxCapacity;
-    private Image img;
+    private int imageId;
     private double price;
     private LocalDateTime date;;
     private Type type;
@@ -18,7 +18,7 @@ public class Event {
     private int attendance;
     private State state;
 
-    public Event(long id, String name, String description, Location location, int maxCapacity, double price, Type type, LocalDateTime date, Image img, List<Tag> tags, long userId, int attendance, State state) {
+    public Event(long id, String name, String description, Location location, int maxCapacity, double price, Type type, LocalDateTime date, int imageId, List<Tag> tags, long userId, int attendance, State state) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -26,7 +26,7 @@ public class Event {
         this.maxCapacity = maxCapacity;
         this.price = price;
         this.date = date;
-        this.img = img;
+        this.imageId = imageId;
         this.type = type;
         this.tags = tags;
         this.userId = userId;
@@ -54,8 +54,8 @@ public class Event {
         return location;
     }
 
-    public Image getImg() {
-        return img;
+    public int getImageId() {
+        return imageId;
     }
 
     public LocalDateTime getDate() {

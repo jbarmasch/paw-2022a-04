@@ -33,7 +33,7 @@ public class UserJdbcDao implements UserDao {
                     rs.getDouble("price"),
                     new Type(rs.getInt("typeId"), rs.getString("typeName")),
                     rs.getTimestamp("date").toLocalDateTime(),
-                    ImageJdbcDao.ROW_MAPPER.mapRow(rs, rowNum),
+                    rs.getInt("imageId"),
                     new ArrayList<>(),
                     rs.getInt("userId"),
                     rs.getInt("attendance"),
