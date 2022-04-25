@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
@@ -16,19 +16,19 @@
         <c:choose>
             <c:when test="${size > 0}">
                 <c:forEach var="booking" items="${bookings}">
-                    <div class="horizontal booking-card card uk-card uk-card-default" onclick="location.href='<c:url value="/events/${booking.event.id}"/>'">
-                        <div class="fill">
-                            <img src="<c:url value="data:image/jpeg;base64,${booking.event.img.formatted}"/>"/>
-                        </div>
-                        <div class="booking-card-body">
-                            <h3 class="uk-card-title"><c:out value="${booking.event.name}"/></h3>
-                            <div class="booking-card-info">
-                                <div><img class="icon" src="<c:url value="/resources/svg/date.svg"/>" alt="Date icon"/><span><c:out value="${booking.event.dateFormatted}"/></span></div>
-                                <div><img class="icon" src="<c:url value="/resources/svg/time.svg"/>" alt="Time icon"/><span><c:out value="${booking.event.timeFormatted}"/></span></div>
-                                <div><img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${booking.event.location.name}"/></span></div>
-                                <div><img class="icon" src="<c:url value="/resources/svg/tickets2.svg"/>" alt="Tickets icon"/><span><c:out value="${booking.qty}"/></span></div>
+                    <div class="horizontal booking-card card uk-card uk-card-default"/>
+                    <div class="fill">
+                        <img src="<c:url value="data:image/jpeg;base64,${booking.event.img.formatted}"/>" alt="Event picture"/>
+                    </div>
+                    <div class="booking-card-body">
+                        <h3 class="uk-card-title"><c:out value="${booking.event.name}"/></h3>
+                        <div class="booking-card-info">
+                            <div><img class="icon" src="<c:url value="/resources/svg/date.svg"/>" alt="Date icon"/><span><c:out value="${booking.event.dateFormatted}"/></span></div>
+                            <div><img class="icon" src="<c:url value="/resources/svg/time.svg"/>" alt="Time icon"/><span><c:out value="${booking.event.timeFormatted}"/></span></div>
+                            <div><img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${booking.event.location.name}"/></span></div>
+                            <div><img class="icon" src="<c:url value="/resources/svg/tickets2.svg"/>" alt="Tickets icon"/><span><c:out value="${booking.qty}"/></span></div>
 
-                                <div>
+                            <div>
                                 <c:url value="/bookings/cancel/${booking.event.id}" var="postPath"/>
                                 <form:form novalidate="true" class="booking-card-body transparent" modelAttribute="bookForm" action="${postPath}" method="post" id="bookForm">
                                     <div>
@@ -45,7 +45,6 @@
                                         <input class="cancel_button uk-button" type="submit" name="submit" value="Cancelar"/>
                                     </div>
                                 </form:form>
-                                </div>
                             </div>
                         </div>
                     </div>
