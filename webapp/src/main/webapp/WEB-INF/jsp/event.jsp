@@ -50,11 +50,12 @@
                 </div>
                 <div class="container">
                     <c:forEach var="tag" items="${event.tags}">
-                        <span><c:out value="${tag.name}"/></span>
+                        <span class="chip"><c:out value="${tag.name}"/></span>
                     </c:forEach>
                 </div>
-                <div>
+                <div class="horizontal">
                     <c:if test="${isOwner}">
+                        <p>Entradas reservadas:</p>
                         <span><c:out value="${event.attendance}"></c:out></span>
                     </c:if>
                 </div>
@@ -83,8 +84,10 @@
         <c:if test="${isLogged && !isOwner}">
             <c:url value="/events/${event.id}" var="postPath"/>
             <form:form novalidate="true" modelAttribute="bookForm" action="${postPath}" method="post" id="bookForm">
-                <span class="required">* </span>
-                <form:label path="qty">Cantidad de entradas: </form:label>
+                <div class="horizontal">
+                    <span class="required">* </span>
+                    <form:label path="qty">Cantidad de entradas: </form:label>
+                </div>
                 <form:input class="uk-input" type="number" path="qty" min="1" required="true" id="qty"/>
                 <form:errors path="qty" cssClass="error-message" element="span"/>
                 <spring:message code="Min.bookForm.qty" var="qtySizeError"/>
