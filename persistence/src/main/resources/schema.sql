@@ -59,6 +59,6 @@ CREATE TABLE IF NOT EXISTS bookings (
     userId INTEGER REFERENCES users,
     eventId INTEGER REFERENCES events,
     name VARCHAR(100),
-    qty INTEGER CHECK (qty > 0),
+    qty INTEGER CHECK (qty >= 0),
     PRIMARY KEY (userId, eventId, name)
 );

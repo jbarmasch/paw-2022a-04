@@ -6,7 +6,8 @@
 }
 
 .booking-card {
-    width: 70%;
+    max-width: 500px;
+    max-height: 200px;
 }
 
 .horizontal {
@@ -24,6 +25,9 @@
     object-fit: cover;
     min-width: 100%;
     min-height: 100%;
+    max-width: 200px;
+    max-height: 200px;
+    aspect-ratio: 1/1;
 }
 
 .booking-card-info {
@@ -36,7 +40,8 @@
 
 .booking-card-body {
     padding: 14px;
-
+    max-width: 300px;
+    box-sizing: border-box;
 }
 
 .logo {
@@ -67,6 +72,10 @@
     align-items: center;
     flex-wrap: wrap;
     width: 100%;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .card_info > * {
@@ -158,6 +167,7 @@ input {
     margin: 10px 4% 0 4%;
     flex-wrap: wrap;
     height: 100%;
+    width: 100%;
 }
 
 .booking-browse > * {
@@ -194,11 +204,6 @@ input {
     cursor: pointer;
 }
 
-.event_info div span {
-    margin-left: 5px;
-    margin-right: 10px;
-}
-
 .error {
     color: red;
     background-color: rgba(255, 0, 0, 0.2);
@@ -214,10 +219,19 @@ input[type='number'] {
 }
 
 body {
-    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://wallpaperaccess.com/full/127060.jpg') no-repeat center center fixed;
-    background-size: cover;
-    height: 100%;
-    overflow: hidden;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    z-index: -1;
+    display: block;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(335deg, rgba(255, 140, 107, 1) 0%, rgba(255, 228, 168, 1) 100%) no-repeat fixed center;
 }
 
 .icon {
@@ -247,6 +261,20 @@ input[type=submit] {
 
 .cancel_button {
     background-color: red !important;
+    color: white;
+}
+
+.booking_button {
+    display: flex;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    align-content: flex-end;
+}
+
+.accept-button-modal {
+    background-color: red !important;
+    color: white;
 }
 
 .filter_button {
@@ -269,7 +297,7 @@ input[type=submit] {
     background-color: rgba(255,255,255,0.8);
     padding: 10px;
     height: 100%;
-    min-width: 250px;
+    /*min-width: 250px;*/
 }
 
 .filter > * {
@@ -293,6 +321,28 @@ input[type=submit] {
 .event_img {
     aspect-ratio: 1 / 1;
     max-width: 300px;
+}
+
+.card_img {
+    object-fit: cover;
+    aspect-ratio: 1 / 1;
+    max-width: 240px;
+    width: 100%;
+    height: 100%;
+    max-height: 240px;
+}
+
+.chip {
+    background-color: white;
+    border-radius: 20px;
+    padding: 4px 8px 4px 8px;
+    margin: 2px;
+    border: 1px solid #CCCCCC;
+}
+
+.chip:hover {
+    background-color: #CCCCCC;
+    border: 1px solid #AAAAAA;
 }
 
 .event {
