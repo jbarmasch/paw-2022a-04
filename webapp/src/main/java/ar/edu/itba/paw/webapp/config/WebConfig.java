@@ -60,10 +60,10 @@ public class WebConfig {
     @Bean
     public JavaMailSender getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost("smtp.gmail.com");
+        mailSender.setHost("smtp.zoho.com");
         mailSender.setPort(587);
 
-        mailSender.setUsername("santilococo.01@gmail.com");
+        mailSender.setUsername("botpass@zohomail.com");
         mailSender.setPassword("pawMailPass");
 
         Properties props = mailSender.getJavaMailProperties();

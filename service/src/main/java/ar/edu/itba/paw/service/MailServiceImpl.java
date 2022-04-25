@@ -15,9 +15,9 @@ public class MailServiceImpl implements MailService {
     private void sendMail(String to, String subject, String text) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("noreply@bottler.com");
+            message.setFrom("botpass@zohomail.com");
             message.setTo(to);
-            message.setBcc("santilococo.01@gmail.com");
+            message.setBcc("botpass@zohomail.com");
             message.setSubject(subject);
             message.setText(text);
             emailSender.send(message);
