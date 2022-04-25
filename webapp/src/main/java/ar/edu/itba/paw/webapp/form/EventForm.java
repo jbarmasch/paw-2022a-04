@@ -31,6 +31,7 @@ public class EventForm {
 
     @NotEmpty
     @Future
+    @Pattern(regexp = "[0-9]{1,4}-[0-9]{1,2}-[0-9]{1,2}T[0-9]{1,2}:[0-9]{1,2}")
     private String date;
 
     @NotEmpty

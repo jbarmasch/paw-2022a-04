@@ -18,7 +18,7 @@
                 <c:forEach var="booking" items="${bookings}">
                     <div class="horizontal booking-card card uk-card uk-card-default" onclick="location.href='<c:url value="/events/${booking.event.id}"/>'">
                         <div class="fill">
-                            <img src="<c:url value="data:image/jpeg;base64,${booking.event.img.formatted}"/>"/>
+                            <img src="<c:url value="/image/${booking.event.imageId}"/>" alt="Event image"/>
                         </div>
                         <div class="booking-card-body">
                             <h3 class="uk-card-title"><c:out value="${booking.event.name}"/></h3>

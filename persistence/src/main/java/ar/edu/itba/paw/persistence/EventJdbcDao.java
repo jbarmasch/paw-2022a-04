@@ -23,8 +23,6 @@ public class EventJdbcDao implements EventDao {
     private final RowMapper<Event> ROW_MAPPER = (rs, i) -> {
         Location location = new Location(rs.getInt("locationId"), rs.getString("locName"));
         Type type = new Type(rs.getInt("typeId"), rs.getString("typeName"));
-        Image image = ImageJdbcDao.ROW_MAPPER.mapRow(rs, i);
-//        Image image = new Image(rs.getInt("imageId"), rs.getBytes("image"));
 
         return new Event(
                 rs.getInt("eventId"),
@@ -35,7 +33,7 @@ public class EventJdbcDao implements EventDao {
                 rs.getDouble("price"),
                 type,
                 rs.getTimestamp("date").toLocalDateTime(),
-                image,
+                rs.getInt("imageId"),
                 getTagsFromEventId(rs.getInt("eventId")),
                 rs.getInt("userId"),
                 rs.getInt("attendance"),

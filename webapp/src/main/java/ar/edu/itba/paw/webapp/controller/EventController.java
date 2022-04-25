@@ -27,12 +27,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 import javax.validation.constraints.DecimalMin;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Validated
 @Controller
 public class EventController {
     private final EventService eventService;
@@ -72,6 +73,7 @@ public class EventController {
         return mav;
     }
 
+    @Validated
     @RequestMapping(value = "/events", method = { RequestMethod.GET })
     public ModelAndView browseEvents(@ModelAttribute("filterForm") final FilterForm form,
                                      @RequestParam(value = "locations", required = false) @IntegerArray final String[] locations,

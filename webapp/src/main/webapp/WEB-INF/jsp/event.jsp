@@ -14,7 +14,7 @@
     <div class="container event">
         <div class="container">
             <div>
-                <img class="event_img" alt="Event image" src="data:image/jpeg;base64,${event.img.formatted}"/>
+                <img class="event_img" alt="Event image" src="<c:url value="/image/${event.imageId}"/>"/>
             </div>
             <div class="event_info">
                 <c:if test="${isOwner}">
