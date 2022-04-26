@@ -84,7 +84,8 @@ public class EventJdbcDao implements EventDao {
         return getEventById(eventId).orElseThrow(RuntimeException::new);
     }
 
-    public List<Event> filterBy(String[] locations, String[] types , Double minPrice, Double maxPrice, int page) {
+    @Override
+    public List<Event> filterBy(String[] locations, String[] types , String minPrice, String maxPrice, int page) {
         StringBuilder query = new StringBuilder(
                 "SELECT events.eventid, events.name, events.description, events.locationid, events.attendance, events.ticketsLeft, events.price, " +
                 "events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, images.image, types.name AS typeName " +

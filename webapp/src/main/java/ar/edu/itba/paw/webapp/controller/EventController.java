@@ -1,6 +1,5 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.model.State;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.*;
 import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
@@ -10,6 +9,8 @@ import ar.edu.itba.paw.webapp.form.BookForm;
 import ar.edu.itba.paw.webapp.form.FilterForm;
 import ar.edu.itba.paw.webapp.helper.FilterUtils;
 import ar.edu.itba.paw.webapp.validations.IntegerArray;
+import ar.edu.itba.paw.webapp.validations.NumberFormat;
+import org.hibernate.validator.method.MethodConstraintViolation;
 import org.hibernate.validator.method.MethodConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -28,13 +29,11 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 import javax.validation.constraints.DecimalMin;
-import java.nio.charset.StandardCharsets;
+import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+@Validated
 @Controller
 public class EventController {
     private final EventService eventService;
@@ -55,7 +54,9 @@ public class EventController {
     @ExceptionHandler(EventNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ModelAndView noSuchEvent() {
-        return new ModelAndView("error");
+        final ModelAndView mav = new ModelAndView("error");
+        mav.addObject("message", "404");
+        return mav;
     }
 
     @SuppressWarnings("deprecation")
@@ -63,7 +64,8 @@ public class EventController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView constraintViolation(MethodConstraintViolationException e) {
         final ModelAndView mav = new ModelAndView("error");
-        mav.addObject("message", e.getMessage());
+        mav.addObject("message", "400");
+        System.out.println(e.getMessage());
         return mav;
     }
 
@@ -77,13 +79,12 @@ public class EventController {
         return new ModelAndView("redirect:/profile/" + getUserId());
     }
 
-    @Validated
     @RequestMapping(value = "/events", method = { RequestMethod.GET })
-    public ModelAndView browseEvents(@ModelAttribute("filterForm") final FilterForm form,
+    public ModelAndView browseEvents(@ModelAttribute("filterForm") final FilterForm form, final BindingResult errors,
                                      @RequestParam(value = "locations", required = false) @IntegerArray final String[] locations,
                                      @RequestParam(value = "types", required = false) @IntegerArray final String[] types,
-                                     @RequestParam(value = "minPrice", required = false) @DecimalMin("0.00") final Double minPrice,
-                                     @RequestParam(value = "maxPrice", required = false) @DecimalMin("0.00") final Double maxPrice,
+                                     @RequestParam(value = "minPrice", required = false) @NumberFormat(decimal = true) final String minPrice,
+                                     @RequestParam(value = "maxPrice", required = false) @NumberFormat(decimal = true) final String maxPrice,
                                      @RequestParam(value = "page", required = false, defaultValue = "1") final int page) {
         List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, page);
 
@@ -124,7 +125,7 @@ public class EventController {
     }
 
     @RequestMapping(value = "/events/{eventId}", method = RequestMethod.GET)
-    public ModelAndView eventDescription(@ModelAttribute("bookForm") final BookForm form, @PathVariable("eventId") final int eventId) {
+    public ModelAndView eventDescription(@ModelAttribute("bookForm") final BookForm form, @Min(1) @PathVariable("eventId") final int eventId) {
         final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         boolean isLogged = false, isOwner = false;
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

@@ -42,7 +42,9 @@ public class UserController {
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ModelAndView noSuchUser() {
-        return new ModelAndView("error");
+        final ModelAndView mav = new ModelAndView("error");
+        mav.addObject("message", "404");
+        return mav;
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
