@@ -205,7 +205,7 @@ public class EventJdbcDao implements EventDao {
         if (rowsUpdated <= 0)
             return false;
 
-        rowsUpdated = jdbcTemplate.update("UPDATE bookings SET qty = qty + ? WHERE eventId = ?", qty, eventId);
+        rowsUpdated = jdbcTemplate.update("UPDATE bookings SET qty = qty + ? WHERE eventId = ? AND userId = ?", qty, eventId, userId);
         if (rowsUpdated <= 0) {
             final Map<String, Object> bookingData = new HashMap<>();
             bookingData.put("eventId", eventId);

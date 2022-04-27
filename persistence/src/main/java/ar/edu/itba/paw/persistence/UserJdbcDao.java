@@ -94,7 +94,7 @@ public class UserJdbcDao implements UserDao {
     public boolean cancelBooking(long userId, long eventId, int qty) {
         int rowsUpdated;
         try {
-            rowsUpdated = jdbcTemplate.update("UPDATE bookings SET qty = qty - ? WHERE eventId = ?", qty, eventId);
+            rowsUpdated = jdbcTemplate.update("UPDATE bookings SET qty = qty - ? WHERE eventId = ? AND userId = ?", qty, eventId, userId);
         } catch (DataAccessException e) {
             return false;
         }

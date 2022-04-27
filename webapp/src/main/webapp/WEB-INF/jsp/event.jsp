@@ -88,9 +88,11 @@
                     <span class="required">* </span>
                     <form:label path="qty">Cantidad de entradas: </form:label>
                 </div>
-                <form:input class="uk-input" type="number" path="qty" min="1" required="true" id="qty"/>
+                <c:set var="ticketsLeft" scope="session" value="${event.maxCapacity}"/>
+                <form:input class="uk-input" type="number" path="qty" min="1" max="${event.maxCapacity}" required="true" id="qty"/>
                 <form:errors path="qty" cssClass="error-message" element="span"/>
-                <spring:message code="Min.bookForm.qty" var="qtySizeError"/>
+                <spring:message code="Min.bookForm.qty" var="qtyMinSizeError"/>
+                <spring:message code="Max.bookForm.qtyStr" var="qtyMaxSizeError"/>
                 <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
                 <span class="formError"></span>
 
@@ -122,8 +124,11 @@
             return;
 
         var checkQtyValidity = function() {
-            if (qty.validity.rangeOverflow) {
-                qty.setCustomValidity('${qtySizeError}');
+            if (qty.validity.rangeUnderflow) {
+                qty.setCustomValidity('${qtyMinSizeError}');
+                updateQtyMessage();
+            } else if (qty.validity.rangeOverflow) {
+                qty.setCustomValidity('${qtyMaxSizeError} ' + ${ticketsLeft} + '.');
                 updateQtyMessage();
             } else if (qty.validity.valueMissing) {
                 qty.setCustomValidity('${qtyNullError}');

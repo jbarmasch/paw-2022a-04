@@ -49,8 +49,6 @@ public class UserController {
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public ModelAndView login() {
-        LOGGER.debug("Debug");
-        LOGGER.warn("Warning");
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || auth instanceof AnonymousAuthenticationToken)
             return new ModelAndView("login");
@@ -88,7 +86,8 @@ public class UserController {
 
     @RequestMapping(value = "/bookings", method = { RequestMethod.GET })
     public ModelAndView bookings(@ModelAttribute("bookForm") final BookForm form,
-                                 @RequestParam(value = "page", required = false, defaultValue = "1") final int page) {
+                                 @RequestParam(value = "page", required = false, defaultValue = "1") final int page,
+                                 @RequestParam(required = false) final Integer eventId) {
         String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
 
@@ -96,6 +95,7 @@ public class UserController {
         final ModelAndView mav = new ModelAndView("bookings");
         mav.addObject("page", page);
         mav.addObject("bookings", bookings);
+        mav.addObject("error", eventId);
         mav.addObject("size", bookings.size());
         return mav;
     }
@@ -115,13 +115,15 @@ public class UserController {
         final String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         final User user = userService.findByUsername(username).orElseThrow(UserNotFoundException::new);
         final User eventUser = userService.getUserById(e.getUserId()).orElseThrow(RuntimeException::new);
+        int bookingQty = userService.getBookingFromUser(user.getId(), eventId).orElseThrow(RuntimeException::new).getQty();
 
-        if (errors.hasErrors())
-            return bookings(form, form.getPage());
+        if (errors.hasErrors() || form.getQty() > bookingQty) {
+            errors.rejectValue("qty", "Max.bookForm.qty", new Object[] {e.getMaxCapacity()}, "");
+            return bookings(form, form.getPage(), bookingQty);
+        }
 
         if (!userService.cancelBooking(form.getQty(), user.getId(), username, user.getMail(), eventId, e.getName(), eventUser.getMail()))
-            System.out.println("error");
-
+            return new ModelAndView("redirect:/error");
         return new ModelAndView("redirect:/bookings/");
     }
 }

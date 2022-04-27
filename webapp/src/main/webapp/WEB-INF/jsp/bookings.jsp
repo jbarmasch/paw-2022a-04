@@ -48,9 +48,9 @@
                                                                 </div>
                                                                 <c:set var="qtyTickets" scope="session" value="${booking.qty}"/>
                                                                 <form:input class="uk-input" type="number" path="qty" min="1" max="${booking.qty}" required="true" id="qty"/>
-                                                                <form:errors path="qty" cssClass="error-message" element="span"/>
+<%--                                                                <form:errors path="qty" cssClass="error-message" element="span"/>--%>
                                                                 <spring:message code="Min.bookForm.qty" var="minQtySizeError"/>
-                                                                <spring:message code="Max.bookForm.qty" var="maxQtySizeError"/>
+                                                                <spring:message code="Max.bookForm.qtyStr" var="maxQtySizeError"/>
                                                                 <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
                                                                 <span class="formError"></span>
                                                                 <form:input class="hidden" type="number" path="page" value="${page}"/>
@@ -80,6 +80,14 @@
     </div>
 </body>
 </html>
+<c:choose>
+    <c:when test="${error != null}">
+        <c:set var="errorVar" scope="session" value="${error}"/>
+    </c:when>
+    <c:otherwise>
+        <c:set var="errorVar" scope="session" value=""/>
+    </c:otherwise>
+</c:choose>
 
 <script type="text/javascript">
     (function() {
@@ -88,6 +96,9 @@
 
         if (qty === null || form === null)
             return;
+
+        if ("${errorVar}" !== '')
+            UIkit.notification("${maxQtySizeError} ${errorVar}", {status: 'danger'}, {pos: 'bottom-center'})
 
         var checkQtyValidity = function() {
             var qtyTickets = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('uk-input').item(0).getAttribute('max');
