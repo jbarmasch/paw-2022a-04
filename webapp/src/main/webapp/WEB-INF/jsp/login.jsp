@@ -10,29 +10,96 @@
 <body>
 <c:url value="/login" var="loginUrl" />
 <div class="only-element">
-<form action="${loginUrl}" method="post" enctype="application/x-www-form-urlencoded">
-    <h3>Login</h3>
+<form action="${loginUrl}" class="loginForm" method="post" enctype="application/x-www-form-urlencoded">
+    <h3>Inicio de sesión</h3>
     <div class="space-bet sep-top">
-        <input id="username" placeholder="Username" name="j_username" type="text"/>
+        <input id="username" placeholder="Nombre de usuario" name="j_username" type="text"/>
     </div>
     <div class="space-bet sep-top">
-        <input id="password" placeholder="Password" name="j_password" type="password"/>
+        <input id="password" placeholder="Contraseña" name="j_password" type="password"/>
     </div>
+    <c:if test="${error}">
+        <span class="formError visible">El usuario o la contraseña es incorrecto.</span>
+    </c:if>
     <div class="sep-top">
-<%--        <label><input name="j_rememberme" type="checkbox"/><spring:message code="remember_me"/></label>--%>
-        <label class="small-text align-center"><input name="j_rememberme" type="checkbox"/>Remember me</label>
+        <label class="small-text align-center"><input name="j_rememberme" type="checkbox"/>Mantener sesión iniciada</label>
     </div>
     <div class="center sep-top-xl">
-        <input type="submit" value="Login"/>
-    </div>
-    <div class="center">
-        <a href="<c:url value="/forgotPass"/>" class="small-text">Forgot your password?</a>
+        <input type="submit" value="Iniciar sesión"/>
     </div>
     <hr/>
     <div class="center">
-        <a onclick="location.href='<c:url value="/register"/>'" class="uk-button-submit">Register</a>
+        <input type="button" onclick="location.href='<c:url value="/register"/>'" class="uk-button-submit" value="Registrarse"/>
     </div>
 </form>
 </div>
 </body>
 </html>
+
+<script type="text/javascript">
+    (function() {
+        var username = document.getElementById('username');
+        var password = document.getElementById('password');
+        var form = document.getElementById('registerForm');
+
+        if (form == null)
+            return;
+
+        var checkUsernameValidity = function() {
+            if (username.validity.typeMismatch) {
+                username.setCustomValidity('${mailTypeError}');
+                updateUsernameMessage();
+            } else if (username.validity.valueMissing) {
+                username.setCustomValidity('${userEmptyError}');
+                updateUsernameMessage();
+            } else if (username.validity.patternMismatch) {
+                username.setCustomValidity('${userPatternError}');
+                updateUsernameMessage();
+            } else if (username.validity.tooShort || username.validity.tooLong) {
+                username.setCustomValidity('${userSizeError}');
+                updateUsernameMessage();
+            } else {
+                username.setCustomValidity('');
+            }
+        };
+
+        var checkPasswordValidity = function() {
+            if (password.validity.typeMismatch) {
+                password.setCustomValidity('${mailTypeError}');
+                updatePasswordMessage();
+            } else if (password.validity.valueMissing) {
+                password.setCustomValidity('${passwordEmptyError}');
+                updatePasswordMessage();
+            } else if (password.validity.tooShort || password.validity.tooLong) {
+                password.setCustomValidity('${passwordSizeError}');
+                updatePasswordMessage();
+            } else {
+                password.setCustomValidity('');
+            }
+        };
+
+        var updateUsernameMessage = function() {
+            form.getElementsByClassName('formError')[0].innerHTML = username.validationMessage;
+        }
+
+        var updatePasswordMessage = function() {
+            form.getElementsByClassName('formError')[1].innerHTML = password.validationMessage;
+        }
+
+        username.addEventListener('change', checkUsernameValidity, false);
+        username.addEventListener('keyup', checkUsernameValidity, false);
+        password.addEventListener('change', checkPasswordValidity, false);
+        password.addEventListener('keyup', checkPasswordValidity, false);
+
+        form.addEventListener('submit', function(event) {
+            if (form.classList) form.classList.add('submitted');
+            checkUsernameValidity();
+            checkPasswordValidity();
+            if (!this.checkValidity()) {
+                event.preventDefault();
+                updateUsernameMessage();
+                updatePasswordMessage();
+            }
+        }, false);
+    }());
+</script>

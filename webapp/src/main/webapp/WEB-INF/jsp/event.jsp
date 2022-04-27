@@ -20,7 +20,7 @@
                 <c:if test="${isOwner}">
                     <div class="event_actions">
                         <img class="icon" src="<c:url value="/resources/svg/edit.svg"/>" alt="Trash icon" onclick="location.href='<c:url value="/events/${event.id}/modify"/>'"/>
-                        <form action="/events/${event.id}/delete" method="post">
+                        <form action="<c:url value="/events/${event.id}/delete"/>" method="post">
                             <input class="icon" src="<c:url value="/resources/svg/trash.svg"/>" alt="Trash icon" type="image" name="submit" value=""/>
                         </form>
                     </div>
@@ -63,12 +63,12 @@
                     <c:if test="${isOwner}">
                         <c:choose>
                             <c:when test="${!event.soldOut && !event.deleted}">
-                                <form action="/events/${event.id}/soldout" method="post">
+                                <form action="<c:url value="/events/${event.id}/soldout"/>" method="post">
                                     <input class="uk-button uk-button-text" type="submit" name="submit" value="Marcar como agotado"/>
                                 </form>
                             </c:when>
                             <c:when test="${event.soldOut && !event.deleted}">
-                                <form action="/events/${event.id}/active" method="post">
+                                <form action="<c:url value="/events/${event.id}/active"/>" method="post">
                                     <input class="uk-button uk-button-text" type="submit" name="submit" value="Marcar como disponible"/>
                                 </form>
                             </c:when>
@@ -84,20 +84,28 @@
         <c:if test="${isLogged && !isOwner}">
             <c:url value="/events/${event.id}" var="postPath"/>
             <form:form novalidate="true" modelAttribute="bookForm" action="${postPath}" method="post" id="bookForm">
+                <c:choose>
+                    <c:when test="${event.soldOut}">
+                        <c:set var="disabled" scope="session" value="true"/>
+                    </c:when>
+                    <c:otherwise>
+                        <c:set var="disabled" scope="session" value="false"/>
+                    </c:otherwise>
+                </c:choose>
+                <c:set var="ticketsLeft" scope="session" value="${event.maxCapacity}"/>
                 <div class="horizontal">
                     <span class="required">* </span>
                     <form:label path="qty">Cantidad de entradas: </form:label>
+                    <form:input class="uk-input" type="number" disabled="${disabled}" path="qty" min="1" max="${event.maxCapacity}" required="true" id="qty"/>
+                    <form:errors path="qty" cssClass="error-message" element="span"/>
+                    <spring:message code="Min.bookForm.qty" var="qtyMinSizeError"/>
+                    <spring:message code="Max.bookForm.qtyStr" var="qtyMaxSizeError"/>
+                    <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
+                    <span class="formError"></span>
                 </div>
-                <c:set var="ticketsLeft" scope="session" value="${event.maxCapacity}"/>
-                <form:input class="uk-input" type="number" path="qty" min="1" max="${event.maxCapacity}" required="true" id="qty"/>
-                <form:errors path="qty" cssClass="error-message" element="span"/>
-                <spring:message code="Min.bookForm.qty" var="qtyMinSizeError"/>
-                <spring:message code="Max.bookForm.qtyStr" var="qtyMaxSizeError"/>
-                <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
-                <span class="formError"></span>
 
                 <c:choose>
-                    <c:when test="${event.soldOut && !event.deleted}">
+                    <c:when test="${event.soldOut}">
                         <div class="container event_buttons">
                             <input disabled class="uk-button" type="submit" name="submit" value="Agotado"/>
                         </div>

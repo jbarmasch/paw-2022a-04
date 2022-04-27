@@ -48,10 +48,17 @@ public class UserController {
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
-    public ModelAndView login() {
+    public ModelAndView login(@RequestParam(value = "error", required = false) String error) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth instanceof AnonymousAuthenticationToken)
-            return new ModelAndView("login");
+        if (auth == null || auth instanceof AnonymousAuthenticationToken) {
+            ModelAndView mav = new ModelAndView("login");
+            if (error == null) {
+                mav.addObject("error", false);
+            } else {
+                mav.addObject("error", true);
+            }
+            return mav;
+        }
         return new ModelAndView("redirect:/");
     }
 

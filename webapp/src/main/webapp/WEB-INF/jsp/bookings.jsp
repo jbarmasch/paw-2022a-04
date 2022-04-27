@@ -71,7 +71,7 @@
                     </c:forEach>
                 </c:when>
                 <c:otherwise>
-                    No se encontraron eventos.
+                    <h5>No ha hecho reservas todavía.</h5>
                 </c:otherwise>
             </c:choose>
             <c:set var="page" value="${page}" scope="request"/>
