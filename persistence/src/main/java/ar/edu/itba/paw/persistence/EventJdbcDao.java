@@ -142,6 +142,28 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
+    public List<Event> getFewTicketsEvents() {
+        StringBuilder query = new StringBuilder(
+                "SELECT events.eventid, events.name, events.description, events.locationid, events.attendance, events.ticketsLeft, events.price, " +
+                        "events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, images.image, types.name AS typeName " +
+                        "FROM events JOIN locations ON events.locationid = locations.locationid JOIN images ON events.imageid = images.imageid " +
+                        "JOIN types ON events.typeid = types.typeid"
+        );
+        return jdbcTemplate.query(query + " WHERE (events.attendance) >= (4 * events.ticketsLeft) LIMIT 4", ROW_MAPPER);
+    }
+
+    @Override
+    public List<Event> getUpcomingEvents(){
+        StringBuilder query = new StringBuilder(
+                "SELECT events.eventid, events.name, events.description, events.locationid, events.attendance, events.ticketsLeft, events.price, " +
+                        "events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, images.image, types.name AS typeName " +
+                        "FROM events JOIN locations ON events.locationid = locations.locationid JOIN images ON events.imageid = images.imageid " +
+                        "JOIN types ON events.typeid = types.typeid"
+        );
+        return jdbcTemplate.query(query + " ORDER BY events.date LIMIT 5", ROW_MAPPER);
+    }
+
+    @Override
     public void updateEvent(int id, String name, String description, Integer locationId, int ticketsLeft, double price, int typeId, LocalDateTime date, int imgId, Integer[] tagIds) {
         jdbcTemplate.update("UPDATE events SET name = ?, description = ?, locationid = ?, ticketsLeft = ?, price = ?, typeid = ?, date = ?, imageid = ? WHERE eventid = ?",
                 name, description, locationId, ticketsLeft, price, typeId, Timestamp.valueOf(date), imgId, id);

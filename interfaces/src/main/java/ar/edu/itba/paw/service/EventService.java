@@ -18,4 +18,6 @@ public interface EventService {
     Integer getAttendanceOfEventId(long eventId);
     void soldOut(int id);
     void active(int id);
+    List<Event> getFewTicketsEvents();
+    List<Event> getUpcomingEvents();
 }

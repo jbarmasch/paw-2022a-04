@@ -113,6 +113,7 @@
 .center {
     display: flex;
     justify-content: center;
+    align-items: center;
 }
 
 .small-text {
@@ -181,6 +182,27 @@ input {
     flex-wrap: wrap;
     height: 100%;
     width: 100%;
+}
+
+.multi-browse {
+    justify-content: center;
+    align-items: flex-start;
+    margin: 0 0 10px 0;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.multi-browse > * {
+    margin: 0 15px 15px 15px;
+}
+
+.title {
+    font-weight: 550;
+}
+
+.subtitle {
+    margin: 0 0 8px 13%;
+    font-weight: 550;
 }
 
 .booking-browse > * {
@@ -448,4 +470,12 @@ input[type=number] {
 input[type = "submit"]:disabled {
     background-color: #888888;
     cursor: default;
+}
+
+.mails {
+    font-size: x-large;
+}
+
+h2 {
+    margin-top: 0;
 }

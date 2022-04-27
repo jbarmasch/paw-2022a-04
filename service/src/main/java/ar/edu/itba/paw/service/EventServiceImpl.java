@@ -74,6 +74,15 @@ public class EventServiceImpl implements EventService {
         mailService.sendErrorMail(userMail, eventName);
         return false;
     }
+    @Override
+    public List<Event> getFewTicketsEvents(){
+        return eventDao.getFewTicketsEvents();
+    }
+
+    @Override
+    public List<Event> getUpcomingEvents(){
+        return eventDao.getUpcomingEvents();
+    }
 
     @Override
     public Integer getAttendanceOfEventId(long eventId) {
