@@ -62,6 +62,9 @@ public class UserController {
         return new ModelAndView("redirect:/");
     }
 
+    @RequestMapping("/help")
+    public ModelAndView help(){ return new ModelAndView("help"); }
+
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ModelAndView redirectLogin() {
         return new ModelAndView("redirect:/events");

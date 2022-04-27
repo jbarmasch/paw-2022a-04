@@ -113,6 +113,7 @@
 .center {
     display: flex;
     justify-content: center;
+    align-items: center;
 }
 
 .small-text {
@@ -469,4 +470,12 @@ input[type=number] {
 input[type = "submit"]:disabled {
     background-color: #888888;
     cursor: default;
+}
+
+.mails {
+    font-size: x-large;
+}
+
+h2 {
+    margin-top: 0;
 }
