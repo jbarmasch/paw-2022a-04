@@ -55,11 +55,6 @@
     cursor: pointer;
 }
 
-.icon {
-    width: 20px;
-    height: 20px;
-}
-
 .container {
     display: flex;
 }
@@ -360,11 +355,12 @@ input[type=submit] {
 }
 
 .hidden {
-    visibility: collapse;
+    display: none;
 }
 
 .event_buttons {
-    justify-content: space-between;
+    justify-content: center;
+    width: 100%;
 }
 
 .event_img {
@@ -461,6 +457,10 @@ input[type=number] {
     margin: 0 4px 0 4px;
     min-height: 100%;
     color: white;
+}
+
+.bookForm div * {
+    margin: 5px;
 }
 
 .visible {

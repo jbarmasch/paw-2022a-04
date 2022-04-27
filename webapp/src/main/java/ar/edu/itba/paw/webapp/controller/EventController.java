@@ -250,8 +250,7 @@ public class EventController {
 
     @RequestMapping(value = "/myEvents", method = { RequestMethod.GET })
     public ModelAndView myEvents(@RequestParam(value = "page", required = false, defaultValue = "1") final int page) {
-        final String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-        final int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
+        final Integer userId = getUserId();
 
         List<Event> events = eventService.getUserEvents(userId, page);
         final ModelAndView mav = new ModelAndView("myEvents");

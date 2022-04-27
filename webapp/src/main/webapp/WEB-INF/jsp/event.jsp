@@ -19,8 +19,8 @@
             <div class="event_info">
                 <c:if test="${isOwner}">
                     <div class="event_actions">
-                        <img class="icon" src="<c:url value="/resources/svg/edit.svg"/>" alt="Trash icon" onclick="location.href='<c:url value="/events/${event.id}/modify"/>'"/>
-                        <form action="<c:url value="/events/${event.id}/delete"/>" method="post">
+                        <input type="image" class="icon" src="<c:url value="/resources/svg/edit.svg"/>" alt="Trash icon" onclick="location.href='<c:url value="/events/${event.id}/modify"/>'"/>
+                        <form class="transparent" action="<c:url value="/events/${event.id}/delete"/>" method="post">
                             <input class="icon" src="<c:url value="/resources/svg/trash.svg"/>" alt="Trash icon" type="image" name="submit" value=""/>
                         </form>
                     </div>
@@ -63,12 +63,12 @@
                     <c:if test="${isOwner}">
                         <c:choose>
                             <c:when test="${!event.soldOut && !event.deleted}">
-                                <form action="<c:url value="/events/${event.id}/soldout"/>" method="post">
+                                <form action="<c:url value="/events/${event.id}/soldout"/>" class="transparent" method="post">
                                     <input class="uk-button uk-button-text" type="submit" name="submit" value="Marcar como agotado"/>
                                 </form>
                             </c:when>
                             <c:when test="${event.soldOut && !event.deleted}">
-                                <form action="<c:url value="/events/${event.id}/active"/>" method="post">
+                                <form action="<c:url value="/events/${event.id}/active"/>" class="transparent" method="post">
                                     <input class="uk-button uk-button-text" type="submit" name="submit" value="Marcar como disponible"/>
                                 </form>
                             </c:when>
@@ -83,7 +83,7 @@
 
         <c:if test="${isLogged && !isOwner}">
             <c:url value="/events/${event.id}" var="postPath"/>
-            <form:form novalidate="true" modelAttribute="bookForm" action="${postPath}" method="post" id="bookForm">
+            <form:form novalidate="true" modelAttribute="bookForm" class="center bookForm" action="${postPath}" method="post" id="bookForm">
                 <c:choose>
                     <c:when test="${event.soldOut}">
                         <c:set var="disabled" scope="session" value="true"/>
@@ -93,9 +93,8 @@
                     </c:otherwise>
                 </c:choose>
                 <c:set var="ticketsLeft" scope="session" value="${event.maxCapacity}"/>
-                <div class="horizontal">
-                    <span class="required">* </span>
-                    <form:label path="qty">Cantidad de entradas: </form:label>
+                <div class="horizontal center">
+                    <form:label path="qty">*Cantidad de entradas: </form:label>
                     <form:input class="uk-input" type="number" disabled="${disabled}" path="qty" min="1" max="${event.maxCapacity}" required="true" id="qty"/>
                     <form:errors path="qty" cssClass="error-message" element="span"/>
                     <spring:message code="Min.bookForm.qty" var="qtyMinSizeError"/>
