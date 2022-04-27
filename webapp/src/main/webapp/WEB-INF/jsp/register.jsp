@@ -6,10 +6,10 @@
 <html>
 <head>
     <%@ include file="include.jsp"%>
-    <%@ include file="appbar.jsp"%>
     <title>BotPass</title>
 </head>
 <body>
+    <%@ include file="appbar.jsp"%>
     <c:url value="/register" var="postPath"/>
     <div class="only-element">
     <form:form class="registerForm" novalidate="true" modelAttribute="registerForm" action="${postPath}" method="post">
@@ -23,7 +23,7 @@
             <span class="formError"></span>
         </div>
         <div class="space-bet sep-top vertical">
-            <form:input placeholder="* Nombre de usuario" type="text" path="username" minlength="6" maxlength="100" required="true" id="username"/>
+            <form:input placeholder="* Nombre de usuario" type="text" path="username" pattern="[a-zA-Z0-9]+" minlength="6" maxlength="100" required="true" id="username"/>
             <form:errors path="username" cssClass="error-message" element="span"/>
             <spring:message code="NotEmpty.userForm.username" var="userEmptyError"/>
             <spring:message code="Size.userForm.username" var="userSizeError"/>

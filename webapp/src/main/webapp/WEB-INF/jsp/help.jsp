@@ -9,11 +9,9 @@
     <%@ include file="appbar.jsp"%>
     <div class="only-element vertical">
         <h1>¿Necesitás ayuda?</h1>
-        <h2>Contactate con algún miembro de nuestro equipo</h2>
+        <h2>Contactate con nuestro equipo de soporte</h2>
         <div class="mails vertical center">
-            <span>jbarmasch@itba.edu.ar</span>
-            <span>ebellver@itba.edu.ar</span>
-            <span>slococo@itba.edu.ar</span>
+            <a href="mailto:botpass@zohomail.com">botpass@zohomail.com</a>
         </div>
     </div>
 </body>

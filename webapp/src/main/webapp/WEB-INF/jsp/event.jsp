@@ -48,15 +48,14 @@
                 <div class="container">
                     <img class="icon" src="<c:url value="/resources/svg/party.svg"/>" alt="Type icon"/><span><c:out value="${event.type.name}"/></span>
                 </div>
-                <div class="container">
+                <div class="container tag-container">
                     <c:forEach var="tag" items="${event.tags}">
                         <span class="chip"><c:out value="${tag.name}"/></span>
                     </c:forEach>
                 </div>
                 <div class="horizontal">
                     <c:if test="${isOwner}">
-                        <p>Entradas reservadas:</p>
-                        <span><c:out value="${event.attendance}"></c:out></span>
+                        <span>Entradas reservadas: <c:out value="${event.attendance}"/></span>
                     </c:if>
                 </div>
                 <div>
@@ -118,7 +117,6 @@
             </form:form>
         </c:if>
     </div>
-
 </body>
 </html>
 

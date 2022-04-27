@@ -234,7 +234,7 @@ public class EventController {
             return new ModelAndView("redirect:/events/" + eventId);
 
         eventService.soldOut(eventId);
-        return new ModelAndView("redirect:/events");
+        return new ModelAndView("redirect:/events/" + eventId);
     }
 
     @RequestMapping(value = "/events/{eventId}/active", method = { RequestMethod.POST })

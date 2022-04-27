@@ -59,6 +59,10 @@
     display: flex;
 }
 
+.tag-container {
+    flex-wrap: wrap;
+}
+
 .card_body {
     flex-direction: column;
     justify-content: space-between;
@@ -214,7 +218,6 @@ input {
     background-color: aliceblue;
     padding: 20px;
     max-width: 400px;
-    max-height: 400px;
 }
 
 .event_info div {
@@ -389,10 +392,12 @@ input[type=submit] {
     border: 1px solid #CCCCCC;
 }
 
+/*
 .chip:hover {
     background-color: #CCCCCC;
     border: 1px solid #AAAAAA;
 }
+*/
 
 .event {
     justify-content: space-around;
