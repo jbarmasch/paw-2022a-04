@@ -183,6 +183,27 @@ input {
     width: 100%;
 }
 
+.multi-browse {
+    justify-content: center;
+    align-items: flex-start;
+    margin: 0 0 10px 0;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.multi-browse > * {
+    margin: 0 15px 15px 15px;
+}
+
+.title {
+    font-weight: 550;
+}
+
+.subtitle {
+    margin: 0 0 8px 13%;
+    font-weight: 550;
+}
+
 .booking-browse > * {
     justify-content: center;
     margin: 10px

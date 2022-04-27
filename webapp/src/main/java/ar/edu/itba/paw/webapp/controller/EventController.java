@@ -69,9 +69,12 @@ public class EventController {
         return mav;
     }
 
-    @RequestMapping("/")
+    @RequestMapping(value = "/", method = { RequestMethod.GET })
     public ModelAndView home() {
-        return new ModelAndView("index");
+        final ModelAndView mav = new ModelAndView("index");
+        mav.addObject("fewTicketsEvents", eventService.getFewTicketsEvents());
+        mav.addObject("upcomingEvents", eventService.getUpcomingEvents());
+        return mav;
     }
 
     @RequestMapping(value = "/profile", method = { RequestMethod.GET })
