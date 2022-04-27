@@ -12,14 +12,13 @@
     </div>
     <div>
         <div class="uk-inline">
+            <% String[] strs = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString().split(" "); request.setAttribute("strs", strs); request.setAttribute("strsSize", strs.length); %>
             <c:choose>
-                <c:when test="${SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString() == 'anonymousUser'}">
+                <c:when test="${strsSize <= 1}">
                     <button class="uk-button uk-button-text" onclick="location.href='<c:url value="/login"/>'">Iniciar sesión</button>
                 </c:when>
                 <c:otherwise>
-                    <% String[] strs = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString().split(" "); String username = strs[2].replace(";", ""); %>
-
-                    <button class="uk-button uk-button-text"><%= username %><img src="<c:url value='/resources/svg/dropdown.svg'/>" alt="Dropdown"/></button>
+                    <button class="uk-button uk-button-text"><%= strs[2].replace(";", "") %><img src="<c:url value='/resources/svg/dropdown.svg'/>" alt="Dropdown"/></button>
                     <div uk-dropdown="pos: bottom-center">
                         <ul class="uk-nav uk-dropdown-nav">
                             <li><a href="<c:url value="/bookings"/>">MIS RESERVAS</a></li>
