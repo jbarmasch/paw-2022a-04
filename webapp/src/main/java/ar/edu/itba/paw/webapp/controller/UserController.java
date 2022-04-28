@@ -19,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -61,9 +62,6 @@ public class UserController {
         }
         return new ModelAndView("redirect:/");
     }
-
-    @RequestMapping("/help")
-    public ModelAndView help(){ return new ModelAndView("help"); }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ModelAndView redirectLogin() {
@@ -135,5 +133,14 @@ public class UserController {
         if (!userService.cancelBooking(form.getQty(), user.getId(), username, user.getMail(), eventId, e.getName(), eventUser.getMail()))
             return new ModelAndView("redirect:/error");
         return new ModelAndView("redirect:/bookings/");
+    }
+
+    @ModelAttribute
+    public void addAttributes(Model model) {
+        String username = null;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && !(auth instanceof AnonymousAuthenticationToken))
+            username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        model.addAttribute("username", username);
     }
 }

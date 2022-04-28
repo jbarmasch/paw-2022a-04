@@ -102,6 +102,9 @@
                     <span class="formError"></span>
                 </div>
 
+                <c:if test="${!disabled}">
+                    <span>(Disponibles: ${event.maxCapacity})</span>
+                </c:if>
                 <c:choose>
                     <c:when test="${event.soldOut}">
                         <div class="container event_buttons">

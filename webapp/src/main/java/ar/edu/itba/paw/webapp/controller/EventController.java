@@ -10,7 +10,6 @@ import ar.edu.itba.paw.webapp.form.FilterForm;
 import ar.edu.itba.paw.webapp.helper.FilterUtils;
 import ar.edu.itba.paw.webapp.validations.IntegerArray;
 import ar.edu.itba.paw.webapp.validations.NumberFormat;
-import org.hibernate.validator.method.MethodConstraintViolation;
 import org.hibernate.validator.method.MethodConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import ar.edu.itba.paw.model.Event;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +28,6 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
-import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -53,7 +52,7 @@ public class EventController {
 
     @ExceptionHandler(EventNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ModelAndView noSuchEvent() {
+    public ModelAndView notFound() {
         final ModelAndView mav = new ModelAndView("error");
         mav.addObject("message", "404");
         return mav;
@@ -71,9 +70,14 @@ public class EventController {
 
     @RequestMapping(value = "/", method = { RequestMethod.GET })
     public ModelAndView home() {
+        List<Event> fewTicketsEvents = eventService.getFewTicketsEvents();
+        List<Event> upcomingEvents = eventService.getUpcomingEvents();
+
         final ModelAndView mav = new ModelAndView("index");
-        mav.addObject("fewTicketsEvents", eventService.getFewTicketsEvents());
-        mav.addObject("upcomingEvents", eventService.getUpcomingEvents());
+        mav.addObject("fewTicketsEvents", fewTicketsEvents);
+        mav.addObject("fewTicketsSize", fewTicketsEvents.size());
+        mav.addObject("upcomingEvents", upcomingEvents);
+        mav.addObject("upcomingSize", upcomingEvents.size());
         return mav;
     }
 
@@ -251,6 +255,8 @@ public class EventController {
     @RequestMapping(value = "/myEvents", method = { RequestMethod.GET })
     public ModelAndView myEvents(@RequestParam(value = "page", required = false, defaultValue = "1") final int page) {
         final Integer userId = getUserId();
+        if (userId == null)
+            return notFound();
 
         List<Event> events = eventService.getUserEvents(userId, page);
         final ModelAndView mav = new ModelAndView("myEvents");
@@ -264,5 +270,14 @@ public class EventController {
         String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
         return event.getUserId() == userId;
+    }
+
+    @ModelAttribute
+    public void addAttributes(Model model) {
+        String username = null;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && !(auth instanceof AnonymousAuthenticationToken))
+            username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        model.addAttribute("username", username);
     }
 }

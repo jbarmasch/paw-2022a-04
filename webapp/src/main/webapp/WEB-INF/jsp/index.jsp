@@ -12,7 +12,7 @@
         <h1 class="title">¡Bienvenido a BotPass!</h1>
     </div>
     <c:choose>
-        <c:when test="${upcomingEvents.size() > 0}">
+        <c:when test="${upcomingSize > 0}">
             <div>
                 <h2 class="subtitle">Próximos eventos</h2>
             </div>
@@ -29,11 +29,11 @@
                                     <div class="card_info">
                                         <img class="icon" src="<c:url value="/resources/svg/price-tag.svg"/>" alt="Price icon"/>
                                         <span>
-                                                <c:choose>
-                                                    <c:when test="${event.price == 0}">Gratis</c:when>
-                                                    <c:otherwise>$<c:out value="${event.price}"/></c:otherwise>
-                                                </c:choose>
-                                            </span>
+                                             <c:choose>
+                                                 <c:when test="${event.price == 0}">Gratis</c:when>
+                                                 <c:otherwise>$<c:out value="${event.price}"/></c:otherwise>
+                                             </c:choose>
+                                        </span>
                                         <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${event.location.name}"/></span>
                                     </div>
                                     <div class="card_info">
@@ -49,7 +49,7 @@
         </c:when>
     </c:choose>
     <c:choose>
-        <c:when test="${fewTicketsEvents.size() > 0}">
+        <c:when test="${fewTicketsSize > 0}">
             <div>
                 <h2 class="subtitle">No te pierdas estos eventos ¡Se están quedando sin entradas!</h2>
             </div>
@@ -66,11 +66,11 @@
                                 <div class="card_info">
                                     <img class="icon" src="<c:url value="/resources/svg/price-tag.svg"/>" alt="Price icon"/>
                                     <span>
-                                                <c:choose>
-                                                    <c:when test="${event.price == 0}">Gratis</c:when>
-                                                    <c:otherwise>$<c:out value="${event.price}"/></c:otherwise>
-                                                </c:choose>
-                                            </span>
+                                        <c:choose>
+                                            <c:when test="${event.price == 0}">Gratis</c:when>
+                                            <c:otherwise>$<c:out value="${event.price}"/></c:otherwise>
+                                        </c:choose>
+                                    </span>
                                     <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${event.location.name}"/></span>
                                 </div>
                                 <div class="card_info">

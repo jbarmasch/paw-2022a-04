@@ -23,7 +23,7 @@
                                 <div class="fill">
                                     <img src="<c:url value="/image/${booking.event.imageId}"/>" onclick="location.href='<c:url value="/events/${booking.event.id}"/>'" alt="Event image"/>
                                 </div>
-                                <div class="booking-card-body">
+                                <div class="transparent">
                                     <h3 class="uk-card-title"><c:out value="${booking.event.name}"/></h3>
                                     <div class="booking-card-info">
                                         <div><img class="icon" src="<c:url value="/resources/svg/date.svg"/>" alt="Date icon"/><span><c:out value="${booking.event.dateFormatted}"/></span></div>
@@ -92,7 +92,7 @@
 <script type="text/javascript">
     (function() {
         var qty = document.getElementById('qty');
-        var form = document.getElementsByClassName('booking-card-body');
+        var form = document.getElementsByClassName('transparent');
 
         if (qty === null || form === null)
             return;
@@ -119,7 +119,7 @@
 
         var updateQtyMessage = function() {
             qty = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('uk-input').item(0);
-            form = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('booking-card-body').item(0);
+            form = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('transparent').item(0);
             form.getElementsByClassName('formError')[0].innerHTML = qty.validationMessage;
         }
 
@@ -128,7 +128,7 @@
 
         for (let i = 0; i < form.length; i++) {
             form.item(i).addEventListener('submit', function (event) {
-                var form = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('booking-card-body').item(0);
+                var form = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('transparent').item(0);
                 if (form.classList) form.classList.add('submitted');
                 checkQtyValidity();
                 if (!this.checkValidity()) {
