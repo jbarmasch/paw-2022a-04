@@ -149,7 +149,7 @@ public class EventJdbcDao implements EventDao {
                         "FROM events JOIN locations ON events.locationid = locations.locationid JOIN images ON events.imageid = images.imageid " +
                         "JOIN types ON events.typeid = types.typeid"
         );
-        return jdbcTemplate.query(query + " WHERE (events.attendance) >= (4 * events.ticketsLeft) LIMIT 4", ROW_MAPPER);
+        return jdbcTemplate.query(query + " WHERE (events.attendance) >= (4 * events.ticketsLeft) AND events.state != 1 AND events.ticketsLeft > 0 LIMIT 4", ROW_MAPPER);
     }
 
     @Override
@@ -160,7 +160,7 @@ public class EventJdbcDao implements EventDao {
                         "FROM events JOIN locations ON events.locationid = locations.locationid JOIN images ON events.imageid = images.imageid " +
                         "JOIN types ON events.typeid = types.typeid"
         );
-        return jdbcTemplate.query(query + " WHERE events.date > ? ORDER BY events.date LIMIT 5", new Object[]{Timestamp.valueOf(LocalDateTime.now())}, ROW_MAPPER);
+        return jdbcTemplate.query(query + " WHERE events.date > ? AND events.state != 1 ORDER BY events.date LIMIT 5", new Object[]{Timestamp.valueOf(LocalDateTime.now())}, ROW_MAPPER);
     }
 
     @Override
