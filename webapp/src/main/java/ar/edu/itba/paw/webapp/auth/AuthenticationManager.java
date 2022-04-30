@@ -12,7 +12,7 @@ import javax.servlet.http.HttpSession;
 public class AuthenticationManager {
     public void setReferrer(HttpServletRequest request, String referrer) {
         HttpSession session = request.getSession();
-        if (session != null && !referrer.contains("login") && !referrer.contains("register")) {
+        if (session != null && referrer != null && !referrer.contains("login") && !referrer.contains("register")) {
             session.setAttribute("url_prior_login", referrer);
         }
     }

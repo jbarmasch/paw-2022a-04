@@ -41,8 +41,6 @@
         <div class="space-bet sep-top vertical">
             <form:input placeholder="* Repita contraseña" type="password" path="repeatPassword" minlength="6" maxlength="100" required="true" id="repeatPassword"/>
             <form:errors path="repeatPassword" cssClass="error-message" element="span"/>
-            <spring:message code="NotEmpty.userForm.password" var="mailEmptyError"/>
-            <spring:message code="Size.userForm.password" var="mailSizeError"/>
             <span class="formError"></span>
         </div>
         <div class="center">
@@ -112,23 +110,26 @@
         var checkRepeatPasswordValidity = function() {
             if (repeatPassword.validity.typeMismatch) {
                 repeatPassword.setCustomValidity('${mailTypeError}');
-                updatePasswordMessage();
+                updateRepeatPasswordMessage();
             } else if (repeatPassword.validity.valueMissing) {
                 repeatPassword.setCustomValidity('${passwordEmptyError}');
-                updatePasswordMessage();
+                updateRepeatPasswordMessage();
             } else if (repeatPassword.validity.tooShort || repeatPassword.validity.tooLong) {
                 repeatPassword.setCustomValidity('${passwordSizeError}');
-                updatePasswordMessage();
+                updateRepeatPasswordMessage();
             } else {
                 repeatPassword.setCustomValidity('');
             }
         };
 
         var checkPasswordMatchValidity = function() {
+            if (!password.validity.valid)
+                return;
+
             if (password.value.length !== 0 && repeatPassword.value.length !== 0) {
                 if (password.value !== repeatPassword.value) {
                     password.setCustomValidity('${passwordMatchError}');
-                    updateRepeatPasswordMessage();
+                    updatePasswordMessage();
                 } else {
                     password.setCustomValidity('');
                 }
@@ -159,8 +160,6 @@
         username.addEventListener('keyup', checkUsernameValidity, false);
         password.addEventListener('change', checkPasswordValidity, false);
         password.addEventListener('keyup', checkPasswordValidity, false);
-        password.addEventListener('change', checkPasswordMatchValidity, false);
-        password.addEventListener('keyup', checkPasswordMatchValidity, false);
         repeatPassword.addEventListener('change', checkRepeatPasswordValidity, false);
         repeatPassword.addEventListener('keyup', checkRepeatPasswordValidity, false);
 
@@ -169,6 +168,7 @@
             checkMailValidity();
             checkUsernameValidity();
             checkPasswordValidity();
+            checkRepeatPasswordValidity();
             checkPasswordMatchValidity();
             if (!this.checkValidity()) {
                 event.preventDefault();
