@@ -24,6 +24,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -50,24 +51,6 @@ public class EventController {
         this.userService = userService;
     }
 
-    @ExceptionHandler(EventNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ModelAndView notFound() {
-        final ModelAndView mav = new ModelAndView("error");
-        mav.addObject("message", "404");
-        return mav;
-    }
-
-    @SuppressWarnings("deprecation")
-    @ExceptionHandler(MethodConstraintViolationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView constraintViolation(MethodConstraintViolationException e) {
-        final ModelAndView mav = new ModelAndView("error");
-        mav.addObject("message", "400");
-        System.out.println(e.getMessage());
-        return mav;
-    }
-
     @RequestMapping(value = "/", method = { RequestMethod.GET })
     public ModelAndView home() {
         List<Event> fewTicketsEvents = eventService.getFewTicketsEvents();
@@ -92,7 +75,7 @@ public class EventController {
                                      @RequestParam(value = "types", required = false) @IntegerArray final String[] types,
                                      @RequestParam(value = "minPrice", required = false) @NumberFormat(decimal = true) final String minPrice,
                                      @RequestParam(value = "maxPrice", required = false) @NumberFormat(decimal = true) final String maxPrice,
-                                     @RequestParam(value = "page", required = false, defaultValue = "1") final int page) {
+                                     @RequestParam(value = "page", required = false, defaultValue = "1") @Min(1) final int page) {
         List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, page);
 
         final ModelAndView mav = new ModelAndView("events");
@@ -132,8 +115,7 @@ public class EventController {
     }
 
     @RequestMapping(value = "/events/{eventId}", method = RequestMethod.GET)
-    public ModelAndView eventDescription(@ModelAttribute("bookForm") final BookForm form, @Min(1) @NumberFormat @PathVariable("eventId") final String eventIdStr) {
-        int eventId = Integer.parseInt(eventIdStr);
+    public ModelAndView eventDescription(@ModelAttribute("bookForm") final BookForm form, @PathVariable("eventId") @Min(1) final int eventId) {
         final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         boolean isLogged = false, isOwner = false;
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -154,8 +136,7 @@ public class EventController {
     }
 
     @RequestMapping(value = "/events/{eventId}", method = { RequestMethod.POST }, params = "submit")
-    public ModelAndView bookEvent(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors, @PathVariable("eventId") final String eventIdStr) {
-        int eventId = Integer.parseInt(eventIdStr);
+    public ModelAndView bookEvent(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors, @PathVariable("eventId") @Min(1) final int eventId) {
         final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         final String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         final User user = userService.findByUsername(username).orElseThrow(UserNotFoundException::new);
@@ -163,7 +144,7 @@ public class EventController {
 
         if (errors.hasErrors() || form.getQty() > e.getMaxCapacity()) {
             errors.rejectValue("qty", "Max.bookForm.qty", new Object[] {e.getMaxCapacity()}, "");
-            return eventDescription(form, eventIdStr);
+            return eventDescription(form, eventId);
         }
 
         boolean booked = eventService.book(form.getQty(), user.getId(), username, user.getMail(), eventId, e.getName(), eventUser.getMail());
@@ -194,8 +175,7 @@ public class EventController {
     }
 
     @RequestMapping(value = "/events/{eventId}/modify", method = { RequestMethod.GET })
-    public ModelAndView modifyForm(@ModelAttribute("eventForm") final EventForm form, @NumberFormat @PathVariable("eventId") final String eventIdStr) {
-        int eventId = Integer.parseInt(eventIdStr);
+    public ModelAndView modifyForm(@ModelAttribute("eventForm") final EventForm form, @PathVariable("eventId") @Min(1) final int eventId) {
         final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         if (!canUpdateEvent(event))
             return new ModelAndView("redirect:/events/" + eventId);
@@ -210,18 +190,16 @@ public class EventController {
     }
 
     @RequestMapping(value = "/events/{eventId}/modify", method = { RequestMethod.POST }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ModelAndView modifyEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors, @NumberFormat @PathVariable("eventId") final String eventIdStr, @RequestParam("image") CommonsMultipartFile imageFile) {
-        int eventId = Integer.parseInt(eventIdStr);
+    public ModelAndView modifyEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors, @PathVariable("eventId") @Min(1) final int eventId, @RequestParam("image") CommonsMultipartFile imageFile) {
         if (errors.hasErrors())
-            return modifyForm(form, eventIdStr);
+            return modifyForm(form, eventId);
 
         eventService.updateEvent(eventId, form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(), form.getType(), form.getTimestamp(), (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags());
         return new ModelAndView("redirect:/events/" + eventId);
     }
 
     @RequestMapping(value = "/events/{eventId}/delete", method = { RequestMethod.POST })
-    public ModelAndView deleteEvent(@NumberFormat @PathVariable("eventId") final String eventIdStr) {
-        int eventId = Integer.parseInt(eventIdStr);
+    public ModelAndView deleteEvent(@PathVariable("eventId") final int eventId) {
         final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         if (!canUpdateEvent(event))
             return new ModelAndView("redirect:/events/" + eventId);
@@ -231,8 +209,7 @@ public class EventController {
     }
 
     @RequestMapping(value = "/events/{eventId}/soldout", method = { RequestMethod.POST })
-    public ModelAndView soldOutEvent(@NumberFormat @PathVariable("eventId") final String eventIdStr) {
-        int eventId = Integer.parseInt(eventIdStr);
+    public ModelAndView soldOutEvent(@PathVariable("eventId") @Min(1) final int eventId) {
         final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         if (!canUpdateEvent(event))
             return new ModelAndView("redirect:/events/" + eventId);
@@ -242,8 +219,7 @@ public class EventController {
     }
 
     @RequestMapping(value = "/events/{eventId}/active", method = { RequestMethod.POST })
-    public ModelAndView activeEvent(@NumberFormat @PathVariable("eventId") final String eventIdStr) {
-        int eventId = Integer.parseInt(eventIdStr);
+    public ModelAndView activeEvent(@PathVariable("eventId") @Min(1) final int eventId) {
         final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         if (!canUpdateEvent(event))
             return new ModelAndView("redirect:/events/" + eventId);
@@ -253,10 +229,10 @@ public class EventController {
     }
 
     @RequestMapping(value = "/myEvents", method = { RequestMethod.GET })
-    public ModelAndView myEvents(@RequestParam(value = "page", required = false, defaultValue = "1") final int page) {
+    public ModelAndView myEvents(@RequestParam(value = "page", required = false, defaultValue = "1") @Min(1) final int page) {
         final Integer userId = getUserId();
         if (userId == null)
-            return notFound();
+            throw new UserNotFoundException();
 
         List<Event> events = eventService.getUserEvents(userId, page);
         final ModelAndView mav = new ModelAndView("myEvents");

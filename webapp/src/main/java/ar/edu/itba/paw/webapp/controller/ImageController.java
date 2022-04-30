@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.validation.constraints.Min;
+
 @Controller
 public class ImageController {
     private final ImageService imageService;
@@ -21,7 +23,7 @@ public class ImageController {
 
     @RequestMapping(value = "/image/{id}", method = { RequestMethod.GET }, produces = MediaType.IMAGE_PNG_VALUE)
     @ResponseBody
-    public byte[] getImage(@PathVariable("id") final int imageId) {
+    public byte[] getImage(@PathVariable("id") @Min(1) final int imageId) {
         return imageService.getImageById(imageId).orElseThrow(ImageNotFoundException::new).getImage();
     }
 }
