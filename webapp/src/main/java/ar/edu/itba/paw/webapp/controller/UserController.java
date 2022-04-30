@@ -6,6 +6,7 @@ import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.EventService;
 import ar.edu.itba.paw.service.MailService;
 import ar.edu.itba.paw.service.UserService;
+import ar.edu.itba.paw.webapp.auth.AuthenticationManager;
 import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.BookForm;
@@ -15,14 +16,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import sun.util.calendar.CalendarUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -33,12 +37,14 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
     private final EventService eventService;
+    private final AuthenticationManager authenticationManager;
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
-    public UserController(final UserService userService, final EventService eventService) {
+    public UserController(final UserService userService, final EventService eventService, final AuthenticationManager authenticationManager) {
         this.userService = userService;
         this.eventService = eventService;
+        this.authenticationManager = authenticationManager;
     }
 
     @ExceptionHandler(UserNotFoundException.class)
@@ -50,23 +56,18 @@ public class UserController {
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
-    public ModelAndView login(@RequestParam(value = "error", required = false) String error) {
+    public ModelAndView login(@RequestParam(value = "error", required = false) String error, HttpServletRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || auth instanceof AnonymousAuthenticationToken) {
             ModelAndView mav = new ModelAndView("login");
             if (error == null) {
                 mav.addObject("error", false);
-            } else {
+                authenticationManager.setReferrer(request, request.getHeader("Referer"));
+            } else
                 mav.addObject("error", true);
-            }
             return mav;
         }
         return new ModelAndView("redirect:/");
-    }
-
-    @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public ModelAndView redirectLogin() {
-        return new ModelAndView("redirect:/events");
     }
 
     @RequestMapping("/profile/{userId}")
@@ -79,18 +80,20 @@ public class UserController {
     @RequestMapping(value = "/register", method = { RequestMethod.GET })
     public ModelAndView createForm(@ModelAttribute("registerForm") final UserForm form) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth instanceof AnonymousAuthenticationToken)
+        if (auth == null || auth instanceof AnonymousAuthenticationToken) {
             return new ModelAndView("register");
+        }
         return new ModelAndView("redirect:/");
     }
 
     @RequestMapping(value = "/register", method = { RequestMethod.POST })
-    public ModelAndView create(@Valid @ModelAttribute("registerForm") final UserForm form, final BindingResult errors) {
+    public ModelAndView create(@Valid @ModelAttribute("registerForm") final UserForm form, final BindingResult errors, HttpServletRequest request) {
         if (errors.hasErrors())
             return createForm(form);
 
         final User u = userService.create(form.getUsername(), form.getPassword(), form.getMail());
-        return new ModelAndView("redirect:/login/");
+        authenticationManager.requestAuthentication(request, form.getUsername(), form.getPassword());
+        return new ModelAndView("redirect:" + authenticationManager.redirectionAuthenticationSuccess(request));
     }
 
     @RequestMapping(value = "/bookings", method = { RequestMethod.GET })
