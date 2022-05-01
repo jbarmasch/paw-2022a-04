@@ -76,18 +76,12 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public List<Booking> getAllBookingsFromUser(long id, int page) {
-        return jdbcTemplate.query("SELECT bookings.userid AS bookId, bookings.qty, events.eventid, events.name, events.attendance, events.description, events.locationid, events.ticketsleft, events.price, " +
-                "events.typeid, events.date, events.imageid, events.state, events.userid, locations.name AS locName, images.image, types.name AS typeName " +
-                "FROM bookings JOIN events ON bookings.eventid = events.eventid JOIN locations ON events.locationid = locations.locationid JOIN images ON " +
-                "events.imageid = images.imageid JOIN types ON events.typeid = types.typeid WHERE bookings.userid = ? AND bookings.qty > 0 ORDER BY events.date LIMIT 10 OFFSET ?", new Object[] { id, (page - 1) * 10 }, BOOKING_ROW_MAPPER);
+        return jdbcTemplate.query("SELECT bookings.userid AS bookId, bookings.qty, * FROM bookings JOIN event_complete ON bookings.eventid = event_complete.eventid WHERE bookings.userid = ? AND bookings.qty > 0 ORDER BY date LIMIT 10 OFFSET ?", new Object[] { id, (page - 1) * 10 }, BOOKING_ROW_MAPPER);
     }
 
     @Override
     public Optional<Booking> getBookingFromUser(long userId, long eventId) {
-        return jdbcTemplate.query("SELECT bookings.userid AS bookId, bookings.qty, events.eventid, events.name, events.attendance, events.description, events.locationid, events.ticketsleft, events.price, " +
-                "events.typeid, events.date, events.imageid, events.state, events.userid, locations.name AS locName, images.image, types.name AS typeName " +
-                "FROM bookings JOIN events ON bookings.eventid = events.eventid JOIN locations ON events.locationid = locations.locationid JOIN images ON " +
-                "events.imageid = images.imageid JOIN types ON events.typeid = types.typeid WHERE bookings.userid = ? AND events.eventId = ?", new Object[] { userId, eventId }, BOOKING_ROW_MAPPER).stream().findFirst();
+        return jdbcTemplate.query("SELECT bookings.userid AS bookId, bookings.qty, * FROM bookings JOIN event_complete ON bookings.eventid = event_complete.eventid WHERE bookings.userid = ? AND bookings.eventId = ?", new Object[] { userId, eventId }, BOOKING_ROW_MAPPER).stream().findFirst();
     }
 
     @Override

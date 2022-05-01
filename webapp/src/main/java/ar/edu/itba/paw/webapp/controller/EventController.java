@@ -156,6 +156,12 @@ public class EventController {
         mav.addObject("event", event);
         mav.addObject("isOwner", isOwner);
         mav.addObject("isLogged", isLogged);
+        List<Event> similarEvents = eventService.getSimilarEvents(eventId);
+        List<Event> popularEvents = eventService.getPopularEvents(eventId);
+        mav.addObject("similarEvents", similarEvents);
+        mav.addObject("similarEventsSize", similarEvents.size());
+        mav.addObject("popularEvents", popularEvents);
+        mav.addObject("popularEventsSize", popularEvents.size());
         return mav;
     }
 

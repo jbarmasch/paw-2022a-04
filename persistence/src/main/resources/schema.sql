@@ -62,3 +62,11 @@ CREATE TABLE IF NOT EXISTS bookings (
     qty INTEGER CHECK (qty >= 0),
     PRIMARY KEY (userId, eventId, name)
 );
+
+CREATE OR REPLACE VIEW event_complete AS (
+    SELECT events.eventid, events.name, events.description, events.locationid, events.attendance, events.ticketsleft, events.price,
+           events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, images.image, types.name AS typeName, ARRAY_AGG(t.tagId) AS tagIds, ARRAY_AGG(t.name) AS tagNames
+    FROM events JOIN locations ON events.locationid = locations.locationid JOIN images ON events.imageid = images.imageid
+                JOIN types ON events.typeid = types.typeid LEFT OUTER JOIN eventTags eT on events.eventId = eT.eventId LEFT OUTER JOIN tags t on eT.tagId = t.tagId
+    GROUP BY events.eventId, locations.locationid, images.imageid, types.typeid
+);

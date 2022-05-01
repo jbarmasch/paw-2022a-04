@@ -97,6 +97,16 @@ public class EventServiceImpl implements EventService {
     public void active(int id) {
         eventDao.active(id);
     }
+
+    @Override
+    public List<Event> getSimilarEvents(long eventId) {
+        return eventDao.getSimilarEvents(eventId);
+    }
+
+    @Override
+    public List<Event> getPopularEvents(long eventId) {
+        return eventDao.getPopularEvents(eventId);
+    }
 }
 
 

@@ -20,4 +20,6 @@ public interface EventDao {
     void active(int id);
     List<Event> getFewTicketsEvents();
     List<Event> getUpcomingEvents();
+    List<Event> getSimilarEvents(long eventId);
+    List<Event> getPopularEvents(long eventId);
 }
