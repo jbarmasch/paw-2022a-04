@@ -80,7 +80,7 @@
             </div>
         </div>
 
-        <c:if test="${isLogged && !isOwner}">
+        <c:if test="${!isOwner}">
             <c:url value="/events/${event.id}" var="postPath"/>
             <form:form novalidate="true" modelAttribute="bookForm" class="center bookForm" action="${postPath}" method="post" id="bookForm">
                 <c:choose>

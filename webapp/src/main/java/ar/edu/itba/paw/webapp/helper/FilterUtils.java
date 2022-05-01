@@ -7,7 +7,7 @@ public class FilterUtils {
         StringBuilder queryBuilder = new StringBuilder();
         boolean isFirst = true;
         for (Map.Entry<String, Object> filter : filters.entrySet()) {
-            if (filter.getValue() == null)
+            if (filter.getValue() == null || filter.getValue().toString().isEmpty())
                 continue;
 
             if (isFirst) {

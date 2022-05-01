@@ -119,7 +119,6 @@
                         </c:otherwise>
                     </c:choose>
                 </c:forEach>
-                <form:options items="${allTags}" itemValue="id" itemLabel="name"/>
             </form:select>
             <form:errors path="type" cssClass="error-message" element="span"/>
             <span class="formError"></span>

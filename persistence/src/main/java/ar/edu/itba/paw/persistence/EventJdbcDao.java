@@ -9,7 +9,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -51,11 +50,10 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public Optional<Event> getEventById(long id) {
-        List<Event> query = jdbcTemplate.query(
-                "SELECT events.eventid, events.name, events.description, events.locationid, events.attendance, events.ticketsleft, events.price, " +
-                        "events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, images.image, types.name AS typeName " +
-                        "FROM events JOIN locations ON events.locationid = locations.locationid JOIN images ON events.imageid = images.imageid " +
-                        "JOIN types ON events.typeid = types.typeid WHERE eventid = ?",
+        List<Event> query = jdbcTemplate.query("SELECT events.eventid, events.name, events.description, events.locationid, events.attendance, events.ticketsleft, events.price, " +
+                "events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, images.image, types.name AS typeName " +
+                "FROM events JOIN locations ON events.locationid = locations.locationid JOIN images ON events.imageid = images.imageid " +
+                "JOIN types ON events.typeid = types.typeid WHERE eventid = ?",
                 new Object[]{id}, ROW_MAPPER);
         return query.stream().findFirst();
     }
@@ -85,7 +83,7 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public List<Event> filterBy(String[] locations, String[] types , String minPrice, String maxPrice, int page) {
+    public List<Event> filterBy(String[] locations, String[] types , String minPrice, String maxPrice, String searchQuery, String order, String orderBy, int page) {
         StringBuilder query = new StringBuilder(
                 "SELECT events.eventid, events.name, events.description, events.locationid, events.attendance, events.ticketsLeft, events.price, " +
                 "events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, images.image, types.name AS typeName " +
@@ -93,7 +91,7 @@ public class EventJdbcDao implements EventDao {
                 "JOIN types ON events.typeid = types.typeid"
         );
 
-        if (locations != null || minPrice != null || maxPrice != null || types != null) {
+        if (locations != null || minPrice != null || maxPrice != null || types != null || searchQuery != null) {
             boolean append = false;
             query.append(" WHERE ");
             if (locations != null && locations.length > 0) {
@@ -122,6 +120,7 @@ public class EventJdbcDao implements EventDao {
             if (types != null && types.length > 0) {
                 if (append)
                     query.append(" AND ");
+                append = true;
                 String lastType = types[types.length - 1];
                 query.append("events.typeid IN (");
                 for (String type : types) {
@@ -131,9 +130,19 @@ public class EventJdbcDao implements EventDao {
                 }
                 query.append(")");
             }
+            if (searchQuery != null) {
+                if (append)
+                    query.append(" AND ");
+                query.append("events.name LIKE '%").append(searchQuery).append("%'");
+            }
+        }
+        query.append(" AND events.state != 1");
+
+        if (order != null && orderBy != null) {
+            query.append(" ORDER BY ").append(order).append(" ").append(orderBy);
         }
 
-        return jdbcTemplate.query(query + " AND events.state != 1 LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
+        return jdbcTemplate.query(query + "  LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
     }
 
     @Override
@@ -143,31 +152,29 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public List<Event> getFewTicketsEvents() {
-        StringBuilder query = new StringBuilder(
-                "SELECT events.eventid, events.name, events.description, events.locationid, events.attendance, events.ticketsLeft, events.price, " +
-                        "events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, images.image, types.name AS typeName " +
-                        "FROM events JOIN locations ON events.locationid = locations.locationid JOIN images ON events.imageid = images.imageid " +
-                        "JOIN types ON events.typeid = types.typeid"
-        );
-        return jdbcTemplate.query(query + " WHERE (events.attendance) >= (4 * events.ticketsLeft) AND events.state != 1 AND events.ticketsLeft > 0 LIMIT 4", ROW_MAPPER);
+        return jdbcTemplate.query("SELECT events.eventid, events.name, events.description, events.locationid, events.attendance, events.ticketsLeft, events.price, " +
+                "events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, images.image, types.name AS typeName " +
+                "FROM events JOIN locations ON events.locationid = locations.locationid JOIN images ON events.imageid = images.imageid " +
+                "JOIN types ON events.typeid = types.typeid WHERE (events.attendance) >= (4 * events.ticketsLeft) AND events.state != 1 AND events.ticketsLeft > 0 LIMIT 4", ROW_MAPPER);
     }
 
     @Override
     public List<Event> getUpcomingEvents(){
-        StringBuilder query = new StringBuilder(
-                "SELECT events.eventid, events.name, events.description, events.locationid, events.attendance, events.ticketsLeft, events.price, " +
-                        "events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, images.image, types.name AS typeName " +
-                        "FROM events JOIN locations ON events.locationid = locations.locationid JOIN images ON events.imageid = images.imageid " +
-                        "JOIN types ON events.typeid = types.typeid"
-        );
-        return jdbcTemplate.query(query + " WHERE events.date > ? AND events.state != 1 ORDER BY events.date LIMIT 5", new Object[]{Timestamp.valueOf(LocalDateTime.now())}, ROW_MAPPER);
+        return jdbcTemplate.query("SELECT events.eventid, events.name, events.description, events.locationid, events.attendance, events.ticketsLeft, events.price, " +
+                "events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, images.image, types.name AS typeName " +
+                "FROM events JOIN locations ON events.locationid = locations.locationid JOIN images ON events.imageid = images.imageid " +
+                "JOIN types ON events.typeid = types.typeid WHERE events.date > ? AND events.state != 1 ORDER BY events.date LIMIT 5", new Object[]{Timestamp.valueOf(LocalDateTime.now())}, ROW_MAPPER);
     }
 
     @Override
     public void updateEvent(int id, String name, String description, Integer locationId, int ticketsLeft, double price, int typeId, LocalDateTime date, int imgId, Integer[] tagIds) {
-        jdbcTemplate.update("UPDATE events SET name = ?, description = ?, locationid = ?, ticketsLeft = ?, price = ?, typeid = ?, date = ?, imageid = ? WHERE eventid = ?",
-                name, description, locationId, ticketsLeft, price, typeId, Timestamp.valueOf(date), imgId, id);
-
+        if (imgId != 1) {
+            jdbcTemplate.update("UPDATE events SET name = ?, description = ?, locationid = ?, ticketsLeft = ?, price = ?, typeid = ?, date = ?, imageid = ? WHERE eventid = ?",
+                    name, description, locationId, ticketsLeft, price, typeId, Timestamp.valueOf(date), imgId, id);
+        } else {
+            jdbcTemplate.update("UPDATE events SET name = ?, description = ?, locationid = ?, ticketsLeft = ?, price = ?, typeid = ?, date = ? WHERE eventid = ?",
+                    name, description, locationId, ticketsLeft, price, typeId, Timestamp.valueOf(date), id);
+        }
         cleanTagsFromEvent(id);
         for (Integer tagId : tagIds) {
             addTagToEvent(id, tagId);

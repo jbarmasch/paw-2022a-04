@@ -8,6 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -16,7 +17,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 
 import java.util.concurrent.TimeUnit;
 
@@ -33,20 +33,17 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
         http.sessionManagement()
-//                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-//                    .sessionFixation().migrateSession()
-//                    .invalidSessionUrl("/login")
                 .and().authorizeRequests()
                     .antMatchers("/login", "/register", "/forgotPass").permitAll()
                     .antMatchers("/createEvent").hasRole("ADMIN")
                     .antMatchers( "/events", "/").permitAll()
-                    .antMatchers( "/events/**").permitAll()
-                    .antMatchers("/help").permitAll()
+                    .antMatchers(HttpMethod.GET, "/events/**").permitAll()
+                    .antMatchers(HttpMethod.POST, "/events/**").authenticated()
                     .antMatchers("/**").authenticated()
                 .and().formLogin()
                     .usernameParameter("j_username")
                     .passwordParameter("j_password")
-                    .successHandler(new RefererRedirectionAuthentication("/"))
+                    .successHandler(successHandler())
                     .loginPage("/login")
                 .and().rememberMe()
                     .rememberMeParameter("j_rememberme")
@@ -75,5 +72,10 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+    }
+
+    @Bean
+    public AuthenticationSuccessHandler successHandler() {
+        return new RefererRedirectionAuthentication("/");
     }
 }

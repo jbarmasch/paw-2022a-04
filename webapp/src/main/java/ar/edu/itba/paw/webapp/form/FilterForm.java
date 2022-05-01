@@ -14,6 +14,34 @@ public class FilterForm {
     @DecimalMin("0.0")
     private Double maxPrice;
 
+    private String searchQuery;
+    private String orderBy;
+    private String order;
+
+    public String getOrderBy() {
+        return orderBy;
+    }
+
+    public void setOrderBy(String orderBy) {
+        this.orderBy = orderBy;
+    }
+
+    public String getOrder() {
+        return order;
+    }
+
+    public void setOrder(String order) {
+        this.order = order;
+    }
+
+    public String getSearchQuery() {
+        return searchQuery;
+    }
+
+    public void setSearchQuery(String searchQuery) {
+        this.searchQuery = searchQuery;
+    }
+
     public String getLocations() {
         return locations;
     }

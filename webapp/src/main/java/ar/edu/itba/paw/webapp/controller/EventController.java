@@ -7,6 +7,7 @@ import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.EventForm;
 import ar.edu.itba.paw.webapp.form.BookForm;
 import ar.edu.itba.paw.webapp.form.FilterForm;
+import ar.edu.itba.paw.webapp.form.SearchForm;
 import ar.edu.itba.paw.webapp.helper.FilterUtils;
 import ar.edu.itba.paw.webapp.validations.IntegerArray;
 import ar.edu.itba.paw.webapp.validations.NumberFormat;
@@ -28,8 +29,10 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.jws.Oneway;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -71,12 +74,16 @@ public class EventController {
 
     @RequestMapping(value = "/events", method = { RequestMethod.GET })
     public ModelAndView browseEvents(@ModelAttribute("filterForm") final FilterForm form, final BindingResult errors,
+                                     @ModelAttribute("searchForm") final SearchForm searchForm,
                                      @RequestParam(value = "locations", required = false) @IntegerArray final String[] locations,
                                      @RequestParam(value = "types", required = false) @IntegerArray final String[] types,
                                      @RequestParam(value = "minPrice", required = false) @NumberFormat(decimal = true) final String minPrice,
                                      @RequestParam(value = "maxPrice", required = false) @NumberFormat(decimal = true) final String maxPrice,
+                                     @RequestParam(value = "query", required = false) final String query,
+                                     @RequestParam(value = "order", required = false) @Pattern(regexp = "price|date") final String order,
+                                     @RequestParam(value = "orderBy", required = false) @Pattern(regexp = "ASC|DESC") final String orderBy,
                                      @RequestParam(value = "page", required = false, defaultValue = "1") @Min(1) final int page) {
-        List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, page);
+        List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, query, order, orderBy, page);
 
         final ModelAndView mav = new ModelAndView("events");
         mav.addObject("page", page);
@@ -97,6 +104,23 @@ public class EventController {
         filters.put("types", form.getTypes());
         filters.put("minPrice", form.getMinPrice());
         filters.put("maxPrice", form.getMaxPrice());
+        filters.put("query", form.getSearchQuery());
+        filters.put("order", form.getOrder());
+        filters.put("orderBy", form.getOrderBy());
+        String endURL = FilterUtils.createFilter(filters);
+
+        if (endURL.isEmpty())
+            return new ModelAndView("redirect:/events");
+        return new ModelAndView("redirect:/events?" + endURL);
+    }
+
+    @RequestMapping(value = "/search", method = { RequestMethod.POST })
+    public ModelAndView search(@Valid @ModelAttribute("searchForm") final SearchForm searchForm, final BindingResult errors) {
+        if (errors.hasErrors())
+            return new ModelAndView("error");
+
+        Map<String, Object> filters = new HashMap<>();
+        filters.put("query", searchForm.getQuery());
         String endURL = FilterUtils.createFilter(filters);
 
         if (endURL.isEmpty())
