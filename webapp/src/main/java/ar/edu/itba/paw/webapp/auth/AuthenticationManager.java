@@ -29,10 +29,6 @@ public class AuthenticationManager {
         HttpSession session = request.getSession();
         if (session != null) {
             String redirectUrl = getReferrer(request);
-            if (!redirectUrl.equals(request.getContextPath() + "/")) {
-                return redirectUrl;
-            }
-            redirectUrl = (String) session.getAttribute("url_prior_login");
             if (redirectUrl != null) {
                 session.removeAttribute("url_prior_login");
                 if (!(redirectUrl.contains("login") || redirectUrl.contains("register")))
