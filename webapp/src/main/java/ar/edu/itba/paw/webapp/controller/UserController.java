@@ -11,6 +11,7 @@ import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.BookForm;
 import ar.edu.itba.paw.webapp.form.SearchForm;
+import ar.edu.itba.paw.webapp.form.RateForm;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,6 +100,7 @@ public class UserController {
 
     @RequestMapping(value = "/bookings", method = { RequestMethod.GET })
     public ModelAndView bookings(@ModelAttribute("bookForm") final BookForm form,
+                                 @ModelAttribute("rateForm") final RateForm rateForm,
                                  @RequestParam(value = "page", required = false, defaultValue = "1") final int page,
                                  @RequestParam(required = false) final Integer eventId) {
         String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
@@ -113,6 +115,15 @@ public class UserController {
         return mav;
     }
 
+    @RequestMapping(value = "/bookings/rate/{eventId}", method = { RequestMethod.POST })
+    public ModelAndView rateEvent(@Valid @ModelAttribute("rateForm") final RateForm form, final BindingResult errors, @PathVariable("eventId") final int eventId) {
+        final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
+        final String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        final User user = userService.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        eventService.rateEvent(user.getId(), eventId, form.getRating());
+        return new ModelAndView("redirect:/bookings/");
+    }
+
     @RequestMapping(value = "/forgotPass", method = RequestMethod.GET)
     public ModelAndView forgotPass() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -122,7 +133,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/bookings/cancel/{eventId}", method = { RequestMethod.POST })
-    public ModelAndView cancelBooking(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors, @PathVariable("eventId") final int eventId) {
+    public ModelAndView cancelBooking(@Valid @ModelAttribute("bookForm") final BookForm form, @ModelAttribute("rateForm") final RateForm rateForm, final BindingResult errors, @PathVariable("eventId") final int eventId) {
         final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         final String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         final User user = userService.findByUsername(username).orElseThrow(UserNotFoundException::new);
@@ -131,7 +142,7 @@ public class UserController {
 
         if (errors.hasErrors() || form.getQty() > bookingQty) {
             errors.rejectValue("qty", "Max.bookForm.qty", new Object[] {e.getMaxCapacity()}, "");
-            return bookings(form, form.getPage(), bookingQty);
+            return bookings(form, rateForm, form.getPage(), bookingQty);
         }
 
         if (!userService.cancelBooking(form.getQty(), user.getId(), username, user.getMail(), eventId, e.getName(), eventUser.getMail()))

@@ -19,6 +19,7 @@ public class EventJdbcDao implements EventDao {
     private final SimpleJdbcInsert jdbcInsert;
     private final SimpleJdbcInsert jdbcTagInsert;
     private final SimpleJdbcInsert jdbcBookInsert;
+    private final SimpleJdbcInsert jdbcRatingInsert;
     private final RowMapper<Event> ROW_MAPPER = (rs, i) -> {
         Location location = new Location(rs.getInt("locationId"), rs.getString("locName"));
         Type type = new Type(rs.getInt("typeId"), rs.getString("typeName"));
@@ -35,6 +36,7 @@ public class EventJdbcDao implements EventDao {
                 rs.getInt("imageId"),
                 Tag.getTags(rs.getArray("tagIds"), rs.getArray("tagNames")),
                 new User(rs.getInt("userId"), rs.getString("username")),
+                rs.getDouble("rating"),
                 rs.getInt("attendance"),
                 State.getState(rs.getInt("state"))
         );
@@ -46,6 +48,7 @@ public class EventJdbcDao implements EventDao {
         jdbcInsert = new SimpleJdbcInsert(ds).withTableName("events").usingGeneratedKeyColumns("eventid");
         jdbcBookInsert = new SimpleJdbcInsert(ds).withTableName("bookings");
         jdbcTagInsert = new SimpleJdbcInsert(ds).withTableName("eventtags");
+        jdbcRatingInsert = new SimpleJdbcInsert(ds).withTableName("ratings");
     }
 
     @Override
@@ -238,5 +241,24 @@ public class EventJdbcDao implements EventDao {
                 "FROM bookings b JOIN (SELECT userId FROM bookings WHERE bookings.eventId = ?) AS aux ON b.userId = aux.userId " +
                 "WHERE b.eventid <> ? GROUP BY b.eventId ORDER BY popularity DESC) AS aux " +
                 "JOIN event_complete ec on aux.eventid = ec.eventid LIMIT 5", new Object[] { eventId, eventId }, ROW_MAPPER);
+    }
+
+    @Override
+    public boolean rateEvent(long userId, long eventId, double rating) {
+        int rowsUpdated;
+        try {
+            rowsUpdated = jdbcTemplate.update("UPDATE ratings SET rating = ? WHERE eventid = ? AND userid = ?", rating, eventId, userId);
+        } catch (DataAccessException e) {
+            return false;
+        }
+        if (rowsUpdated <= 0) {
+            final Map<String, Object> ratingData = new HashMap<>();
+            ratingData.put("eventId", eventId);
+            ratingData.put("userId", userId);
+            ratingData.put("rating", rating);
+            jdbcRatingInsert.execute(ratingData);
+        }
+
+        return true;
     }
 }

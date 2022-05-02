@@ -36,6 +36,7 @@ public class UserJdbcDao implements UserDao {
                     rs.getInt("imageId"),
                     new ArrayList<>(),
                     new User(rs.getInt("userId")),
+                    rs.getDouble("rating"),
                     rs.getInt("attendance"),
                     State.getState(rs.getInt("state"))
             ),
@@ -61,6 +62,7 @@ public class UserJdbcDao implements UserDao {
                     rs.getInt("imageId"),
                     new ArrayList<>(),
                     new User(rs.getInt("userId")),
+                    rs.getDouble("rating"),
                     rs.getInt("attendance"),
                     State.getState(rs.getInt("state"))
             )

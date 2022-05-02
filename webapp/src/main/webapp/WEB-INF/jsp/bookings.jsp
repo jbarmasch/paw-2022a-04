@@ -32,6 +32,16 @@
                                         <div><img class="icon" src="<c:url value="/resources/svg/tickets2.svg"/>" alt="Tickets icon"/><span class="booking_qty"><c:out value="${booking.qty}"/></span></div>
                                         <div>
                                             <div class="container booking_button">
+                                                <c:url value="/bookings/rate/${booking.event.id}" var="postPath"/>
+                                                <form:form novalidate="true" class="transparent" modelAttribute="rateForm" action="${postPath}" method="post">
+                                                    <div class="horizontal center">
+                                                        <form:label class="sep-right" path="rating">Calificar: </form:label>
+                                                        <form:input class="uk-input" type="number" path="rating" min="1" max="5" step="0.5" required="true" id="qty"/>
+                                                    </div>
+                                                    <hr/>
+                                                    <button class="accept-button-modal uk-button" type="submit" name="submit">Calificar</button>
+                                                </form:form>
+
                                                 <input class="cancel_button uk-button" type="button" value="Cancelar entradas" uk-toggle="target: #confirmation${i}"/>
                                                 <div id="confirmation${i}" uk-modal>
                                                     <div class="uk-modal-dialog">

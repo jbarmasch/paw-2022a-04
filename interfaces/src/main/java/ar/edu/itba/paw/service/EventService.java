@@ -22,4 +22,5 @@ public interface EventService {
     List<Event> getUpcomingEvents();
     List<Event> getSimilarEvents(long eventId);
     List<Event> getPopularEvents(long eventId);
+    boolean rateEvent(long userId, long eventId, double rating);
 }

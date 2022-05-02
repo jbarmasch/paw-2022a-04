@@ -15,10 +15,11 @@ public class Event {
     private final Type type;
     private final List<Tag> tags;
     private final User user;
+    private final double rating;
     private final int attendance;
     private final State state;
 
-    public Event(long id, String name, String description, Location location, int maxCapacity, double price, Type type, LocalDateTime date, int imageId, List<Tag> tags, User user, int attendance, State state) {
+    public Event(long id, String name, String description, Location location, int maxCapacity, double price, Type type, LocalDateTime date, int imageId, List<Tag> tags, User user, double rating, int attendance, State state) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -30,6 +31,7 @@ public class Event {
         this.type = type;
         this.tags = tags;
         this.user = user;
+        this.rating = rating;
         this.attendance = attendance;
         this.state = state;
     }
@@ -108,5 +110,9 @@ public class Event {
 
     public User getUser() {
         return user;
+    }
+
+    public double getRating() {
+        return rating;
     }
 }

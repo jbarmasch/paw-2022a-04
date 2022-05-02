@@ -107,6 +107,10 @@ public class EventServiceImpl implements EventService {
     public List<Event> getPopularEvents(long eventId) {
         return eventDao.getPopularEvents(eventId);
     }
+
+    @Override
+    public boolean rateEvent(long userId, long eventId, double rating) { return eventDao.rateEvent(userId, eventId, rating); }
+
 }
 
 
