@@ -18,6 +18,7 @@ pipelines:
       - step:
           name: Deploy
           deployment: production
+          trigger: manual
           script:
             - apt-get update -y
             - apt-get install -y sshpass
