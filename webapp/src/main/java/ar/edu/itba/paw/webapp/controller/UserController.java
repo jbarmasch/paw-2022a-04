@@ -10,6 +10,7 @@ import ar.edu.itba.paw.webapp.auth.AuthenticationManager;
 import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.BookForm;
+import ar.edu.itba.paw.webapp.form.SearchForm;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,7 +141,7 @@ public class UserController {
     }
 
     @ModelAttribute
-    public void addAttributes(Model model) {
+    public void addAttributes(Model model, final SearchForm searchForm) {
         String username = null;
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && !(auth instanceof AnonymousAuthenticationToken))

@@ -279,7 +279,7 @@ public class EventController {
     }
 
     @ModelAttribute
-    public void addAttributes(Model model) {
+    public void addAttributes(Model model, final SearchForm searchForm) {
         String username = null;
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && !(auth instanceof AnonymousAuthenticationToken))

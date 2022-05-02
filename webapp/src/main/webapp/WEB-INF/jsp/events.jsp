@@ -11,12 +11,6 @@
 </head>
 <body>
     <c:import url="appbar.jsp"/>
-    <c:url value="/search" var="postPath"/>
-    <form:form novalidate="true" modelAttribute="searchForm" action="${postPath}" method="post" class="uk-search uk-search-default" id="searchForm">
-        <span uk-search-icon></span>
-        <form:input class="uk-search-input" type="search" placeholder="Search" path="query" value="${param.query}"/>
-    </form:form>
-
     <c:import url="order.jsp"/>
     <div class="home">
         <div>

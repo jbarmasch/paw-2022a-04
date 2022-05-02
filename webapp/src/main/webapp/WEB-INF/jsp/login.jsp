@@ -21,9 +21,7 @@
     <c:if test="${error}">
         <span class="formError visible">El usuario o la contraseña es incorrecto.</span>
     </c:if>
-    <div class="sep-top">
-        <label class="small-text align-center"><input name="j_rememberme" type="checkbox"/>Mantener sesión iniciada</label>
-    </div>
+    <input class="hidden" name="j_rememberme" type="checkbox" checked/>
     <div class="center sep-top-xl">
         <input type="submit" value="Iniciar sesión"/>
     </div>
