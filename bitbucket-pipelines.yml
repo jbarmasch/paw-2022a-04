@@ -19,8 +19,7 @@ pipelines:
           name: Copy files
           deployment: staging
           script:
-            - apt-get update -y
-            - apt-get install -y sshpass
+            - apt-get update && apt-get install -y sshpass
             - ssh-keyscan pampero.itba.edu.ar >> ~/.ssh/known_hosts
             - export SSHPASS="$PAW_BOTTLER_SERPASS"
             - sshpass -e scp webapp/target/webapp.war slococo@pampero.itba.edu.ar:/home/slococo/app.war
@@ -29,5 +28,8 @@ pipelines:
           deployment: production
           trigger: manual
           script:
+            - apt-get update && apt-get install -y sshpass
+            - ssh-keyscan pampero.itba.edu.ar >> ~/.ssh/known_hosts
+            - export SSHPASS="$PAW_BOTTLER_SERPASS"
             - sshpass -e ssh slococo@pampero.itba.edu.ar "./deploy"
  
