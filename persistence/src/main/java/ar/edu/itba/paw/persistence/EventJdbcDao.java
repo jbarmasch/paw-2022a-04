@@ -34,7 +34,7 @@ public class EventJdbcDao implements EventDao {
                 rs.getTimestamp("date").toLocalDateTime(),
                 rs.getInt("imageId"),
                 Tag.getTags(rs.getArray("tagIds"), rs.getArray("tagNames")),
-                rs.getInt("userId"),
+                new User(rs.getInt("userId"), rs.getString("username")),
                 rs.getInt("attendance"),
                 State.getState(rs.getInt("state"))
         );
@@ -93,14 +93,14 @@ public class EventJdbcDao implements EventDao {
                 query.append(")");
             }
             if (minPrice != null) {
-                query.append("AND price >= ").append(minPrice);
+                query.append(" AND price >= ").append(minPrice);
             }
             if (maxPrice != null) {
-                query.append("AND price <= ").append(maxPrice);
+                query.append(" AND price <= ").append(maxPrice);
             }
             if (types != null && types.length > 0) {
                 String lastType = types[types.length - 1];
-                query.append("AND typeid IN (");
+                query.append(" AND typeid IN (");
                 for (String type : types) {
                     query.append("'").append(type).append("'");
                     if (!Objects.equals(type, lastType))
@@ -108,8 +108,18 @@ public class EventJdbcDao implements EventDao {
                 }
                 query.append(")");
             }
+//            if (tags != null) {
+//                String lastTag = tags[tags.length - 1];
+//                query.append(" AND (SELECT COUNT(*) FROM (SELECT aux FROM UNNEST('{");
+//                for (String tag : tags) {
+//                    query.append(tag);
+//                    if (!Objects.equals(tag, lastTag))
+//                        query.append(", ");
+//                }
+//                query.append("}'::INTEGER[]) AS aux WHERE aux <> ALL tagIds) = 0 ");
+//            }
             if (searchQuery != null) {
-                query.append("AND name LIKE '%").append(searchQuery).append("%'");
+                query.append(" AND ((SELECT to_tsvector('Spanish', name) @@ to_tsquery('").append(searchQuery).append("')) = 't' OR name ILIKE '%").append(searchQuery).append("%')");
             }
         }
 
@@ -122,7 +132,7 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public List<Event> getAll(int page) {
-        return jdbcTemplate.query("SELECT * FROM events LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
+        return jdbcTemplate.query("SELECT * FROM event_complete LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
     }
 
     @Override

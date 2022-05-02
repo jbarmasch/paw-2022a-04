@@ -9,9 +9,9 @@
         <button class="uk-button uk-button-text" onclick="location.href='<c:url value="/events"/>'">Eventos</button>
         <button class="uk-button uk-button-text" onclick="location.href='<c:url value="/createEvent"/>'">Crear evento</button>
         <c:url value="/search" var="postPath"/>
-        <form:form novalidate="true" modelAttribute="searchForm" action="${postPath}" method="post" class="uk-search uk-search-navbar" id="searchForm">
+        <form:form novalidate="true" modelAttribute="searchForm" action="${postPath}" method="post" class="horizontal align-center search-form" id="searchForm">
             <span uk-search-icon></span>
-            <form:input class="uk-search-input" type="search" placeholder="Search" path="query" value="${param.query}"/>
+            <form:input class="uk-search-input" type="search" placeholder="Buscar evento" path="query" value="${param.query}"/>
         </form:form>
     </div>
     <div>
@@ -22,11 +22,12 @@
                 </c:when>
                 <c:otherwise>
                 <div class="uk-inline">
-                    <button class="uk-button uk-button-text"><c:out value="${username}"/><img src="<c:url value='/resources/svg/dropdown.svg'/>" alt="Dropdown"/></button>
+                    <button class="uk-button uk-button-text center"><c:out value="${username}"/><img src="<c:url value='/resources/svg/dropdown.svg'/>" alt="Dropdown"/></button>
                     <div uk-dropdown="mode: click; pos: bottom-center">
                         <ul class="uk-nav uk-dropdown-nav">
                             <li><a href="<c:url value="/bookings"/>">MIS RESERVAS</a></li>
                             <li><a href="<c:url value="/myEvents"/>">MIS EVENTOS</a></li>
+                            <li><a href="<c:url value="/stats"/>">ESTADÍSTICAS</a></li>
                             <li class="uk-nav-divider"></li>
                             <li><a href="<c:url value="/logout"/>">CERRAR SESIÓN</a></li>
                         </ul>

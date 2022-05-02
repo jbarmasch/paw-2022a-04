@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.model.Booking;
+import ar.edu.itba.paw.model.Stats;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,5 +57,10 @@ public class UserServiceImpl implements UserService {
         }
         mailService.sendErrorMail(userMail, eventName);
         return false;
+    }
+
+    @Override
+    public Optional<Stats> getUserStats(long id) {
+        return userDao.getUserStats(id);
     }
 }

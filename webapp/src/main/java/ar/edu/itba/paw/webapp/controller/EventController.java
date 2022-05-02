@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.webapp.controller;
 
+import ar.edu.itba.paw.model.Stats;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.*;
 import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
@@ -147,7 +148,7 @@ public class EventController {
             isLogged = true;
             String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
             User user = userService.findByUsername(username).orElseThrow(UserNotFoundException::new);
-            if (e.getUserId() == user.getId())
+            if (e.getUser().getId() == user.getId())
                 isOwner = true;
         }
 
@@ -170,7 +171,7 @@ public class EventController {
         final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         final String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         final User user = userService.findByUsername(username).orElseThrow(UserNotFoundException::new);
-        final User eventUser = userService.getUserById(e.getUserId()).orElseThrow(RuntimeException::new);
+        final User eventUser = userService.getUserById(e.getUser().getId()).orElseThrow(RuntimeException::new);
 
         if (errors.hasErrors() || form.getQty() > e.getMaxCapacity()) {
             errors.rejectValue("qty", "Max.bookForm.qty", new Object[] {e.getMaxCapacity()}, "");
@@ -180,7 +181,26 @@ public class EventController {
         boolean booked = eventService.book(form.getQty(), user.getId(), username, user.getMail(), eventId, e.getName(), eventUser.getMail());
         if (!booked)
             return new ModelAndView("redirect:/error");
-        return new ModelAndView("redirect:/events/" + e.getId());
+        return new ModelAndView("redirect:/events/" + e.getId() + "/booking_success");
+    }
+
+    @RequestMapping(value = "/events/{eventId}/booking_success", method = RequestMethod.GET)
+    public ModelAndView eventDescription(@PathVariable("eventId") @Min(1) final int eventId) {
+        final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
+        boolean isLogged = false, isOwner = false;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth instanceof AnonymousAuthenticationToken) {
+            return new ModelAndView("redirect:/");
+        }
+
+        final ModelAndView mav = new ModelAndView("booking_success");
+        List<Event> similarEvents = eventService.getSimilarEvents(eventId);
+        List<Event> popularEvents = eventService.getPopularEvents(eventId);
+        mav.addObject("similarEvents", similarEvents);
+        mav.addObject("similarEventsSize", similarEvents.size());
+        mav.addObject("popularEvents", popularEvents);
+        mav.addObject("popularEventsSize", popularEvents.size());
+        return mav;
     }
 
     @RequestMapping(value = "/createEvent", method = { RequestMethod.GET })
@@ -272,10 +292,22 @@ public class EventController {
         return mav;
     }
 
+    @RequestMapping(value = "/stats", method = { RequestMethod.GET })
+    public ModelAndView getStats() {
+        final Integer userId = getUserId();
+        if (userId == null)
+            throw new UserNotFoundException();
+
+        Stats stats = userService.getUserStats(userId).orElseThrow(RuntimeException::new);
+        final ModelAndView mav = new ModelAndView("stats");
+        mav.addObject("stats", stats);
+        return mav;
+    }
+
     private boolean canUpdateEvent(Event event) {
         String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
-        return event.getUserId() == userId;
+        return event.getUser().getId() == userId;
     }
 
     @ModelAttribute

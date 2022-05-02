@@ -121,13 +121,12 @@ public class UserController {
         return new ModelAndView("redirect:/");
     }
 
-
     @RequestMapping(value = "/bookings/cancel/{eventId}", method = { RequestMethod.POST })
     public ModelAndView cancelBooking(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors, @PathVariable("eventId") final int eventId) {
         final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         final String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         final User user = userService.findByUsername(username).orElseThrow(UserNotFoundException::new);
-        final User eventUser = userService.getUserById(e.getUserId()).orElseThrow(RuntimeException::new);
+        final User eventUser = userService.getUserById(e.getUser().getId()).orElseThrow(RuntimeException::new);
         int bookingQty = userService.getBookingFromUser(user.getId(), eventId).orElseThrow(RuntimeException::new).getQty();
 
         if (errors.hasErrors() || form.getQty() > bookingQty) {

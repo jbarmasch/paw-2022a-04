@@ -4,21 +4,21 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class Event {
-    private long id;
-    private String name;
-    private String description;
-    private Location location;
-    private int maxCapacity;
-    private int imageId;
-    private double price;
-    private LocalDateTime date;;
-    private Type type;
-    private List<Tag> tags;
-    private long userId;
-    private int attendance;
-    private State state;
+    private final long id;
+    private final String name;
+    private final String description;
+    private final Location location;
+    private final int maxCapacity;
+    private final int imageId;
+    private final double price;
+    private final LocalDateTime date;
+    private final Type type;
+    private final List<Tag> tags;
+    private final User user;
+    private final int attendance;
+    private final State state;
 
-    public Event(long id, String name, String description, Location location, int maxCapacity, double price, Type type, LocalDateTime date, int imageId, List<Tag> tags, long userId, int attendance, State state) {
+    public Event(long id, String name, String description, Location location, int maxCapacity, double price, Type type, LocalDateTime date, int imageId, List<Tag> tags, User user, int attendance, State state) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -29,7 +29,7 @@ public class Event {
         this.imageId = imageId;
         this.type = type;
         this.tags = tags;
-        this.userId = userId;
+        this.user = user;
         this.attendance = attendance;
         this.state = state;
     }
@@ -90,10 +90,6 @@ public class Event {
         return tags;
     }
 
-    public long getUserId() {
-        return userId;
-    }
-
     public int getAttendance() {
         return attendance;
     }
@@ -108,5 +104,9 @@ public class Event {
 
     public boolean getActive() {
         return state == State.ACTIVE;
+    }
+
+    public User getUser() {
+        return user;
     }
 }

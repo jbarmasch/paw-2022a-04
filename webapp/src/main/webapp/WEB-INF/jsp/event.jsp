@@ -58,6 +58,10 @@
                         <span>Entradas reservadas: <c:out value="${event.attendance}"/></span>
                     </c:if>
                 </div>
+                <div class="container">
+                    <img class="icon" src="<c:url value="/resources/svg/user.svg"/>" alt="Type icon"/>
+                    <a href="<c:url value="/profile/${event.user.id}"/>"><c:out value="${event.user.username}"/></a>
+                </div>
                 <div>
                     <c:if test="${isOwner}">
                         <c:choose>

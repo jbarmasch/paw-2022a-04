@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.model.Booking;
+import ar.edu.itba.paw.model.Stats;
 import ar.edu.itba.paw.model.User;
 
 import java.util.List;
@@ -13,4 +14,5 @@ public interface UserService {
     List<Booking> getAllBookingsFromUser(long id, int page);
     Optional<Booking> getBookingFromUser(long userId, long eventId);
     boolean cancelBooking(int qty, long userId, String username, String userMail, long eventId, String eventName, String eventMail);
+    Optional<Stats> getUserStats(long id);
 }
