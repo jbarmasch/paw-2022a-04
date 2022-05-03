@@ -1,8 +1,6 @@
 package ar.edu.itba.paw.service;
 
-import ar.edu.itba.paw.model.Event;
-import ar.edu.itba.paw.model.Image;
-import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.persistence.EventDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -66,9 +64,9 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public boolean book(int qty, long userId, String username, String userMail, long eventId, String eventName, String eventMail) {
-        if (eventDao.book(qty, userId, eventId)) {
-            mailService.sendBookMail(userMail, username, eventMail, eventName, qty);
+    public boolean book(List<Booking> bookings, long userId, String username, String userMail, long eventId, String eventName, String eventMail) {
+        if (eventDao.book(bookings, userId, eventId)) {
+            mailService.sendBookMail(userMail, username, eventMail, eventName, bookings.stream().mapToInt(Booking::getQty).sum());
             return true;
         }
         mailService.sendErrorMail(userMail, eventName);
@@ -76,8 +74,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public boolean cancelBooking(int qty, long userId, String username, String userMail, long eventId, String eventName, String eventMail) {
-        if (eventDao.cancelBooking(userId, eventId, qty)) {
+    public boolean cancelBooking(int qty, long userId, String username, String userMail, long eventId, long ticketId, String eventName, String eventMail) {
+        if (eventDao.cancelBooking(userId, eventId, qty, ticketId)) {
             mailService.sendCancelMail(userMail, username, eventMail, eventName, qty);
             return true;
         }
@@ -122,6 +120,11 @@ public class EventServiceImpl implements EventService {
     @Override
     public void rateEvent(long userId, long eventId, double rating) {
         eventDao.rateEvent(userId, eventId, rating);
+    }
+
+    @Override
+    public void addTicket(long eventId, Ticket ticket) {
+        eventDao.addTicket(eventId, ticket);
     }
 }
 

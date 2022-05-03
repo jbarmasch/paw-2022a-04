@@ -1,6 +1,8 @@
 package ar.edu.itba.paw.service;
 
+import ar.edu.itba.paw.model.Booking;
 import ar.edu.itba.paw.model.Event;
+import ar.edu.itba.paw.model.Ticket;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,8 +16,8 @@ public interface EventService {
     void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int typeId, LocalDateTime date, byte[] imageArray, Integer[] tagIds);
     void deleteEvent(int id);
     List<Event> getUserEvents(long id, int page);
-    boolean book(int qty, long userId, String username, String mail, long eventId, String eventName, String eventMail);
-    boolean cancelBooking(int qty, long userId, String username, String userMail, long eventId, String eventName, String eventMail);
+    boolean book(List<Booking> bookings, long userId, String username, String mail, long eventId, String eventName, String eventMail);
+    boolean cancelBooking(int qty, long userId, String username, String userMail, long eventId, long ticketId, String eventName, String eventMail);
     Integer getAttendanceOfEventId(long eventId);
     void soldOut(int id);
     void active(int id);
@@ -24,4 +26,5 @@ public interface EventService {
     List<Event> getSimilarEvents(long eventId);
     List<Event> getPopularEvents(long eventId);
     void rateEvent(long userId, long eventId, double rating);
+    void addTicket(long eventId, Ticket ticket);
 }

@@ -1,14 +1,13 @@
 package ar.edu.itba.paw.webapp.form;
 
-import org.hibernate.validator.constraints.Email;
-import org.hibernate.validator.constraints.NotEmpty;
+import ar.edu.itba.paw.model.Booking;
 
 import javax.validation.constraints.*;
+import java.util.List;
 
 public class BookForm {
-    @Min(1)
     @NotNull
-    private Integer qty;
+    private List<Booking> bookings;
 
     private int page;
 
@@ -20,11 +19,11 @@ public class BookForm {
         this.page = page;
     }
 
-    public Integer getQty() {
-        return qty;
+    public List<Booking> getBookings() {
+        return bookings;
     }
 
-    public void setQty(Integer qty) {
-        this.qty = qty;
+    public void setBookings(List<Booking> bookings) {
+        this.bookings = bookings;
     }
 }

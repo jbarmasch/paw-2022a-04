@@ -34,8 +34,8 @@
                     <img class="icon" src="<c:url value="/resources/svg/price-tag.svg"/>" alt="Price icon"/>
                     <span>
                         <c:choose>
-                            <c:when test="${event.price == 0}">Gratis</c:when>
-                            <c:otherwise>$<c:out value="${event.price}"/></c:otherwise>
+                            <c:when test="${event.minPrice == 0}">Gratis</c:when>
+                            <c:otherwise>$<c:out value="${event.minPrice}"/></c:otherwise>
                         </c:choose>
                     </span>
                 </div>
@@ -95,20 +95,29 @@
                         <c:set var="disabled" scope="session" value="false"/>
                     </c:otherwise>
                 </c:choose>
-                <c:set var="ticketsLeft" scope="session" value="${event.maxCapacity}"/>
-                <div class="horizontal center">
-                    <form:label path="qty">*Cantidad de entradas: </form:label>
-                    <form:input class="uk-input" type="number" disabled="${disabled}" path="qty" min="1" max="${event.maxCapacity}" required="true" id="qty"/>
-                    <form:errors path="qty" cssClass="error-message" element="span"/>
-                    <spring:message code="Min.bookForm.qty" var="qtyMinSizeError"/>
-                    <spring:message code="Max.bookForm.qtyStr" var="qtyMaxSizeError"/>
-                    <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
-                    <span class="formError"></span>
-                </div>
 
-                <c:if test="${!disabled}">
-                    <span>(Disponibles: ${event.maxCapacity})</span>
-                </c:if>
+                <c:forEach var="ticket" items="${event.tickets}">
+                    <c:set var="ticketsLeft" scope="session" value="${ticket.qty}"/>
+                    <c:set var="i" scope="session" value="0"/>
+                    <div class="horizontal center">
+                        <span><c:out value="${ticket.ticketName}"/></span>
+                        <span>$<c:out value="${ticket.price}"/></span>
+                        <form:input class="uk-input" type="number" disabled="${disabled}" path="bookings[${i}].qty" min="1" max="${ticket.qty}" required="true" id="qty${i}"/>
+                        <form:errors path="bookings[${i}].qty" cssClass="error-message" element="span"/>
+                        <spring:message code="Min.bookForm.qty" var="qtyMinSizeError"/>
+                        <spring:message code="Max.bookForm.qtyStr" var="qtyMaxSizeError"/>
+                        <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
+
+                        <form:input class="invisible" disabled="true" value="${ticket.id}" path="bookings[${i}].ticketId"/>
+                        <form:input class="invisible" disabled="true" value="${ticket.ticketName}" path="bookings[${i}].ticketName"/>
+                        <span class="formError"></span>
+                    </div>
+                    <c:if test="${!disabled}">
+                        <span>(Disponibles: ${ticket.qty})</span>
+                    </c:if>
+                    <c:set var="i" scope="session" value="${i + 1}"/>
+                </c:forEach>
+
                 <c:choose>
                     <c:when test="${event.soldOut}">
                         <div class="container event_buttons">
@@ -153,8 +162,8 @@
                                 <img class="icon" src="<c:url value="/resources/svg/price-tag.svg"/>" alt="Price icon"/>
                                 <span>
                                                 <c:choose>
-                                                    <c:when test="${event.price == 0}">Gratis</c:when>
-                                                    <c:otherwise>$<c:out value="${event.price}"/></c:otherwise>
+                                                    <c:when test="${event.minPrice == 0}">Gratis</c:when>
+                                                    <c:otherwise>$<c:out value="${event.minPrice}"/></c:otherwise>
                                                 </c:choose>
                                 </span>
                                 <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${event.location.name}"/></span>
@@ -199,8 +208,8 @@
                                 <img class="icon" src="<c:url value="/resources/svg/price-tag.svg"/>" alt="Price icon"/>
                                 <span>
                                                 <c:choose>
-                                                    <c:when test="${event.price == 0}">Gratis</c:when>
-                                                    <c:otherwise>$<c:out value="${event.price}"/></c:otherwise>
+                                                    <c:when test="${event.minPrice == 0}">Gratis</c:when>
+                                                    <c:otherwise>$<c:out value="${event.minPrice}"/></c:otherwise>
                                                 </c:choose>
                                             </span>
                                 <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${event.location.name}"/></span>

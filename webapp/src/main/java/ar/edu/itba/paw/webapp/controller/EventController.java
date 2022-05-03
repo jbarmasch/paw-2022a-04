@@ -1,16 +1,12 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.model.Stats;
-import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.service.*;
 import ar.edu.itba.paw.webapp.auth.UserManager;
 import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.exceptions.ImageNotFoundException;
 import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
-import ar.edu.itba.paw.webapp.form.EventForm;
-import ar.edu.itba.paw.webapp.form.BookForm;
-import ar.edu.itba.paw.webapp.form.FilterForm;
-import ar.edu.itba.paw.webapp.form.SearchForm;
+import ar.edu.itba.paw.webapp.form.*;
 import ar.edu.itba.paw.webapp.helper.FilterUtils;
 import ar.edu.itba.paw.webapp.validations.IntegerArray;
 import ar.edu.itba.paw.webapp.validations.NumberFormat;
@@ -22,7 +18,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
-import ar.edu.itba.paw.model.Event;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -159,12 +154,13 @@ public class EventController {
         final User user = userManager.getUser();
         final User eventUser = userService.getUserById(e.getUser().getId()).orElseThrow(RuntimeException::new);
 
-        if (errors.hasErrors() || form.getQty() > e.getMaxCapacity()) {
-            errors.rejectValue("qty", "Max.bookForm.qty", new Object[] {e.getMaxCapacity()}, "");
+//        if (errors.hasErrors() || form.getQty() > e.getMaxCapacity()) {
+//            errors.rejectValue("qty", "Max.bookForm.qty", new Object[] {e.getMaxCapacity()}, "");
+        if (errors.hasErrors()) {
             return eventDescription(form, eventId);
         }
 
-        boolean booked = eventService.book(form.getQty(), user.getId(), user.getUsername(), user.getMail(), eventId, e.getName(), eventUser.getMail());
+        boolean booked = eventService.book(form.getBookings(), user.getId(), user.getUsername(), user.getMail(), eventId, e.getName(), eventUser.getMail());
         if (!booked)
             return new ModelAndView("redirect:/error");
         return new ModelAndView("redirect:/events/" + e.getId() + "/bookingSuccess");
@@ -282,6 +278,34 @@ public class EventController {
 
     private boolean isEventOwner(Event event) {
         return event.getUser().getId() == userManager.getUserId();
+    }
+
+    @RequestMapping(value = "/events/{eventId}/add-tickets", method = { RequestMethod.GET })
+    public ModelAndView createTicketsForm(@ModelAttribute("ticketsForm") TicketsForm ticketsForm, @PathVariable("eventId") @Min(1) final int eventId) {
+        final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
+        if (!isEventOwner(event))
+            return new ModelAndView("redirect:/events/" + eventId);
+
+        return new ModelAndView("tickets");
+    }
+
+    @RequestMapping(value = "/events/{eventId}/add-tickets", method = { RequestMethod.POST })
+    public ModelAndView createTicketsForm(@Valid @ModelAttribute("ticketsForm") TicketsForm ticketsForm, final BindingResult errors,
+                                          @PathVariable("eventId") @Min(1) final int eventId) {
+        if (errors.hasErrors())
+            return createTicketsForm(ticketsForm, eventId);
+
+        final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
+        Iterator<Ticket> it = ticketsForm.getTickets().iterator();
+        while (it.hasNext()) {
+            Ticket tick = it.next();
+            if (tick == null)
+                it.remove();
+            else
+                eventService.addTicket(event.getId(), tick);
+        }
+
+        return new ModelAndView("redirect:/events/" + eventId);
     }
 
     @ModelAttribute

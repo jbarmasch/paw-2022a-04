@@ -30,9 +30,7 @@ CREATE TABLE IF NOT EXISTS events (
     name VARCHAR(100) NOT NULL,
     description VARCHAR(100) NOT NULL,
     locationId INTEGER REFERENCES locations,
-    ticketsLeft INTEGER NOT NULL CHECK (ticketsLeft >= 0),
     attendance INTEGER NOT NULL,
-    price DOUBLE PRECISION NOT NULL,
     date TIMESTAMP NOT NULL,
     typeId INTEGER REFERENCES types,
     userId INTEGER REFERENCES users,
@@ -47,12 +45,13 @@ CREATE TABLE IF NOT EXISTS eventTags (
 );
 
 CREATE TABLE IF NOT EXISTS tickets (
+    ticketId SERIAL PRIMARY KEY,
     eventId INTEGER REFERENCES events,
     name VARCHAR(100),
     price DOUBLE PRECISION,
     booked INTEGER,
-    maxQty INTEGER,
-    PRIMARY KEY (eventId, name)
+    ticketsLeft INTEGER,
+    UNIQUE (eventId, name)
 );
 
 CREATE TABLE IF NOT EXISTS bookings (
@@ -70,12 +69,14 @@ CREATE TABLE IF NOT EXISTS ratings (
     PRIMARY KEY (userId, eventId)
 );
 
-DROP VIEW event_complete;
+DROP VIEW IF EXISTS event_complete;
 
 CREATE OR REPLACE VIEW event_complete AS (
-    SELECT events.eventid, events.name, events.description, events.locationid, events.attendance, events.ticketsleft, events.price,
-           events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, images.image, types.name AS typeName, users.username, AVG(COALESCE(rating, 0)) AS rating, ARRAY_AGG(t.tagId) AS tagIds, ARRAY_AGG(t.name) AS tagNames
+    SELECT events.eventid, events.name, events.description, events.locationid, events.attendance, MIN(COALESCE(ti.price, 0)) AS minPrice, SUM(COALESCE(ti.ticketsleft, 0)) AS ticketsLeft,
+           events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, images.image, types.name AS typeName, users.username, AVG(COALESCE(rating, 0)) AS rating, ARRAY_AGG(t.tagId) AS tagIds, ARRAY_AGG(t.name) AS tagNames,
+           ARRAY_AGG(ti.ticketId) AS ticketIds, ARRAY_AGG(ti.ticketsLeft) AS ticketTicketsLeft, ARRAY_AGG(ti.name) AS ticketNames, ARRAY_AGG(ti.price) AS ticketPrices
     FROM events JOIN locations ON events.locationid = locations.locationid JOIN images ON events.imageid = images.imageid
-                JOIN types ON events.typeid = types.typeid JOIN users ON events.userid = users.userid LEFT OUTER JOIN ratings r ON r.eventid = events.eventid LEFT OUTER JOIN eventTags eT ON events.eventId = eT.eventId LEFT OUTER JOIN tags t ON eT.tagId = t.tagId
+           LEFT OUTER JOIN tickets ti ON events.eventid = ti.eventid
+           JOIN types ON events.typeid = types.typeid JOIN users ON events.userid = users.userid LEFT OUTER JOIN ratings r ON r.eventid = events.eventid LEFT OUTER JOIN eventTags eT ON events.eventId = eT.eventId LEFT OUTER JOIN tags t ON eT.tagId = t.tagId
     GROUP BY events.eventId, locations.locationid, images.imageid, types.typeid, users.username
 );

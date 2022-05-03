@@ -30,7 +30,7 @@ public class UserJdbcDao implements UserDao {
                     rs.getString("description"),
                     new Location(rs.getInt("locationId"), rs.getString("locName")),
                     rs.getInt("ticketsLeft"),
-                    rs.getDouble("price"),
+                    rs.getDouble("minPrice"),
                     new Type(rs.getInt("typeId"), rs.getString("typeName")),
                     rs.getTimestamp("date").toLocalDateTime(),
                     rs.getInt("imageId"),
@@ -38,9 +38,12 @@ public class UserJdbcDao implements UserDao {
                     new User(rs.getInt("userId")),
                     rs.getDouble("rating"),
                     rs.getInt("attendance"),
-                    State.getState(rs.getInt("state"))
+                    State.getState(rs.getInt("state")),
+                    Ticket.getTickets(rs.getArray("ticketIds"), rs.getArray("ticketNames"), rs.getArray("ticketPrices"), rs.getArray("ticketTicketsLeft"))
             ),
-            rs.getInt("qty")
+            rs.getInt("qty"),
+            rs.getInt("ticketId"),
+            null
     );
 
     private final static RowMapper<Stats> STATS_ROW_MAPPER = (rs, rowNum) -> new Stats(
@@ -56,7 +59,7 @@ public class UserJdbcDao implements UserDao {
                     rs.getString("description"),
                     new Location(rs.getInt("locationId"), rs.getString("locName")),
                     rs.getInt("ticketsLeft"),
-                    rs.getDouble("price"),
+                    rs.getDouble("minPrice"),
                     new Type(rs.getInt("typeId"), rs.getString("typeName")),
                     rs.getTimestamp("date").toLocalDateTime(),
                     rs.getInt("imageId"),
@@ -64,7 +67,8 @@ public class UserJdbcDao implements UserDao {
                     new User(rs.getInt("userId")),
                     rs.getDouble("rating"),
                     rs.getInt("attendance"),
-                    State.getState(rs.getInt("state"))
+                    State.getState(rs.getInt("state")),
+                    Ticket.getTickets(rs.getArray("ticketIds"), rs.getArray("ticketNames"), rs.getArray("ticketPrices"), rs.getArray("ticketTicketsLeft"))
             )
     );
 

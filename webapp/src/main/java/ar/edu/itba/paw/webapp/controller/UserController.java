@@ -134,13 +134,14 @@ public class UserController {
         final User eventUser = userService.getUserById(e.getUser().getId()).orElseThrow(RuntimeException::new);
         int bookingQty = userService.getBookingFromUser(user.getId(), eventId).orElseThrow(RuntimeException::new).getQty();
 
-        if (errors.hasErrors() || form.getQty() > bookingQty) {
-            errors.rejectValue("qty", "Max.bookForm.qty", new Object[] {e.getMaxCapacity()}, "");
+//        if (errors.hasErrors() || form.getQty() > bookingQty) {
+        if (errors.hasErrors()) {
+//            errors.rejectValue("qty", "Max.bookForm.qty", new Object[] {e.getMaxCapacity()}, "");
             return bookings(form, rateForm, form.getPage(), bookingQty);
         }
 
-        if (!eventService.cancelBooking(form.getQty(), user.getId(), user.getUsername(), user.getMail(), eventId, e.getName(), eventUser.getMail()))
-            return new ModelAndView("redirect:/error");
+//        if (!eventService.cancelBooking(form.getQty(), user.getId(), user.getUsername(), user.getMail(), eventId, e.getName(), eventUser.getMail()))
+//            return new ModelAndView("redirect:/error");
         return new ModelAndView("redirect:/bookings/");
     }
 

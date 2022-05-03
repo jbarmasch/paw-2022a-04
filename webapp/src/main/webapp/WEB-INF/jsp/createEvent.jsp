@@ -54,26 +54,6 @@
             </div>
             <div>
                 <span class="required">* </span>
-                <form:label path="maxCapacity" for="maxCapacity">Aforo: </form:label>
-                <form:input id="maxCapacity" class="uk-input" type="number" min="1" path="maxCapacity" required="true"/>
-                <form:errors path="maxCapacity" cssClass="error-message" element="span"/>
-                <spring:message code="NotNull.eventForm.maxCapacity" var="maxCapacityNullError"/>
-                <spring:message code="Min.eventForm.maxCapacity" var="maxCapacitySizeError"/>
-                <spring:message code="Pattern.eventForm.maxCapacity" var="maxCapacityTypeError"/>
-                <span class="formError"></span>
-            </div>
-            <div>
-                <span class="required">* </span>
-                <form:label path="price">Precio: </form:label>
-                <form:input class="uk-input" type="number" path="price" min="0.00" step="0.01" value="0.00" required="true"/>
-                <form:errors path="price" cssClass="error-message" element="span"/>
-                <spring:message code="NotNull.eventForm.price" var="priceNullError"/>
-                <spring:message code="Pattern.eventForm.price" var="priceTypeError"/>
-                <spring:message code="DecimalMin.eventForm.price" var="priceMinError"/>
-                <span class="formError"></span>
-            </div>
-            <div>
-                <span class="required">* </span>
                 <form:label path="date">Fecha: </form:label>
                 <form:input class="uk-input" type="datetime-local" min="${currentDate}" path="date" required="true"/>
                 <form:errors path="date" cssClass="error-message" element="span"/>
@@ -96,7 +76,6 @@
                 <form:errors path="image" cssClass="error-message" element="span"/>
                 <span class="formError"></span>
             </div>
-
             <div class="container event">
                 <input class="filter_button" type="submit" value="Crear"/>
             </div>
