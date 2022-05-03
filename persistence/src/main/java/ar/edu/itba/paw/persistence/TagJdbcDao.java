@@ -28,8 +28,7 @@ public class TagJdbcDao implements TagDao {
 
     @Override
     public Optional<Tag> getTagById(long id) {
-        List<Tag> query = jdbcTemplate.query("SELECT * FROM tags WHERE tagId = ?", new Object[] {id}, ROW_MAPPER);
-        return query.stream().findFirst();
+        return jdbcTemplate.query("SELECT * FROM tags WHERE tagId = ?", new Object[] {id}, ROW_MAPPER).stream().findFirst();
     }
 
     @Override

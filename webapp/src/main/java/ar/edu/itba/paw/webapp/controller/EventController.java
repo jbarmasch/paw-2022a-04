@@ -3,7 +3,9 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.model.Stats;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.*;
+import ar.edu.itba.paw.webapp.auth.UserManager;
 import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
+import ar.edu.itba.paw.webapp.exceptions.ImageNotFoundException;
 import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.EventForm;
 import ar.edu.itba.paw.webapp.form.BookForm;
@@ -45,14 +47,17 @@ public class EventController {
     private final TypeService typeService;
     private final TagService tagService;
     private final UserService userService;
+    private final UserManager userManager;
 
     @Autowired
-    public EventController(final EventService eventService, final LocationService locationService, final TypeService typeService, TagService tagService, UserService userService) {
+    public EventController(final EventService eventService, final LocationService locationService, final TypeService typeService,
+                           final TagService tagService, final UserService userService, final UserManager userManager) {
         this.eventService = eventService;
         this.locationService = locationService;
         this.typeService = typeService;
         this.tagService = tagService;
         this.userService = userService;
+        this.userManager = userManager;
     }
 
     @RequestMapping(value = "/", method = { RequestMethod.GET })
@@ -68,10 +73,6 @@ public class EventController {
         return mav;
     }
 
-    @RequestMapping(value = "/profile", method = { RequestMethod.GET })
-    public ModelAndView getUser() {
-        return new ModelAndView("redirect:/profile/" + getUserId());
-    }
 
     @RequestMapping(value = "/events", method = { RequestMethod.GET })
     public ModelAndView browseEvents(@ModelAttribute("filterForm") final FilterForm form, final BindingResult errors,
@@ -129,30 +130,15 @@ public class EventController {
         return new ModelAndView("redirect:/events?" + endURL);
     }
 
-    private Integer getUserId() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && !(auth instanceof AnonymousAuthenticationToken)) {
-            String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-            User user = userService.findByUsername(username).orElseThrow(UserNotFoundException::new);
-            return user.getId();
-        }
-        return null;
-    }
-
     @RequestMapping(value = "/events/{eventId}", method = RequestMethod.GET)
     public ModelAndView eventDescription(@ModelAttribute("bookForm") final BookForm form, @PathVariable("eventId") @Min(1) final int eventId) {
-        final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
+        final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         boolean isLogged = false, isOwner = false;
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && !(auth instanceof AnonymousAuthenticationToken)) {
+        if (userManager.isAuthenticated()) {
             isLogged = true;
-            String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-            User user = userService.findByUsername(username).orElseThrow(UserNotFoundException::new);
-            if (e.getUser().getId() == user.getId())
-                isOwner = true;
+            isOwner = isEventOwner(event);
         }
 
-        final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         final ModelAndView mav = new ModelAndView("event");
         mav.addObject("event", event);
         mav.addObject("isOwner", isOwner);
@@ -167,10 +153,10 @@ public class EventController {
     }
 
     @RequestMapping(value = "/events/{eventId}", method = { RequestMethod.POST }, params = "submit")
-    public ModelAndView bookEvent(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors, @PathVariable("eventId") @Min(1) final int eventId) {
+    public ModelAndView bookEvent(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors,
+                                  @PathVariable("eventId") @Min(1) final int eventId) {
         final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
-        final String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-        final User user = userService.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        final User user = userManager.getUser();
         final User eventUser = userService.getUserById(e.getUser().getId()).orElseThrow(RuntimeException::new);
 
         if (errors.hasErrors() || form.getQty() > e.getMaxCapacity()) {
@@ -178,22 +164,18 @@ public class EventController {
             return eventDescription(form, eventId);
         }
 
-        boolean booked = eventService.book(form.getQty(), user.getId(), username, user.getMail(), eventId, e.getName(), eventUser.getMail());
+        boolean booked = eventService.book(form.getQty(), user.getId(), user.getUsername(), user.getMail(), eventId, e.getName(), eventUser.getMail());
         if (!booked)
             return new ModelAndView("redirect:/error");
-        return new ModelAndView("redirect:/events/" + e.getId() + "/booking_success");
+        return new ModelAndView("redirect:/events/" + e.getId() + "/bookingSuccess");
     }
 
-    @RequestMapping(value = "/events/{eventId}/booking_success", method = RequestMethod.GET)
+    @RequestMapping(value = "/events/{eventId}/bookingSuccess", method = RequestMethod.GET)
     public ModelAndView eventDescription(@PathVariable("eventId") @Min(1) final int eventId) {
-        final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
-        boolean isLogged = false, isOwner = false;
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth instanceof AnonymousAuthenticationToken) {
+        if (!userManager.isAuthenticated())
             return new ModelAndView("redirect:/");
-        }
 
-        final ModelAndView mav = new ModelAndView("booking_success");
+        final ModelAndView mav = new ModelAndView("bookingSuccess");
         List<Event> similarEvents = eventService.getSimilarEvents(eventId);
         List<Event> popularEvents = eventService.getPopularEvents(eventId);
         mav.addObject("similarEvents", similarEvents);
@@ -214,20 +196,21 @@ public class EventController {
     }
 
     @RequestMapping(value = "/createEvent", method = { RequestMethod.POST }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ModelAndView createEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors, @RequestParam("image") CommonsMultipartFile imageFile) {
+    public ModelAndView createEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors,
+                                    @RequestParam("image") CommonsMultipartFile imageFile) {
         if (errors.hasErrors())
             return createForm(form);
 
-        final String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-        final int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
-        final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(), form.getType(), form.getTimestamp(), (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags(), userId);
+        final int userId = userManager.getUserId();
+        final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(),
+                form.getType(), form.getTimestamp(), (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags(), userId);
         return new ModelAndView("redirect:/events/" + e.getId());
     }
 
     @RequestMapping(value = "/events/{eventId}/modify", method = { RequestMethod.GET })
     public ModelAndView modifyForm(@ModelAttribute("eventForm") final EventForm form, @PathVariable("eventId") @Min(1) final int eventId) {
         final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
-        if (!canUpdateEvent(event))
+        if (!isEventOwner(event))
             return new ModelAndView("redirect:/events/" + eventId);
 
         final ModelAndView mav = new ModelAndView("modifyEvent");
@@ -251,7 +234,7 @@ public class EventController {
     @RequestMapping(value = "/events/{eventId}/delete", method = { RequestMethod.POST })
     public ModelAndView deleteEvent(@PathVariable("eventId") final int eventId) {
         final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
-        if (!canUpdateEvent(event))
+        if (!isEventOwner(event))
             return new ModelAndView("redirect:/events/" + eventId);
 
         eventService.deleteEvent(eventId);
@@ -261,9 +244,8 @@ public class EventController {
     @RequestMapping(value = "/events/{eventId}/soldout", method = { RequestMethod.POST })
     public ModelAndView soldOutEvent(@PathVariable("eventId") @Min(1) final int eventId) {
         final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
-        if (!canUpdateEvent(event))
+        if (!isEventOwner(event))
             return new ModelAndView("redirect:/events/" + eventId);
-
         eventService.soldOut(eventId);
         return new ModelAndView("redirect:/events/" + eventId);
     }
@@ -271,7 +253,7 @@ public class EventController {
     @RequestMapping(value = "/events/{eventId}/active", method = { RequestMethod.POST })
     public ModelAndView activeEvent(@PathVariable("eventId") @Min(1) final int eventId) {
         final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
-        if (!canUpdateEvent(event))
+        if (!isEventOwner(event))
             return new ModelAndView("redirect:/events/" + eventId);
 
         eventService.active(eventId);
@@ -280,10 +262,7 @@ public class EventController {
 
     @RequestMapping(value = "/myEvents", method = { RequestMethod.GET })
     public ModelAndView myEvents(@RequestParam(value = "page", required = false, defaultValue = "1") @Min(1) final int page) {
-        final Integer userId = getUserId();
-        if (userId == null)
-            throw new UserNotFoundException();
-
+        final int userId = userManager.getUserId();
         List<Event> events = eventService.getUserEvents(userId, page);
         final ModelAndView mav = new ModelAndView("myEvents");
         mav.addObject("page", page);
@@ -294,28 +273,19 @@ public class EventController {
 
     @RequestMapping(value = "/stats", method = { RequestMethod.GET })
     public ModelAndView getStats() {
-        final Integer userId = getUserId();
-        if (userId == null)
-            throw new UserNotFoundException();
-
+        final int userId = userManager.getUserId();
         Stats stats = userService.getUserStats(userId).orElseThrow(RuntimeException::new);
         final ModelAndView mav = new ModelAndView("stats");
         mav.addObject("stats", stats);
         return mav;
     }
 
-    private boolean canUpdateEvent(Event event) {
-        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-        int userId = userService.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
-        return event.getUser().getId() == userId;
+    private boolean isEventOwner(Event event) {
+        return event.getUser().getId() == userManager.getUserId();
     }
 
     @ModelAttribute
     public void addAttributes(Model model, final SearchForm searchForm) {
-        String username = null;
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && !(auth instanceof AnonymousAuthenticationToken))
-            username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-        model.addAttribute("username", username);
+        model.addAttribute("username", userManager.getUsername());
     }
 }

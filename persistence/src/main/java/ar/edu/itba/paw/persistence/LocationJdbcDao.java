@@ -28,12 +28,12 @@ public class LocationJdbcDao implements LocationDao {
 
     @Override
     public Optional<Location> getLocationById(long id) {
-        List<Location> query = jdbcTemplate.query("SELECT * FROM locations WHERE locationId = ?", new Object[] {id}, ROW_MAPPER);
-        return query.stream().findFirst();
+        return jdbcTemplate.query("SELECT * FROM locations WHERE locationId = ?", new Object[] {id}, ROW_MAPPER).stream().findFirst();
     }
 
     @Override
     public Optional<Location> getLocationFromEventId(int eventId) {
-        return jdbcTemplate.query("SELECT locations.locationid, locations.name FROM events JOIN locations ON events.locationid = locations.locationid WHERE eventid = ?", new Object[]{eventId}, ROW_MAPPER).stream().findFirst();
+        return jdbcTemplate.query("SELECT locations.locationid, locations.name FROM events JOIN locations ON events.locationid = locations.locationid WHERE eventid = ?",
+                new Object[]{eventId}, ROW_MAPPER).stream().findFirst();
     }
 }

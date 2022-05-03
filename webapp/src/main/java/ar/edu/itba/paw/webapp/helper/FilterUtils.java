@@ -19,31 +19,4 @@ public class FilterUtils {
         }
         return queryBuilder.toString();
     }
-
-    public static String createFilter(String locations, String types, Double minPrice, Double maxPrice) {
-        StringBuilder queryBuilder = new StringBuilder();
-        boolean append = false;
-        if (locations != null) {
-            append = true;
-            queryBuilder.append("locations=").append(locations);
-        }
-        if (types != null) {
-            if (append)
-                queryBuilder.append("&");
-            append = true;
-            queryBuilder.append("types=").append(types);
-        }
-        if (minPrice != null) {
-            if (append)
-                queryBuilder.append("&");
-            append = true;
-            queryBuilder.append("&minPrice=").append(minPrice);
-        }
-        if (maxPrice != null) {
-            if (append)
-                queryBuilder.append("&");
-            queryBuilder.append("&maxPrice=").append(maxPrice);
-        }
-        return queryBuilder.toString();
-    }
 }

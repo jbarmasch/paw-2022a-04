@@ -2,7 +2,6 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -53,12 +52,12 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public Optional<Event> getEventById(long id) {
-        List<Event> query = jdbcTemplate.query("SELECT * FROM event_complete WHERE eventId = ?", new Object[]{id}, ROW_MAPPER);
-        return query.stream().findFirst();
+        return jdbcTemplate.query("SELECT * FROM event_complete WHERE eventId = ?", new Object[]{id}, ROW_MAPPER).stream().findFirst();
     }
 
     @Override
-    public Event create(String name, String description, int locationId, int ticketsLeft, double price, int typeId, LocalDateTime date, int imageId, Integer[] tagIds, int userId) {
+    public Event create(String name, String description, int locationId, int ticketsLeft, double price, int typeId,
+                        LocalDateTime date, int imageId, Integer[] tagIds, int userId) {
         final Map<String, Object> eventData = new HashMap<>();
         eventData.put("name", name);
         eventData.put("description", description);
@@ -71,18 +70,16 @@ public class EventJdbcDao implements EventDao {
         eventData.put("userId", userId);
         eventData.put("attendance", 0);
         eventData.put("state", State.ACTIVE.ordinal());
-
         final int eventId = jdbcInsert.executeAndReturnKey(eventData).intValue();
-
-        for (Integer tagId : tagIds) {
+        for (Integer tagId : tagIds)
             addTagToEvent(eventId, tagId);
-        }
 
         return getEventById(eventId).orElseThrow(RuntimeException::new);
     }
 
     @Override
-    public List<Event> filterBy(String[] locations, String[] types , String minPrice, String maxPrice, String searchQuery, String order, String orderBy, int page) {
+    public List<Event> filterBy(String[] locations, String[] types , String minPrice, String maxPrice,
+                                String searchQuery, String order, String orderBy, int page) {
         StringBuilder query = new StringBuilder("SELECT * FROM event_complete WHERE state != 1");
         if (locations != null || minPrice != null || maxPrice != null || types != null || searchQuery != null) {
             if (locations != null && locations.length > 0) {
@@ -122,7 +119,8 @@ public class EventJdbcDao implements EventDao {
 //                query.append("}'::INTEGER[]) AS aux WHERE aux <> ALL tagIds) = 0 ");
 //            }
             if (searchQuery != null) {
-                query.append(" AND ((SELECT to_tsvector('Spanish', name) @@ to_tsquery('").append(searchQuery).append("')) = 't' OR name ILIKE '%").append(searchQuery).append("%')");
+                query.append(" AND ((SELECT to_tsvector('Spanish', name) @@ to_tsquery('");
+                query.append(searchQuery).append("')) = 't' OR name ILIKE '%").append(searchQuery).append("%')");
             }
         }
 
@@ -145,11 +143,13 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public List<Event> getUpcomingEvents(){
-        return jdbcTemplate.query("SELECT * FROM event_complete WHERE date > ? AND state != 1 ORDER BY date LIMIT 5", new Object[]{Timestamp.valueOf(LocalDateTime.now())}, ROW_MAPPER);
+        return jdbcTemplate.query("SELECT * FROM event_complete WHERE date > ? AND state != 1 ORDER BY date LIMIT 5",
+                new Object[]{Timestamp.valueOf(LocalDateTime.now())}, ROW_MAPPER);
     }
 
     @Override
-    public void updateEvent(int id, String name, String description, Integer locationId, int ticketsLeft, double price, int typeId, LocalDateTime date, int imgId, Integer[] tagIds) {
+    public void updateEvent(int id, String name, String description, Integer locationId, int ticketsLeft, double price,
+                            int typeId, LocalDateTime date, int imgId, Integer[] tagIds) {
         if (imgId != 1) {
             jdbcTemplate.update("UPDATE events SET name = ?, description = ?, locationid = ?, ticketsLeft = ?, price = ?, typeid = ?, date = ?, imageid = ? WHERE eventid = ?",
                     name, description, locationId, ticketsLeft, price, typeId, Timestamp.valueOf(date), imgId, id);
@@ -183,28 +183,20 @@ public class EventJdbcDao implements EventDao {
         return jdbcTemplate.query("SELECT * FROM event_complete WHERE userid = ? LIMIT 10 OFFSET ?", new Object[]{id, (page - 1) * 10}, ROW_MAPPER);
     }
 
-//    @Override
-    public void addTagToEvent(int eventId, int tagId) {
+    private void addTagToEvent(int eventId, int tagId) {
         final Map<String, Object> eventData = new HashMap<>();
         eventData.put("eventId", eventId);
         eventData.put("tagId", tagId);
-
         jdbcTagInsert.execute(eventData);
     }
 
-//    @Override
-    public void cleanTagsFromEvent(int eventId) {
+    private void cleanTagsFromEvent(int eventId) {
         jdbcTemplate.update("DELETE FROM eventtags WHERE eventid = ?", eventId);
     }
 
     @Override
     public boolean book(int qty, long userId, long eventId) {
-        int rowsUpdated;
-        try {
-            rowsUpdated = jdbcTemplate.update("UPDATE events SET ticketsLeft = ticketsLeft - ?, attendance = attendance + ? WHERE eventId = ?", qty, qty, eventId);
-        } catch (DataAccessException e) {
-            return false;
-        }
+        int rowsUpdated = jdbcTemplate.update("UPDATE events SET ticketsLeft = ticketsLeft - ?, attendance = attendance + ? WHERE eventId = ?", qty, qty, eventId);
         if (rowsUpdated <= 0)
             return false;
 
@@ -217,8 +209,16 @@ public class EventJdbcDao implements EventDao {
             bookingData.put("name", "default");
             jdbcBookInsert.execute(bookingData);
         }
-
         return true;
+    }
+
+    @Override
+    public boolean cancelBooking(long userId, long eventId, int qty) {
+        int rowsUpdated = jdbcTemplate.update("UPDATE bookings SET qty = qty - ? WHERE eventId = ? AND userId = ?", qty, eventId, userId);
+        if (rowsUpdated <= 0)
+            return false;
+        rowsUpdated = jdbcTemplate.update("UPDATE events SET ticketsLeft = ticketsLeft + ?, attendance = attendance - ? WHERE eventId = ?", qty, qty, eventId);
+        return rowsUpdated > 0;
     }
 
     @Override
@@ -244,13 +244,8 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public boolean rateEvent(long userId, long eventId, double rating) {
-        int rowsUpdated;
-        try {
-            rowsUpdated = jdbcTemplate.update("UPDATE ratings SET rating = ? WHERE eventid = ? AND userid = ?", rating, eventId, userId);
-        } catch (DataAccessException e) {
-            return false;
-        }
+    public void rateEvent(long userId, long eventId, double rating) {
+        int rowsUpdated = jdbcTemplate.update("UPDATE ratings SET rating = ? WHERE eventid = ? AND userid = ?", rating, eventId, userId);
         if (rowsUpdated <= 0) {
             final Map<String, Object> ratingData = new HashMap<>();
             ratingData.put("eventId", eventId);
@@ -258,7 +253,5 @@ public class EventJdbcDao implements EventDao {
             ratingData.put("rating", rating);
             jdbcRatingInsert.execute(ratingData);
         }
-
-        return true;
     }
 }

@@ -74,6 +74,17 @@ public class EventServiceImpl implements EventService {
         mailService.sendErrorMail(userMail, eventName);
         return false;
     }
+
+    @Override
+    public boolean cancelBooking(int qty, long userId, String username, String userMail, long eventId, String eventName, String eventMail) {
+        if (eventDao.cancelBooking(userId, eventId, qty)) {
+            mailService.sendCancelMail(userMail, username, eventMail, eventName, qty);
+            return true;
+        }
+        mailService.sendErrorMail(userMail, eventName);
+        return false;
+    }
+
     @Override
     public List<Event> getFewTicketsEvents(){
         return eventDao.getFewTicketsEvents();
@@ -109,8 +120,9 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public boolean rateEvent(long userId, long eventId, double rating) { return eventDao.rateEvent(userId, eventId, rating); }
-
+    public void rateEvent(long userId, long eventId, double rating) {
+        eventDao.rateEvent(userId, eventId, rating);
+    }
 }
 
 

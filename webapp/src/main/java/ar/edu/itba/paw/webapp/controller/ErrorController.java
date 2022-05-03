@@ -5,6 +5,8 @@ import ar.edu.itba.paw.webapp.exceptions.ImageNotFoundException;
 import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.SearchForm;
 import org.hibernate.validator.method.MethodConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -17,47 +19,53 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.jws.WebParam;
+
 @ControllerAdvice
 public class ErrorController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ErrorController.class);
+
     @RequestMapping("/403")
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ModelAndView forbidden() {
-        final ModelAndView mav = new ModelAndView("error");
-        mav.addObject("message", "403");
-        return mav;
+        LOGGER.error("FORBIDDEN");
+        String errorCode = "403";
+        return createErrorModel(errorCode);
     }
 
     @ExceptionHandler({EventNotFoundException.class, UserNotFoundException.class, ImageNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ModelAndView notFound(Exception e) {
-        final ModelAndView mav = new ModelAndView("error");
-        mav.addObject("message", "404");
-        return mav;
+        LOGGER.error("NOT FOUND {}", e.getMessage());
+        String errorCode = "404";
+        return createErrorModel(errorCode);
     }
 
     @SuppressWarnings("deprecation")
     @ExceptionHandler({MethodConstraintViolationException.class, MethodArgumentTypeMismatchException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView constraintViolation(Exception e) {
-        final ModelAndView mav = new ModelAndView("error");
-        mav.addObject("message", "400");
-        return mav;
+        LOGGER.error("BAD REQUEST {}", e.getMessage());
+        String errorCode = "400";
+        return createErrorModel(errorCode);
     }
 
     @ExceptionHandler({DataIntegrityViolationException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ModelAndView integrityViolation(Exception e) {
-        final ModelAndView mav = new ModelAndView("error");
-        mav.addObject("message", "500");
-        return mav;
+        LOGGER.error("DATA INTEGRITY VIOLATION {}", e.getMessage());
+        String errorCode = "500";
+        return createErrorModel(errorCode);
     }
 
-    @ModelAttribute
-    public void addAttributes(Model model, final SearchForm searchForm) {
+    private ModelAndView createErrorModel(String errorCode) {
+        final ModelAndView mav = new ModelAndView("error");
         String username = null;
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && !(auth instanceof AnonymousAuthenticationToken))
             username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-        model.addAttribute("username", username);
+        mav.addObject("username", username);
+        mav.addObject("message", errorCode);
+        return mav;
     }
 }

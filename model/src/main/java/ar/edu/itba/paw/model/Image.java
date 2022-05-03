@@ -19,9 +19,4 @@ public class Image {
     public byte[] getImage() {
         return image;
     }
-
-    public String getFormatted() {
-        byte[] encodeBase64 = Base64.getEncoder().encode(image);
-        return new String(encodeBase64, StandardCharsets.UTF_8);
-    }
 }

@@ -13,6 +13,5 @@ public interface UserService {
     Optional<User> findByUsername(String username);
     List<Booking> getAllBookingsFromUser(long id, int page);
     Optional<Booking> getBookingFromUser(long userId, long eventId);
-    boolean cancelBooking(int qty, long userId, String username, String userMail, long eventId, String eventName, String eventMail);
     Optional<Stats> getUserStats(long id);
 }

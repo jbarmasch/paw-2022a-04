@@ -54,15 +54,14 @@
                                                             <form:form novalidate="true" class="transparent" modelAttribute="bookForm" action="${postPath}" method="post" id="bookForm${i}">
                                                                 <div class="horizontal center">
                                                                     <form:label class="sep-right" path="qty">*Cantidad de entradas a cancelar: </form:label>
-
-                                                                <c:set var="qtyTickets" scope="session" value="${booking.qty}"/>
-                                                                <form:input class="uk-input" type="number" path="qty" min="1" max="${booking.qty}" required="true" id="qty"/>
-<%--                                                                <form:errors path="qty" cssClass="error-message" element="span"/>--%>
-                                                                <spring:message code="Min.bookForm.qty" var="minQtySizeError"/>
-                                                                <spring:message code="Max.bookForm.qtyStr" var="maxQtySizeError"/>
-                                                                <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
-                                                                <span class="formError"></span>
+                                                                    <c:set var="qtyTickets" scope="session" value="${booking.qty}"/>
+                                                                    <form:input class="uk-input" type="number" path="qty" min="1" max="${booking.qty}" required="true" id="qty"/>
+                                                                    <spring:message code="Min.bookForm.qty" var="minQtySizeError"/>
+                                                                    <spring:message code="Max.bookForm.qtyStr" var="maxQtySizeError"/>
+                                                                    <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
+                                                                    <span class="formError"></span>
                                                                 </div>
+
                                                                 <form:input class="hidden" type="number" path="page" value="${page}"/>
                                                                 <hr/>
                                                             <button class="accept-button-modal uk-button" type="submit" name="submit">Cancelar entradas</button>

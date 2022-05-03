@@ -76,8 +76,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public Optional<User> getUserById(long id) {
-        List<User> query = jdbcTemplate.query("SELECT * FROM users WHERE userid = ?", new Object[] { id }, ROW_MAPPER);
-        return query.stream().findFirst();
+        return jdbcTemplate.query("SELECT * FROM users WHERE userid = ?", new Object[] { id }, ROW_MAPPER).stream().findFirst();
     }
 
     @Override
@@ -91,10 +90,6 @@ public class UserJdbcDao implements UserDao {
         return new User(userId.intValue(), username, password, mail);
     }
 
-    public List<User> getAll(int page) {
-        return jdbcTemplate.query("SELECT * FROM users LIMIT 10 OFFSET ?", new Object[] { (page - 1) * 10 }, ROW_MAPPER);
-    }
-
     @Override
     public Optional<User> findByUsername(String username) {
         return jdbcTemplate.query("SELECT * FROM users WHERE username = ?", new Object[] { username }, ROW_MAPPER).stream().findFirst();
@@ -102,29 +97,18 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public List<Booking> getAllBookingsFromUser(long id, int page) {
-        return jdbcTemplate.query("SELECT bookings.userid AS bookId, bookings.qty, * FROM bookings JOIN event_complete ON bookings.eventid = event_complete.eventid WHERE bookings.userid = ? AND bookings.qty > 0 ORDER BY date LIMIT 10 OFFSET ?", new Object[] { id, (page - 1) * 10 }, BOOKING_ROW_MAPPER);
+        return jdbcTemplate.query("SELECT bookings.userid AS bookId, bookings.qty, * FROM bookings JOIN event_complete ON bookings.eventid = " +
+                "event_complete.eventid WHERE bookings.userid = ? AND bookings.qty > 0 ORDER BY date LIMIT 10 OFFSET ?",
+                new Object[] { id, (page - 1) * 10 }, BOOKING_ROW_MAPPER);
     }
 
     @Override
     public Optional<Booking> getBookingFromUser(long userId, long eventId) {
-        return jdbcTemplate.query("SELECT bookings.userid AS bookId, bookings.qty, * FROM bookings JOIN event_complete ON bookings.eventid = event_complete.eventid WHERE bookings.userid = ? AND bookings.eventId = ?", new Object[] { userId, eventId }, BOOKING_ROW_MAPPER).stream().findFirst();
+        return jdbcTemplate.query("SELECT bookings.userid AS bookId, bookings.qty, * FROM bookings JOIN event_complete ON bookings.eventid = " +
+                "event_complete.eventid WHERE bookings.userid = ? AND bookings.eventId = ?",
+                new Object[] { userId, eventId }, BOOKING_ROW_MAPPER).stream().findFirst();
     }
 
-    @Override
-    public boolean cancelBooking(long userId, long eventId, int qty) {
-        int rowsUpdated;
-        try {
-            rowsUpdated = jdbcTemplate.update("UPDATE bookings SET qty = qty - ? WHERE eventId = ? AND userId = ?", qty, eventId, userId);
-        } catch (DataAccessException e) {
-            return false;
-        }
-
-        if (rowsUpdated <= 0)
-            return false;
-
-        rowsUpdated = jdbcTemplate.update("UPDATE events SET ticketsLeft = ticketsLeft + ?, attendance = attendance - ? WHERE eventId = ?", qty, qty, eventId);
-        return rowsUpdated > 0;
-    }
 
     @Override
     public Optional<Stats> getUserStats(long id) {

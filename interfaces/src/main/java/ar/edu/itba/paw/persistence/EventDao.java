@@ -15,6 +15,7 @@ public interface EventDao {
     void deleteEvent(int id);
     List<Event> getUserEvents(long id, int page);
     boolean book(int qty, long userId, long eventId);
+    boolean cancelBooking(long userId, long eventId, int qty);
     Integer getAttendanceOfEventId(long eventId);
     void soldOut(int id);
     void active(int id);
@@ -22,5 +23,5 @@ public interface EventDao {
     List<Event> getUpcomingEvents();
     List<Event> getSimilarEvents(long eventId);
     List<Event> getPopularEvents(long eventId);
-    boolean rateEvent(long userId, long eventId, double rating);
+    void rateEvent(long userId, long eventId, double rating);
 }

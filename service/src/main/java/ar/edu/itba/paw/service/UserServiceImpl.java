@@ -50,16 +50,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean cancelBooking(int qty, long userId, String username, String userMail, long eventId, String eventName, String eventMail) {
-        if (userDao.cancelBooking(userId, eventId, qty)) {
-            mailService.sendCancelMail(userMail, username, eventMail, eventName, qty);
-            return true;
-        }
-        mailService.sendErrorMail(userMail, eventName);
-        return false;
-    }
-
-    @Override
     public Optional<Stats> getUserStats(long id) {
         return userDao.getUserStats(id);
     }

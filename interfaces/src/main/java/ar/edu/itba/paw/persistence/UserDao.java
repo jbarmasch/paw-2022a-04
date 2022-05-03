@@ -13,6 +13,5 @@ public interface UserDao {
     Optional<User> findByUsername(String username);
     List<Booking> getAllBookingsFromUser(long id, int page);
     Optional<Booking> getBookingFromUser(long userId, long eventId);
-    boolean cancelBooking(long userId, long eventId, int qty);
     Optional<Stats> getUserStats(long id);
 }

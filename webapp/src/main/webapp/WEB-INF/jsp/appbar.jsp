@@ -8,11 +8,13 @@
     <div class="appbar_buttons">
         <button class="uk-button uk-button-text" onclick="location.href='<c:url value="/events"/>'">Eventos</button>
         <button class="uk-button uk-button-text" onclick="location.href='<c:url value="/createEvent"/>'">Crear evento</button>
-        <c:url value="/search" var="postPath"/>
-        <form:form novalidate="true" modelAttribute="searchForm" action="${postPath}" method="post" class="horizontal align-center search-form" id="searchForm">
-            <span uk-search-icon></span>
-            <form:input class="uk-search-input" type="search" placeholder="Buscar evento" path="query" value="${param.query}"/>
-        </form:form>
+        <c:if test="${searchForm != null}" >
+            <c:url value="/search" var="postPath"/>
+            <form:form novalidate="true" modelAttribute="searchForm" action="${postPath}" method="post" class="horizontal align-center search-form" id="searchForm">
+                <span uk-search-icon></span>
+                <form:input class="uk-search-input" type="search" placeholder="Buscar evento" path="query" value="${param.query}"/>
+            </form:form>
+        </c:if>
     </div>
     <div>
         <div class="uk-inline">
