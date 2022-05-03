@@ -1,5 +1,7 @@
 package ar.edu.itba.paw.webapp.form;
 
+import ar.edu.itba.paw.webapp.validations.UniqueMail;
+import ar.edu.itba.paw.webapp.validations.UniqueUsername;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -11,6 +13,7 @@ public class UserForm {
     @Size(min = 6, max = 100)
     @Pattern(regexp = "[a-zA-Z0-9]+")
     @NotEmpty
+    @UniqueUsername
     private String username;
     
     @Size(min = 6, max = 100)
@@ -23,6 +26,7 @@ public class UserForm {
 
     @Email
     @NotEmpty
+    @UniqueMail
     private String mail;
 
     public String getUsername() {

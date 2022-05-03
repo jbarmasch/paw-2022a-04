@@ -14,4 +14,5 @@ public interface UserDao {
     List<Booking> getAllBookingsFromUser(long id, int page);
     Optional<Booking> getBookingFromUser(long userId, long eventId);
     Optional<Stats> getUserStats(long id);
+    Optional<User> findByMail(String mail);
 }

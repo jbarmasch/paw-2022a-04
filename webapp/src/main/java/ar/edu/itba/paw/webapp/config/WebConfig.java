@@ -20,6 +20,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.ViewResolver;
@@ -116,6 +117,13 @@ public class WebConfig {
         return messageSource;
     }
 
+//    @Bean
+//    public LocalValidatorFactoryBean validator() {
+//        LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
+//        bean.setValidationMessageSource(messageSource());
+//        return bean;
+//    }
+
     @Bean(name = "multipartResolver")
     public CommonsMultipartResolver multipartResolver() {
         CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
@@ -138,12 +146,12 @@ public class WebConfig {
         return new PropertySourcesPlaceholderConfigurer();
     }
 
-    @Bean
-    public ResourceBundleMessageSource emailMessageSource() {
-        final ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-        messageSource.setBasename("classpath:i18n/messages");
-        return messageSource;
-    }
+//    @Bean
+//    public ResourceBundleMessageSource emailMessageSource() {
+//        final ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+//        messageSource.setBasename("classpath:i18n/messages");
+//        return messageSource;
+//    }
 
     @Bean
     public TemplateEngine emailTemplateEngine() {

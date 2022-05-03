@@ -39,7 +39,7 @@ import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 import java.util.*;
 
-@Validated
+//@Validated
 @Controller
 public class EventController {
     private final EventService eventService;

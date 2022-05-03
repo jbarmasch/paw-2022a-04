@@ -29,6 +29,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -64,7 +65,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/register", method = { RequestMethod.GET })
-    public ModelAndView createForm(@ModelAttribute("registerForm") final UserForm form) {
+    public ModelAndView createForm(@ModelAttribute("userForm") final UserForm form) {
         if (!userManager.isAuthenticated()) {
             return new ModelAndView("register");
         }
@@ -72,9 +73,11 @@ public class UserController {
     }
 
     @RequestMapping(value = "/register", method = { RequestMethod.POST })
-    public ModelAndView create(@Valid @ModelAttribute("registerForm") final UserForm form, final BindingResult errors, HttpServletRequest request) {
-        if (errors.hasErrors())
+    public ModelAndView create(@Valid @ModelAttribute("userForm") final UserForm form, final BindingResult errors, HttpServletRequest request) {
+        if (errors.hasErrors()) {
+            System.out.println(Arrays.toString(Arrays.stream(errors.getAllErrors().toArray()).toArray()));
             return createForm(form);
+        }
 
         userService.create(form.getUsername(), form.getPassword(), form.getMail());
         authenticationManager.requestAuthentication(request, form.getUsername(), form.getPassword());

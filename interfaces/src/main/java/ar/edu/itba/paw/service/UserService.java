@@ -14,4 +14,6 @@ public interface UserService {
     List<Booking> getAllBookingsFromUser(long id, int page);
     Optional<Booking> getBookingFromUser(long userId, long eventId);
     Optional<Stats> getUserStats(long id);
+    boolean isUsernameUnique(String username);
+    boolean isMailUnique(String mail);
 }

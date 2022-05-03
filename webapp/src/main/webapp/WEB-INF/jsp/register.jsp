@@ -12,7 +12,7 @@
     <%@ include file="appbar.jsp"%>
     <c:url value="/register" var="postPath"/>
     <div class="only-element">
-    <form:form class="registerForm" novalidate="true" modelAttribute="registerForm" action="${postPath}" method="post">
+    <form:form class="registerForm" novalidate="true" modelAttribute="userForm" action="${postPath}" method="post">
         <h3>Registrarse</h3>
         <div class="space-bet sep-top vertical">
             <form:input placeholder="* Mail" type="email" path="mail" maxlength="100" required="true" id="mail"/>
@@ -27,6 +27,7 @@
             <form:errors path="username" cssClass="error-message" element="span"/>
             <spring:message code="NotEmpty.userForm.username" var="userEmptyError"/>
             <spring:message code="Size.userForm.username" var="userSizeError"/>
+            <spring:message code="UniqueUsername.userForm.username" var="userUniqueError"/>
             <spring:message code="Pattern.userForm.username" var="userPatternError"/>
             <span class="formError"></span>
         </div>
@@ -57,7 +58,7 @@
         var username = document.getElementById('username');
         var password = document.getElementById('password');
         var repeatPassword = document.getElementById('repeatPassword');
-        var form = document.getElementById('registerForm');
+        var form = document.getElementById('userForm');
 
         var checkMailValidity = function() {
             if (mail.validity.typeMismatch) {
@@ -123,7 +124,7 @@
         };
 
         var checkPasswordMatchValidity = function() {
-            if (!password.validity.valid)
+            if (!password.validity.valid && form.getElementsByClassName('formError')[2].innerHTML !== '${passwordMatchError}')
                 return;
 
             if (password.value.length !== 0 && repeatPassword.value.length !== 0) {
@@ -160,6 +161,10 @@
         username.addEventListener('keyup', checkUsernameValidity, false);
         password.addEventListener('change', checkPasswordValidity, false);
         password.addEventListener('keyup', checkPasswordValidity, false);
+        password.addEventListener('change', checkPasswordMatchValidity, false);
+        password.addEventListener('keyup', checkPasswordMatchValidity, false);
+        repeatPassword.addEventListener('change', checkPasswordMatchValidity, false);
+        repeatPassword.addEventListener('keyup', checkPasswordMatchValidity, false);
         repeatPassword.addEventListener('change', checkRepeatPasswordValidity, false);
         repeatPassword.addEventListener('keyup', checkRepeatPasswordValidity, false);
 

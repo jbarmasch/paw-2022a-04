@@ -96,6 +96,11 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
+    public Optional<User> findByMail(String mail) {
+        return jdbcTemplate.query("SELECT * FROM users WHERE mail = ?", new Object[] { mail }, ROW_MAPPER).stream().findFirst();
+    }
+
+    @Override
     public List<Booking> getAllBookingsFromUser(long id, int page) {
         return jdbcTemplate.query("SELECT bookings.userid AS bookId, bookings.qty, * FROM bookings JOIN event_complete ON bookings.eventid = " +
                 "event_complete.eventid WHERE bookings.userid = ? AND bookings.qty > 0 ORDER BY date LIMIT 10 OFFSET ?",
