@@ -22,8 +22,8 @@ public class UserJdbcDao implements UserDao {
             rs.getString("mail")
     );
 
-    private final static RowMapper<Booking> BOOKING_ROW_MAPPER = (rs, rowNum) -> new Booking(
-            rs.getInt("bookId"),
+    private final static RowMapper<EventBooking> EVENT_BOOKING_ROW_MAPPER = (rs, rowNum) -> new EventBooking(
+            rs.getInt("userId"),
             new Event(
                     rs.getInt("eventId"),
                     rs.getString("name"),
@@ -39,11 +39,9 @@ public class UserJdbcDao implements UserDao {
                     rs.getDouble("rating"),
                     rs.getInt("attendance"),
                     State.getState(rs.getInt("state")),
-                    Ticket.getTickets(rs.getArray("ticketIds"), rs.getArray("ticketNames"), rs.getArray("ticketPrices"), rs.getArray("ticketTicketsLeft"))
+                    null
             ),
-            rs.getInt("qty"),
-            rs.getInt("ticketId"),
-            null
+            TicketBooking.getTicketBookings(rs.getArray("ticketIds"), rs.getArray("qtys"), rs.getArray("ticketNames"))
     );
 
     private final static RowMapper<Stats> STATS_ROW_MAPPER = (rs, rowNum) -> new Stats(
@@ -68,7 +66,8 @@ public class UserJdbcDao implements UserDao {
                     rs.getDouble("rating"),
                     rs.getInt("attendance"),
                     State.getState(rs.getInt("state")),
-                    Ticket.getTickets(rs.getArray("ticketIds"), rs.getArray("ticketNames"), rs.getArray("ticketPrices"), rs.getArray("ticketTicketsLeft"))
+                    Ticket.getTickets(rs.getArray("ticketIds"), rs.getArray("ticketNames"),
+                            rs.getArray("ticketPrices"), rs.getArray("ticketTicketsLeft"))
             )
     );
 
@@ -105,19 +104,26 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public List<Booking> getAllBookingsFromUser(long id, int page) {
-        return jdbcTemplate.query("SELECT bookings.userid AS bookId, bookings.qty, * FROM bookings JOIN event_complete ON bookings.eventid = " +
-                "event_complete.eventid WHERE bookings.userid = ? AND bookings.qty > 0 ORDER BY date LIMIT 10 OFFSET ?",
-                new Object[] { id, (page - 1) * 10 }, BOOKING_ROW_MAPPER);
+    public List<EventBooking> getAllBookingsFromUser(long id, int page) {
+        return jdbcTemplate.query("SELECT bookings.userid, ARRAY_AGG(bookings.qty) AS qtys, ARRAY_AGG(bookings.ticketid) AS ticketIds, " +
+                        "ARRAY_AGG(ti.name) AS ticketNames, ec.* FROM bookings JOIN event_complete ec ON bookings.eventid = ec.eventid JOIN tickets ti " +
+                        "ON ti.eventId = ec.eventid AND bookings.ticketid = ti.ticketid WHERE bookings.userid = ? AND bookings.qty > 0 " +
+                        "group by bookings.userid, bookings.eventid, ec.eventid, ec.name, ec.description, ec.locationid, ec.attendance, ec.minPrice, " +
+                        "ec.ticketsLeft, ec.typeid, ec.date, ec.imageid, ec.userid, ec.state, ec.locName, ec.image, ec.typeName, ec.username, ec.rating, " +
+                        "ec.ticketIds, ec.ticketTicketsLeft, ec.ticketNames, ec.ticketPrices, ec.tagIds, ec.tagNames ORDER BY date LIMIT 10 OFFSET ?",
+                new Object[] { id, (page - 1) * 10 }, EVENT_BOOKING_ROW_MAPPER);
     }
 
     @Override
-    public Optional<Booking> getBookingFromUser(long userId, long eventId) {
-        return jdbcTemplate.query("SELECT bookings.userid AS bookId, bookings.qty, * FROM bookings JOIN event_complete ON bookings.eventid = " +
-                "event_complete.eventid WHERE bookings.userid = ? AND bookings.eventId = ?",
-                new Object[] { userId, eventId }, BOOKING_ROW_MAPPER).stream().findFirst();
+    public Optional<EventBooking> getBookingFromUser(long userId, long eventId) {
+        return jdbcTemplate.query("SELECT bookings.userid, ARRAY_AGG(bookings.qty) AS qtys, ARRAY_AGG(bookings.ticketid) AS ticketIds, " +
+                    "ARRAY_AGG(ti.name) AS ticketNames, ec.* FROM bookings JOIN event_complete ec ON bookings.eventid = ec.eventid JOIN tickets ti " +
+                        "ON ti.eventId = ec.eventid AND bookings.ticketid = ti.ticketid WHERE bookings.userid = ? AND bookings.qty > 0 AND bookings.eventId = ? " +
+                        "group by bookings.userid, bookings.eventid, ec.eventid, ec.name, ec.description, ec.locationid, ec.attendance, ec.minPrice, " +
+                        "ec.ticketsLeft, ec.typeid, ec.date, ec.imageid, ec.userid, ec.state, ec.locName, ec.image, ec.typeName, ec.username, ec.rating, " +
+                        "ec.ticketIds, ec.ticketTicketsLeft, ec.ticketNames, ec.ticketPrices, ec.tagIds, ec.tagNames ORDER BY date LIMIT 10 OFFSET ?",
+                new Object[] { userId, eventId }, EVENT_BOOKING_ROW_MAPPER).stream().findFirst();
     }
-
 
     @Override
     public Optional<Stats> getUserStats(long id) {

@@ -29,8 +29,8 @@
                                     <img class="icon" src="<c:url value="/resources/svg/price-tag.svg"/>" alt="Price icon"/>
                                     <span>
                                          <c:choose>
-                                             <c:when test="${event.price == 0}">Gratis</c:when>
-                                             <c:otherwise>$<c:out value="${event.price}"/></c:otherwise>
+                                             <c:when test="${event.minPrice == 0}">Gratis</c:when>
+                                             <c:otherwise>$<c:out value="${event.minPrice}"/></c:otherwise>
                                          </c:choose>
                                     </span>
                                     <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${event.location.name}"/></span>
@@ -64,8 +64,8 @@
                                 <img class="icon" src="<c:url value="/resources/svg/price-tag.svg"/>" alt="Price icon"/>
                                 <span>
                                     <c:choose>
-                                        <c:when test="${event.price == 0}">Gratis</c:when>
-                                        <c:otherwise>$<c:out value="${event.price}"/></c:otherwise>
+                                        <c:when test="${event.minPrice == 0}">Gratis</c:when>
+                                        <c:otherwise>$<c:out value="${event.minPrice}"/></c:otherwise>
                                     </c:choose>
                                 </span>
                                 <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${event.location.name}"/></span>

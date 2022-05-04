@@ -4,6 +4,7 @@ import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.persistence.EventDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,6 +33,7 @@ public class EventServiceImpl implements EventService {
         return eventDao.getEventById(id);
     }
 
+    @Transactional
     @Override
     public Event create(String name, String description, int locationId, int maxCapacity, double price, int typeId, LocalDateTime date, byte[] imageArray, Integer[] tagIds, int userId) {
         int imageId = 1;
@@ -45,6 +47,7 @@ public class EventServiceImpl implements EventService {
         return eventDao.filterBy(locations, types, minPrice, maxPrice, query, order, orderBy, page);
     }
 
+    @Transactional
     @Override
     public void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int typeId, LocalDateTime date, byte[] imageArray, Integer[] tagIds) {
         int imageId = 1;
@@ -63,8 +66,12 @@ public class EventServiceImpl implements EventService {
         return eventDao.getUserEvents(id, page);
     }
 
+    @Transactional
     @Override
     public boolean book(List<Booking> bookings, long userId, String username, String userMail, long eventId, String eventName, String eventMail) {
+        for (Booking b : bookings) {
+            System.out.println("ticketeck " + b.getTicketId());
+        }
         if (eventDao.book(bookings, userId, eventId)) {
             mailService.sendBookMail(userMail, username, eventMail, eventName, bookings.stream().mapToInt(Booking::getQty).sum());
             return true;
@@ -73,6 +80,7 @@ public class EventServiceImpl implements EventService {
         return false;
     }
 
+    @Transactional
     @Override
     public boolean cancelBooking(int qty, long userId, String username, String userMail, long eventId, long ticketId, String eventName, String eventMail) {
         if (eventDao.cancelBooking(userId, eventId, qty, ticketId)) {

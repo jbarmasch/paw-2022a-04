@@ -50,13 +50,13 @@ public class ErrorController {
         return createErrorModel(errorCode);
     }
 
-    @ExceptionHandler({DataIntegrityViolationException.class})
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ModelAndView integrityViolation(Exception e) {
-        LOGGER.error("DATA INTEGRITY VIOLATION {}", e.getMessage());
-        String errorCode = "500";
-        return createErrorModel(errorCode);
-    }
+//    @ExceptionHandler({DataIntegrityViolationException.class})
+//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+//    public ModelAndView integrityViolation(Exception e) {
+//        LOGGER.error("DATA INTEGRITY VIOLATION {}", e.getMessage());
+//        String errorCode = "500";
+//        return createErrorModel(errorCode);
+//    }
 
     private ModelAndView createErrorModel(String errorCode) {
         final ModelAndView mav = new ModelAndView("error");

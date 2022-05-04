@@ -160,6 +160,10 @@ public class EventController {
             return eventDescription(form, eventId);
         }
 
+        for (Booking b : form.getBookings()) {
+            System.out.println("Sergio " + b.getTicketId() + " " + b.getQty());
+        }
+
         boolean booked = eventService.book(form.getBookings(), user.getId(), user.getUsername(), user.getMail(), eventId, e.getName(), eventUser.getMail());
         if (!booked)
             return new ModelAndView("redirect:/error");
@@ -198,7 +202,7 @@ public class EventController {
             return createForm(form);
 
         final int userId = userManager.getUserId();
-        final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(),
+        final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), 0, 0,
                 form.getType(), form.getTimestamp(), (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags(), userId);
         return new ModelAndView("redirect:/events/" + e.getId());
     }
@@ -223,7 +227,7 @@ public class EventController {
         if (errors.hasErrors())
             return modifyForm(form, eventId);
 
-        eventService.updateEvent(eventId, form.getName(), form.getDescription(), form.getLocation(), form.getMaxCapacity(), form.getPrice(), form.getType(), form.getTimestamp(), (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags());
+        eventService.updateEvent(eventId, form.getName(), form.getDescription(), form.getLocation(), 0, 0, form.getType(), form.getTimestamp(), (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags());
         return new ModelAndView("redirect:/events/" + eventId);
     }
 

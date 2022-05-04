@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.Booking;
 import ar.edu.itba.paw.model.Event;
+import ar.edu.itba.paw.model.EventBooking;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.EventService;
 import ar.edu.itba.paw.service.UserService;
@@ -29,6 +30,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -108,9 +110,10 @@ public class UserController {
                                  @ModelAttribute("rateForm") final RateForm rateForm,
                                  @RequestParam(value = "page", required = false, defaultValue = "1") final int page,
                                  @RequestParam(required = false) final Integer eventId) {
-        List<Booking> bookings = userService.getAllBookingsFromUser(userManager.getUserId(), page);
+        List<EventBooking> bookings = userService.getAllBookingsFromUser(userManager.getUserId(), page);
         final ModelAndView mav = new ModelAndView("bookings");
         mav.addObject("page", page);
+        mav.addObject("actualTime", LocalDateTime.now());
         mav.addObject("bookings", bookings);
         mav.addObject("error", eventId);
         mav.addObject("size", bookings.size());
@@ -132,13 +135,13 @@ public class UserController {
         final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         final User user = userManager.getUser();
         final User eventUser = userService.getUserById(e.getUser().getId()).orElseThrow(RuntimeException::new);
-        int bookingQty = userService.getBookingFromUser(user.getId(), eventId).orElseThrow(RuntimeException::new).getQty();
+//        int bookingQty = userService.getBookingFromUser(user.getId(), eventId).orElseThrow(RuntimeException::new).getQty();
 
 //        if (errors.hasErrors() || form.getQty() > bookingQty) {
-        if (errors.hasErrors()) {
+//        if (errors.hasErrors()) {
 //            errors.rejectValue("qty", "Max.bookForm.qty", new Object[] {e.getMaxCapacity()}, "");
-            return bookings(form, rateForm, form.getPage(), bookingQty);
-        }
+//            return bookings(form, rateForm, form.getPage(), bookingQty);
+//        }
 
 //        if (!eventService.cancelBooking(form.getQty(), user.getId(), user.getUsername(), user.getMail(), eventId, e.getName(), eventUser.getMail()))
 //            return new ModelAndView("redirect:/error");

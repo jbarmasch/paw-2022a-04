@@ -88,8 +88,8 @@
     (function() {
         var name = document.getElementById('name');
         var description = document.getElementById('description');
-        var maxCapacity = document.getElementById('maxCapacity');
-        var price = document.getElementById('price');
+        // var maxCapacity = document.getElementById('maxCapacity');
+        // var price = document.getElementById('price');
         var date = document.getElementById('date');
         var type = document.getElementById('type');
         var location = document.getElementById('location');
@@ -107,20 +107,20 @@
             }
         };
 
-        var checkMaxCapacityValidity = function() {
-            if (maxCapacity.validity.typeMismatch) {
-                maxCapacity.setCustomValidity('${maxCapacityTypeError}');
-                updateMaxCapacityMessage()
-            } else if (maxCapacity.validity.rangeUnderflow) {
-                maxCapacity.setCustomValidity('${maxCapacitySizeError}');
-                updateMaxCapacityMessage()
-            } else if (maxCapacity.validity.valueMissing) {
-                maxCapacity.setCustomValidity('${maxCapacityNullError}');
-                updateMaxCapacityMessage()
-            } else {
-                maxCapacity.setCustomValidity('');
-            }
-        };
+        <%--var checkMaxCapacityValidity = function() {--%>
+        <%--    if (maxCapacity.validity.typeMismatch) {--%>
+        <%--        maxCapacity.setCustomValidity('${maxCapacityTypeError}');--%>
+        <%--        updateMaxCapacityMessage()--%>
+        <%--    } else if (maxCapacity.validity.rangeUnderflow) {--%>
+        <%--        maxCapacity.setCustomValidity('${maxCapacitySizeError}');--%>
+        <%--        updateMaxCapacityMessage()--%>
+        <%--    } else if (maxCapacity.validity.valueMissing) {--%>
+        <%--        maxCapacity.setCustomValidity('${maxCapacityNullError}');--%>
+        <%--        updateMaxCapacityMessage()--%>
+        <%--    } else {--%>
+        <%--        maxCapacity.setCustomValidity('');--%>
+        <%--    }--%>
+        <%--};--%>
 
         var checkTypeValidity = function() {
             if (type.validity.valueMissing) {
@@ -149,20 +149,20 @@
             }
         };
 
-        var checkPriceValidity = function() {
-            if (price.validity.typeMismatch) {
-                price.setCustomValidity('${priceTypeError}');
-                updatePriceMessage();
-            } else if (price.validity.valueMissing) {
-                price.setCustomValidity('${priceNullError}');
-                updatePriceMessage();
-            } else if (price.validity.rangeUnderflow) {
-                price.setCustomValidity('${priceMinError}');
-                updatePriceMessage();
-            } else {
-                price.setCustomValidity('');
-            }
-        };
+        <%--var checkPriceValidity = function() {--%>
+        <%--    if (price.validity.typeMismatch) {--%>
+        <%--        price.setCustomValidity('${priceTypeError}');--%>
+        <%--        updatePriceMessage();--%>
+        <%--    } else if (price.validity.valueMissing) {--%>
+        <%--        price.setCustomValidity('${priceNullError}');--%>
+        <%--        updatePriceMessage();--%>
+        <%--    } else if (price.validity.rangeUnderflow) {--%>
+        <%--        price.setCustomValidity('${priceMinError}');--%>
+        <%--        updatePriceMessage();--%>
+        <%--    } else {--%>
+        <%--        price.setCustomValidity('');--%>
+        <%--    }--%>
+        <%--};--%>
 
         var checkDateValidity = function() {
             if (date.validity.valueMissing) {
@@ -195,13 +195,13 @@
             form.getElementsByClassName('formError')[3].innerHTML = type.validationMessage;
         }
 
-        var updateMaxCapacityMessage = function() {
-            form.getElementsByClassName('formError')[4].innerHTML = maxCapacity.validationMessage;
-        }
-
-        var updatePriceMessage = function() {
-            form.getElementsByClassName('formError')[5].innerHTML = price.validationMessage;
-        }
+        // var updateMaxCapacityMessage = function() {
+        //     form.getElementsByClassName('formError')[4].innerHTML = maxCapacity.validationMessage;
+        // }
+        //
+        // var updatePriceMessage = function() {
+        //     form.getElementsByClassName('formError')[5].innerHTML = price.validationMessage;
+        // }
 
         var updateDateMessage = function() {
             form.getElementsByClassName('formError')[6].innerHTML = date.validationMessage;
@@ -209,16 +209,16 @@
 
         name.addEventListener('change', checkNameValidity, false);
         name.addEventListener('keyup', checkNameValidity, false);
-        maxCapacity.addEventListener('change', checkMaxCapacityValidity, false);
-        maxCapacity.addEventListener('keyup', checkMaxCapacityValidity, false);
+        // maxCapacity.addEventListener('change', checkMaxCapacityValidity, false);
+        // maxCapacity.addEventListener('keyup', checkMaxCapacityValidity, false);
         description.addEventListener('change', checkDescriptionValidity, false);
         description.addEventListener('keyup', checkDescriptionValidity, false);
         location.addEventListener('change', checkLocationValidity, false);
         location.addEventListener('keyup', checkLocationValidity, false);
         type.addEventListener('change', checkTypeValidity, false);
         type.addEventListener('keyup', checkTypeValidity, false);
-        price.addEventListener('change', checkPriceValidity, false);
-        price.addEventListener('keyup', checkPriceValidity, false);
+        // price.addEventListener('change', checkPriceValidity, false);
+        // price.addEventListener('keyup', checkPriceValidity, false);
         date.addEventListener('change', checkDateValidity, false);
         date.addEventListener('keyup', checkDateValidity, false);
 
@@ -226,20 +226,20 @@
         form.addEventListener('submit', function(event) {
             if (form.classList) form.classList.add('submitted');
             checkNameValidity()
-            checkMaxCapacityValidity()
+            // checkMaxCapacityValidity()
             checkDescriptionValidity();
             checkLocationValidity();
             checkTypeValidity();
-            checkPriceValidity();
+            // checkPriceValidity();
             checkDateValidity();
             if (!this.checkValidity()) {
                 event.preventDefault();
                 updateNameMessage();
-                updateMaxCapacityMessage();
+                // updateMaxCapacityMessage();
                 updateDescriptionMessage();
                 updateLocationMessage();
                 updateTypeMessage();
-                updatePriceMessage();
+                // updatePriceMessage();
                 updateDateMessage();
             }
         }, false);

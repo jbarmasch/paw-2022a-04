@@ -20,6 +20,7 @@
                 <c:if test="${isOwner}">
                     <div class="event_actions">
                         <input type="image" class="icon" src="<c:url value="/resources/svg/edit.svg"/>" alt="Trash icon" onclick="location.href='<c:url value="/events/${event.id}/modify"/>'"/>
+                        <input type="image" class="icon" src="<c:url value="/resources/svg/edit.svg"/>" alt="Trash icon" onclick="location.href='<c:url value="/events/${event.id}/add-tickets"/>'"/>
                         <form class="transparent" action="<c:url value="/events/${event.id}/delete"/>" method="post">
                             <input class="icon" src="<c:url value="/resources/svg/trash.svg"/>" alt="Trash icon" type="image" name="submit" value=""/>
                         </form>
@@ -96,9 +97,9 @@
                     </c:otherwise>
                 </c:choose>
 
+                <c:set var="i" scope="session" value="0"/>
                 <c:forEach var="ticket" items="${event.tickets}">
                     <c:set var="ticketsLeft" scope="session" value="${ticket.qty}"/>
-                    <c:set var="i" scope="session" value="0"/>
                     <div class="horizontal center">
                         <span><c:out value="${ticket.ticketName}"/></span>
                         <span>$<c:out value="${ticket.price}"/></span>
@@ -108,8 +109,7 @@
                         <spring:message code="Max.bookForm.qtyStr" var="qtyMaxSizeError"/>
                         <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
 
-                        <form:input class="invisible" disabled="true" value="${ticket.id}" path="bookings[${i}].ticketId"/>
-                        <form:input class="invisible" disabled="true" value="${ticket.ticketName}" path="bookings[${i}].ticketName"/>
+                        <form:input class="hidden" type="number" value="${ticket.id}" path="bookings[${i}].ticketId"/>
                         <span class="formError"></span>
                     </div>
                     <c:if test="${!disabled}">
@@ -134,7 +134,6 @@
         </c:if>
     </div>
 
-
     <c:if test="${similarEventsSize > 0}">
         <c:choose>
             <c:when test="${similarEventsSize > 1}">
@@ -148,8 +147,7 @@
                 </div>
             </c:otherwise>
         </c:choose>
-    <div class="container multi-browse">
-
+        <div class="container multi-browse">
             <c:forEach var="event" items="${similarEvents}">
                 <div class="card uk-card uk-card-default" onclick="location.href='<c:url value="/events/${event.id}"/>'">
                     <div class="uk-card-media-top">
@@ -161,10 +159,10 @@
                             <div class="card_info">
                                 <img class="icon" src="<c:url value="/resources/svg/price-tag.svg"/>" alt="Price icon"/>
                                 <span>
-                                                <c:choose>
-                                                    <c:when test="${event.minPrice == 0}">Gratis</c:when>
-                                                    <c:otherwise>$<c:out value="${event.minPrice}"/></c:otherwise>
-                                                </c:choose>
+                                    <c:choose>
+                                        <c:when test="${event.minPrice == 0}">Gratis</c:when>
+                                        <c:otherwise>$<c:out value="${event.minPrice}"/></c:otherwise>
+                                    </c:choose>
                                 </span>
                                 <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${event.location.name}"/></span>
                             </div>
@@ -176,10 +174,8 @@
                     </div>
                 </div>
             </c:forEach>
-
-    </div>
+        </div>
     </c:if>
-
     <c:if test="${popularEventsSize > 0}">
         <c:choose>
             <c:when test="${popularEventsSize > 1}">
@@ -193,9 +189,7 @@
                 </div>
             </c:otherwise>
         </c:choose>
-    <div class="container multi-browse">
-
-
+        <div class="container multi-browse">
             <c:forEach var="event" items="${popularEvents}">
                 <div class="card uk-card uk-card-default" onclick="location.href='<c:url value="/events/${event.id}"/>'">
                     <div class="uk-card-media-top">
@@ -207,11 +201,11 @@
                             <div class="card_info">
                                 <img class="icon" src="<c:url value="/resources/svg/price-tag.svg"/>" alt="Price icon"/>
                                 <span>
-                                                <c:choose>
-                                                    <c:when test="${event.minPrice == 0}">Gratis</c:when>
-                                                    <c:otherwise>$<c:out value="${event.minPrice}"/></c:otherwise>
-                                                </c:choose>
-                                            </span>
+                                      <c:choose>
+                                          <c:when test="${event.minPrice == 0}">Gratis</c:when>
+                                          <c:otherwise>$<c:out value="${event.minPrice}"/></c:otherwise>
+                                      </c:choose>
+                                </span>
                                 <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${event.location.name}"/></span>
                             </div>
                             <div class="card_info">
@@ -222,7 +216,7 @@
                     </div>
                 </div>
             </c:forEach>
-    </div>
+        </div>
     </c:if>
 </body>
 </html>

@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.awt.print.Book;
@@ -51,7 +52,7 @@ public class EventJdbcDao implements EventDao {
         jdbcBookInsert = new SimpleJdbcInsert(ds).withTableName("bookings");
         jdbcTagInsert = new SimpleJdbcInsert(ds).withTableName("eventtags");
         jdbcRatingInsert = new SimpleJdbcInsert(ds).withTableName("ratings");
-        jdbcTicketInsert = new SimpleJdbcInsert(ds).withTableName("tickets");
+        jdbcTicketInsert = new SimpleJdbcInsert(ds).withTableName("tickets").usingGeneratedKeyColumns("ticketid");
     }
 
     @Override
@@ -192,6 +193,7 @@ public class EventJdbcDao implements EventDao {
         eventData.put("eventId", eventId);
         eventData.put("tagId", tagId);
         jdbcTagInsert.execute(eventData);
+        throw new RuntimeException();
     }
 
     private void cleanTagsFromEvent(int eventId) {
@@ -209,7 +211,6 @@ public class EventJdbcDao implements EventDao {
                 bookingData.put("userId", userId);
                 bookingData.put("qty", booking.getQty());
                 bookingData.put("ticketId", booking.getTicketId());
-                bookingData.put("ticketName", booking.getTicketName());
                 jdbcBookInsert.execute(bookingData);
             }
         }
@@ -227,7 +228,8 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public Integer getAttendanceOfEventId(long eventId) {
-        return jdbcTemplate.query("SELECT SUM(qty) AS qty FROM bookings WHERE eventid = ?", new Object[]{ eventId }, (rs, i) -> rs.getInt("qty")).stream().findFirst().orElse(null);
+        return jdbcTemplate.query("SELECT SUM(qty) AS qty FROM bookings WHERE eventid = ?", new Object[]{ eventId },
+                (rs, i) -> rs.getInt("qty")).stream().findFirst().orElse(null);
     }
 
     @Override
@@ -265,6 +267,7 @@ public class EventJdbcDao implements EventDao {
         bookingData.put("eventId", eventId);
         bookingData.put("name", ticket.getTicketName());
         bookingData.put("price", ticket.getPrice());
+        bookingData.put("booked", ticket.getQty());
         bookingData.put("ticketsLeft", ticket.getQty());
         jdbcTicketInsert.execute(bookingData);
     }

@@ -17,7 +17,7 @@
                 <c:when test="${size > 0}">
                     <c:set var="i" scope="session" value="0"/>
                     <c:forEach var="booking" items="${bookings}">
-                        <c:if test="${booking.qty > 0 && !booking.event.deleted}">
+                        <c:if test="${!booking.event.deleted}">
                         <div class="horizontal booking-card card uk-card uk-card-default" >
                             <div class="horizontal">
                                 <div class="fill">
@@ -29,9 +29,11 @@
                                         <div><img class="icon" src="<c:url value="/resources/svg/date.svg"/>" alt="Date icon"/><span><c:out value="${booking.event.dateFormatted}"/></span></div>
                                         <div><img class="icon" src="<c:url value="/resources/svg/time.svg"/>" alt="Time icon"/><span><c:out value="${booking.event.timeFormatted}"/></span></div>
                                         <div><img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${booking.event.location.name}"/></span></div>
-                                        <div><img class="icon" src="<c:url value="/resources/svg/tickets2.svg"/>" alt="Tickets icon"/><span class="booking_qty"><c:out value="${booking.qty}"/></span></div>
+                                        <%-- <div><img class="icon" src="<c:url value="/resources/svg/tickets2.svg"/>" alt="Tickets icon"/><span class="booking_qty"><c:out value="${booking.qty}"/></span></div> --%>
                                         <div>
                                             <div class="container booking_button">
+                                                <c:choose>
+                                                    <c:when test="${booking.event.date < actualTime}">
                                                 <c:url value="/bookings/rate/${booking.event.id}" var="postPath"/>
                                                 <form:form novalidate="true" class="transparent" modelAttribute="rateForm" action="${postPath}" method="post">
                                                     <div class="horizontal center">
@@ -41,7 +43,8 @@
                                                     <hr/>
                                                     <button class="accept-button-modal uk-button" type="submit" name="submit">Calificar</button>
                                                 </form:form>
-
+                                                    </c:when>
+                                                    <c:otherwise>
                                                 <input class="cancel_button uk-button" type="button" value="Cancelar entradas" uk-toggle="target: #confirmation${i}"/>
                                                 <div id="confirmation${i}" uk-modal>
                                                     <div class="uk-modal-dialog">
@@ -52,14 +55,21 @@
                                                         <div class="uk-modal-body">
                                                             <c:url value="/bookings/cancel/${booking.event.id}" var="postPath"/>
                                                             <form:form novalidate="true" class="transparent" modelAttribute="bookForm" action="${postPath}" method="post" id="bookForm${i}">
-                                                                <div class="horizontal center">
-                                                                    <form:label class="sep-right" path="qty">*Cantidad de entradas a cancelar: </form:label>
-                                                                    <c:set var="qtyTickets" scope="session" value="${booking.qty}"/>
-                                                                    <form:input class="uk-input" type="number" path="qty" min="1" max="${booking.qty}" required="true" id="qty"/>
-                                                                    <spring:message code="Min.bookForm.qty" var="minQtySizeError"/>
-                                                                    <spring:message code="Max.bookForm.qtyStr" var="maxQtySizeError"/>
-                                                                    <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
-                                                                    <span class="formError"></span>
+                                                                <div class="vertical center">
+                                                                    <c:set var="i" value="0"/>
+                                                                    <c:forEach var="tickets" items="${booking.bookings}">
+                                                                        <div class="horizontal center">
+                                                                        <form:label class="sep-right" path="bookings[${i}].qty">*Cantidad de entradas a cancelar: </form:label>
+                                                                        <c:set var="qtyTickets" scope="session" value="${tickets.qty}"/>
+                                                                        <span><c:out value="${tickets.ticket.ticketName}"/></span>
+                                                                        <form:input class="uk-input" type="number" path="bookings[${i}].qty" min="1" max="${tickets.qty}" required="true" id="qty"/>
+                                                                        <spring:message code="Min.bookForm.qty" var="minQtySizeError"/>
+                                                                        <spring:message code="Max.bookForm.qtyStr" var="maxQtySizeError"/>
+                                                                        <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
+                                                                        <span class="formError"></span>
+                                                                        <c:set var="i" value="${i+=1}"/>
+                                                                        </div>
+                                                                    </c:forEach>
                                                                 </div>
 
                                                                 <form:input class="hidden" type="number" path="page" value="${page}"/>
@@ -69,6 +79,8 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                    </c:otherwise>
+                                                </c:choose>
                                             </div>
                                         </div>
                                     </div>

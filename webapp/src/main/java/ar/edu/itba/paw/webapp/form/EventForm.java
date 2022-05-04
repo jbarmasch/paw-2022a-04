@@ -18,14 +18,6 @@ public class EventForm {
     @NotNull
     private Integer location;
 
-    @Min(0)
-    @NotNull
-    private Integer maxCapacity;
-
-    @DecimalMin("0.00")
-    @NotNull
-    private Double price;
-
     @NotNull
     private Integer type;
 
@@ -71,14 +63,6 @@ public class EventForm {
         return location;
     }
 
-    public Integer getMaxCapacity() {
-        return maxCapacity;
-    }
-
-    public Double getPrice() {
-        return price;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -97,14 +81,6 @@ public class EventForm {
 
     public void setLocation(Integer location) {
         this.location = location;
-    }
-
-    public void setMaxCapacity(Integer maxCapacity) {
-        this.maxCapacity = maxCapacity;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
     }
 
     public Integer[] getTags() {

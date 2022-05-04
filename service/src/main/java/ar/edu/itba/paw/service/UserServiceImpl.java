@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.model.Booking;
+import ar.edu.itba.paw.model.EventBooking;
 import ar.edu.itba.paw.model.Stats;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.persistence.UserDao;
@@ -40,12 +41,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Booking> getAllBookingsFromUser(long id, int page) {
+    public List<EventBooking> getAllBookingsFromUser(long id, int page) {
         return userDao.getAllBookingsFromUser(id, page);
     }
 
     @Override
-    public Optional<Booking> getBookingFromUser(long userId, long eventId) {
+    public Optional<EventBooking> getBookingFromUser(long userId, long eventId) {
         return userDao.getBookingFromUser(userId, eventId);
     }
 

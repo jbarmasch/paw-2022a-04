@@ -1,26 +1,14 @@
 package ar.edu.itba.paw.model;
 
 public class Booking {
-    private long userId;
-    private Event event;
     private int qty;
     private long ticketId;
-    private String ticketName;
 
-    public Booking(long userId, Event event, int qty, long ticketId, String ticketName) {
-        this.userId = userId;
-        this.event = event;
+    public Booking() {}
+
+    public Booking(int qty, long ticketId) {
         this.qty = qty;
         this.ticketId = ticketId;
-        this.ticketName = ticketName;
-    }
-
-    public long getUserId() {
-        return userId;
-    }
-
-    public Event getEvent() {
-        return event;
     }
 
     public int getQty() {
@@ -31,11 +19,11 @@ public class Booking {
         return ticketId;
     }
 
-    public String getTicketName() {
-        return ticketName;
+    public void setQty(int qty) {
+        this.qty = qty;
     }
 
-    public void setTicketName(String ticketName) {
-        this.ticketName = ticketName;
+    public void setTicketId(long ticketId) {
+        this.ticketId = ticketId;
     }
 }

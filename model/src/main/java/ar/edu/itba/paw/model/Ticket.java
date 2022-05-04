@@ -11,6 +11,8 @@ public class Ticket {
     private Double price;
     private Integer qty;
 
+    public Ticket() {}
+
     public Ticket(String ticketName, Double price, Integer qty) {
         this.ticketName = ticketName;
         this.price = price;
@@ -22,6 +24,11 @@ public class Ticket {
         this.ticketName = ticketName;
         this.price = price;
         this.qty = qty;
+    }
+
+    public Ticket(Integer id, String name) {
+        this.id = id;
+        this.ticketName = name;
     }
 
     public String getTicketName() {
