@@ -26,7 +26,7 @@
                         </form>
                     </div>
                 </c:if>
-                <h3><c:out value="${event.name}"/></h3><span><c:out value="${event.rating}"/></span>
+                <h3><c:out value="${event.name}"/></h3>
                 <p><c:out value="${event.description}"/></p>
                 <div class="container">
                     <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${event.location.name}"/></span>

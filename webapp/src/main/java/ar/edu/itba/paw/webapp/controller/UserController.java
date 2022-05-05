@@ -123,10 +123,10 @@ public class UserController {
     @RequestMapping(value = "/bookings/rate/{eventId}", method = { RequestMethod.POST })
     public ModelAndView rateEvent(@Valid @ModelAttribute("rateForm") final RateForm form, final BindingResult errors,
                                   @PathVariable("eventId") final int eventId) {
-        eventService.rateEvent(userManager.getUserId(), eventId, form.getRating());
+        Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
+        userService.rateUser(userManager.getUserId(), e.getUser().getId(), form.getRating());
         return new ModelAndView("redirect:/bookings/");
     }
-
 
     @RequestMapping(value = "/bookings/cancel/{eventId}", method = { RequestMethod.POST })
     public ModelAndView cancelBooking(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors,

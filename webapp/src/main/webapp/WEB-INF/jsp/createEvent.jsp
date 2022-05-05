@@ -15,26 +15,26 @@
     <div class="only-element">
         <form:form novalidate="true" modelAttribute="eventForm" action="${postPath}" method="post" id="eventForm" enctype="multipart/form-data">
             <div>
-                <span class="required">* </span>
-                <form:label path="name">Nombre: </form:label>
-                <form:input class="uk-input" type="text" path="name" required="true"/>
+                <%-- <span class="required">* </span>
+                <form:label path="name">Nombre: </form:label> --%>
+                <form:input placeholder="* Nombre" class="uk-input" type="text" path="name" required="true"/>
                 <form:errors path="name" cssClass="error-message" element="span"/>
                 <spring:message code="NotEmpty.eventForm.name" var="nameEmptyError"/>
                 <spring:message code="Size.eventForm.name" var="nameSizeError"/>
                 <span class="formError"></span>
             </div>
             <div>
-                <form:label path="description">Descripción: </form:label>
-                <form:input class="uk-input" type="text" path="description"/>
+                <%-- <form:label path="description">Descripción: </form:label> --%>
+                <form:input placeholder="Descripción" class="uk-input" type="text" path="description"/>
                 <form:errors path="description" cssClass="error-message" element="span"/>
                 <spring:message code="Size.eventForm.description" var="descriptionSizeError"/>
                 <span class="formError"></span>
             </div>
             <div>
-                <span class="required">* </span>
-                <form:label path="location">Ubicación: </form:label>
+                <%-- <span class="required">* </span>
+                <form:label path="location">Ubicación: </form:label> --%>
                 <form:select class="uk-select" htmlEscape="true" multiple="false" path="location" required="true">
-                    <form:option value="" hidden="true" selected="true" label="Seleccione una ubicación"/>
+                    <form:option value="" hidden="true" selected="true" label="* Seleccione una ubicación"/>
                     <form:options items="${locations}"  itemValue="id" itemLabel="name"/>
                 </form:select>
                 <form:errors path="location" cssClass="error-message" element="span"/>
@@ -42,10 +42,10 @@
                 <span class="formError"></span>
             </div>
             <div>
-                <span class="required">* </span>
-                <form:label path="type" for="type">Tipo: </form:label>
+                <%-- <span class="required">* </span>
+                <form:label path="type" for="type">Tipo: </form:label> --%>
                 <form:select id="type" class="uk-select" htmlEscape="true" multiple="false" path="type" required="true">
-                    <form:option hidden="true" value="" selected="true" label="Seleccione un tipo"/>
+                    <form:option hidden="true" value="" selected="true" label="* Seleccione un tipo"/>
                     <form:options items="${types}" itemValue="id" itemLabel="name"/>
                 </form:select>
                 <form:errors path="type" cssClass="error-message" element="span"/>
@@ -53,6 +53,7 @@
                 <span class="formError"></span>
             </div>
             <div>
+
                 <span class="required">* </span>
                 <form:label path="date">Fecha: </form:label>
                 <form:input class="uk-input" type="datetime-local" min="${currentDate}" path="date" required="true"/>

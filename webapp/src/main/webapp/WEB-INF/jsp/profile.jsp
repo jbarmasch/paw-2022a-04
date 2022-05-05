@@ -7,5 +7,6 @@
 <html>
 <body>
 <h2>User profile: <c:out value="${user.username}! ${user.id}"/></h2>
+<span><c:out value="${user.rating}"/></span>
 </body>
 </html>

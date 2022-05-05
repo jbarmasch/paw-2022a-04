@@ -25,6 +25,5 @@ public interface EventService {
     List<Event> getUpcomingEvents();
     List<Event> getSimilarEvents(long eventId);
     List<Event> getPopularEvents(long eventId);
-    void rateEvent(long userId, long eventId, double rating);
     void addTicket(long eventId, Ticket ticket);
 }

@@ -64,4 +64,9 @@ public class UserServiceImpl implements UserService {
     public boolean isMailUnique(String mail) {
         return !userDao.findByMail(mail).isPresent();
     }
+
+    @Override
+    public void rateUser(long userId, long organizerId, double rating) {
+        userDao.rateUser(userId, organizerId, rating);
+    }
 }

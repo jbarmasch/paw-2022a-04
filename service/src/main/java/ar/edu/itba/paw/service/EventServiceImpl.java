@@ -126,11 +126,6 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void rateEvent(long userId, long eventId, double rating) {
-        eventDao.rateEvent(userId, eventId, rating);
-    }
-
-    @Override
     public void addTicket(long eventId, Ticket ticket) {
         eventDao.addTicket(eventId, ticket);
     }

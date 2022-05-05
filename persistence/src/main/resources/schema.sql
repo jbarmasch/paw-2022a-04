@@ -64,9 +64,9 @@ CREATE TABLE IF NOT EXISTS bookings (
 
 CREATE TABLE IF NOT EXISTS ratings (
     userId INTEGER REFERENCES users,
-    eventId INTEGER REFERENCES events,
+    organizerId INTEGER REFERENCES users,
     rating DOUBLE PRECISION NOT NULL,
-    PRIMARY KEY (userId, eventId)
+    PRIMARY KEY (userId, organizerId)
 );
 
 DROP VIEW IF EXISTS event_complete;
@@ -85,12 +85,12 @@ CREATE OR REPLACE VIEW event_complete AS (
     SELECT aux.*,  ARRAY_AGG(t.tagId) AS tagIds, ARRAY_AGG(t.name) AS tagNames
     FROM
         (SELECT events.eventid, events.name, events.description, events.locationid, events.attendance, MIN(COALESCE(ti.price, 0)) AS minPrice, SUM(COALESCE(ti.ticketsleft, 0)) AS ticketsLeft,
-                events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, images.image, types.name AS typeName, users.username, AVG(COALESCE(rating, 0)) AS rating,
+                events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, images.image, types.name AS typeName, users.username,
                 ARRAY_AGG(ti.ticketId) AS ticketIds, ARRAY_AGG(ti.ticketsLeft) AS ticketTicketsLeft, ARRAY_AGG(ti.name) AS ticketNames, ARRAY_AGG(ti.price) AS ticketPrices
          FROM events JOIN locations ON events.locationid = locations.locationid JOIN images ON events.imageid = images.imageid
                      LEFT OUTER JOIN tickets ti ON events.eventid = ti.eventid
-                     JOIN types ON events.typeid = types.typeid JOIN users ON events.userid = users.userid LEFT OUTER JOIN ratings r ON r.eventid = events.eventid
+                     JOIN types ON events.typeid = types.typeid JOIN users ON events.userid = users.userid
          GROUP BY events.eventId, locations.locationid, images.imageid, types.typeid, users.username) AS aux  LEFT OUTER JOIN eventTags eT ON aux.eventId = eT.eventId LEFT OUTER JOIN tags t ON eT.tagId = t.tagId
     GROUP BY aux.eventid, aux.name, aux.description, aux.locationid, aux.attendance, aux.minPrice, aux.ticketsLeft, aux.typeid, aux.date, aux.imageid, aux.userid, aux.state, aux.locName, aux.image,
-             aux.typeName, aux.username, aux.rating, aux.ticketIds, aux.ticketTicketsLeft, aux.ticketNames, aux.ticketPrices
+             aux.typeName, aux.username, aux.ticketIds, aux.ticketTicketsLeft, aux.ticketNames, aux.ticketPrices
 );

@@ -17,4 +17,5 @@ public interface UserService {
     Optional<Stats> getUserStats(long id);
     boolean isUsernameUnique(String username);
     boolean isMailUnique(String mail);
+    void rateUser(long userId, long organizerId, double rating);
 }

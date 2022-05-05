@@ -16,12 +16,11 @@ public class Event {
     private final List<Tag> tags;
     private final List<Ticket> tickets;
     private final User user;
-    private final double rating;
     private final int attendance;
     private final State state;
 
     public Event(long id, String name, String description, Location location, int maxCapacity, double minPrice, Type type,
-                 LocalDateTime date, int imageId, List<Tag> tags, User user, double rating, int attendance, State state,
+                 LocalDateTime date, int imageId, List<Tag> tags, User user, int attendance, State state,
                  List<Ticket> tickets) {
         this.id = id;
         this.name = name;
@@ -34,7 +33,6 @@ public class Event {
         this.type = type;
         this.tags = tags;
         this.user = user;
-        this.rating = rating;
         this.attendance = attendance;
         this.state = state;
         this.tickets = tickets;
@@ -114,10 +112,6 @@ public class Event {
 
     public User getUser() {
         return user;
-    }
-
-    public double getRating() {
-        return rating;
     }
 
     public List<Ticket> getTickets() {
