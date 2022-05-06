@@ -69,6 +69,17 @@ CREATE TABLE IF NOT EXISTS ratings (
     PRIMARY KEY (userId, organizerId)
 );
 
+CREATE TABLE IF NOT EXISTS roles (
+    roleId SERIAL PRIMARY KEY,
+    name varchar(100) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS userRoles (
+    userId INTEGER REFERENCES users,
+    roleId INTEGER REFERENCES roles,
+    PRIMARY KEY (userId, roleId)
+);
+
 DROP VIEW IF EXISTS event_complete;
 
 -- CREATE OR REPLACE VIEW event_complete AS (

@@ -6,10 +6,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
-import java.awt.print.Book;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -21,6 +19,7 @@ public class EventJdbcDao implements EventDao {
     private final SimpleJdbcInsert jdbcTagInsert;
     private final SimpleJdbcInsert jdbcBookInsert;
     private final SimpleJdbcInsert jdbcTicketInsert;
+    private final SimpleJdbcInsert jdbcRolesInsert;
     private final RowMapper<Event> ROW_MAPPER = (rs, i) -> {
         Location location = new Location(rs.getInt("locationId"), rs.getString("locName"));
         Type type = new Type(rs.getInt("typeId"), rs.getString("typeName"));
@@ -49,6 +48,7 @@ public class EventJdbcDao implements EventDao {
         jdbcInsert = new SimpleJdbcInsert(ds).withTableName("events").usingGeneratedKeyColumns("eventid");
         jdbcBookInsert = new SimpleJdbcInsert(ds).withTableName("bookings");
         jdbcTagInsert = new SimpleJdbcInsert(ds).withTableName("eventtags");
+        jdbcRolesInsert = new SimpleJdbcInsert(ds).withTableName("userroles");
         jdbcTicketInsert = new SimpleJdbcInsert(ds).withTableName("tickets").usingGeneratedKeyColumns("ticketid");
     }
 
@@ -75,6 +75,11 @@ public class EventJdbcDao implements EventDao {
         final int eventId = jdbcInsert.executeAndReturnKey(eventData).intValue();
         for (Integer tagId : tagIds)
             addTagToEvent(eventId, tagId);
+
+        final Map<String, Object> userRole = new HashMap<>();
+        userRole.put("userid", userId);
+        userRole.put("roleid", RoleEnum.CREATOR.ordinal() + 1);
+        jdbcRolesInsert.execute(userRole);
 
         return getEventById(eventId).orElseThrow(RuntimeException::new);
     }

@@ -21,7 +21,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.jws.WebParam;
 
-@ControllerAdvice
+@Controller
 public class ErrorController {
     private static final Logger LOGGER = LoggerFactory.getLogger(ErrorController.class);
 

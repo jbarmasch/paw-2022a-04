@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.service.*;
+import ar.edu.itba.paw.webapp.auth.PawUserDetailsService;
 import ar.edu.itba.paw.webapp.auth.UserManager;
 import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
@@ -16,6 +17,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -38,17 +40,19 @@ public class EventController {
     private final TypeService typeService;
     private final TagService tagService;
     private final UserService userService;
+    private final PawUserDetailsService userDetailsService;
     private final UserManager userManager;
 
     @Autowired
     public EventController(final EventService eventService, final LocationService locationService, final TypeService typeService,
-                           final TagService tagService, final UserService userService, final UserManager userManager) {
+                           final TagService tagService, final UserService userService, final UserManager userManager, final PawUserDetailsService userDetailsService) {
         this.eventService = eventService;
         this.locationService = locationService;
         this.typeService = typeService;
         this.tagService = tagService;
         this.userService = userService;
         this.userManager = userManager;
+        this.userDetailsService = userDetailsService;
     }
 
     @RequestMapping(value = "/", method = { RequestMethod.GET })
@@ -196,6 +200,12 @@ public class EventController {
         final int userId = userManager.getUserId();
         final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), 0, 0,
                 form.getType(), form.getTimestamp(), (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags(), userId);
+
+        Authentication principal = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = userDetailsService.loadUserByUsername(principal.getName());
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword());
+        SecurityContextHolder.getContext().setAuthentication(token);
+
         return new ModelAndView("redirect:/events/" + e.getId());
     }
 

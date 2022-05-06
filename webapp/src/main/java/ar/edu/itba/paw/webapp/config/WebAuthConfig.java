@@ -34,8 +34,8 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     protected void configure(final HttpSecurity http) throws Exception {
         http.sessionManagement()
                 .and().authorizeRequests()
-                    .antMatchers("/login", "/register", "/forgotPass").permitAll()
-                    .antMatchers("/createEvent").hasRole("ADMIN")
+                    .antMatchers("/login", "/register", "/forgot-pass").permitAll()
+                    .antMatchers("/stats").hasRole("CREATOR")
                     .antMatchers( "/events", "/", "/search").permitAll()
                     .antMatchers(HttpMethod.GET, "/events/**").permitAll()
                     .antMatchers(HttpMethod.POST, "/events/**").authenticated()

@@ -2,13 +2,14 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.sql.Array;
+import java.sql.SQLException;
 import java.util.*;
 
 @Repository
@@ -16,13 +17,27 @@ public class UserJdbcDao implements UserDao {
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
     private final SimpleJdbcInsert jdbcRatingInsert;
+    private final SimpleJdbcInsert jdbcRolesInsert;
     private final static RowMapper<User> ROW_MAPPER = (rs, rowNum) -> new User(
             rs.getInt("userid"),
             rs.getString("username"),
             rs.getString("password"),
             rs.getString("mail"),
-            rs.getDouble("rating")
+            rs.getDouble("rating"),
+            getRoles(rs.getArray("rolesids"), rs.getArray("rolesnames"))
     );
+
+    private static List<Role> getRoles(Array rolesIds, Array rolesNames) throws SQLException {
+        List<Role> roles = new ArrayList<>();
+        Integer[] idsAux = (Integer[]) rolesIds.getArray();
+        String[] namesAux = (String[]) rolesNames.getArray();
+        if (idsAux[0] != null && namesAux[0] != null) {
+            for (int i = 0; i < idsAux.length; i++) {
+                roles.add(new Role(idsAux[i], namesAux[i]));
+            }
+        }
+        return roles;
+    }
 
     private final static RowMapper<EventBooking> EVENT_BOOKING_ROW_MAPPER = (rs, rowNum) -> new EventBooking(
             rs.getInt("userId"),
@@ -75,12 +90,16 @@ public class UserJdbcDao implements UserDao {
     public UserJdbcDao(final DataSource ds) {
         jdbcTemplate = new JdbcTemplate(ds);
         jdbcInsert = new SimpleJdbcInsert(ds).withTableName("users").usingGeneratedKeyColumns("userid");
+        jdbcRolesInsert = new SimpleJdbcInsert(ds).withTableName("userroles");
         jdbcRatingInsert = new SimpleJdbcInsert(ds).withTableName("ratings");
     }
 
     @Override
     public Optional<User> getUserById(long id) {
-        return jdbcTemplate.query("SELECT users.*, AVG(COALESCE(r.rating, 0)) AS rating FROM users LEFT OUTER JOIN ratings r ON r.organizerid = users.userid WHERE users.userid = ? GROUP BY users.userid, users.username, users.mail", new Object[] { id }, ROW_MAPPER).stream().findFirst();
+        return jdbcTemplate.query("SELECT users.*, AVG(COALESCE(r.rating, 0)) AS rating, ARRAY_AGG(u.roleid) AS rolesIds, ARRAY_AGG(r2.name) AS rolesNames " +
+                "FROM users LEFT OUTER JOIN ratings r ON r.organizerid = users.userid LEFT OUTER JOIN userroles u on users.userid = u.userid JOIN roles r2 on u.roleid = r2.roleid " +
+                "WHERE users.userid = ? " +
+                "GROUP BY users.userid, users.username, users.mail", new Object[] { id }, ROW_MAPPER).stream().findFirst();
     }
 
     @Override
@@ -91,17 +110,29 @@ public class UserJdbcDao implements UserDao {
         userData.put("mail", mail);
 
         final Number userId = jdbcInsert.executeAndReturnKey(userData);
+
+        final Map<String, Object> userRole = new HashMap<>();
+        userRole.put("userid", userId);
+        userRole.put("roleid", RoleEnum.USER.ordinal() + 1);
+        jdbcRolesInsert.execute(userRole);
+
         return new User(userId.intValue(), username, password, mail);
     }
 
     @Override
     public Optional<User> findByUsername(String username) {
-        return jdbcTemplate.query("SELECT users.*, AVG(COALESCE(r.rating, 0)) AS rating FROM users LEFT OUTER JOIN ratings r ON r.organizerid = users.userid WHERE username = ? GROUP BY users.userid, users.username, users.mail", new Object[] { username }, ROW_MAPPER).stream().findFirst();
+        return jdbcTemplate.query("SELECT users.*, AVG(COALESCE(r.rating, 0)) AS rating, ARRAY_AGG(u.roleid) AS rolesIds, ARRAY_AGG(r2.name) AS rolesNames " +
+                "FROM users LEFT OUTER JOIN ratings r ON r.organizerid = users.userid LEFT OUTER JOIN userroles u on users.userid = u.userid JOIN roles r2 on u.roleid = r2.roleid " +
+                "WHERE users.username = ? " +
+                "GROUP BY users.userid, users.username, users.mail", new Object[] { username }, ROW_MAPPER).stream().findFirst();
     }
 
     @Override
     public Optional<User> findByMail(String mail) {
-        return jdbcTemplate.query("SELECT users.*, AVG(COALESCE(r.rating, 0)) AS rating FROM users LEFT OUTER JOIN ratings r ON r.organizerid = users.userid WHERE mail = ? GROUP BY users.userid, users.username, users.mail", new Object[] { mail }, ROW_MAPPER).stream().findFirst();
+        return jdbcTemplate.query("SELECT users.*, AVG(COALESCE(r.rating, 0)) AS rating, ARRAY_AGG(u.roleid) AS rolesIds, ARRAY_AGG(r2.name) AS rolesNames " +
+                "FROM users LEFT OUTER JOIN ratings r ON r.organizerid = users.userid LEFT OUTER JOIN userroles u on users.userid = u.userid JOIN roles r2 on u.roleid = r2.roleid " +
+                "WHERE users.mail = ? " +
+                "GROUP BY users.userid, users.username, users.mail", new Object[] { mail }, ROW_MAPPER).stream().findFirst();
     }
 
     @Override

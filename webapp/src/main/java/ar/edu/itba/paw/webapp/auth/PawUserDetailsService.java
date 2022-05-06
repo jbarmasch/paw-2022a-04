@@ -1,8 +1,10 @@
 package ar.edu.itba.paw.webapp.auth;
 
+import ar.edu.itba.paw.model.Role;
+import ar.edu.itba.paw.model.RoleEnum;
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.service.EventService;
 import ar.edu.itba.paw.service.UserService;
-import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,7 +14,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 
 @Component
@@ -24,8 +25,10 @@ public class PawUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         final User user = us.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("No user by the name " + username));
         final Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-        authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+         for (Role role : user.getRoles()) {
+             System.out.println(role.getRoleName());
+             authorities.add(new SimpleGrantedAuthority(role.getRoleName()));
+         }
         return new org.springframework.security.core.userdetails.User(username, user.getPassword(), authorities);
     }
 }
