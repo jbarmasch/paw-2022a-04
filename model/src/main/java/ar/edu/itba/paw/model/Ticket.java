@@ -1,10 +1,5 @@
 package ar.edu.itba.paw.model;
 
-import java.sql.Array;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
 public class Ticket {
     private Integer id;
     private String ticketName;
@@ -53,20 +48,6 @@ public class Ticket {
 
     public void setQty(Integer qty) {
         this.qty = qty;
-    }
-
-    static public List<Ticket> getTickets(Array ids, Array names, Array prices, Array lefts) throws SQLException {
-        List<Ticket> tickets = new ArrayList<>();
-        Integer[] idsAux = (Integer[]) ids.getArray();
-        String[] namesAux = (String[]) names.getArray();
-        Double[] pricesAux = (Double[]) prices.getArray();
-        Integer[] leftsAux = (Integer[]) lefts.getArray();
-        if (idsAux[0] != null && namesAux[0] != null && pricesAux[0] != null && leftsAux[0] != null) {
-            for (int i = 0; i < idsAux.length; i++) {
-                tickets.add(new Ticket(idsAux[i], namesAux[i], pricesAux[i], leftsAux[i]));
-            }
-        }
-        return tickets;
     }
 
     public Integer getId() {

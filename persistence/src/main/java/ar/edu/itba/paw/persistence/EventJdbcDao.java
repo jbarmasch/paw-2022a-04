@@ -20,27 +20,6 @@ public class EventJdbcDao implements EventDao {
     private final SimpleJdbcInsert jdbcBookInsert;
     private final SimpleJdbcInsert jdbcTicketInsert;
     private final SimpleJdbcInsert jdbcRolesInsert;
-    private final RowMapper<Event> ROW_MAPPER = (rs, i) -> {
-        Location location = new Location(rs.getInt("locationId"), rs.getString("locName"));
-        Type type = new Type(rs.getInt("typeId"), rs.getString("typeName"));
-
-        return new Event(
-                rs.getInt("eventId"),
-                rs.getString("name"),
-                rs.getString("description"),
-                location,
-                rs.getInt("ticketsLeft"),
-                rs.getDouble("minPrice"),
-                type,
-                rs.getTimestamp("date").toLocalDateTime(),
-                rs.getInt("imageId"),
-                Tag.getTags(rs.getArray("tagIds"), rs.getArray("tagNames")),
-                new User(rs.getInt("userId"), rs.getString("username")),
-                rs.getInt("attendance"),
-                State.getState(rs.getInt("state")),
-                Ticket.getTickets(rs.getArray("ticketIds"), rs.getArray("ticketNames"), rs.getArray("ticketPrices"), rs.getArray("ticketTicketsLeft"))
-        );
-    };
 
     @Autowired
     public EventJdbcDao(final DataSource ds) {
@@ -54,7 +33,7 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public Optional<Event> getEventById(long id) {
-        return jdbcTemplate.query("SELECT * FROM event_complete WHERE eventId = ?", new Object[]{id}, ROW_MAPPER).stream().findFirst();
+        return jdbcTemplate.query("SELECT * FROM event_complete WHERE eventId = ?", new Object[]{id}, JdbcUtils.EVENT_ROW_MAPPER).stream().findFirst();
     }
 
     @Override
@@ -135,23 +114,23 @@ public class EventJdbcDao implements EventDao {
             query.append(" ORDER BY ").append(order).append(" ").append(orderBy);
         }
 
-        return jdbcTemplate.query(query + "  LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
+        return jdbcTemplate.query(query + "  LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, JdbcUtils.EVENT_ROW_MAPPER);
     }
 
     @Override
     public List<Event> getAll(int page) {
-        return jdbcTemplate.query("SELECT * FROM event_complete LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, ROW_MAPPER);
+        return jdbcTemplate.query("SELECT * FROM event_complete LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, JdbcUtils.EVENT_ROW_MAPPER);
     }
 
     @Override
     public List<Event> getFewTicketsEvents() {
-        return jdbcTemplate.query("SELECT * FROM event_complete WHERE attendance >= (4 * ticketsLeft) AND state != 1 AND ticketsLeft > 0 LIMIT 4", ROW_MAPPER);
+        return jdbcTemplate.query("SELECT * FROM event_complete WHERE attendance >= (4 * ticketsLeft) AND state != 1 AND ticketsLeft > 0 LIMIT 4", JdbcUtils.EVENT_ROW_MAPPER);
     }
 
     @Override
     public List<Event> getUpcomingEvents(){
         return jdbcTemplate.query("SELECT * FROM event_complete WHERE date > ? AND state != 1 ORDER BY date LIMIT 5",
-                new Object[]{Timestamp.valueOf(LocalDateTime.now())}, ROW_MAPPER);
+                new Object[]{Timestamp.valueOf(LocalDateTime.now())}, JdbcUtils.EVENT_ROW_MAPPER);
     }
 
     @Override
@@ -187,7 +166,7 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public List<Event> getUserEvents(long id, int page) {
-        return jdbcTemplate.query("SELECT * FROM event_complete WHERE userid = ? LIMIT 10 OFFSET ?", new Object[]{id, (page - 1) * 10}, ROW_MAPPER);
+        return jdbcTemplate.query("SELECT * FROM event_complete WHERE userid = ? LIMIT 10 OFFSET ?", new Object[]{id, (page - 1) * 10}, JdbcUtils.EVENT_ROW_MAPPER);
     }
 
     private void addTagToEvent(int eventId, int tagId) {
@@ -239,7 +218,7 @@ public class EventJdbcDao implements EventDao {
                 "SELECT *, (SELECT COUNT(*) FROM (SELECT unnest((SELECT tagIds FROM event_cte)) INTERSECT SELECT unnest(tagIds)) AS aux) AS similarity " +
                 "FROM (SELECT * FROM event_complete e " +
                 "WHERE e.typeId = (SELECT typeid FROM event_cte) AND e.locationId = (SELECT locationid FROM event_cte) AND e.eventid <> (SELECT eventid FROM event_cte)) as eliteTt " +
-                "ORDER BY similarity DESC LIMIT 5", new Object[] { eventId }, ROW_MAPPER);
+                "ORDER BY similarity DESC LIMIT 5", new Object[] { eventId }, JdbcUtils.EVENT_ROW_MAPPER);
     }
 
     @Override
@@ -247,7 +226,7 @@ public class EventJdbcDao implements EventDao {
         return jdbcTemplate.query("SELECT * FROM (SELECT b.eventId, COUNT(b.userId) AS popularity " +
                 "FROM bookings b JOIN (SELECT userId FROM bookings WHERE bookings.eventId = ?) AS aux ON b.userId = aux.userId " +
                 "WHERE b.eventid <> ? GROUP BY b.eventId ORDER BY popularity DESC) AS aux " +
-                "JOIN event_complete ec on aux.eventid = ec.eventid LIMIT 5", new Object[] { eventId, eventId }, ROW_MAPPER);
+                "JOIN event_complete ec on aux.eventid = ec.eventid LIMIT 5", new Object[] { eventId, eventId }, JdbcUtils.EVENT_ROW_MAPPER);
     }
 
     @Override

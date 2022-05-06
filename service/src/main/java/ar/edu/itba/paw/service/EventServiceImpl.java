@@ -69,9 +69,6 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public boolean book(List<Booking> bookings, long userId, String username, String userMail, long eventId, String eventName, String eventMail) {
-        for (Booking b : bookings) {
-            System.out.println("ticketeck " + b.getTicketId());
-        }
         if (eventDao.book(bookings, userId, eventId)) {
             mailService.sendBookMail(userMail, username, eventMail, eventName, bookings.stream().mapToInt(Booking::getQty).sum());
             return true;

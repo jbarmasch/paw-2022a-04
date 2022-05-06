@@ -18,73 +18,7 @@ public class UserJdbcDao implements UserDao {
     private final SimpleJdbcInsert jdbcInsert;
     private final SimpleJdbcInsert jdbcRatingInsert;
     private final SimpleJdbcInsert jdbcRolesInsert;
-    private final static RowMapper<User> ROW_MAPPER = (rs, rowNum) -> new User(
-            rs.getInt("userid"),
-            rs.getString("username"),
-            rs.getString("password"),
-            rs.getString("mail"),
-            rs.getDouble("rating"),
-            getRoles(rs.getArray("rolesids"), rs.getArray("rolesnames"))
-    );
 
-    private static List<Role> getRoles(Array rolesIds, Array rolesNames) throws SQLException {
-        List<Role> roles = new ArrayList<>();
-        Integer[] idsAux = (Integer[]) rolesIds.getArray();
-        String[] namesAux = (String[]) rolesNames.getArray();
-        if (idsAux[0] != null && namesAux[0] != null) {
-            for (int i = 0; i < idsAux.length; i++) {
-                roles.add(new Role(idsAux[i], namesAux[i]));
-            }
-        }
-        return roles;
-    }
-
-    private final static RowMapper<EventBooking> EVENT_BOOKING_ROW_MAPPER = (rs, rowNum) -> new EventBooking(
-            rs.getInt("userId"),
-            new Event(
-                    rs.getInt("eventId"),
-                    rs.getString("name"),
-                    rs.getString("description"),
-                    new Location(rs.getInt("locationId"), rs.getString("locName")),
-                    rs.getInt("ticketsLeft"),
-                    rs.getDouble("minPrice"),
-                    new Type(rs.getInt("typeId"), rs.getString("typeName")),
-                    rs.getTimestamp("date").toLocalDateTime(),
-                    rs.getInt("imageId"),
-                    new ArrayList<>(),
-                    new User(rs.getInt("userId")),
-                    rs.getInt("attendance"),
-                    State.getState(rs.getInt("state")),
-                    null
-            ),
-            TicketBooking.getTicketBookings(rs.getArray("ticketIds"), rs.getArray("qtys"), rs.getArray("ticketNames"))
-    );
-
-    private final static RowMapper<Stats> STATS_ROW_MAPPER = (rs, rowNum) -> new Stats(
-            rs.getInt("attended"),
-            rs.getInt("events"),
-            rs.getInt("booked"),
-            rs.getInt("qty"),
-            new Type(rs.getInt("favTypeId"), rs.getString("favTypeName")),
-            new Location(rs.getInt("favLocId"), rs.getString("favLocName")),
-            new Event(
-                    rs.getInt("eventId"),
-                    rs.getString("name"),
-                    rs.getString("description"),
-                    new Location(rs.getInt("locationId"), rs.getString("locName")),
-                    rs.getInt("ticketsLeft"),
-                    rs.getDouble("minPrice"),
-                    new Type(rs.getInt("typeId"), rs.getString("typeName")),
-                    rs.getTimestamp("date").toLocalDateTime(),
-                    rs.getInt("imageId"),
-                    new ArrayList<>(),
-                    new User(rs.getInt("userId")),
-                    rs.getInt("attendance"),
-                    State.getState(rs.getInt("state")),
-                    Ticket.getTickets(rs.getArray("ticketIds"), rs.getArray("ticketNames"),
-                            rs.getArray("ticketPrices"), rs.getArray("ticketTicketsLeft"))
-            )
-    );
 
     @Autowired
     public UserJdbcDao(final DataSource ds) {
@@ -99,7 +33,7 @@ public class UserJdbcDao implements UserDao {
         return jdbcTemplate.query("SELECT users.*, AVG(COALESCE(r.rating, 0)) AS rating, ARRAY_AGG(u.roleid) AS rolesIds, ARRAY_AGG(r2.name) AS rolesNames " +
                 "FROM users LEFT OUTER JOIN ratings r ON r.organizerid = users.userid LEFT OUTER JOIN userroles u on users.userid = u.userid JOIN roles r2 on u.roleid = r2.roleid " +
                 "WHERE users.userid = ? " +
-                "GROUP BY users.userid, users.username, users.mail", new Object[] { id }, ROW_MAPPER).stream().findFirst();
+                "GROUP BY users.userid, users.username, users.mail", new Object[] { id }, JdbcUtils.USER_ROW_MAPPER).stream().findFirst();
     }
 
     @Override
@@ -124,7 +58,7 @@ public class UserJdbcDao implements UserDao {
         return jdbcTemplate.query("SELECT users.*, AVG(COALESCE(r.rating, 0)) AS rating, ARRAY_AGG(u.roleid) AS rolesIds, ARRAY_AGG(r2.name) AS rolesNames " +
                 "FROM users LEFT OUTER JOIN ratings r ON r.organizerid = users.userid LEFT OUTER JOIN userroles u on users.userid = u.userid JOIN roles r2 on u.roleid = r2.roleid " +
                 "WHERE users.username = ? " +
-                "GROUP BY users.userid, users.username, users.mail", new Object[] { username }, ROW_MAPPER).stream().findFirst();
+                "GROUP BY users.userid, users.username, users.mail", new Object[] { username }, JdbcUtils.USER_ROW_MAPPER).stream().findFirst();
     }
 
     @Override
@@ -132,7 +66,7 @@ public class UserJdbcDao implements UserDao {
         return jdbcTemplate.query("SELECT users.*, AVG(COALESCE(r.rating, 0)) AS rating, ARRAY_AGG(u.roleid) AS rolesIds, ARRAY_AGG(r2.name) AS rolesNames " +
                 "FROM users LEFT OUTER JOIN ratings r ON r.organizerid = users.userid LEFT OUTER JOIN userroles u on users.userid = u.userid JOIN roles r2 on u.roleid = r2.roleid " +
                 "WHERE users.mail = ? " +
-                "GROUP BY users.userid, users.username, users.mail", new Object[] { mail }, ROW_MAPPER).stream().findFirst();
+                "GROUP BY users.userid, users.username, users.mail", new Object[] { mail }, JdbcUtils.USER_ROW_MAPPER).stream().findFirst();
     }
 
     @Override
@@ -143,7 +77,7 @@ public class UserJdbcDao implements UserDao {
                         "group by bookings.userid, bookings.eventid, ec.eventid, ec.name, ec.description, ec.locationid, ec.attendance, ec.minPrice, " +
                         "ec.ticketsLeft, ec.typeid, ec.date, ec.imageid, ec.userid, ec.state, ec.locName, ec.image, ec.typeName, ec.username, " +
                         "ec.ticketIds, ec.ticketTicketsLeft, ec.ticketNames, ec.ticketPrices, ec.tagIds, ec.tagNames ORDER BY date LIMIT 10 OFFSET ?",
-                new Object[] { id, (page - 1) * 10 }, EVENT_BOOKING_ROW_MAPPER);
+                new Object[] { id, (page - 1) * 10 }, JdbcUtils.EVENT_BOOKING_ROW_MAPPER);
     }
 
     @Override
@@ -154,7 +88,7 @@ public class UserJdbcDao implements UserDao {
                         "group by bookings.userid, bookings.eventid, ec.eventid, ec.name, ec.description, ec.locationid, ec.attendance, ec.minPrice, " +
                         "ec.ticketsLeft, ec.typeid, ec.date, ec.imageid, ec.userid, ec.state, ec.locName, ec.image, ec.typeName, ec.username, " +
                         "ec.ticketIds, ec.ticketTicketsLeft, ec.ticketNames, ec.ticketPrices, ec.tagIds, ec.tagNames ORDER BY date LIMIT 10 OFFSET ?",
-                new Object[] { userId, eventId }, EVENT_BOOKING_ROW_MAPPER).stream().findFirst();
+                new Object[] { userId, eventId }, JdbcUtils.EVENT_BOOKING_ROW_MAPPER).stream().findFirst();
     }
 
     @Override
@@ -167,7 +101,7 @@ public class UserJdbcDao implements UserDao {
                 "FROM events e LEFT JOIN bookings b ON b.eventId = e.eventId WHERE e.userId = ? GROUP BY e.eventid) AS aux) AS general CROSS JOIN ( " +
                 "SELECT * FROM event_complete ec JOIN (SELECT e.eventid, SUM(COALESCE(qty, 0)) AS sumqty FROM events e LEFT JOIN bookings b ON " +
                 "b.eventId = e.eventId WHERE e.userid = ? GROUP BY e.eventid ORDER BY sumqty DESC LIMIT 1) AS aux ON ec.eventid = aux.eventid) AS " +
-                "event)) AS creatorStats)", new Object[]{ id, id, id }, STATS_ROW_MAPPER).stream().findFirst();
+                "event)) AS creatorStats)", new Object[]{ id, id, id }, JdbcUtils.STATS_ROW_MAPPER).stream().findFirst();
     }
 
     @Override
