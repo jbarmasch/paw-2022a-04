@@ -177,6 +177,7 @@ input {
 .browse {
     justify-content: flex-start;
     align-items: flex-start;
+    align-content: flex-start;
     margin: 10px 4% 0 4%;
     flex-wrap: wrap;
     height: 100%;

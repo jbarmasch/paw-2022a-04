@@ -7,12 +7,12 @@
     <img onclick="location.href='<c:url value="/"/>'" class="logo" src="https://media-public.canva.com/uH36Y/MAELBWuH36Y/1/tl.png" alt="BotPass"/>
     <div class="appbar_buttons">
         <button class="uk-button uk-button-text" onclick="location.href='<c:url value="/events"/>'">Eventos</button>
-        <button class="uk-button uk-button-text" onclick="location.href='<c:url value="/createEvent"/>'">Crear evento</button>
+        <button class="uk-button uk-button-text" onclick="location.href='<c:url value="/create-event"/>'">Crear evento</button>
         <c:if test="${searchForm != null}" >
             <c:url value="/search" var="postPath"/>
             <form:form novalidate="true" modelAttribute="searchForm" action="${postPath}" method="post" class="horizontal align-center search-form" id="searchForm">
                 <span uk-search-icon></span>
-                <form:input class="uk-search-input" type="search" placeholder="Buscar evento" path="query" value="${param.query}"/>
+                <form:input class="uk-search-input" type="search" placeholder="Buscar evento" path="query" value="${param.search}"/>
             </form:form>
         </c:if>
     </div>
@@ -28,7 +28,7 @@
                     <div uk-dropdown="mode: click; pos: bottom-center">
                         <ul class="uk-nav uk-dropdown-nav">
                             <li><a href="<c:url value="/bookings"/>">MIS RESERVAS</a></li>
-                            <li><a href="<c:url value="/myEvents"/>">MIS EVENTOS</a></li>
+                            <li><a href="<c:url value="/my-events"/>">MIS EVENTOS</a></li>
                             <li><a href="<c:url value="/stats"/>">ESTADÍSTICAS</a></li>
                             <li class="uk-nav-divider"></li>
                             <li><a href="<c:url value="/logout"/>">CERRAR SESIÓN</a></li>

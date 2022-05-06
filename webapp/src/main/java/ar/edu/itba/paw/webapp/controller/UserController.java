@@ -1,12 +1,11 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.model.Booking;
 import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.model.EventBooking;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.EventService;
 import ar.edu.itba.paw.service.UserService;
-import ar.edu.itba.paw.webapp.auth.AuthenticationManager;
+import ar.edu.itba.paw.webapp.helper.AuthUtils;
 import ar.edu.itba.paw.webapp.auth.UserManager;
 import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
@@ -17,11 +16,6 @@ import ar.edu.itba.paw.webapp.form.UserForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -38,17 +32,15 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
     private final EventService eventService;
-    private final AuthenticationManager authenticationManager;
     private final UserManager userManager;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
-    public UserController(final UserService userService, final EventService eventService, final AuthenticationManager authenticationManager,
+    public UserController(final UserService userService, final EventService eventService,
                           final UserManager userManager) {
         this.userService = userService;
         this.eventService = eventService;
-        this.authenticationManager = authenticationManager;
         this.userManager = userManager;
     }
 
@@ -58,7 +50,7 @@ public class UserController {
             ModelAndView mav = new ModelAndView("login");
             if (error == null) {
                 mav.addObject("error", false);
-                authenticationManager.setReferrer(request, request.getHeader("Referer"));
+                AuthUtils.setReferrer(request, request.getHeader("Referer"));
             } else
                 mav.addObject("error", true);
             return mav;
@@ -82,11 +74,11 @@ public class UserController {
         }
 
         userService.create(form.getUsername(), form.getPassword(), form.getMail());
-        authenticationManager.requestAuthentication(request, form.getUsername(), form.getPassword());
-        return new ModelAndView("redirect:" + authenticationManager.redirectionAuthenticationSuccess(request));
+        AuthUtils.requestAuthentication(request, form.getUsername(), form.getPassword());
+        return new ModelAndView("redirect:" + AuthUtils.redirectionAuthenticationSuccess(request));
     }
 
-    @RequestMapping(value = "/forgotPass", method = RequestMethod.GET)
+    @RequestMapping(value = "/forgot-pass", method = RequestMethod.GET)
     public ModelAndView forgotPass() {
         if (!userManager.isAuthenticated())
             return new ModelAndView("forgotPass");

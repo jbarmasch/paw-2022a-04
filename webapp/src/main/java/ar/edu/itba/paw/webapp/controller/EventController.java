@@ -4,30 +4,26 @@ import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.service.*;
 import ar.edu.itba.paw.webapp.auth.UserManager;
 import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
-import ar.edu.itba.paw.webapp.exceptions.ImageNotFoundException;
-import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
 import ar.edu.itba.paw.webapp.helper.FilterUtils;
 import ar.edu.itba.paw.webapp.validations.IntegerArray;
 import ar.edu.itba.paw.webapp.validations.NumberFormat;
-import org.hibernate.validator.method.MethodConstraintViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.jws.Oneway;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
@@ -76,11 +72,11 @@ public class EventController {
                                      @RequestParam(value = "types", required = false) @IntegerArray final String[] types,
                                      @RequestParam(value = "minPrice", required = false) @NumberFormat(decimal = true) final String minPrice,
                                      @RequestParam(value = "maxPrice", required = false) @NumberFormat(decimal = true) final String maxPrice,
-                                     @RequestParam(value = "query", required = false) final String query,
+                                     @RequestParam(value = "search", required = false) final String search,
                                      @RequestParam(value = "order", required = false) @Pattern(regexp = "price|date") final String order,
                                      @RequestParam(value = "orderBy", required = false) @Pattern(regexp = "ASC|DESC") final String orderBy,
                                      @RequestParam(value = "page", required = false, defaultValue = "1") @Min(1) final int page) {
-        List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, query, order, orderBy, page);
+        List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, search, order, orderBy, page);
 
         final ModelAndView mav = new ModelAndView("events");
         mav.addObject("page", page);
@@ -101,7 +97,7 @@ public class EventController {
         filters.put("types", form.getTypes());
         filters.put("minPrice", form.getMinPrice());
         filters.put("maxPrice", form.getMaxPrice());
-        filters.put("query", form.getSearchQuery());
+        filters.put("search", form.getSearchQuery());
         filters.put("order", form.getOrder());
         filters.put("orderBy", form.getOrderBy());
         String endURL = FilterUtils.createFilter(filters);
@@ -117,7 +113,7 @@ public class EventController {
             return new ModelAndView("error");
 
         Map<String, Object> filters = new HashMap<>();
-        filters.put("query", searchForm.getQuery());
+        filters.put("search", searchForm.getQuery());
         String endURL = FilterUtils.createFilter(filters);
 
         if (endURL.isEmpty())
@@ -160,17 +156,13 @@ public class EventController {
             return eventDescription(form, eventId);
         }
 
-        for (Booking b : form.getBookings()) {
-            System.out.println("Sergio " + b.getTicketId() + " " + b.getQty());
-        }
-
         boolean booked = eventService.book(form.getBookings(), user.getId(), user.getUsername(), user.getMail(), eventId, e.getName(), eventUser.getMail());
         if (!booked)
             return new ModelAndView("redirect:/error");
         return new ModelAndView("redirect:/events/" + e.getId() + "/bookingSuccess");
     }
 
-    @RequestMapping(value = "/events/{eventId}/bookingSuccess", method = RequestMethod.GET)
+    @RequestMapping(value = "/events/{eventId}/booking-success", method = RequestMethod.GET)
     public ModelAndView eventDescription(@PathVariable("eventId") @Min(1) final int eventId) {
         if (!userManager.isAuthenticated())
             return new ModelAndView("redirect:/");
@@ -185,7 +177,7 @@ public class EventController {
         return mav;
     }
 
-    @RequestMapping(value = "/createEvent", method = { RequestMethod.GET })
+    @RequestMapping(value = "/create-event", method = { RequestMethod.GET })
     public ModelAndView createForm(@ModelAttribute("eventForm") final EventForm form) {
         final ModelAndView mav = new ModelAndView("createEvent");
         mav.addObject("locations", locationService.getAll());
@@ -195,7 +187,7 @@ public class EventController {
         return mav;
     }
 
-    @RequestMapping(value = "/createEvent", method = { RequestMethod.POST }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @RequestMapping(value = "/create-event", method = { RequestMethod.POST }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ModelAndView createEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors,
                                     @RequestParam("image") CommonsMultipartFile imageFile) {
         if (errors.hasErrors())
@@ -223,7 +215,9 @@ public class EventController {
     }
 
     @RequestMapping(value = "/events/{eventId}/modify", method = { RequestMethod.POST }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ModelAndView modifyEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors, @PathVariable("eventId") @Min(1) final int eventId, @RequestParam("image") CommonsMultipartFile imageFile) {
+    public ModelAndView modifyEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors,
+                                    @PathVariable("eventId") @Min(1) final int eventId,
+                                    @RequestParam("image") CommonsMultipartFile imageFile) {
         if (errors.hasErrors())
             return modifyForm(form, eventId);
 
@@ -260,7 +254,7 @@ public class EventController {
         return new ModelAndView("redirect:/events");
     }
 
-    @RequestMapping(value = "/myEvents", method = { RequestMethod.GET })
+    @RequestMapping(value = "/my-events", method = { RequestMethod.GET })
     public ModelAndView myEvents(@RequestParam(value = "page", required = false, defaultValue = "1") @Min(1) final int page) {
         final int userId = userManager.getUserId();
         List<Event> events = eventService.getUserEvents(userId, page);

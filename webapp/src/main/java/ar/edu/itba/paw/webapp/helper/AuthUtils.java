@@ -1,23 +1,21 @@
-package ar.edu.itba.paw.webapp.auth;
+package ar.edu.itba.paw.webapp.helper;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-@Component
-public class AuthenticationManager {
-    public void setReferrer(HttpServletRequest request, String referrer) {
+public class AuthUtils {
+    public static void setReferrer(HttpServletRequest request, String referrer) {
         HttpSession session = request.getSession();
         if (session != null && referrer != null && !referrer.contains("login") && !referrer.contains("register")) {
             session.setAttribute("url_prior_login", referrer);
         }
     }
 
-    private String getReferrer(HttpServletRequest request) {
+    private static String getReferrer(HttpServletRequest request) {
         HttpSession session = request.getSession();
         if (session != null) {
             return (String) session.getAttribute("url_prior_login");
@@ -25,7 +23,7 @@ public class AuthenticationManager {
         return request.getContextPath() + "/";
     }
 
-    public String redirectionAuthenticationSuccess(HttpServletRequest request) {
+    public static String redirectionAuthenticationSuccess(HttpServletRequest request) {
         HttpSession session = request.getSession();
         if (session != null) {
             String redirectUrl = getReferrer(request);
@@ -38,7 +36,7 @@ public class AuthenticationManager {
         return "/";
     }
 
-    public void requestAuthentication(HttpServletRequest request, String username, String password) {
+    public static void requestAuthentication(HttpServletRequest request, String username, String password) {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
         request.getSession();
         token.setDetails(new WebAuthenticationDetails(request));

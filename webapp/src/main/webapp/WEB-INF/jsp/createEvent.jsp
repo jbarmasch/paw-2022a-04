@@ -11,7 +11,7 @@
 </head>
 <body>
     <%@ include file="appbar.jsp"%>
-    <c:url value="/createEvent" var="postPath"/>
+    <c:url value="/create-event" var="postPath"/>
     <div class="only-element">
         <form:form novalidate="true" modelAttribute="eventForm" action="${postPath}" method="post" id="eventForm" enctype="multipart/form-data">
             <div>

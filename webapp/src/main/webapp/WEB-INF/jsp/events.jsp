@@ -85,7 +85,7 @@
                 <form:errors cssClass="error-message" element="span"/>
                 <span class="formError"></span>
 
-                <form:input class="hidden" type="text" path="searchQuery" value="${param.query}"/>
+                <form:input class="hidden" type="text" path="searchQuery" value="${param.search}"/>
                 <form:input class="hidden" type="text" path="orderBy" value="${param.orderBy}"/>
                 <form:input class="hidden" type="text" path="order" value="${param.order}"/>
 
