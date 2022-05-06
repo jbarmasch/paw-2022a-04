@@ -8,16 +8,16 @@
     <title>BotPass</title>
 </head>
 <body>
-<div class="only-element">
-    <form>
-        <h3>Forgot password</h3>
-        <div class="space-bet sep-top">
-            <input id="email" placeholder="Email" name="email" type="text"/>
-        </div>
-        <div class="center sep-top-xl">
-            <input type="submit" value="Send email"/>
-        </div>
-    </form>
-</div>
+    <div class="only-element">
+        <form>
+            <h3>Forgot password</h3>
+            <div class="space-bet sep-top">
+                <input id="email" placeholder="Email" name="email" type="text"/>
+            </div>
+            <div class="center sep-top-xl">
+                <input type="submit" value="Send email"/>
+            </div>
+        </form>
+    </div>
 </body>
 </html>

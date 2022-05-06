@@ -55,7 +55,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                     .deleteCookies("JSESSIONID")
                     .logoutSuccessUrl("/")
                 .and().exceptionHandling()
-                    .accessDeniedPage("/forbidden")
+                    .accessDeniedPage("/403")
                 .and().csrf().disable();
     }
 

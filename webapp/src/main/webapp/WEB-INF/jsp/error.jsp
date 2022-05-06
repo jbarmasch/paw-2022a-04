@@ -7,9 +7,9 @@
     <title>BotPass</title>
 </head>
 <body>
-<%@ include file="appbar.jsp"%>
-<div class="container only-element">
-    <h1>Error <c:out value="${message}"/></h1>
-</div>
+    <%@ include file="appbar.jsp"%>
+    <div class="container only-element">
+        <h1>Error <c:out value="${message}"/></h1>
+    </div>
 </body>
 </html>

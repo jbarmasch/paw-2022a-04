@@ -4,33 +4,33 @@
 <html>
 <head>
     <%@ include file="include.jsp"%>
-    <%@ include file="appbar.jsp"%>
     <title>BotPass</title>
 </head>
 <body>
-<c:url value="/login" var="loginUrl" />
-<div class="only-element">
-<form action="${loginUrl}" class="loginForm" method="post" enctype="application/x-www-form-urlencoded">
-    <h3>Inicio de sesión</h3>
-    <div class="space-bet sep-top">
-        <input id="username" placeholder="Nombre de usuario" name="j_username" type="text"/>
+    <%@ include file="appbar.jsp"%>
+    <c:url value="/login" var="loginUrl" />
+    <div class="only-element">
+        <form action="${loginUrl}" class="loginForm" method="post" enctype="application/x-www-form-urlencoded">
+            <h3>Inicio de sesión</h3>
+            <div class="space-bet sep-top">
+                <input id="username" placeholder="Nombre de usuario" name="j_username" type="text"/>
+            </div>
+            <div class="space-bet sep-top">
+                <input id="password" placeholder="Contraseña" name="j_password" type="password"/>
+            </div>
+            <c:if test="${error}">
+                <span class="formError visible">El usuario o la contraseña es incorrecto.</span>
+            </c:if>
+            <input class="hidden" name="j_rememberme" type="checkbox" checked/>
+            <div class="center sep-top-xl">
+                <input type="submit" value="Iniciar sesión"/>
+            </div>
+            <hr/>
+            <div class="center">
+                <input type="button" onclick="location.href='<c:url value="/register"/>'" class="uk-button-submit" value="Registrarse"/>
+            </div>
+        </form>
     </div>
-    <div class="space-bet sep-top">
-        <input id="password" placeholder="Contraseña" name="j_password" type="password"/>
-    </div>
-    <c:if test="${error}">
-        <span class="formError visible">El usuario o la contraseña es incorrecto.</span>
-    </c:if>
-    <input class="hidden" name="j_rememberme" type="checkbox" checked/>
-    <div class="center sep-top-xl">
-        <input type="submit" value="Iniciar sesión"/>
-    </div>
-    <hr/>
-    <div class="center">
-        <input type="button" onclick="location.href='<c:url value="/register"/>'" class="uk-button-submit" value="Registrarse"/>
-    </div>
-</form>
-</div>
 </body>
 </html>
 
