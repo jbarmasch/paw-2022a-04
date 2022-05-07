@@ -1,13 +1,12 @@
 package ar.edu.itba.paw.webapp.form;
 
-import ar.edu.itba.paw.model.Booking;
-import ar.edu.itba.paw.model.Ticket;
-
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class TicketsForm {
     @NotNull
+    @Valid
     private List<TicketForm> tickets;
     @NotNull
     private Integer ticketQty;

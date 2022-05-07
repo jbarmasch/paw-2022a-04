@@ -28,20 +28,23 @@
                     <div>
                         <spring:message code="tickets.ticketName" var="ticketName"/>
                         <form:input placeholder="${ticketName}" class="uk-input" type="text" path="tickets[${i}].ticketName" required="true"/>
-                        <form:errors path="tickets[0].ticketName" cssClass="error-message" element="span"/>
+<%--                        <form:errors path="tickets[${i}].ticketName" cssClass="error-message" element="span"/>--%>
                     </div>
                     <div>
                         <form:label path="tickets[0].price"><spring:message code="tickets.ticketPrice"/>: </form:label>
                         <form:input class="uk-input" type="number" path="tickets[${i}].price" min="0.00" step="0.01" value="0.00" required="true"/>
-                        <form:errors path="tickets[0].price" cssClass="error-message" element="span"/>
+<%--                        <form:errors path="tickets[${i}].price" cssClass="error-message" element="span"/>--%>
                     </div>
                     <div>
                         <form:label path="tickets[0].qty"><spring:message code="tickets.ticketQty"/>: </form:label>
                         <form:input class="uk-input" type="number" path="tickets[${i}].qty" min="0" step="1" value="0" required="true"/>
-                        <form:errors path="tickets[0].qty" cssClass="error-message" element="span"/>
+<%--                        <form:errors path="tickets[${i}].qty" cssClass="error-message" element="span"/>--%>
                     </div>
                 </div>
             </c:forEach>
+            <form:errors path="tickets[0].ticketName" cssClass="error-message" element="span"/>
+            <form:errors path="tickets[0].price" cssClass="error-message" element="span"/>
+            <form:errors path="tickets[0].qty" cssClass="error-message" element="span"/>
             <spring:message code="tickets.maxTicketsReached" var="maxTicketsReached"/>
             <button type="button" onclick="addTicket()">Agregar tickets</button>
             </div>
@@ -56,7 +59,6 @@
 
 <script type="text/javascript">
     var i = 1;
-
     function addTicket() {
         if (i === 5)
             UIkit.notification("${maxTicketsReached}", {status: 'warning'}, {timeout: 4000}, {pos: 'bottom-center'})
@@ -67,4 +69,53 @@
             ticketQty.value = ++i;
         }
     }
+
+    (function() {
+        var qty = document.getElementById('qty');
+        var form = document.getElementById('ticketsForm');
+
+        if (qty === null || form === null)
+            return;
+
+        if ("${errorVar}" !== '')
+            UIkit.notification("${maxQtySizeError} ${errorVar}", {status: 'danger'}, {pos: 'bottom-center'})
+
+        var checkQtyValidity = function() {
+            var qtyTickets = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('uk-input').item(0).getAttribute('max');
+            qty = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('uk-input').item(0);
+            if (qty.validity.rangeUnderflow) {
+                qty.setCustomValidity('${minQtySizeError}');
+                updateQtyMessage();
+            } else if (qty.validity.rangeOverflow) {
+                qty.setCustomValidity('${maxQtySizeError} ' + qtyTickets + '.');
+                updateQtyMessage();
+            } else if (qty.validity.valueMissing) {
+                qty.setCustomValidity('${qtyNullError}');
+                updateQtyMessage();
+            } else {
+                qty.setCustomValidity('');
+            }
+        };
+
+        var updateQtyMessage = function() {
+            qty = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('uk-input').item(0);
+            form = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('transparent').item(0);
+            form.getElementsByClassName('formError')[0].innerHTML = qty.validationMessage;
+        }
+
+        qty.addEventListener('change', checkQtyValidity, false);
+        qty.addEventListener('keyup', checkQtyValidity, false);
+
+        for (let i = 0; i < form.length; i++) {
+            form.item(i).addEventListener('submit', function (event) {
+                var form = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('transparent').item(0);
+                if (form.classList) form.classList.add('submitted');
+                checkQtyValidity();
+                if (!this.checkValidity()) {
+                    event.preventDefault();
+                    updateQtyMessage();
+                }
+            }, false);
+        }
+    }());
 </script>

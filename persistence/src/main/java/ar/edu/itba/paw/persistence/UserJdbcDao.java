@@ -69,32 +69,35 @@ public class UserJdbcDao implements UserDao {
     @Override
     public List<EventBooking> getAllBookingsFromUser(long id, int page) {
         return jdbcTemplate.query("SELECT bookings.userid, ARRAY_AGG(bookings.qty) AS qtys, ARRAY_AGG(bookings.ticketid) AS ticketIds, " +
-                        "ARRAY_AGG(ti.name) AS ticketNames, ec.* FROM bookings JOIN event_complete ec ON bookings.eventid = ec.eventid JOIN tickets ti " +
+                        "ARRAY_AGG(ti.name) AS ticketNames, ARRAY_AGG(ti.maxtickets) AS ticketQtys, ARRAY_AGG(ti.booked) AS ticketBookeds," +
+                        " ec.* FROM bookings JOIN event_complete ec ON bookings.eventid = ec.eventid JOIN tickets ti " +
                         "ON ti.eventId = ec.eventid AND bookings.ticketid = ti.ticketid WHERE bookings.userid = ? AND bookings.qty > 0 " +
                         "group by bookings.userid, bookings.eventid, ec.eventid, ec.name, ec.description, ec.locationid, ec.attendance, ec.minPrice, " +
                         "ec.ticketsLeft, ec.typeid, ec.date, ec.imageid, ec.userid, ec.state, ec.locName, ec.typeName, ec.username, " +
-                        "ec.ticketIds, ec.ticketTicketsLeft, ec.ticketNames, ec.ticketPrices, ec.tagIds, ec.tagNames ORDER BY date LIMIT 10 OFFSET ?",
+                        "ec.ticketIds, ec.ticketNames, ec.ticketQtys, ec.ticketBookeds, ec.ticketPrices, ec.tagIds, ec.tagNames ORDER BY date LIMIT 10 OFFSET ?",
                 new Object[] { id, (page - 1) * 10 }, JdbcUtils.EVENT_BOOKING_ROW_MAPPER);
     }
 
     @Override
     public Optional<EventBooking> getBookingFromUser(long userId, long eventId) {
         return jdbcTemplate.query("SELECT bookings.userid, ARRAY_AGG(bookings.qty) AS qtys, ARRAY_AGG(bookings.ticketid) AS ticketIds, " +
-                    "ARRAY_AGG(ti.name) AS ticketNames, ec.* FROM bookings JOIN event_complete ec ON bookings.eventid = ec.eventid JOIN tickets ti " +
+                    "ARRAY_AGG(ti.name) AS ticketNames, ARRAY_AGG(ti.maxtickets) AS ticketQtys, ARRAY_AGG(ti.booked) AS ticketBookeds, ec.* " +
+                        "FROM bookings JOIN event_complete ec ON bookings.eventid = ec.eventid JOIN tickets ti " +
                         "ON ti.eventId = ec.eventid AND bookings.ticketid = ti.ticketid WHERE bookings.userid = ? AND bookings.qty > 0 AND bookings.eventId = ? " +
                         "group by bookings.userid, bookings.eventid, ec.eventid, ec.name, ec.description, ec.locationid, ec.attendance, ec.minPrice, " +
-                        "ec.ticketsLeft, ec.typeid, ec.date, ec.imageid, ec.userid, ec.state, ec.locName, ec.image, ec.typeName, ec.username, " +
-                        "ec.ticketIds, ec.ticketTicketsLeft, ec.ticketNames, ec.ticketPrices, ec.tagIds, ec.tagNames ORDER BY date LIMIT 10 OFFSET ?",
+                        "ec.ticketsLeft, ec.typeid, ec.date, ec.imageid, ec.userid, ec.state, ec.locName, ec.typeName, ec.username, " +
+                        "ec.ticketIds, ec.ticketNames, ec.ticketQtys, ec.ticketBookeds, ec.ticketPrices, ec.tagIds, ec.tagNames ORDER BY date LIMIT 10 OFFSET ?",
                 new Object[] { userId, eventId }, JdbcUtils.EVENT_BOOKING_ROW_MAPPER).stream().findFirst();
     }
 
     @Override
     public Optional<EventStats> getEventStats(long id) {
-        return jdbcTemplate.query("SELECT * FROM ((SELECT COUNT(*) AS events, SUM(qty) AS qty FROM (SELECT e.eventid, SUM(COALESCE(qty, 0)) AS qty " +
-                "FROM events e LEFT JOIN bookings b ON b.eventId = e.eventId WHERE e.userId = ? GROUP BY e.eventid) AS aux) AS general CROSS JOIN ( " +
-                "SELECT * FROM event_complete ec JOIN (SELECT e.eventid, SUM(COALESCE(qty, 0)) AS sumqty FROM events e LEFT JOIN bookings b ON " +
-                "b.eventId = e.eventId WHERE e.userid = ? GROUP BY e.eventid ORDER BY sumqty DESC LIMIT 1) AS aux ON ec.eventid = aux.eventid) AS " +
-                "event)", new Object[]{ id, id }, JdbcUtils.EVENT_STATS_ROW_MAPPER).stream().findFirst();
+        return jdbcTemplate.query( "SELECT * FROM ((SELECT COUNT(*) AS events, SUM(bookings) AS bookings, SUM(bookings) / SUM(COALESCE(NULLIF(qty, 0), 1)) " +
+                        "AS attendance, SUM(income) AS income FROM (SELECT e.eventid, SUM(COALESCE(booked, 0)) AS bookings, SUM(COALESCE(maxTickets, 0)) AS qty, " +
+                        "booked * price AS income FROM events e LEFT JOIN tickets t ON t.eventId = e.eventId WHERE e.userId = ? GROUP BY e.eventid, booked, price) AS aux " +
+                        ") AS general CROSS JOIN (SELECT * FROM event_complete ec JOIN (SELECT e.eventid, SUM(COALESCE(booked, 0)) AS sumqty FROM events e LEFT JOIN tickets t ON " +
+                        "t.eventId = e.eventId WHERE e.userid = ? GROUP BY e.eventid ORDER BY sumqty DESC LIMIT 1) AS aux ON ec.eventid = aux.eventid) AS event)",
+                new Object[]{ id, id }, JdbcUtils.EVENT_STATS_ROW_MAPPER).stream().findFirst();
     }
 
     @Override

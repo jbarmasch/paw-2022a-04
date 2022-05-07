@@ -17,7 +17,7 @@ public interface EventDao {
     void deleteEvent(int id);
     List<Event> getUserEvents(long id, int page);
     boolean book(List<Booking> bookings, long userId, long eventId);
-    boolean cancelBooking(long userId, long eventId, int qty, long ticketId);
+    boolean cancelBooking(List<Booking> bookings, long userId, long eventId);
     Integer getAttendanceOfEventId(long eventId);
     void soldOut(int id);
     void active(int id);
@@ -26,4 +26,7 @@ public interface EventDao {
     List<Event> getSimilarEvents(long eventId);
     List<Event> getPopularEvents(long eventId);
     void addTicket(long eventId, String ticketName, double price, int qty);
+    Optional<Ticket> getTicketById(long ticketId);
+    void updateTicket(long id, String ticketName, double price, int qty);
+    void deleteTicket(int ticketId);
 }

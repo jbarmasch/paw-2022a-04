@@ -5,6 +5,7 @@ public class Ticket {
     private String ticketName;
     private Double price;
     private Integer qty;
+    private Integer booked;
 
     public Ticket() {}
 
@@ -14,11 +15,12 @@ public class Ticket {
         this.qty = qty;
     }
 
-    public Ticket(Integer id, String ticketName, Double price, Integer qty) {
+    public Ticket(Integer id, String ticketName, Double price, Integer qty, Integer booked) {
         this.id = id;
         this.ticketName = ticketName;
         this.price = price;
         this.qty = qty;
+        this.booked = booked;
     }
 
     public Ticket(Integer id, String name) {
@@ -56,5 +58,13 @@ public class Ticket {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Integer getBooked() {
+        return booked;
+    }
+
+    public void setBooked(Integer booked) {
+        this.booked = booked;
     }
 }

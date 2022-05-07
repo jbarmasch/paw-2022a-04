@@ -30,7 +30,9 @@
                         <ul class="uk-nav uk-dropdown-nav">
                             <li><a href="<c:url value="/bookings"/>"><spring:message code="appbar.dropdown1"/></a></li>
                             <li><a href="<c:url value="/my-events"/>"><spring:message code="appbar.dropdown2"/></a></li>
-                            <li><a href="<c:url value="/stats"/>"><spring:message code="appbar.dropdown3"/></a></li>
+                            <c:if test="${isCreator}">
+                                <li><a href="<c:url value="/stats"/>"><spring:message code="appbar.dropdown3"/></a></li>
+                            </c:if>
                             <li class="uk-nav-divider"></li>
                             <li><a href="<c:url value="/logout"/>"><spring:message code="appbar.dropdown4"/></a></li>
                         </ul>

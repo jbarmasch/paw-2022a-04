@@ -27,7 +27,7 @@ public class JdbcUtils {
                 new User(rs.getInt("userId"), rs.getString("username")),
                 rs.getInt("attendance"),
                 State.getState(rs.getInt("state")),
-                getTickets(rs.getArray("ticketIds"), rs.getArray("ticketNames"), rs.getArray("ticketPrices"), rs.getArray("ticketTicketsLeft"))
+                getTickets(rs.getArray("ticketIds"), rs.getArray("ticketNames"), rs.getArray("ticketPrices"), rs.getArray("ticketQtys"), rs.getArray("ticketBookeds"))
         );
     };
 
@@ -63,7 +63,7 @@ public class JdbcUtils {
 
     public final static RowMapper<EventStats> EVENT_STATS_ROW_MAPPER = (rs, rowNum) -> new EventStats(
             rs.getInt("events"),
-            rs.getInt("qty"),
+            rs.getInt("bookings"),
             new Event(
                     rs.getInt("eventId"),
                     rs.getString("name"),
@@ -78,8 +78,10 @@ public class JdbcUtils {
                     new User(rs.getInt("userId")),
                     rs.getInt("attendance"),
                     State.getState(rs.getInt("state")),
-                    getTickets(rs.getArray("ticketIds"), rs.getArray("ticketNames"), rs.getArray("ticketPrices"), rs.getArray("ticketTicketsLeft"))
-            )
+                    getTickets(rs.getArray("ticketIds"), rs.getArray("ticketNames"), rs.getArray("ticketPrices"), rs.getArray("ticketQtys"), rs.getArray("ticketBookeds"))
+            ),
+            rs.getDouble("attendance"),
+            rs.getDouble("income")
     );
 
     public final static RowMapper<UserStats> USER_STATS_ROW_MAPPER = (rs, rowNum) -> new UserStats(
@@ -87,6 +89,15 @@ public class JdbcUtils {
             rs.getInt("booked"),
             new Type(rs.getInt("favTypeId"), rs.getString("favTypeName")),
             new Location(rs.getInt("favLocId"), rs.getString("favLocName"))
+    );
+
+    public final static RowMapper<Ticket> TICKET_ROW_MAPPER = (rs, rowNum) -> new Ticket(
+            rs.getInt("ticketId"),
+//            rs.getInt("eventId"),
+            rs.getString("name"),
+            rs.getDouble("price"),
+            rs.getInt("maxTickets"),
+            rs.getInt("booked")
     );
 
     public static List<Role> getRoles(Array rolesIds, Array rolesNames) throws SQLException {
@@ -101,16 +112,17 @@ public class JdbcUtils {
         return roles;
     }
 
-    public static List<Ticket> getTickets(Array ids, Array names, Array prices, Array lefts) throws SQLException {
+    public static List<Ticket> getTickets(Array ids, Array names, Array prices, Array qtys, Array bookeds) throws SQLException {
         List<Ticket> tickets = new ArrayList<>();
         Object[] idsAux = (Object[]) ids.getArray();
         Object[] namesAux = (Object[]) names.getArray();
         Object[] pricesAux = (Object[]) prices.getArray();
-        Object[] leftsAux = (Object[]) lefts.getArray();
-        if (idsAux[0] != null && namesAux[0] != null && pricesAux[0] != null && leftsAux[0] != null) {
+        Object[] qtysAux = (Object[]) qtys.getArray();
+        Object[] bookedsAux = (Object[]) bookeds.getArray();
+        if (idsAux[0] != null && namesAux[0] != null && pricesAux[0] != null && qtysAux[0] != null && bookedsAux[0] != null) {
             for (int i = 0; i < idsAux.length; i++) {
-                tickets.add(new Ticket(Integer.parseInt(idsAux[i].toString()), namesAux[i].toString(),
-                        Double.parseDouble(pricesAux[i].toString()), Integer.parseInt(leftsAux[i].toString())));
+                tickets.add(new Ticket(Integer.parseInt(idsAux[i].toString()), namesAux[i].toString(), Double.parseDouble(pricesAux[i].toString()),
+                        Integer.parseInt(qtysAux[i].toString()), Integer.parseInt(bookedsAux[i].toString())));
             }
         }
         return tickets;

@@ -61,4 +61,11 @@ public class UserManager {
         Authentication newAuth = new UsernamePasswordAuthenticationToken(auth.getPrincipal(), auth.getCredentials(), updatedAuthorities);
         SecurityContextHolder.getContext().setAuthentication(newAuth);
     }
+
+
+    public boolean isCreator() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth != null && !(auth instanceof AnonymousAuthenticationToken) &&
+                auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_CREATOR"));
+    }
 }

@@ -7,7 +7,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 public class TicketForm {
-    private Integer id;
+    private int id;
     @NotEmpty
     private String ticketName;
     @NotNull
@@ -15,15 +15,6 @@ public class TicketForm {
     private Double price;
     @Min(1)
     private Integer qty;
-
-    public TicketForm() {}
-
-    public TicketForm(Integer id, String ticketName, Double price, Integer qty) {
-        this.id = id;
-        this.ticketName = ticketName;
-        this.price = price;
-        this.qty = qty;
-    }
 
     public String getTicketName() {
         return ticketName;
@@ -37,11 +28,11 @@ public class TicketForm {
         return qty;
     }
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 

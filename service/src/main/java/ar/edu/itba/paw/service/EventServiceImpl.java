@@ -79,9 +79,9 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public boolean cancelBooking(int qty, long userId, String username, String userMail, long eventId, long ticketId, String eventName, String eventMail) {
-        if (eventDao.cancelBooking(userId, eventId, qty, ticketId)) {
-            mailService.sendCancelMail(userMail, username, eventMail, eventName, qty);
+    public boolean cancelBooking(List<Booking> bookings, long userId, String username, String userMail, long eventId, String eventName, String eventMail) {
+        if (eventDao.cancelBooking(bookings, userId, eventId)) {
+            mailService.sendCancelMail(userMail, username, eventMail, eventName, bookings.stream().mapToInt(Booking::getQty).sum());
             return true;
         }
         mailService.sendErrorMail(userMail, eventName);
@@ -125,6 +125,21 @@ public class EventServiceImpl implements EventService {
     @Override
     public void addTicket(long eventId, String ticketName, double price, int qty) {
         eventDao.addTicket(eventId, ticketName, price, qty);
+    }
+
+    @Override
+    public Optional<Ticket> getTicketById(long ticketId) {
+        return eventDao.getTicketById(ticketId);
+    }
+
+    @Override
+    public void updateTicket(long id, String ticketName, double price, int qty) {
+        eventDao.updateTicket(id, ticketName, price, qty);
+    }
+
+    @Override
+    public void deleteTicket(int ticketId) {
+        eventDao.deleteTicket(ticketId);
     }
 }
 

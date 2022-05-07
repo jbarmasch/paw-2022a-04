@@ -6,7 +6,13 @@
 <div class="card uk-card uk-card-default" onclick="location.href='<c:url value="/events/${event.id}"/>'">
     <div class="uk-card-media-top">
         <spring:message code="event.imageAlt" var="imageAlt"/>
-        <img class="card_img" src="<c:url value="/image/${event.imageId}"/>" alt="${imageAlt}">
+        <div class="card_img_container">
+            <img class="card_img" src="<c:url value="/image/${event.imageId}"/>" alt="${imageAlt}">
+            <c:if test="${event.soldOut}">
+                <spring:message code="event.soldOut" var="soldOut"/>
+                <img class="soldout" src="<c:url value="/resources/png/sold_out.png"/>" alt="${soldOut}"/>
+            </c:if>
+        </div>
     </div>
     <div class="uk-card-body">
         <h3 class="uk-card-title"><c:out value="${event.name}"/></h3>

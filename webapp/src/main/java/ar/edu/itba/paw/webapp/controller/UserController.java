@@ -86,11 +86,16 @@ public class UserController {
 
     @RequestMapping(value = "/profile/{userId}", method = { RequestMethod.GET })
     public ModelAndView userProfile(@PathVariable("userId") final long userId) {
-        UserStats stats = userService.getUserStats(userManager.getUserId()).orElse(null);
+        UserStats stats = userService.getUserStats(userId).orElse(null);
+        User user = userService.getUserById(userId).orElseThrow(UserNotFoundException::new);
+        List<Event> events = eventService.getUserEvents(userId, 1);
 
         final ModelAndView mav = new ModelAndView("profile");
-        mav.addObject("user", userManager.getUser());
-        mav.addObject("stats", stats);
+        if (userId == userManager.getUserId())
+            mav.addObject("stats", stats);
+        mav.addObject("user", user);
+        mav.addObject("events", events);
+        mav.addObject("size", events.size());
         return mav;
     }
 
@@ -132,18 +137,19 @@ public class UserController {
 //        int bookingQty = userService.getBookingFromUser(user.getId(), eventId).orElseThrow(RuntimeException::new).getQty();
 
 //        if (errors.hasErrors() || form.getQty() > bookingQty) {
-//        if (errors.hasErrors()) {
+        if (errors.hasErrors()) {
 //            errors.rejectValue("qty", "Max.bookForm.qty", new Object[] {e.getMaxCapacity()}, "");
-//            return bookings(form, rateForm, form.getPage(), bookingQty);
-//        }
+            return bookings(form, rateForm, form.getPage(), eventId);
+        }
 
-//        if (!eventService.cancelBooking(form.getQty(), user.getId(), user.getUsername(), user.getMail(), eventId, e.getName(), eventUser.getMail()))
-//            return new ModelAndView("redirect:/error");
+        if (!eventService.cancelBooking(form.getBookings(), user.getId(), user.getUsername(), user.getMail(), eventId, e.getName(), eventUser.getMail()))
+            return new ModelAndView("redirect:/error");
         return new ModelAndView("redirect:/bookings/");
     }
 
     @ModelAttribute
     public void addAttributes(Model model, final SearchForm searchForm) {
         model.addAttribute("username", userManager.getUsername());
+        model.addAttribute("isCreator", userManager.isCreator());
     }
 }

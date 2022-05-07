@@ -183,7 +183,10 @@ public class EventJdbcDao implements EventDao {
     @Override
     public boolean book(List<Booking> bookings, long userId, long eventId) {
         for (Booking booking : bookings) {
-            jdbcTemplate.update("UPDATE events SET attendance = attendance + ? WHERE eventId = ?", booking.getQty(), eventId);
+            if (booking.getQty() <= 0)
+                continue;
+
+            jdbcTemplate.update("UPDATE tickets SET booked = booked + ? WHERE eventId = ? AND ticketId = ?", booking.getQty(), eventId, booking.getTicketId());
             int rowsUpdated = jdbcTemplate.update("UPDATE bookings SET qty = qty + ? WHERE eventId = ? AND userId = ? AND ticketId = ?", booking.getQty(), eventId, userId, booking.getTicketId());
             if (rowsUpdated <= 0) {
                 final Map<String, Object> bookingData = new HashMap<>();
@@ -198,11 +201,17 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public boolean cancelBooking(long userId, long eventId, int qty, long ticketId) {
-        int rowsUpdated = jdbcTemplate.update("UPDATE bookings SET qty = qty - ? WHERE eventId = ? AND userId = ? AND ticketId = ?", qty, eventId, userId, ticketId);
-        if (rowsUpdated <= 0)
-            return false;
-        rowsUpdated = jdbcTemplate.update("UPDATE events SET attendance = attendance - ? WHERE eventId = ?", qty, eventId);
+    public boolean cancelBooking(List<Booking> bookings, long userId, long eventId) {
+        int rowsUpdated = 0;
+        for (Booking booking : bookings) {
+            if (booking.getQty() <= 0)
+                continue;
+
+            rowsUpdated = jdbcTemplate.update("UPDATE bookings SET qty = qty - ? WHERE eventId = ? AND userId = ? AND ticketId = ?", booking.getQty(), eventId, userId, booking.getTicketId());
+            if (rowsUpdated <= 0)
+                return false;
+            rowsUpdated = jdbcTemplate.update("UPDATE tickets SET booked = booked - ? WHERE eventId = ? AND ticketid = ?", booking.getQty(), eventId, booking.getTicketId());
+        }
         return rowsUpdated > 0;
     }
 
@@ -235,8 +244,23 @@ public class EventJdbcDao implements EventDao {
         bookingData.put("eventId", eventId);
         bookingData.put("name", ticketName);
         bookingData.put("price", price);
-        bookingData.put("booked", qty);
-        bookingData.put("ticketsLeft", qty);
+        bookingData.put("booked", 0);
+        bookingData.put("maxTickets", qty);
         jdbcTicketInsert.execute(bookingData);
+    }
+
+    @Override
+    public Optional<Ticket> getTicketById(long ticketId) {
+        return jdbcTemplate.query("SELECT * FROM tickets WHERE ticketId = ?", new Object[] { ticketId }, JdbcUtils.TICKET_ROW_MAPPER).stream().findFirst();
+    }
+
+    @Override
+    public void updateTicket(long id, String ticketName, double price, int qty) {
+        jdbcTemplate.update("UPDATE tickets SET name = ?, price = ?, booked = ?, ticketsLeft = ? WHERE ticketId = ?", ticketName, price, qty, id);
+    }
+
+    @Override
+    public void deleteTicket(int ticketId) {
+        jdbcTemplate.update("DELETE FROM tickets WHERE ticketId = ?", ticketId);
     }
 }

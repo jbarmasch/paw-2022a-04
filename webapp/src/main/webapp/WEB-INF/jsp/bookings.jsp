@@ -59,15 +59,17 @@
                                                                     <c:set var="i" value="0"/>
                                                                     <c:forEach var="tickets" items="${booking.bookings}">
                                                                         <div class="horizontal center">
-                                                                        <form:label class="sep-right" path="bookings[${i}].qty">*<spring:message code="booking.cancelTickets.qty"/>: </form:label>
-                                                                        <c:set var="qtyTickets" scope="session" value="${tickets.qty}"/>
-                                                                        <span><c:out value="${tickets.ticket.ticketName}"/></span>
-                                                                        <form:input class="uk-input" type="number" path="bookings[${i}].qty" min="1" max="${tickets.qty}" required="true" id="qty"/>
-                                                                        <spring:message code="Min.bookForm.qty" var="minQtySizeError"/>
-                                                                        <spring:message code="Max.bookForm.qtyStr" var="maxQtySizeError"/>
-                                                                        <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
-                                                                        <span class="formError"></span>
-                                                                        <c:set var="i" value="${i+=1}"/>
+                                                                            <form:label class="sep-right" path="bookings[${i}].qty">*<spring:message code="booking.cancelTickets.qty"/>: </form:label>
+                                                                            <c:set var="qtyTickets" scope="session" value="${tickets.qty}"/>
+                                                                            <span><c:out value="${tickets.ticket.ticketName}"/></span>
+                                                                            <form:input class="uk-input" type="number" path="bookings[${i}].qty" min="1" max="${tickets.qty}" required="true" id="qty"/>
+                                                                            <spring:message code="Min.bookForm.qty" var="minQtySizeError"/>
+                                                                            <spring:message code="Max.bookForm.qtyStr" var="maxQtySizeError"/>
+                                                                            <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
+
+                                                                            <form:input class="hidden" type="number" path="bookings[${i}].ticketId" value="${tickets.ticket.id}"/>
+                                                                            <span class="formError"></span>
+                                                                            <c:set var="i" value="${i+=1}"/>
                                                                         </div>
                                                                     </c:forEach>
                                                                 </div>

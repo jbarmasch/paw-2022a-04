@@ -23,7 +23,6 @@
                         <spring:message var="altDeleteIcon" code="event.deleteAlt"/>
                         <spring:message var="altEditIcon" code="event.editAlt"/>
                         <input type="image" class="icon" src="<c:url value="/resources/svg/edit.svg"/>" alt="${altEditIcon}" onclick="location.href='<c:url value="/events/${event.id}/modify"/>'"/>
-                        <input type="image" class="icon" src="<c:url value="/resources/svg/edit.svg"/>" alt="${altEditIcon}" onclick="location.href='<c:url value="/events/${event.id}/add-tickets"/>'"/>
                         <form class="transparent" action="<c:url value="/events/${event.id}/delete"/>" method="post">
                             <input class="icon" src="<c:url value="/resources/svg/trash.svg"/>" alt="${altDeleteIcon}" type="image" name="submit" value=""/>
                         </form>
@@ -64,7 +63,7 @@
                 </div>
                 <div class="horizontal">
                     <c:if test="${isOwner}">
-                        <span><spring:message code="event.bookedTickets"/><c:out value="${event.attendance}"/></span>
+                        <span><spring:message code="event.bookedTickets"/>: <c:out value="${event.attendance}"/></span>
                     </c:if>
                 </div>
                 <div class="container">
@@ -96,57 +95,107 @@
             </div>
         </div>
 
-        <c:if test="${!isOwner}">
-            <c:url value="/events/${event.id}" var="postPath"/>
-            <form:form novalidate="true" modelAttribute="bookForm" class="center bookForm" action="${postPath}" method="post" id="bookForm">
-                <c:choose>
-                    <c:when test="${event.soldOut}">
-                        <c:set var="disabled" scope="session" value="true"/>
-                    </c:when>
-                    <c:otherwise>
-                        <c:set var="disabled" scope="session" value="false"/>
-                    </c:otherwise>
-                </c:choose>
+        <c:choose>
+            <c:when test="${!isOwner}">
+                <c:url value="/events/${event.id}" var="postPath"/>
+                <form:form novalidate="true" modelAttribute="bookForm" class="center bookForm" action="${postPath}" method="post" id="bookForm">
+                    <c:choose>
+                        <c:when test="${event.soldOut}">
+                            <c:set var="disabled" scope="session" value="true"/>
+                        </c:when>
+                        <c:otherwise>
+                            <c:set var="disabled" scope="session" value="false"/>
+                        </c:otherwise>
+                    </c:choose>
 
-                <c:set var="i" scope="session" value="0"/>
-                <c:forEach var="ticket" items="${event.tickets}">
-                    <c:set var="ticketsLeft" scope="session" value="${ticket.qty}"/>
-                    <div class="horizontal center">
-                        <span><c:out value="${ticket.ticketName}"/></span>
-                        <span>$<c:out value="${ticket.price}"/></span>
-                        <form:input class="uk-input" type="number" disabled="${disabled}" path="bookings[${i}].qty" min="1" max="${ticket.qty}" required="true" id="qty${i}"/>
-                        <form:errors path="bookings[${i}].qty" cssClass="error-message" element="span"/>
-                        <spring:message code="Min.bookForm.qty" var="qtyMinSizeError"/>
-                        <spring:message code="Max.bookForm.qtyStr" var="qtyMaxSizeError"/>
-                        <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
+                    <c:set var="i" scope="session" value="0"/>
+                    <c:forEach var="ticket" items="${event.tickets}">
+                        <c:set var="ticketsLeft" scope="session" value="${ticket.qty - ticket.booked}"/>
+                        <div class="horizontal center">
+                            <span><c:out value="${ticket.ticketName}"/></span>
+                            <span>$<c:out value="${ticket.price}"/></span>
+                            <form:input class="uk-input" type="number" disabled="${disabled}" path="bookings[${i}].qty" min="1" max="${ticket.qty}" required="true" id="qty${i}"/>
+                            <form:errors path="bookings[${i}].qty" cssClass="error-message" element="span"/>
+                            <spring:message code="Min.bookForm.qty" var="qtyMinSizeError"/>
+                            <spring:message code="Max.bookForm.qtyStr" var="qtyMaxSizeError"/>
+                            <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
 
-                        <form:input class="hidden" type="number" value="${ticket.id}" path="bookings[${i}].ticketId"/>
-                        <span class="formError"></span>
-                    </div>
-                    <c:if test="${!disabled}">
-                        <spring:message var="ticketsLeft" code="event.ticketsLeft"/>
-                        <span>(${ticketsLeft}: ${ticket.qty})</span>
-                    </c:if>
-                    <c:set var="i" scope="session" value="${i + 1}"/>
-                </c:forEach>
-
-                <c:choose>
-                    <c:when test="${event.soldOut}">
-                        <div class="container event_buttons">
-                            <spring:message var="soldOut" code="event.soldOut"/>
-                            <input disabled class="uk-button" type="submit" name="submit" value="${soldOut}"/>
+                            <form:input class="hidden" type="number" value="${ticket.id}" path="bookings[${i}].ticketId"/>
+                            <span class="formError"></span>
                         </div>
-                    </c:when>
-                    <c:when test="${!event.deleted}">
-                        <div class="container event_buttons">
-                            <spring:message var="book" code="event.book"/>
-                            <input class="uk-button" type="submit" name="submit" value="${book}"/>
-                        </div>
-                    </c:when>
-                </c:choose>
-            </form:form>
-        </c:if>
+                        <c:if test="${!disabled}">
+                            <spring:message var="ticketsLeft" code="event.ticketsLeft"/>
+                            <span>(${ticketsLeft}: ${ticket.qty - ticket.booked})</span>
+                        </c:if>
+                        <c:set var="i" scope="session" value="${i + 1}"/>
+                    </c:forEach>
+
+                    <c:choose>
+                        <c:when test="${event.soldOut}">
+                            <div class="container event_buttons">
+                                <spring:message var="soldOut" code="event.soldOut"/>
+                                <input disabled class="uk-button" type="submit" name="submit" value="${soldOut}"/>
+                            </div>
+                        </c:when>
+                        <c:when test="${!event.deleted}">
+                            <div class="container event_buttons">
+                                <spring:message var="book" code="event.book"/>
+                                <input class="uk-button" type="submit" name="submit" value="${book}"/>
+                            </div>
+                        </c:when>
+                    </c:choose>
+                </form:form>
+            </c:when>
+            <c:otherwise>
+                <div class="tickets container vertical">
+                    <table class="tickets-table">
+                        <tr>
+                            <th><b><spring:message code="tickets.ticketName"/></b></th>
+                            <th><b><spring:message code="event.ticketsLeft"/></b></th>
+                            <th><b><spring:message code="tickets.ticketPrice"/></b></th>
+                            <th><b><spring:message code="tickets.ticketBooked"/></b></th>
+                            <th><b><spring:message code="tickets.actions"/></b></th>
+                        </tr>
+
+                        <c:forEach var="ticket" items="${event.tickets}">
+                            <tr>
+                                <td>
+                                    <span><c:out value="${ticket.ticketName}"/></span>
+                                </td>
+                                <td class="table-number">
+                                    <span><c:out value="${ticket.qty - ticket.booked}"/></span>
+                                </td>
+                                <td class="table-number">
+                                    <span>$<c:out value="${ticket.price}"/></span>
+                                </td>
+                                <td class="table-number">
+                                    <span><c:out value="${ticket.booked}"/></span>
+                                </td>
+                                <td>
+                                    <div class="horizontal">
+                                        <input type="image" class="icon" src="<c:url value="/resources/svg/edit.svg"/>" alt="${altEditIcon}" onclick="location.href='<c:url value="/events/${event.id}/modify-ticket/${ticket.id}"/>'"/>
+                                        <form class="transparent form-marginless" action="<c:url value="/events/${event.id}/delete-ticket/${ticket.id}"/>" method="post">
+                                            <input class="icon" src="<c:url value="/resources/svg/trash.svg"/>" alt="${altDeleteIcon}" type="image" name="submit" value=""/>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                    </table>
+                    <spring:message code="event.addTicketAlt" var="altAddTicketIcon"/>
+                    <c:choose>
+                        <c:when test="${ticketsSize >= 5}">
+                            <input type="image" class="icon fab" src="<c:url value="/resources/svg/add.svg"/>" alt="${altAddTicketIcon}" onclick="maxTicketsReached()"/>
+                        </c:when>
+                        <c:otherwise>
+                            <input type="image" class="icon fab" src="<c:url value="/resources/svg/add.svg"/>" alt="${altAddTicketIcon}" onclick="location.href='<c:url value="/events/${event.id}/add-ticket"/>'"/>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+            </c:otherwise>
+        </c:choose>
     </div>
+    <spring:message code="event.maxTicketsReached" var="maxTicketsReached"/>
 
     <c:set var="similarEvents" value="${similarEvents}" scope="request"/>
     <c:set var="similarEventsSize" value="${similarEventsSize}" scope="request"/>
@@ -159,6 +208,10 @@
 </html>
 
 <script type="text/javascript">
+    function maxTicketsReached() {
+        UiKit.notification("${maxTicketsReached}", {timeout: 4000}, {status: 'danger'});
+    }
+
     (function() {
         var qty = document.getElementById('qty');
         var form = document.getElementById('bookForm');

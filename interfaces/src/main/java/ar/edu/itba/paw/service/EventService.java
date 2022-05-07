@@ -17,7 +17,7 @@ public interface EventService {
     void deleteEvent(int id);
     List<Event> getUserEvents(long id, int page);
     boolean book(List<Booking> bookings, long userId, String username, String mail, long eventId, String eventName, String eventMail);
-    boolean cancelBooking(int qty, long userId, String username, String userMail, long eventId, long ticketId, String eventName, String eventMail);
+    boolean cancelBooking(List<Booking> bookings, long userId, String username, String userMail, long eventId, String eventName, String eventMail);
     Integer getAttendanceOfEventId(long eventId);
     void soldOut(int id);
     void active(int id);
@@ -26,4 +26,7 @@ public interface EventService {
     List<Event> getSimilarEvents(long eventId);
     List<Event> getPopularEvents(long eventId);
     void addTicket(long eventId, String ticketName, double price, int qty);
+    Optional<Ticket> getTicketById(long ticketId);
+    void updateTicket(long id, String ticketName, double price, int qty);
+    void deleteTicket(int ticketId);
 }
