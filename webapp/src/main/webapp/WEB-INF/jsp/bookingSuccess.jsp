@@ -9,7 +9,7 @@
 <body>
     <%@ include file="appbar.jsp"%>
     <div class="container only-element">
-        <h1>Su reserva se ha realizado con éxito.</h1>
+        <h1><spring:message code="booking.success"/></h1>
     </div>
 
     <c:set var="similarEvents" value="${similarEvents}" scope="request"/>

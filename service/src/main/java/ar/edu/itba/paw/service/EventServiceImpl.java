@@ -123,8 +123,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void addTicket(long eventId, Ticket ticket) {
-        eventDao.addTicket(eventId, ticket);
+    public void addTicket(long eventId, String ticketName, double price, int qty) {
+        eventDao.addTicket(eventId, ticketName, price, qty);
     }
 }
 

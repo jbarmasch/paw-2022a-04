@@ -21,7 +21,7 @@
                     </c:forEach>
                 </c:when>
                 <c:otherwise>
-                    No se encontraron eventos.
+                    <spring:message code="filter.noEvents"/>
                 </c:otherwise>
             </c:choose>
             <c:set var="page" value="${page}" scope="request"/>

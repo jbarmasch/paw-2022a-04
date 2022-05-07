@@ -33,32 +33,7 @@ public class ErrorController {
         return createErrorModel(errorCode);
     }
 
-    @ExceptionHandler({EventNotFoundException.class, UserNotFoundException.class, ImageNotFoundException.class})
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ModelAndView notFound(Exception e) {
-        LOGGER.error("NOT FOUND {}", e.getMessage());
-        String errorCode = "404";
-        return createErrorModel(errorCode);
-    }
-
-    @SuppressWarnings("deprecation")
-    @ExceptionHandler({MethodConstraintViolationException.class, MethodArgumentTypeMismatchException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView constraintViolation(Exception e) {
-        LOGGER.error("BAD REQUEST {}", e.getMessage());
-        String errorCode = "400";
-        return createErrorModel(errorCode);
-    }
-
-//    @ExceptionHandler({DataIntegrityViolationException.class})
-//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-//    public ModelAndView integrityViolation(Exception e) {
-//        LOGGER.error("DATA INTEGRITY VIOLATION {}", e.getMessage());
-//        String errorCode = "500";
-//        return createErrorModel(errorCode);
-//    }
-
-    private ModelAndView createErrorModel(String errorCode) {
+    public static ModelAndView createErrorModel(String errorCode) {
         final ModelAndView mav = new ModelAndView("error");
         String username = null;
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

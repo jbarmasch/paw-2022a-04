@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <c:set var="popularEventsSize" value="${requestScope.popularEventsSize}"/>
 <c:set var="popularEvents" value="${requestScope.popularEvents}"/>
@@ -7,12 +8,12 @@
     <c:choose>
         <c:when test="${popularEventsSize > 1}">
             <div>
-                <h4 class="subtitle">Otras personas también reservaron para estos eventos</h4>
+                <h4 class="subtitle"><spring:message code="popular.pluralBooked"/></h4>
             </div>
         </c:when>
         <c:otherwise>
             <div>
-                <h4 class="subtitle">Otras personas también reservaron para este evento</h4>
+                <h4 class="subtitle"><spring:message code="popular.singularBooked"/></h4>
             </div>
         </c:otherwise>
     </c:choose>

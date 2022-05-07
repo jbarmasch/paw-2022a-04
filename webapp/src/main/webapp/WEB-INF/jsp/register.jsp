@@ -13,9 +13,10 @@
     <c:url value="/register" var="postPath"/>
     <div class="only-element">
     <form:form class="registerForm" novalidate="true" modelAttribute="userForm" action="${postPath}" method="post">
-        <h3>Registrarse</h3>
+        <h3><spring:message code="register.register"/></h3>
         <div class="space-bet sep-top vertical">
-            <form:input placeholder="* Mail" type="email" path="mail" maxlength="100" required="true" id="mail"/>
+            <spring:message code="register.mail" var="mailPlaceholder"/>
+            <form:input placeholder="* ${mailPlaceholder}" type="email" path="mail" maxlength="100" required="true" id="mail"/>
             <form:errors path="mail" cssClass="error-message" element="span"/>
             <spring:message code="NotEmpty.userForm.mail" var="mailEmptyError"/>
             <spring:message code="Email.userForm.mail" var="mailTypeError"/>
@@ -23,7 +24,8 @@
             <span class="formError"></span>
         </div>
         <div class="space-bet sep-top vertical">
-            <form:input placeholder="* Nombre de usuario" type="text" path="username" pattern="[a-zA-Z0-9]+" minlength="6" maxlength="100" required="true" id="username"/>
+            <spring:message code="register.username" var="usernamePlaceholder"/>
+            <form:input placeholder="* ${usernamePlaceholder}" type="text" path="username" pattern="[a-zA-Z0-9]+" minlength="6" maxlength="100" required="true" id="username"/>
             <form:errors path="username" cssClass="error-message" element="span"/>
             <spring:message code="NotEmpty.userForm.username" var="userEmptyError"/>
             <spring:message code="Size.userForm.username" var="userSizeError"/>
@@ -32,7 +34,8 @@
             <span class="formError"></span>
         </div>
         <div class="space-bet sep-top vertical">
-            <form:input placeholder="* Contraseña" type="password" path="password" minlength="6" maxlength="100" required="true" id="password"/>
+            <spring:message code="register.password" var="passwordPlaceholder"/>
+            <form:input placeholder="* ${passwordPlaceholder}" type="password" path="password" minlength="6" maxlength="100" required="true" id="password"/>
             <form:errors path="password" cssClass="error-message" element="span"/>
             <spring:message code="NotEmpty.userForm.password" var="passwordEmptyError"/>
             <spring:message code="Size.userForm.password" var="passwordSizeError"/>
@@ -40,12 +43,14 @@
             <span class="formError"></span>
         </div>
         <div class="space-bet sep-top vertical">
-            <form:input placeholder="* Repita contraseña" type="password" path="repeatPassword" minlength="6" maxlength="100" required="true" id="repeatPassword"/>
+            <spring:message code="register.repeatPassword" var="repeatPasswordPlaceholder"/>
+            <form:input placeholder="* ${repeatPasswordPlaceholder}" type="password" path="repeatPassword" minlength="6" maxlength="100" required="true" id="repeatPassword"/>
             <form:errors path="repeatPassword" cssClass="error-message" element="span"/>
             <span class="formError"></span>
         </div>
         <div class="center">
-            <input type="submit" value="Registrarse"/>
+            <spring:message code="register.register" var="register"/>
+            <input type="submit" value="${register}"/>
         </div>
     </form:form>
     </div>

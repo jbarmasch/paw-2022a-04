@@ -13,23 +13,27 @@
         <form action="${loginUrl}" class="loginForm" method="post" enctype="application/x-www-form-urlencoded">
             <h3>Inicio de sesión</h3>
             <div class="space-bet sep-top">
-                <input id="username" placeholder="Nombre de usuario" name="j_username" type="text"/>
+                <spring:message code="login.username" var="usernamePlaceholder"/>
+                <input id="username" placeholder="${usernamePlaceholder}" name="j_username" type="text"/>
             </div>
             <div class="space-bet sep-top">
-                <input id="password" placeholder="Contraseña" name="j_password" type="password"/>
+                <spring:message code="login.password" var="passwordPlaceholder"/>
+                <input id="password" placeholder="${passwordPlaceholder}" name="j_password" type="password"/>
             </div>
             <c:if test="${error}">
-                <span class="formError visible">El usuario o la contraseña es incorrecto.</span>
+                <span class="formError visible"><spring:message code="login.error"/></span>
             </c:if>
             <div class="sep-top">
-                <label class="small-text align-center"><input name="j_rememberme" type="checkbox"/>Mantener sesión iniciada</label>
+                <label class="small-text align-center"><input name="j_rememberme" type="checkbox"/><spring:message code="login.rememberMe"/></label>
             </div>
             <div class="center sep-top-xl">
-                <input type="submit" value="Iniciar sesión"/>
+                <spring:message code="login.login" var="loginMessage"/>
+                <input type="submit" value="${loginMessage}"/>
             </div>
             <hr/>
             <div class="center">
-                <input type="button" onclick="location.href='<c:url value="/register"/>'" class="uk-button-submit" value="Registrarse"/>
+                <spring:message code="login.register" var="registerMessage"/>
+                <input type="button" onclick="location.href='<c:url value="/register"/>'" class="uk-button-submit" value="${registerMessage}"/>
             </div>
         </form>
     </div>

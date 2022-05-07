@@ -230,13 +230,13 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public void addTicket(long eventId, Ticket ticket) {
+    public void addTicket(long eventId, String ticketName, double price, int qty) {
         final Map<String, Object> bookingData = new HashMap<>();
         bookingData.put("eventId", eventId);
-        bookingData.put("name", ticket.getTicketName());
-        bookingData.put("price", ticket.getPrice());
-        bookingData.put("booked", ticket.getQty());
-        bookingData.put("ticketsLeft", ticket.getQty());
+        bookingData.put("name", ticketName);
+        bookingData.put("price", price);
+        bookingData.put("booked", qty);
+        bookingData.put("ticketsLeft", qty);
         jdbcTicketInsert.execute(bookingData);
     }
 }

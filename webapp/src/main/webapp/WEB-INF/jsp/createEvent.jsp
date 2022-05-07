@@ -15,26 +15,24 @@
     <div class="only-element">
         <form:form novalidate="true" modelAttribute="eventForm" action="${postPath}" method="post" id="eventForm" enctype="multipart/form-data">
             <div>
-                <%-- <span class="required">* </span>
-                <form:label path="name">Nombre: </form:label> --%>
-                <form:input placeholder="* Nombre" class="uk-input" type="text" path="name" required="true"/>
+                <spring:message code="create.name" var="namePlaceholder"/>
+                <form:input placeholder="* ${namePlaceholder}" class="uk-input" type="text" path="name" required="true"/>
                 <form:errors path="name" cssClass="error-message" element="span"/>
                 <spring:message code="NotEmpty.eventForm.name" var="nameEmptyError"/>
                 <spring:message code="Size.eventForm.name" var="nameSizeError"/>
                 <span class="formError"></span>
             </div>
             <div>
-                <%-- <form:label path="description">Descripción: </form:label> --%>
-                <form:input placeholder="Descripción" class="uk-input" type="text" path="description"/>
+                <spring:message code="create.description" var="descPlaceholder"/>
+                <form:input placeholder="${descPlaceholder}" class="uk-input" type="text" path="description"/>
                 <form:errors path="description" cssClass="error-message" element="span"/>
                 <spring:message code="Size.eventForm.description" var="descriptionSizeError"/>
                 <span class="formError"></span>
             </div>
             <div>
-                <%-- <span class="required">* </span>
-                <form:label path="location">Ubicación: </form:label> --%>
+                <spring:message code="create.location" var="locationPlaceholder"/>
                 <form:select class="uk-select" htmlEscape="true" multiple="false" path="location" required="true">
-                    <form:option value="" hidden="true" selected="true" label="* Seleccione una ubicación"/>
+                    <form:option value="" hidden="true" selected="true" label="* ${locationPlaceholder}"/>
                     <form:options items="${locations}"  itemValue="id" itemLabel="name"/>
                 </form:select>
                 <form:errors path="location" cssClass="error-message" element="span"/>
@@ -42,10 +40,9 @@
                 <span class="formError"></span>
             </div>
             <div>
-                <%-- <span class="required">* </span>
-                <form:label path="type" for="type">Tipo: </form:label> --%>
+                <spring:message code="create.type" var="typePlaceholder"/>
                 <form:select id="type" class="uk-select" htmlEscape="true" multiple="false" path="type" required="true">
-                    <form:option hidden="true" value="" selected="true" label="* Seleccione un tipo"/>
+                    <form:option hidden="true" value="" selected="true" label="* ${typePlaceholder}"/>
                     <form:options items="${types}" itemValue="id" itemLabel="name"/>
                 </form:select>
                 <form:errors path="type" cssClass="error-message" element="span"/>
@@ -53,9 +50,8 @@
                 <span class="formError"></span>
             </div>
             <div>
-
                 <span class="required">* </span>
-                <form:label path="date">Fecha: </form:label>
+                <form:label path="date"><spring:message code="create.date"/>: </form:label>
                 <form:input class="uk-input" type="datetime-local" min="${currentDate}" path="date" required="true"/>
                 <form:errors path="date" cssClass="error-message" element="span"/>
                 <spring:message code="NotEmpty.eventForm.date" var="dateEmptyError"/>
@@ -64,7 +60,7 @@
                 <span class="formError"></span>
             </div>
             <div>
-                <form:label path="tags" for="tags">Tags: </form:label>
+                <form:label path="tags" for="tags"><spring:message code="create.tags"/>: </form:label>
                 <form:select id="type" class="uk-select" htmlEscape="true" multiple="true" path="tags" required="true">
                     <form:options items="${allTags}" itemValue="id" itemLabel="name"/>
                 </form:select>
@@ -72,13 +68,14 @@
                 <span class="formError"></span>
             </div>
             <div>
-                <form:label path="image">Imagen: </form:label>
+                <form:label path="image"><spring:message code="create.image"/>: </form:label>
                 <form:input type="file" path="image" accept="image/png, image/jpeg"/>
                 <form:errors path="image" cssClass="error-message" element="span"/>
                 <span class="formError"></span>
             </div>
             <div class="container event">
-                <input class="filter_button" type="submit" value="Crear"/>
+                <spring:message code="create.button" var="buttonPlaceholder"/>
+                <input class="filter_button" type="submit" value="${buttonPlaceholder}"/>
             </div>
         </form:form>
     </div>

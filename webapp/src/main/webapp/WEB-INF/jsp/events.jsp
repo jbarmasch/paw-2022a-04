@@ -16,9 +16,9 @@
         <div>
             <c:url value="/events" var="postPath"/>
             <form:form novalidate="true" modelAttribute="filterForm" action="${postPath}" method="post" class="filter" id="filterForm">
-                <b>Filtros:</b>
+                <b><spring:message code="filter.filters"/>: </b>
                 <div>
-                    <form:label path="locations">Ubicación: </form:label>
+                    <form:label path="locations"><spring:message code="filter.location"/>: </form:label>
                     <form:select class="uk-select" htmlEscape="true" multiple="true" path="locations">
                         <c:forEach var="location" items="${allLocations}">
                             <c:set var="selectedLocation" value="${false}"/>
@@ -42,7 +42,7 @@
                     <form:errors path="locations" cssClass="error-message" element="span"/>
                 </div>
                 <div>
-                    <form:label path="types">Tipo: </form:label>
+                    <form:label path="types"><spring:message code="filter.type"/>: </form:label>
                     <form:select class="uk-select" htmlEscape="true" multiple="true" path="types">
                         <c:forEach var="type" items="${allTypes}">
                             <c:set var="selectedType" value="${false}"/>
@@ -66,7 +66,7 @@
                     <form:errors path="types" cssClass="error-message" element="span"/>
                 </div>
                 <div>
-                    <form:label path="minPrice">Precio mínimo: </form:label>
+                    <form:label path="minPrice"><spring:message code="filter.minPrice"/>: </form:label>
                     <form:input class="uk-input" type="number" path="minPrice" min="0" step="0.01" id="minPrice" value="${param.minPrice}"/>
                     <form:errors path="minPrice" cssClass="error-message" element="span"/>
                     <spring:message code="DecimalMin.filterForm.minPrice" var="minPriceMinError"/>
@@ -74,7 +74,7 @@
                     <span class="formError"></span>
                 </div>
                 <div>
-                    <form:label path="maxPrice">Precio máximo: </form:label>
+                    <form:label path="maxPrice"><spring:message code="filter.maxPrice"/>: </form:label>
                     <form:input class="uk-input" type="number" path="maxPrice" min="0" step="0.01" id="maxPrice" value="${param.maxPrice}"/>
                     <form:errors path="maxPrice" cssClass="error-message" element="span"/>
                     <spring:message code="DecimalMin.filterForm.maxPrice" var="maxPriceMinError"/>
@@ -90,7 +90,8 @@
                 <form:input class="hidden" type="text" path="order" value="${param.order}"/>
 
                 <div class="container event">
-                    <input class="filter_button" type="submit" value="Aplicar">
+                    <spring:message code="filter.apply" var="applyMessage"/>
+                    <input class="filter_button" type="submit" value="${applyMessage}">
                 </div>
             </form:form>
         </div>
@@ -105,7 +106,7 @@
                     </c:forEach>
                 </c:when>
                 <c:otherwise>
-                    No se encontraron eventos.
+                    <spring:message code="filter.noEvents"/>
                 </c:otherwise>
             </c:choose>
         </div>

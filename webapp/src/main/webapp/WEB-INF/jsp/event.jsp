@@ -14,40 +14,48 @@
     <div class="container event">
         <div class="container">
             <div>
-                <img class="event_img" alt="Event image" src="<c:url value="/image/${event.imageId}"/>"/>
+                <spring:message var="altEventMessage" code="event.imageAlt"/>
+                <img class="event_img" alt="${altEventMessage}" src="<c:url value="/image/${event.imageId}"/>"/>
             </div>
             <div class="event_info">
                 <c:if test="${isOwner}">
                     <div class="event_actions">
-                        <input type="image" class="icon" src="<c:url value="/resources/svg/edit.svg"/>" alt="Trash icon" onclick="location.href='<c:url value="/events/${event.id}/modify"/>'"/>
-                        <input type="image" class="icon" src="<c:url value="/resources/svg/edit.svg"/>" alt="Trash icon" onclick="location.href='<c:url value="/events/${event.id}/add-tickets"/>'"/>
+                        <spring:message var="altDeleteIcon" code="event.deleteAlt"/>
+                        <spring:message var="altEditIcon" code="event.editAlt"/>
+                        <input type="image" class="icon" src="<c:url value="/resources/svg/edit.svg"/>" alt="${altEditIcon}" onclick="location.href='<c:url value="/events/${event.id}/modify"/>'"/>
+                        <input type="image" class="icon" src="<c:url value="/resources/svg/edit.svg"/>" alt="${altEditIcon}" onclick="location.href='<c:url value="/events/${event.id}/add-tickets"/>'"/>
                         <form class="transparent" action="<c:url value="/events/${event.id}/delete"/>" method="post">
-                            <input class="icon" src="<c:url value="/resources/svg/trash.svg"/>" alt="Trash icon" type="image" name="submit" value=""/>
+                            <input class="icon" src="<c:url value="/resources/svg/trash.svg"/>" alt="${altDeleteIcon}" type="image" name="submit" value=""/>
                         </form>
                     </div>
                 </c:if>
                 <h3><c:out value="${event.name}"/></h3>
                 <p><c:out value="${event.description}"/></p>
                 <div class="container">
-                    <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${event.location.name}"/></span>
+                    <spring:message var="altLocationIcon" code="event.locationAlt"/>
+                    <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="${altLocationIcon}"/><span><c:out value="${event.location.name}"/></span>
                 </div>
                     <div class="container">
-                    <img class="icon" src="<c:url value="/resources/svg/price-tag.svg"/>" alt="Price icon"/>
+                        <spring:message var="altMinPriceIcon" code="event.priceAlt"/>
+                    <img class="icon" src="<c:url value="/resources/svg/price-tag.svg"/>" alt="${altMinPriceIcon}"/>
                     <span>
                         <c:choose>
-                            <c:when test="${event.minPrice == 0}">Gratis</c:when>
+                            <c:when test="${event.minPrice == 0}"><spring:message code="event.free"/></c:when>
                             <c:otherwise>$<c:out value="${event.minPrice}"/></c:otherwise>
                         </c:choose>
                     </span>
                 </div>
                 <div class="container">
-                    <img class="icon" src="<c:url value="/resources/svg/date.svg"/>" alt="Date icon"/><span><c:out value="${event.dateFormatted}"/></span>
+                    <spring:message var="altDateIcon" code="event.dateAlt"/>
+                    <img class="icon" src="<c:url value="/resources/svg/date.svg"/>" alt="${altDateIcon}"/><span><c:out value="${event.dateFormatted}"/></span>
                 </div>
                 <div class="container">
-                    <img class="icon" src="<c:url value="/resources/svg/time.svg"/>" alt="Time icon"/><span><c:out value="${event.timeFormatted}"/></span>
+                    <spring:message var="altTimeIcon" code="event.timeAlt"/>
+                    <img class="icon" src="<c:url value="/resources/svg/time.svg"/>" alt="${altTimeIcon}"/><span><c:out value="${event.timeFormatted}"/></span>
                 </div>
                 <div class="container">
-                    <img class="icon" src="<c:url value="/resources/svg/party.svg"/>" alt="Type icon"/><span><c:out value="${event.type.name}"/></span>
+                    <spring:message var="altTypeIcon" code="event.typeAlt"/>
+                    <img class="icon" src="<c:url value="/resources/svg/party.svg"/>" alt="${altTypeIcon}"/><span><c:out value="${event.type.name}"/></span>
                 </div>
                 <div class="container tag-container">
                     <c:forEach var="tag" items="${event.tags}">
@@ -56,30 +64,33 @@
                 </div>
                 <div class="horizontal">
                     <c:if test="${isOwner}">
-                        <span>Entradas reservadas: <c:out value="${event.attendance}"/></span>
+                        <span><spring:message code="event.bookedTickets"/><c:out value="${event.attendance}"/></span>
                     </c:if>
                 </div>
                 <div class="container">
-                    <img class="icon" src="<c:url value="/resources/svg/user.svg"/>" alt="Type icon"/>
+                    <spring:message var="altUserIcon" code="event.altUser"/>
+                    <img class="icon" src="<c:url value="/resources/svg/user.svg"/>" alt="${altUserIcon}"/>
                     <a href="<c:url value="/profile/${event.user.id}"/>"><c:out value="${event.user.username}"/></a>
                 </div>
                 <div>
                     <c:if test="${isOwner}">
                         <c:choose>
                             <c:when test="${!event.soldOut && !event.deleted}">
+                                <spring:message var="setSoldOut" code="event.setSoldout"/>
                                 <form action="<c:url value="/events/${event.id}/soldout"/>" class="transparent" method="post">
-                                    <input class="uk-button uk-button-text" type="submit" name="submit" value="Marcar como agotado"/>
+                                    <input class="uk-button uk-button-text" type="submit" name="submit" value="${setSoldOut}"/>
                                 </form>
                             </c:when>
                             <c:when test="${event.soldOut && !event.deleted}">
+                                <spring:message var="setAvailable" code="event.setAvailable"/>
                                 <form action="<c:url value="/events/${event.id}/active"/>" class="transparent" method="post">
-                                    <input class="uk-button uk-button-text" type="submit" name="submit" value="Marcar como disponible"/>
+                                    <input class="uk-button uk-button-text" type="submit" name="submit" value="${setAvailable}"/>
                                 </form>
                             </c:when>
                         </c:choose>
                     </c:if>
                     <c:if test="${event.deleted}">
-                        <b>Este evento ha sido borrado.</b>
+                        <b><spring:message code="event.deleted"/></b>
                     </c:if>
                 </div>
             </div>
@@ -113,7 +124,8 @@
                         <span class="formError"></span>
                     </div>
                     <c:if test="${!disabled}">
-                        <span>(Disponibles: ${ticket.qty})</span>
+                        <spring:message var="ticketsLeft" code="event.ticketsLeft"/>
+                        <span>(${ticketsLeft}: ${ticket.qty})</span>
                     </c:if>
                     <c:set var="i" scope="session" value="${i + 1}"/>
                 </c:forEach>
@@ -121,12 +133,14 @@
                 <c:choose>
                     <c:when test="${event.soldOut}">
                         <div class="container event_buttons">
-                            <input disabled class="uk-button" type="submit" name="submit" value="Agotado"/>
+                            <spring:message var="soldOut" code="event.soldOut"/>
+                            <input disabled class="uk-button" type="submit" name="submit" value="${soldOut}"/>
                         </div>
                     </c:when>
                     <c:when test="${!event.deleted}">
                         <div class="container event_buttons">
-                            <input class="uk-button" type="submit" name="submit" value="Reservar"/>
+                            <spring:message var="book" code="event.book"/>
+                            <input class="uk-button" type="submit" name="submit" value="${book}"/>
                         </div>
                     </c:when>
                 </c:choose>

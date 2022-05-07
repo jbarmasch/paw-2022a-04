@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.*;
-import com.sun.corba.se.spi.ior.ObjectKey;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.Array;
@@ -62,13 +61,9 @@ public class JdbcUtils {
             getTicketBookings(rs.getArray("ticketIds"), rs.getArray("qtys"), rs.getArray("ticketNames"))
     );
 
-    public final static RowMapper<Stats> STATS_ROW_MAPPER = (rs, rowNum) -> new Stats(
-            rs.getInt("attended"),
+    public final static RowMapper<EventStats> EVENT_STATS_ROW_MAPPER = (rs, rowNum) -> new EventStats(
             rs.getInt("events"),
-            rs.getInt("booked"),
             rs.getInt("qty"),
-            new Type(rs.getInt("favTypeId"), rs.getString("favTypeName")),
-            new Location(rs.getInt("favLocId"), rs.getString("favLocName")),
             new Event(
                     rs.getInt("eventId"),
                     rs.getString("name"),
@@ -85,6 +80,13 @@ public class JdbcUtils {
                     State.getState(rs.getInt("state")),
                     getTickets(rs.getArray("ticketIds"), rs.getArray("ticketNames"), rs.getArray("ticketPrices"), rs.getArray("ticketTicketsLeft"))
             )
+    );
+
+    public final static RowMapper<UserStats> USER_STATS_ROW_MAPPER = (rs, rowNum) -> new UserStats(
+            rs.getInt("attended"),
+            rs.getInt("booked"),
+            new Type(rs.getInt("favTypeId"), rs.getString("favTypeName")),
+            new Location(rs.getInt("favLocId"), rs.getString("favLocName"))
     );
 
     public static List<Role> getRoles(Array rolesIds, Array rolesNames) throws SQLException {

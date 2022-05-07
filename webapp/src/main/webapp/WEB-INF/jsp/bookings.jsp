@@ -29,7 +29,6 @@
                                         <div><img class="icon" src="<c:url value="/resources/svg/date.svg"/>" alt="Date icon"/><span><c:out value="${booking.event.dateFormatted}"/></span></div>
                                         <div><img class="icon" src="<c:url value="/resources/svg/time.svg"/>" alt="Time icon"/><span><c:out value="${booking.event.timeFormatted}"/></span></div>
                                         <div><img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${booking.event.location.name}"/></span></div>
-                                        <%-- <div><img class="icon" src="<c:url value="/resources/svg/tickets2.svg"/>" alt="Tickets icon"/><span class="booking_qty"><c:out value="${booking.qty}"/></span></div> --%>
                                         <div>
                                             <div class="container booking_button">
                                                 <c:choose>
@@ -37,20 +36,21 @@
                                                 <c:url value="/bookings/rate/${booking.event.id}" var="postPath"/>
                                                 <form:form novalidate="true" class="transparent" modelAttribute="rateForm" action="${postPath}" method="post">
                                                     <div class="horizontal center">
-                                                        <form:label class="sep-right" path="rating">Calificar: </form:label>
+                                                        <form:label class="sep-right" path="rating"><spring:message code="booking.rate"/>: </form:label>
                                                         <form:input class="uk-input" type="number" path="rating" min="1" max="5" step="0.5" required="true" id="qty"/>
                                                     </div>
                                                     <hr/>
-                                                    <button class="accept-button-modal uk-button" type="submit" name="submit">Calificar</button>
+                                                    <button class="accept-button-modal uk-button" type="submit" name="submit"><spring:message code="booking.rate"/></button>
                                                 </form:form>
                                                     </c:when>
                                                     <c:otherwise>
-                                                <input class="cancel_button uk-button" type="button" value="Cancelar entradas" uk-toggle="target: #confirmation${i}"/>
+                                                        <spring:message code="booking.cancelTickets" var="cancelTickets"/>
+                                                <input class="cancel_button uk-button" type="button" value="${cancelTickets}" uk-toggle="target: #confirmation${i}"/>
                                                 <div id="confirmation${i}" uk-modal>
                                                     <div class="uk-modal-dialog">
                                                         <button class="uk-modal-close-default" type="button" uk-close></button>
                                                         <div class="uk-modal-header">
-                                                            <h2 class="uk-modal-title">Cancelar reserva</h2>
+                                                            <h2 class="uk-modal-title"><spring:message code="booking.cancel"/></h2>
                                                         </div>
                                                         <div class="uk-modal-body">
                                                             <c:url value="/bookings/cancel/${booking.event.id}" var="postPath"/>
@@ -59,7 +59,7 @@
                                                                     <c:set var="i" value="0"/>
                                                                     <c:forEach var="tickets" items="${booking.bookings}">
                                                                         <div class="horizontal center">
-                                                                        <form:label class="sep-right" path="bookings[${i}].qty">*Cantidad de entradas a cancelar: </form:label>
+                                                                        <form:label class="sep-right" path="bookings[${i}].qty">*<spring:message code="booking.cancelTickets.qty"/>: </form:label>
                                                                         <c:set var="qtyTickets" scope="session" value="${tickets.qty}"/>
                                                                         <span><c:out value="${tickets.ticket.ticketName}"/></span>
                                                                         <form:input class="uk-input" type="number" path="bookings[${i}].qty" min="1" max="${tickets.qty}" required="true" id="qty"/>
@@ -74,7 +74,7 @@
 
                                                                 <form:input class="hidden" type="number" path="page" value="${page}"/>
                                                                 <hr/>
-                                                            <button class="accept-button-modal uk-button" type="submit" name="submit">Cancelar entradas</button>
+                                                            <button class="accept-button-modal uk-button" type="submit" name="submit"><spring:message code="booking.cancelTickets"/></button>
                                                             </form:form>
                                                         </div>
                                                     </div>

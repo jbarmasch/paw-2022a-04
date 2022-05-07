@@ -1,27 +1,33 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <c:set var="event" value="${requestScope.event}"/>
 <div class="card uk-card uk-card-default" onclick="location.href='<c:url value="/events/${event.id}"/>'">
     <div class="uk-card-media-top">
-        <img class="card_img" src="<c:url value="/image/${event.imageId}"/>" alt="Party Image">
+        <spring:message code="event.imageAlt" var="imageAlt"/>
+        <img class="card_img" src="<c:url value="/image/${event.imageId}"/>" alt="${imageAlt}">
     </div>
     <div class="uk-card-body">
         <h3 class="uk-card-title"><c:out value="${event.name}"/></h3>
         <div class="container card_body">
             <div class="card_info">
-                <img class="icon" src="<c:url value="/resources/svg/price-tag.svg"/>" alt="Price icon"/>
+                <spring:message code="event.priceAlt" var="priceAlt"/>
+                <img class="icon" src="<c:url value="/resources/svg/price-tag.svg"/>" alt="${priceAlt}"/>
                 <span>
                     <c:choose>
-                        <c:when test="${event.minPrice == 0}">Gratis</c:when>
+                        <c:when test="${event.minPrice == 0}"><spring:message code="event.free"/></c:when>
                         <c:otherwise>$<c:out value="${event.minPrice}"/></c:otherwise>
                     </c:choose>
                 </span>
-                <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${event.location.name}"/></span>
+                <spring:message code="event.locationAlt" var="locationAlt"/>
+                <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="${locationAlt}"/><span><c:out value="${event.location.name}"/></span>
             </div>
             <div class="card_info">
-                <img class="icon" src="<c:url value="/resources/svg/date.svg"/>" alt="Date icon"/><span><c:out value="${event.dateFormatted}"/></span>
-                <img class="icon" src="<c:url value="/resources/svg/time.svg"/>" alt="Time icon"/><span><c:out value="${event.timeFormatted}"/></span>
+                <spring:message code="event.dateAlt" var="dateAlt"/>
+                <img class="icon" src="<c:url value="/resources/svg/date.svg"/>" alt="${dateAlt}"/><span><c:out value="${event.dateFormatted}"/></span>
+                <spring:message code="event.timeAlt" var="timeAlt"/>
+                <img class="icon" src="<c:url value="/resources/svg/time.svg"/>" alt="${timeAlt}"/><span><c:out value="${event.timeFormatted}"/></span>
             </div>
         </div>
     </div>

@@ -5,23 +5,17 @@ import ar.edu.itba.paw.service.*;
 import ar.edu.itba.paw.webapp.auth.PawUserDetailsService;
 import ar.edu.itba.paw.webapp.auth.UserManager;
 import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
+import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
 import ar.edu.itba.paw.webapp.helper.FilterUtils;
 import ar.edu.itba.paw.webapp.validations.IntegerArray;
 import ar.edu.itba.paw.webapp.validations.NumberFormat;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.ModelAndView;
@@ -32,7 +26,7 @@ import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 import java.util.*;
 
-//@Validated
+@Validated
 @Controller
 public class EventController {
     private final EventService eventService;
@@ -67,7 +61,6 @@ public class EventController {
         mav.addObject("upcomingSize", upcomingEvents.size());
         return mav;
     }
-
 
     @RequestMapping(value = "/events", method = { RequestMethod.GET })
     public ModelAndView browseEvents(@ModelAttribute("filterForm") final FilterForm form, final BindingResult errors,
@@ -152,7 +145,7 @@ public class EventController {
                                   @PathVariable("eventId") @Min(1) final int eventId) {
         final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         final User user = userManager.getUser();
-        final User eventUser = userService.getUserById(e.getUser().getId()).orElseThrow(RuntimeException::new);
+        final User eventUser = userService.getUserById(e.getUser().getId()).orElseThrow(UserNotFoundException::new);
 
 //        if (errors.hasErrors() || form.getQty() > e.getMaxCapacity()) {
 //            errors.rejectValue("qty", "Max.bookForm.qty", new Object[] {e.getMaxCapacity()}, "");
@@ -163,7 +156,7 @@ public class EventController {
         boolean booked = eventService.book(form.getBookings(), user.getId(), user.getUsername(), user.getMail(), eventId, e.getName(), eventUser.getMail());
         if (!booked)
             return new ModelAndView("redirect:/error");
-        return new ModelAndView("redirect:/events/" + e.getId() + "/bookingSuccess");
+        return new ModelAndView("redirect:/events/" + e.getId() + "/booking-success");
     }
 
     @RequestMapping(value = "/events/{eventId}/booking-success", method = RequestMethod.GET)
@@ -201,11 +194,7 @@ public class EventController {
         final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), 0, 0,
                 form.getType(), form.getTimestamp(), (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags(), userId);
 
-        Authentication principal = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails userDetails = userDetailsService.loadUserByUsername(principal.getName());
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword());
-        SecurityContextHolder.getContext().setAuthentication(token);
-
+        userManager.refreshAuthorities();
         return new ModelAndView("redirect:/events/" + e.getId());
     }
 
@@ -231,7 +220,8 @@ public class EventController {
         if (errors.hasErrors())
             return modifyForm(form, eventId);
 
-        eventService.updateEvent(eventId, form.getName(), form.getDescription(), form.getLocation(), 0, 0, form.getType(), form.getTimestamp(), (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags());
+        eventService.updateEvent(eventId, form.getName(), form.getDescription(), form.getLocation(), 0, 0,
+                form.getType(), form.getTimestamp(), (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags());
         return new ModelAndView("redirect:/events/" + eventId);
     }
 
@@ -250,6 +240,7 @@ public class EventController {
         final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         if (!isEventOwner(event))
             return new ModelAndView("redirect:/events/" + eventId);
+
         eventService.soldOut(eventId);
         return new ModelAndView("redirect:/events/" + eventId);
     }
@@ -278,8 +269,8 @@ public class EventController {
     @RequestMapping(value = "/stats", method = { RequestMethod.GET })
     public ModelAndView getStats() {
         final int userId = userManager.getUserId();
-        Stats stats = userService.getUserStats(userId).orElseThrow(RuntimeException::new);
-        final ModelAndView mav = new ModelAndView("stats");
+        EventStats stats = userService.getEventStats(userId).orElseThrow(RuntimeException::new);
+        final ModelAndView mav = new ModelAndView("eventStats");
         mav.addObject("stats", stats);
         return mav;
     }
@@ -304,13 +295,19 @@ public class EventController {
             return createTicketsForm(ticketsForm, eventId);
 
         final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
-        Iterator<Ticket> it = ticketsForm.getTickets().iterator();
+        Iterator<TicketForm> it = ticketsForm.getTickets().iterator();
+        int i = 0;
         while (it.hasNext()) {
-            Ticket tick = it.next();
-            if (tick == null)
+            TicketForm tick = it.next();
+            if (tick == null) {
                 it.remove();
-            else
-                eventService.addTicket(event.getId(), tick);
+            } else {
+                if (i < ticketsForm.getTicketQty()) {
+                    System.out.println(tick.getTicketName());
+                    eventService.addTicket(event.getId(), tick.getTicketName(), tick.getPrice(), tick.getQty());
+                }
+            }
+            i++;
         }
 
         return new ModelAndView("redirect:/events/" + eventId);

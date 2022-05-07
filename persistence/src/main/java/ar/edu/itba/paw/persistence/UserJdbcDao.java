@@ -3,13 +3,10 @@ package ar.edu.itba.paw.persistence;
 import ar.edu.itba.paw.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.Array;
-import java.sql.SQLException;
 import java.util.*;
 
 @Repository
@@ -75,7 +72,7 @@ public class UserJdbcDao implements UserDao {
                         "ARRAY_AGG(ti.name) AS ticketNames, ec.* FROM bookings JOIN event_complete ec ON bookings.eventid = ec.eventid JOIN tickets ti " +
                         "ON ti.eventId = ec.eventid AND bookings.ticketid = ti.ticketid WHERE bookings.userid = ? AND bookings.qty > 0 " +
                         "group by bookings.userid, bookings.eventid, ec.eventid, ec.name, ec.description, ec.locationid, ec.attendance, ec.minPrice, " +
-                        "ec.ticketsLeft, ec.typeid, ec.date, ec.imageid, ec.userid, ec.state, ec.locName, ec.image, ec.typeName, ec.username, " +
+                        "ec.ticketsLeft, ec.typeid, ec.date, ec.imageid, ec.userid, ec.state, ec.locName, ec.typeName, ec.username, " +
                         "ec.ticketIds, ec.ticketTicketsLeft, ec.ticketNames, ec.ticketPrices, ec.tagIds, ec.tagNames ORDER BY date LIMIT 10 OFFSET ?",
                 new Object[] { id, (page - 1) * 10 }, JdbcUtils.EVENT_BOOKING_ROW_MAPPER);
     }
@@ -92,16 +89,21 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public Optional<Stats> getUserStats(long id) {
-        return jdbcTemplate.query("SELECT * FROM ((SELECT attended, booked, favTypeId, t.name favTypeName, favLocId, l.name favLocName " +
-                "FROM (SELECT COUNT(*) AS attended, SUM(qty) AS booked, MODE() WITHIN GROUP (ORDER BY e.typeId) AS favTypeId, MODE() WITHIN GROUP " +
-                "(ORDER BY e.locationId) AS favLocId FROM bookings b JOIN events e ON b.eventId = e.eventId " +
-                "WHERE b.userId = ?) AS pre JOIN types t ON pre.favTypeId = t.typeid JOIN locations l ON pre.favLocId = l.locationid) AS userStats " +
-                "CROSS JOIN (SELECT * FROM ((SELECT COUNT(*) AS events, SUM(qty) AS qty FROM (SELECT e.eventid, SUM(COALESCE(qty, 0)) AS qty " +
+    public Optional<EventStats> getEventStats(long id) {
+        return jdbcTemplate.query("SELECT * FROM ((SELECT COUNT(*) AS events, SUM(qty) AS qty FROM (SELECT e.eventid, SUM(COALESCE(qty, 0)) AS qty " +
                 "FROM events e LEFT JOIN bookings b ON b.eventId = e.eventId WHERE e.userId = ? GROUP BY e.eventid) AS aux) AS general CROSS JOIN ( " +
                 "SELECT * FROM event_complete ec JOIN (SELECT e.eventid, SUM(COALESCE(qty, 0)) AS sumqty FROM events e LEFT JOIN bookings b ON " +
                 "b.eventId = e.eventId WHERE e.userid = ? GROUP BY e.eventid ORDER BY sumqty DESC LIMIT 1) AS aux ON ec.eventid = aux.eventid) AS " +
-                "event)) AS creatorStats)", new Object[]{ id, id, id }, JdbcUtils.STATS_ROW_MAPPER).stream().findFirst();
+                "event)", new Object[]{ id, id }, JdbcUtils.EVENT_STATS_ROW_MAPPER).stream().findFirst();
+    }
+
+    @Override
+    public Optional<UserStats> getUserStats(long id) {
+        return jdbcTemplate.query("SELECT attended, booked, favTypeId, t.name favTypeName, favLocId, l.name favLocName " +
+                "FROM (SELECT COUNT(*) AS attended, SUM(qty) AS booked, MODE() WITHIN GROUP (ORDER BY e.typeId) AS favTypeId, MODE() WITHIN GROUP " +
+                "(ORDER BY e.locationId) AS favLocId FROM bookings b JOIN events e ON b.eventId = e.eventId " +
+                "WHERE b.userId = ?) AS pre JOIN types t ON pre.favTypeId = t.typeid JOIN locations l ON pre.favLocId = l.locationid",
+                new Object[]{ id }, JdbcUtils.USER_STATS_ROW_MAPPER).stream().findFirst();
     }
 
     @Override

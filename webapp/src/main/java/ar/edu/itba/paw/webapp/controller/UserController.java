@@ -1,8 +1,6 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.model.Event;
-import ar.edu.itba.paw.model.EventBooking;
-import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.service.EventService;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.webapp.helper.AuthUtils;
@@ -27,6 +25,7 @@ import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class UserController {
@@ -87,8 +86,11 @@ public class UserController {
 
     @RequestMapping(value = "/profile/{userId}", method = { RequestMethod.GET })
     public ModelAndView userProfile(@PathVariable("userId") final long userId) {
+        UserStats stats = userService.getUserStats(userManager.getUserId()).orElse(null);
+
         final ModelAndView mav = new ModelAndView("profile");
-        mav.addObject("user", userService.getUserById(userId).orElseThrow(UserNotFoundException::new));
+        mav.addObject("user", userManager.getUser());
+        mav.addObject("stats", stats);
         return mav;
     }
 

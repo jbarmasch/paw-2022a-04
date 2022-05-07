@@ -25,5 +25,5 @@ public interface EventDao {
     List<Event> getUpcomingEvents();
     List<Event> getSimilarEvents(long eventId);
     List<Event> getPopularEvents(long eventId);
-    void addTicket(long eventId, Ticket ticket);
+    void addTicket(long eventId, String ticketName, double price, int qty);
 }

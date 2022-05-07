@@ -16,7 +16,7 @@
         <form:form novalidate="true" modelAttribute="eventForm" action="${postPath}" method="post" id="eventForm" enctype="multipart/form-data">
             <div>
                 <span class="required">* </span>
-                <form:label path="name">Nombre: </form:label>
+                <form:label path="name"><spring:message code="create.name"/>: </form:label>
                 <form:input class="uk-input" type="text" path="name" required="true" value="${event.name}"/>
                 <form:errors path="name" cssClass="error-message" element="span"/>
                 <spring:message code="NotEmpty.eventForm.name" var="nameEmptyError"/>
@@ -24,7 +24,7 @@
                 <span class="formError"></span>
             </div>
             <div>
-                <form:label path="description">Descripción: </form:label>
+                <form:label path="description"><spring:message code="create.description"/>: </form:label>
                 <form:input class="uk-input" type="text" path="description" value="${event.description}"/>
                 <form:errors path="description" cssClass="error-message" element="span"/>
                 <spring:message code="Size.eventForm.description" var="descriptionSizeError"/>
@@ -32,7 +32,7 @@
             </div>
             <div>
                 <span class="required">* </span>
-                <form:label path="location">Ubicación: </form:label>
+                <form:label path="location"><spring:message code="create.location"/>:: </form:label>
                 <form:select class="uk-select" htmlEscape="true" multiple="false" path="location" required="true">
                     <c:forEach var="item" items="${locations}">
                         <c:choose>
@@ -51,7 +51,7 @@
             </div>
             <div>
                 <span class="required">* </span>
-                <form:label path="type" for="type">Tipo: </form:label>
+                <form:label path="type" for="type"><spring:message code="create.type"/>:: </form:label>
                 <form:select id="type" class="uk-select" htmlEscape="true" multiple="false" path="type" required="true">
                     <c:forEach var="item" items="${types}">
                         <c:choose>
@@ -68,29 +68,9 @@
                 <spring:message code="NotEmpty.eventForm.type" var="typeEmptyError"/>
                 <span class="formError"></span>
             </div>
-    <%--        <div>--%>
-    <%--            <span class="required">* </span>--%>
-    <%--            <form:label path="maxCapacity" for="maxCapacity">Aforo: </form:label>--%>
-    <%--            <form:input id="maxCapacity" class="uk-input" type="number" min="1" path="maxCapacity" required="true" value="${event.maxCapacity}"/>--%>
-    <%--            <form:errors path="maxCapacity" cssClass="error-message" element="span"/>--%>
-    <%--            <spring:message code="NotNull.eventForm.maxCapacity" var="maxCapacityNullError"/>--%>
-    <%--            <spring:message code="Min.eventForm.maxCapacity" var="maxCapacitySizeError"/>--%>
-    <%--            <spring:message code="Pattern.eventForm.maxCapacity" var="maxCapacityTypeError"/>--%>
-    <%--            <span class="formError"></span>--%>
-    <%--        </div>--%>
-    <%--        <div>--%>
-    <%--            <span class="required">* </span>--%>
-    <%--            <form:label path="price">Precio: </form:label>--%>
-    <%--            <form:input class="uk-input" type="number" path="price" min="0.00" step="0.01" value="${event.price}" required="true"/>--%>
-    <%--            <form:errors path="price" cssClass="error-message" element="span"/>--%>
-    <%--            <spring:message code="NotNull.eventForm.price" var="priceNullError"/>--%>
-    <%--            <spring:message code="Pattern.eventForm.price" var="priceTypeError"/>--%>
-    <%--            <spring:message code="DecimalMin.eventForm.price" var="priceMinError"/>--%>
-    <%--            <span class="formError"></span>--%>
-    <%--        </div>--%>
             <div>
                 <span class="required">* </span>
-                <form:label path="date">Fecha: </form:label>
+                <form:label path="date"><spring:message code="create.date"/>:: </form:label>
                 <form:input class="uk-input" type="datetime-local" min="${currentDate}" path="date" required="true" value="${event.date}"/>
                 <form:errors path="date" cssClass="error-message" element="span"/>
                 <spring:message code="NotEmpty.eventForm.date" var="dateEmptyError"/>
@@ -99,7 +79,7 @@
                 <span class="formError"></span>
             </div>
             <div>
-                <form:label path="tags" for="tags">Tags: </form:label>
+                <form:label path="tags" for="tags"><spring:message code="create.tags"/>:: </form:label>
                 <form:select id="type" class="uk-select" htmlEscape="true" multiple="true" path="tags" required="true">
                     <c:forEach var="tag" items="${allTags}">
                         <c:set var="selectedTag" value="${false}"/>
@@ -124,14 +104,15 @@
                 <span class="formError"></span>
             </div>
             <div>
-                <form:label path="image">Imagen: </form:label>
+                <form:label path="image"><spring:message code="create.image"/>:: </form:label>
                 <form:input type="file" path="image" accept="image/png, image/jpeg"/>
                 <form:errors path="image" cssClass="error-message" element="span"/>
                 <span class="formError"></span>
             </div>
 
             <div class="container event">
-                <input class="filter_button" type="submit" value="Confirmar cambios"/>
+                <spring:message code="modify.update" var="modifyMessage"/>
+                <input class="filter_button" type="submit" value="${modifyMessage}"/>
             </div>
         </form:form>
     </div>

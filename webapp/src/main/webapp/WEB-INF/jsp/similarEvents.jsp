@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <c:set var="similarEventsSize" value="${requestScope.similarEventsSize}"/>
 <c:set var="similarEvents" value="${requestScope.similarEvents}"/>
@@ -7,12 +8,12 @@
     <c:choose>
         <c:when test="${similarEventsSize > 1}">
             <div>
-                <h4 class="subtitle">Estos eventos también podrían interesarte</h4>
+                <h4 class="subtitle"><spring:message code="similar.pluralAlike"/></h4>
             </div>
         </c:when>
         <c:otherwise>
             <div>
-                <h4 class="subtitle">Este evento también podría interesarte</h4>
+                <h4 class="subtitle"><spring:message code="similar.singularAlike"/></h4>
             </div>
         </c:otherwise>
     </c:choose>

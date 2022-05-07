@@ -1,9 +1,9 @@
 package ar.edu.itba.paw.service;
 
-import ar.edu.itba.paw.model.Booking;
 import ar.edu.itba.paw.model.EventBooking;
-import ar.edu.itba.paw.model.Stats;
+import ar.edu.itba.paw.model.EventStats;
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.model.UserStats;
 import ar.edu.itba.paw.persistence.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -51,8 +51,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<Stats> getUserStats(long id) {
+    public Optional<UserStats> getUserStats(long id) {
         return userDao.getUserStats(id);
+    }
+
+    @Override
+    public Optional<EventStats> getEventStats(long id) {
+        return userDao.getEventStats(id);
     }
 
     @Override
