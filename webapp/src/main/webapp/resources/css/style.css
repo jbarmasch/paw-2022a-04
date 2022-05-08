@@ -40,12 +40,17 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    align-content: flex-start;
     flex-wrap: wrap;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .booking-card-body {
     padding: 14px;
     max-width: 300px;
+    max-height: 200px;
     box-sizing: border-box;
 }
 
@@ -318,11 +323,13 @@ input[type=submit] {
 }
 
 .booking_button {
+    position: absolute;
+    bottom: 0;
     display: flex;
-    justify-content: center;
-    height: 100%;
-    width: 100%;
+    justify-content: space-around;
     align-content: flex-end;
+    align-items: flex-end;
+    padding-bottom: 5px;
 }
 
 .accept-button-modal {
@@ -429,14 +436,13 @@ input[type=submit] {
     padding: 4px 8px 4px 8px;
     margin: 2px;
     border: 1px solid #CCCCCC;
+    cursor: pointer;
 }
 
-/*
 .chip:hover {
     background-color: #CCCCCC;
     border: 1px solid #AAAAAA;
 }
-*/
 
 .event {
     justify-content: space-around;

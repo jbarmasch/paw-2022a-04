@@ -66,6 +66,30 @@
                     <form:errors path="types" cssClass="error-message" element="span"/>
                 </div>
                 <div>
+                    <form:label path="tags"><spring:message code="filter.tags"/>: </form:label>
+                    <form:select class="uk-select" htmlEscape="true" multiple="true" path="tags">
+                        <c:forEach var="tag" items="${allTags}">
+                            <c:set var="selectedTag" value="${false}"/>
+                            <c:forEach var="filterTag" items="${param.tags}">
+                                <c:choose>
+                                    <c:when test="${tag.id == filterTag}">
+                                        <c:set var="selectedTag" value="${true}"/>
+                                    </c:when>
+                                </c:choose>
+                            </c:forEach>
+                            <c:choose>
+                                <c:when test="${selectedTag}">
+                                    <form:option value="${tag.id}" selected="selected">${tag.name}</form:option>
+                                </c:when>
+                                <c:otherwise>
+                                    <form:option value="${tag.id}">${tag.name}</form:option>
+                                </c:otherwise>
+                            </c:choose>
+                        </c:forEach>
+                    </form:select>
+                    <form:errors path="tags" cssClass="error-message" element="span"/>
+                </div>
+                <div>
                     <form:label path="minPrice"><spring:message code="filter.minPrice"/>: </form:label>
                     <form:input class="uk-input" type="number" path="minPrice" min="0" step="0.01" id="minPrice" value="${param.minPrice}"/>
                     <form:errors path="minPrice" cssClass="error-message" element="span"/>

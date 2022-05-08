@@ -62,7 +62,7 @@
                 </div>
                 <div class="container tag-container">
                     <c:forEach var="tag" items="${event.tags}">
-                        <span class="chip"><c:out value="${tag.name}"/></span>
+                        <span class="chip" onclick="location.href='<c:url value="/events?tags=${tag.id}"/>'"><c:out value="${tag.name}"/></span>
                     </c:forEach>
                 </div>
                 <div class="container">

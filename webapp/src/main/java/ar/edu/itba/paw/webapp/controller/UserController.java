@@ -122,11 +122,8 @@ public class UserController {
                                   @Valid @ModelAttribute("rateForm") final RateForm rateForm, final BindingResult rateErrors,
                                   @PathVariable("eventId") final int eventId) {
         Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
-        /*if (rat == null)
-            errors.rejectValue("rate5", "NotNull.bookForm.name");
-        if (errors.hasErrors())
+        if (rateErrors.hasErrors())
             return bookings(form, rateForm, form.getPage(), eventId);
-        */
         userService.rateUser(userManager.getUserId(), e.getUser().getId(), rateForm.getRating());
         return new ModelAndView("redirect:/bookings/");
     }

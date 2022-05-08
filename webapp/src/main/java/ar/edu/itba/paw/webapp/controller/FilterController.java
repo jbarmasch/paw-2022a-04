@@ -25,6 +25,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,8 @@ public class FilterController {
     @Autowired
     private TypeService typeService;
     @Autowired
+    private TagService tagService;
+    @Autowired
     private UserManager userManager;
 
     @RequestMapping(value = "/events", method = { RequestMethod.GET })
@@ -49,15 +52,17 @@ public class FilterController {
                                      @RequestParam(value = "minPrice", required = false) @NumberFormat(decimal = true) final String minPrice,
                                      @RequestParam(value = "maxPrice", required = false) @NumberFormat(decimal = true) final String maxPrice,
                                      @RequestParam(value = "search", required = false) final String search,
+                                     @RequestParam(value = "tags", required = false) @IntegerArray final String[] tags,
                                      @RequestParam(value = "order", required = false) @Pattern(regexp = "price|date") final String order,
                                      @RequestParam(value = "orderBy", required = false) @Pattern(regexp = "ASC|DESC") final String orderBy,
                                      @RequestParam(value = "page", required = false, defaultValue = "1") @Min(1) final int page) {
-        List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, search, order, orderBy, page);
+        List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, search, tags, order, orderBy, page);
 
         final ModelAndView mav = new ModelAndView("events");
         mav.addObject("page", page);
         mav.addObject("allLocations", locationService.getAll());
         mav.addObject("allTypes", typeService.getAll());
+        mav.addObject("allTags", tagService.getAll());
         mav.addObject("events", events);
         mav.addObject("size", events.size());
         return mav;
@@ -71,6 +76,7 @@ public class FilterController {
         Map<String, Object> filters = new HashMap<>();
         filters.put("locations", form.getLocations());
         filters.put("types", form.getTypes());
+        filters.put("tags", form.getTags());
         filters.put("minPrice", form.getMinPrice());
         filters.put("maxPrice", form.getMaxPrice());
         filters.put("search", form.getSearchQuery());

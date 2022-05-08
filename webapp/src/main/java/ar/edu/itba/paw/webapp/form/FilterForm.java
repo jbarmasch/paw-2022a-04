@@ -7,6 +7,7 @@ import javax.validation.constraints.DecimalMin;
 public class FilterForm {
     private String locations;
     private String types;
+    private String tags;
 
     @DecimalMin("0.0")
     private Double minPrice;
@@ -68,6 +69,14 @@ public class FilterForm {
 
     public String getTypes() {
         return types;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
     }
 
     public void setTypes(String types) {
