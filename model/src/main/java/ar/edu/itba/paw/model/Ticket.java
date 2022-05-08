@@ -67,4 +67,8 @@ public class Ticket {
     public void setBooked(Integer booked) {
         this.booked = booked;
     }
+
+    public Integer getTicketsLeft() {
+        return qty - booked;
+    }
 }

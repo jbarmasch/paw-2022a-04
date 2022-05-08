@@ -1,17 +1,17 @@
 package ar.edu.itba.paw.model;
 
 public class Booking {
-    private int qty;
+    private Integer qty;
     private long ticketId;
 
     public Booking() {}
 
-    public Booking(int qty, long ticketId) {
+    public Booking(Integer qty, long ticketId) {
         this.qty = qty;
         this.ticketId = ticketId;
     }
 
-    public int getQty() {
+    public Integer getQty() {
         return qty;
     }
 
@@ -19,7 +19,7 @@ public class Booking {
         return ticketId;
     }
 
-    public void setQty(int qty) {
+    public void setQty(Integer qty) {
         this.qty = qty;
     }
 

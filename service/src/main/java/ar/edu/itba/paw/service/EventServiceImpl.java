@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -70,7 +71,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public boolean book(List<Booking> bookings, long userId, String username, String userMail, long eventId, String eventName, String eventMail) {
         if (eventDao.book(bookings, userId, eventId)) {
-            mailService.sendBookMail(userMail, username, eventMail, eventName, bookings.stream().mapToInt(Booking::getQty).sum());
+            mailService.sendBookMail(userMail, username, eventMail, eventName, bookings.stream().filter(o -> o.getQty() != null).mapToInt(Booking::getQty).sum());
             return true;
         }
         mailService.sendErrorMail(userMail, eventName);
@@ -81,7 +82,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public boolean cancelBooking(List<Booking> bookings, long userId, String username, String userMail, long eventId, String eventName, String eventMail) {
         if (eventDao.cancelBooking(bookings, userId, eventId)) {
-            mailService.sendCancelMail(userMail, username, eventMail, eventName, bookings.stream().mapToInt(Booking::getQty).sum());
+            mailService.sendCancelMail(userMail, username, eventMail, eventName, bookings.stream().filter(o -> o.getQty() != null).mapToInt(Booking::getQty).sum());
             return true;
         }
         mailService.sendErrorMail(userMail, eventName);

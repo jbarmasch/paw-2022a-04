@@ -183,7 +183,7 @@ public class EventJdbcDao implements EventDao {
     @Override
     public boolean book(List<Booking> bookings, long userId, long eventId) {
         for (Booking booking : bookings) {
-            if (booking.getQty() <= 0)
+            if (booking.getQty() == null || booking.getQty() <= 0)
                 continue;
 
             jdbcTemplate.update("UPDATE tickets SET booked = booked + ? WHERE eventId = ? AND ticketId = ?", booking.getQty(), eventId, booking.getTicketId());

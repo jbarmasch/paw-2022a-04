@@ -86,7 +86,7 @@ public class UserJdbcDao implements UserDao {
                         "ON ti.eventId = ec.eventid AND bookings.ticketid = ti.ticketid WHERE bookings.userid = ? AND bookings.qty > 0 AND bookings.eventId = ? " +
                         "group by bookings.userid, bookings.eventid, ec.eventid, ec.name, ec.description, ec.locationid, ec.attendance, ec.minPrice, " +
                         "ec.ticketsLeft, ec.typeid, ec.date, ec.imageid, ec.userid, ec.state, ec.locName, ec.typeName, ec.username, " +
-                        "ec.ticketIds, ec.ticketNames, ec.ticketQtys, ec.ticketBookeds, ec.ticketPrices, ec.tagIds, ec.tagNames ORDER BY date LIMIT 10 OFFSET ?",
+                        "ec.ticketIds, ec.ticketNames, ec.ticketQtys, ec.ticketBookeds, ec.ticketPrices, ec.tagIds, ec.tagNames",
                 new Object[] { userId, eventId }, JdbcUtils.EVENT_BOOKING_ROW_MAPPER).stream().findFirst();
     }
 

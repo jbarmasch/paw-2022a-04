@@ -110,25 +110,25 @@
 
                     <c:set var="i" scope="session" value="0"/>
                     <c:forEach var="ticket" items="${event.tickets}">
-                        <c:set var="ticketsLeft" scope="session" value="${ticket.qty - ticket.booked}"/>
+                        <c:set var="ticketsLeft" scope="session" value="${ticket.ticketsLeft}"/>
                         <div class="horizontal center">
                             <span><c:out value="${ticket.ticketName}"/></span>
                             <span>$<c:out value="${ticket.price}"/></span>
-                            <form:input class="uk-input" type="number" disabled="${disabled}" path="bookings[${i}].qty" min="1" max="${ticket.qty}" required="true" id="qty${i}"/>
+                            <form:input class="uk-input" type="number" disabled="${disabled}" path="bookings[${i}].qty" min="1" max="${ticket.ticketsLeft}" id="qty${i}"/>
                             <form:errors path="bookings[${i}].qty" cssClass="error-message" element="span"/>
                             <spring:message code="Min.bookForm.qty" var="qtyMinSizeError"/>
                             <spring:message code="Max.bookForm.qtyStr" var="qtyMaxSizeError"/>
                             <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
+                            <span class="formError"></span>
 
                             <form:input class="hidden" type="number" value="${ticket.id}" path="bookings[${i}].ticketId"/>
-                            <span class="formError"></span>
                         </div>
                         <c:if test="${!disabled}">
-                            <spring:message var="ticketsLeft" code="event.ticketsLeft"/>
-                            <span>(${ticketsLeft}: ${ticket.qty - ticket.booked})</span>
+                            <span>(<spring:message code="event.ticketsLeft"/>: ${ticket.ticketsLeft})</span>
                         </c:if>
                         <c:set var="i" scope="session" value="${i + 1}"/>
                     </c:forEach>
+                    <form:errors path="bookings" cssClass="error-message" element="span"/>
 
                     <c:choose>
                         <c:when test="${event.soldOut}">
@@ -213,40 +213,73 @@
     }
 
     (function() {
-        var qty = document.getElementById('qty');
         var form = document.getElementById('bookForm');
 
-        if (qty === null || form === null)
+        if (form === null)
             return;
 
-        var checkQtyValidity = function() {
+        var checkQtyValidityWithNumber = function(i) {
+            console.log(i);
+            var qty = document.getElementById('qty' + i);
             if (qty.validity.rangeUnderflow) {
                 qty.setCustomValidity('${qtyMinSizeError}');
-                updateQtyMessage();
+                updateQtyMessage(i);
             } else if (qty.validity.rangeOverflow) {
-                qty.setCustomValidity('${qtyMaxSizeError} ' + ${ticketsLeft} + '.');
-                updateQtyMessage();
-            } else if (qty.validity.valueMissing) {
-                qty.setCustomValidity('${qtyNullError}');
-                updateQtyMessage();
+                qty.setCustomValidity('${qtyMaxSizeError} ' + qty.max + '.');
+                updateQtyMessage(i);
+                // TODO: Chequear que al menos una no debe ser null
+                // } else if (qty.validity.valueMissing) {
+                <%--    qty.setCustomValidity('${qtyNullError}');--%>
+                // updateQtyMessage(i);
             } else {
                 qty.setCustomValidity('');
             }
         };
 
-        var updateQtyMessage = function() {
-            form.getElementsByClassName('formError')[0].innerHTML = qty.validationMessage;
+        var checkQtyValidity = function(i) {
+            i = i.currentTarget.i;
+            console.log(i);
+            var qty = document.getElementById('qty' + i);
+            if (qty.validity.rangeUnderflow) {
+                qty.setCustomValidity('${qtyMinSizeError}');
+                updateQtyMessage(i);
+            } else if (qty.validity.rangeOverflow) {
+                qty.setCustomValidity('${qtyMaxSizeError} ' + qty.max + '.');
+                updateQtyMessage(i);
+            // } else if (qty.validity.valueMissing) {
+            <%--    qty.setCustomValidity('${qtyNullError}');--%>
+                // updateQtyMessage(i);
+            } else {
+                qty.setCustomValidity('');
+            }
+        };
+
+        var updateQtyMessage = function(i) {
+            var qty = document.getElementById('qty' + i);
+            form.getElementsByClassName('formError')[i].innerHTML = qty.validationMessage;
         }
 
-        qty.addEventListener('change', checkQtyValidity, false);
-        qty.addEventListener('keyup', checkQtyValidity, false);
+        for (var j = 0; j < ${i}; j++) {
+            var qty = document.getElementById('qty' + j);
+            qty.addEventListener('change', checkQtyValidity, false);
+            qty.i = j;
+            qty.addEventListener('keyup', checkQtyValidity, false);
+            qty.i = j;
+        }
 
         form.addEventListener('submit', function(event) {
             if (form.classList) form.classList.add('submitted');
-            checkQtyValidity();
+            <%--for (var j = 0; j < ${i}; j++)--%>
+            <%--    checkQtyValidity(j);--%>
+            for (var j = 0; j < ${i}; j++)
+                checkQtyValidityWithNumber(j);
             if (!this.checkValidity()) {
                 event.preventDefault();
-                updateQtyMessage();
+                <%--for (var h = 0; h < ${i}; j++)--%>
+                <%--    updateQtyMessage(h);--%>
+                <%--    updateQtyMessage(h);--%>
+                updateQtyMessage(0);
+                updateQtyMessage(1);
             }
         }, false);
     }());

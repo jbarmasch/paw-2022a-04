@@ -62,14 +62,14 @@
                                                                             <form:label class="sep-right" path="bookings[${i}].qty">*<spring:message code="booking.cancelTickets.qty"/>: </form:label>
                                                                             <c:set var="qtyTickets" scope="session" value="${tickets.qty}"/>
                                                                             <span><c:out value="${tickets.ticket.ticketName}"/></span>
-                                                                            <form:input class="uk-input" type="number" path="bookings[${i}].qty" min="1" max="${tickets.qty}" required="true" id="qty"/>
+                                                                            <form:input class="uk-input" type="number" path="bookings[${i}].qty" min="1" max="${tickets.qty}" required="true" id="qty${i}"/>
                                                                             <spring:message code="Min.bookForm.qty" var="minQtySizeError"/>
                                                                             <spring:message code="Max.bookForm.qtyStr" var="maxQtySizeError"/>
                                                                             <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
+                                                                            <span class="formError"></span>
 
                                                                             <form:input class="hidden" type="number" path="bookings[${i}].ticketId" value="${tickets.ticket.id}"/>
-                                                                            <span class="formError"></span>
-                                                                            <c:set var="i" value="${i+=1}"/>
+                                                                            <c:set var="i" value="${i + 1}"/>
                                                                         </div>
                                                                     </c:forEach>
                                                                 </div>
@@ -124,30 +124,40 @@
             UIkit.notification("${maxQtySizeError} ${errorVar}", {status: 'danger'}, {pos: 'bottom-center'})
 
         var checkQtyValidity = function() {
-            var qtyTickets = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('uk-input').item(0).getAttribute('max');
-            qty = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('uk-input').item(0);
-            if (qty.validity.rangeUnderflow) {
-                qty.setCustomValidity('${minQtySizeError}');
-                updateQtyMessage();
-            } else if (qty.validity.rangeOverflow) {
-                qty.setCustomValidity('${maxQtySizeError} ' + qtyTickets + '.');
-                updateQtyMessage();
-            } else if (qty.validity.valueMissing) {
-                qty.setCustomValidity('${qtyNullError}');
-                updateQtyMessage();
-            } else {
-                qty.setCustomValidity('');
+            for (var i = 0; i < ${i}; i++) {
+                var qtyTickets = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('uk-input').item(i).getAttribute('max');
+                qty = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('uk-input').item(i);
+                if (qty.validity.rangeUnderflow) {
+                    qty.setCustomValidity('${minQtySizeError}');
+                    updateQtyMessage();
+                } else if (qty.validity.rangeOverflow) {
+                    qty.setCustomValidity('${maxQtySizeError} ' + qtyTickets + '.');
+                    updateQtyMessage();
+                } else if (qty.validity.valueMissing) {
+                    qty.setCustomValidity('${qtyNullError}');
+                    updateQtyMessage();
+                } else {
+                    qty.setCustomValidity('');
+                }
             }
         };
 
         var updateQtyMessage = function() {
-            qty = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('uk-input').item(0);
             form = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('transparent').item(0);
-            form.getElementsByClassName('formError')[0].innerHTML = qty.validationMessage;
+            for (var i = 0; i < ${i}; i++) {
+                qty = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('uk-input').item(i);
+                form.getElementsByClassName('formError')[i].innerHTML = qty.validationMessage;
+            }
         }
 
         qty.addEventListener('change', checkQtyValidity, false);
         qty.addEventListener('keyup', checkQtyValidity, false);
+
+        for (var i = 0; i < ${i}; i++) {
+            qty = document.getElementById('qty' + i);
+            qty.addEventListener('change', checkQtyValidity, false);
+            qty.addEventListener('keyup', checkQtyValidity, false);
+        }
 
         for (let i = 0; i < form.length; i++) {
             form.item(i).addEventListener('submit', function (event) {

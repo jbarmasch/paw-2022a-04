@@ -134,11 +134,18 @@ public class UserController {
         final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         final User user = userManager.getUser();
         final User eventUser = userService.getUserById(e.getUser().getId()).orElseThrow(RuntimeException::new);
-//        int bookingQty = userService.getBookingFromUser(user.getId(), eventId).orElseThrow(RuntimeException::new).getQty();
+        EventBooking eventBooking = userService.getBookingFromUser(user.getId(), eventId).orElseThrow(RuntimeException::new);
 
-//        if (errors.hasErrors() || form.getQty() > bookingQty) {
+        int i = 0;
+        List<TicketBooking> tickets = eventBooking.getBookings();
+        for (Booking booking : form.getBookings()) {
+            if (booking.getQty() != null && booking.getQty() > tickets.get(i).getQty()) {
+                errors.rejectValue("bookings[" + i + "].qty", "Max.bookForm.qty", new Object[]{tickets.get(i).getQty()}, "");
+            }
+            i++;
+        }
+
         if (errors.hasErrors()) {
-//            errors.rejectValue("qty", "Max.bookForm.qty", new Object[] {e.getMaxCapacity()}, "");
             return bookings(form, rateForm, form.getPage(), eventId);
         }
 

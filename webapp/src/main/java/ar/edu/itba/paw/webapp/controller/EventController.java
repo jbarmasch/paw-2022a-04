@@ -84,8 +84,14 @@ public class EventController {
         final User user = userManager.getUser();
         final User eventUser = userService.getUserById(e.getUser().getId()).orElseThrow(UserNotFoundException::new);
 
-//        if (errors.hasErrors() || form.getQty() > e.getMaxCapacity()) {
-//            errors.rejectValue("qty", "Max.bookForm.qty", new Object[] {e.getMaxCapacity()}, "");
+        int i = 0;
+        List<Ticket> tickets = e.getTickets();
+        for (Booking booking : form.getBookings()) {
+            if (booking.getQty() != null && booking.getQty() > tickets.get(i).getTicketsLeft()) {
+                errors.rejectValue("bookings[" + i + "].qty", "Max.bookForm.qty", new Object[]{tickets.get(i).getTicketsLeft()}, "");
+            }
+            i++;
+        }
         if (errors.hasErrors()) {
             return eventDescription(form, eventId);
         }
@@ -97,7 +103,7 @@ public class EventController {
     }
 
     @RequestMapping(value = "/events/{eventId}/booking-success", method = RequestMethod.GET)
-    public ModelAndView eventDescription(@PathVariable("eventId") @Min(1) final int eventId) {
+    public ModelAndView bookSuccess(@PathVariable("eventId") @Min(1) final int eventId) {
         if (!userManager.isAuthenticated())
             return new ModelAndView("redirect:/");
 
