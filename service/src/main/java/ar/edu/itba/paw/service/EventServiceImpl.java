@@ -69,24 +69,17 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public boolean book(List<Booking> bookings, long userId, String username, String userMail, long eventId, String eventName, String eventMail) {
-        if (eventDao.book(bookings, userId, eventId)) {
-            mailService.sendBookMail(userMail, username, eventMail, eventName, bookings.stream().filter(o -> o.getQty() != null).mapToInt(Booking::getQty).sum());
-            return true;
-        }
-        mailService.sendErrorMail(userMail, eventName);
-        return false;
+    public void book(List<Booking> bookings, long userId, String username, String userMail, long eventId, String eventName, String eventMail) {
+        eventDao.book(bookings, userId, eventId);
+        mailService.sendBookMail(userMail, username, eventMail, eventName, bookings.stream().filter(o -> o.getQty() != null).mapToInt(Booking::getQty).sum());
     }
 
     @Transactional
     @Override
-    public boolean cancelBooking(List<Booking> bookings, long userId, String username, String userMail, long eventId, String eventName, String eventMail) {
-        if (eventDao.cancelBooking(bookings, userId, eventId)) {
-            mailService.sendCancelMail(userMail, username, eventMail, eventName, bookings.stream().filter(o -> o.getQty() != null).mapToInt(Booking::getQty).sum());
-            return true;
-        }
-        mailService.sendErrorMail(userMail, eventName);
-        return false;
+    public void cancelBooking(List<Booking> bookings, long userId, String username, String userMail, long eventId, String eventName, String eventMail) {
+        eventDao.cancelBooking(bookings, userId, eventId);
+        mailService.sendCancelMail(userMail, username, eventMail, eventName, bookings.stream().filter(o -> o.getQty() != null).mapToInt(Booking::getQty).sum());
+//        mailService.sendErrorMail(userMail, eventName);
     }
 
     @Override
@@ -134,8 +127,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void updateTicket(long id, String ticketName, double price, int qty) {
-        eventDao.updateTicket(id, ticketName, price, qty);
+    public void updateTicket(long id, String ticketName, double price, int booked, int qty) {
+        eventDao.updateTicket(id, ticketName, price, booked, qty);
     }
 
     @Override

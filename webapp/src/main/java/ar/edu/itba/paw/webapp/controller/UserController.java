@@ -23,9 +23,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 public class UserController {
@@ -120,10 +118,16 @@ public class UserController {
     }
 
     @RequestMapping(value = "/bookings/rate/{eventId}", method = { RequestMethod.POST })
-    public ModelAndView rateEvent(@Valid @ModelAttribute("rateForm") final RateForm form, final BindingResult errors,
+    public ModelAndView rateEvent(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors,
+                                  @Valid @ModelAttribute("rateForm") final RateForm rateForm, final BindingResult rateErrors,
                                   @PathVariable("eventId") final int eventId) {
         Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
-        userService.rateUser(userManager.getUserId(), e.getUser().getId(), form.getRating());
+        /*if (rat == null)
+            errors.rejectValue("rate5", "NotNull.bookForm.name");
+        if (errors.hasErrors())
+            return bookings(form, rateForm, form.getPage(), eventId);
+        */
+        userService.rateUser(userManager.getUserId(), e.getUser().getId(), rateForm.getRating());
         return new ModelAndView("redirect:/bookings/");
     }
 
@@ -149,8 +153,8 @@ public class UserController {
             return bookings(form, rateForm, form.getPage(), eventId);
         }
 
-        if (!eventService.cancelBooking(form.getBookings(), user.getId(), user.getUsername(), user.getMail(), eventId, e.getName(), eventUser.getMail()))
-            return new ModelAndView("redirect:/error");
+        eventService.cancelBooking(form.getBookings(), user.getId(), user.getUsername(), user.getMail(), eventId, e.getName(), eventUser.getMail());
+//            return new ModelAndView("redirect:/error");
         return new ModelAndView("redirect:/bookings/");
     }
 

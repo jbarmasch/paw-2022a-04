@@ -10,7 +10,7 @@
             <img class="card_img" src="<c:url value="/image/${event.imageId}"/>" alt="${imageAlt}">
             <c:if test="${event.soldOut}">
                 <spring:message code="event.soldOut" var="soldOut"/>
-                <img class="soldout" src="<c:url value="/resources/png/sold_out.png"/>" alt="${soldOut}"/>
+                <img class="soldout_card" src="<c:url value="/resources/png/sold_out.png"/>" alt="${soldOut}"/>
             </c:if>
         </div>
     </div>

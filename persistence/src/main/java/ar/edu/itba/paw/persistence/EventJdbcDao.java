@@ -181,7 +181,7 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public boolean book(List<Booking> bookings, long userId, long eventId) {
+    public void book(List<Booking> bookings, long userId, long eventId) {
         for (Booking booking : bookings) {
             if (booking.getQty() == null || booking.getQty() <= 0)
                 continue;
@@ -197,22 +197,20 @@ public class EventJdbcDao implements EventDao {
                 jdbcBookInsert.execute(bookingData);
             }
         }
-        return true;
+        Event event = getEventById(eventId).orElse(null);
+        if (event != null && event.getMaxCapacity() <= 0)
+            soldOut((int) eventId);
     }
 
     @Override
-    public boolean cancelBooking(List<Booking> bookings, long userId, long eventId) {
-        int rowsUpdated = 0;
+    public void cancelBooking(List<Booking> bookings, long userId, long eventId) {
         for (Booking booking : bookings) {
             if (booking.getQty() <= 0)
                 continue;
 
-            rowsUpdated = jdbcTemplate.update("UPDATE bookings SET qty = qty - ? WHERE eventId = ? AND userId = ? AND ticketId = ?", booking.getQty(), eventId, userId, booking.getTicketId());
-            if (rowsUpdated <= 0)
-                return false;
-            rowsUpdated = jdbcTemplate.update("UPDATE tickets SET booked = booked - ? WHERE eventId = ? AND ticketid = ?", booking.getQty(), eventId, booking.getTicketId());
+            jdbcTemplate.update("UPDATE bookings SET qty = qty - ? WHERE eventId = ? AND userId = ? AND ticketId = ?", booking.getQty(), eventId, userId, booking.getTicketId());
+            jdbcTemplate.update("UPDATE tickets SET booked = booked - ? WHERE eventId = ? AND ticketid = ?", booking.getQty(), eventId, booking.getTicketId());
         }
-        return rowsUpdated > 0;
     }
 
     @Override
@@ -255,8 +253,8 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public void updateTicket(long id, String ticketName, double price, int qty) {
-        jdbcTemplate.update("UPDATE tickets SET name = ?, price = ?, booked = ?, ticketsLeft = ? WHERE ticketId = ?", ticketName, price, qty, id);
+    public void updateTicket(long id, String ticketName, double price, int booked, int qty) {
+        jdbcTemplate.update("UPDATE tickets SET name = ?, price = ?, booked = ?, maxTickets = ? WHERE ticketId = ?", ticketName, price, booked, qty, id);
     }
 
     @Override

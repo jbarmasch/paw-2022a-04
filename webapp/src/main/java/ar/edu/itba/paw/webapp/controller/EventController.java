@@ -96,9 +96,7 @@ public class EventController {
             return eventDescription(form, eventId);
         }
 
-        boolean booked = eventService.book(form.getBookings(), user.getId(), user.getUsername(), user.getMail(), eventId, e.getName(), eventUser.getMail());
-        if (!booked)
-            return new ModelAndView("redirect:/error");
+        eventService.book(form.getBookings(), user.getId(), user.getUsername(), user.getMail(), eventId, e.getName(), eventUser.getMail());
         return new ModelAndView("redirect:/events/" + e.getId() + "/booking-success");
     }
 
@@ -267,10 +265,13 @@ public class EventController {
         final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         if (!isEventOwner(event))
             return new ModelAndView("redirect:/events/" + eventId);
+        final Ticket ticket = eventService.getTicketById(ticketId).orElseThrow(EventNotFoundException::new);
+        if (form.getQty() < ticket.getBooked())
+            errors.rejectValue("qty", "Min.bookForm.qty", new Object[]{ticket.getBooked()}, "");
         if (errors.hasErrors())
             return modifyTicketForm(form, eventId, ticketId);
 
-        eventService.updateTicket(event.getId(), form.getTicketName(), form.getPrice(), form.getQty());
+        eventService.updateTicket(ticketId, form.getTicketName(), form.getPrice(), ticket.getBooked(), form.getQty());
         return new ModelAndView("redirect:/events/" + eventId);
     }
 

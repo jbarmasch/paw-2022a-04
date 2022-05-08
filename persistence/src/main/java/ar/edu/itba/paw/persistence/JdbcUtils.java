@@ -53,12 +53,13 @@ public class JdbcUtils {
                     rs.getTimestamp("date").toLocalDateTime(),
                     rs.getInt("imageId"),
                     new ArrayList<>(),
-                    new User(rs.getInt("userId")),
+                    new User(rs.getInt("userId"), rs.getString("username")),
                     rs.getInt("attendance"),
                     State.getState(rs.getInt("state")),
                     null
             ),
-            getTicketBookings(rs.getArray("ticketIds"), rs.getArray("qtys"), rs.getArray("ticketNames"))
+            getTicketBookings(rs.getArray("ticketIds"), rs.getArray("qtys"), rs.getArray("ticketNames")),
+            rs.getInt("rating")
     );
 
     public final static RowMapper<EventStats> EVENT_STATS_ROW_MAPPER = (rs, rowNum) -> new EventStats(

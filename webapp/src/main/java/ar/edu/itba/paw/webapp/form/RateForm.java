@@ -6,7 +6,7 @@ public class RateForm {
     @DecimalMax("5.0")
     @NotNull
     private Double rating;
-    
+
     public Double getRating() {
         return rating;
     }

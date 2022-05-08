@@ -7,6 +7,8 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Repository
@@ -69,24 +71,48 @@ public class UserJdbcDao implements UserDao {
     @Override
     public List<EventBooking> getAllBookingsFromUser(long id, int page) {
         return jdbcTemplate.query("SELECT bookings.userid, ARRAY_AGG(bookings.qty) AS qtys, ARRAY_AGG(bookings.ticketid) AS ticketIds, " +
+                        "ARRAY_AGG(ti.name) AS ticketNames, ARRAY_AGG(ti.maxtickets) AS ticketQtys, ARRAY_AGG(ti.booked) AS ticketBookeds, " +
+                        "ec.*, rating FROM bookings JOIN event_complete ec ON bookings.eventid = ec.eventid JOIN tickets ti ON ti.eventId = ec.eventid AND " +
+                        "bookings.ticketid = ti.ticketid LEFT JOIN ratings r on ec.userid = r.organizerid WHERE bookings.userid = ? AND bookings.qty > 0 " +
+                        "group by bookings.userid, bookings.eventid, ec.eventid, ec.name, ec.description, ec.locationid, ec.attendance, ec.minPrice, " +
+                        "ec.ticketsLeft, ec.typeid, ec.date, ec.imageid, ec.userid, ec.state, ec.locName, ec.typeName, ec.username, ec.ticketIds, ec.ticketNames, " +
+                        "ec.ticketQtys, ec.ticketBookeds, ec.ticketPrices, ec.tagIds, ec.tagNames, rating ORDER BY date LIMIT 10 OFFSET ?",
+                new Object[] { id, (page - 1) * 10 }, JdbcUtils.EVENT_BOOKING_ROW_MAPPER);
+    }
+
+//    @Override
+    public List<EventBooking> getAllPreviousBookingsFromUser(long id, int page) {
+        return jdbcTemplate.query("SELECT bookings.userid, ARRAY_AGG(bookings.qty) AS qtys, ARRAY_AGG(bookings.ticketid) AS ticketIds, " +
                         "ARRAY_AGG(ti.name) AS ticketNames, ARRAY_AGG(ti.maxtickets) AS ticketQtys, ARRAY_AGG(ti.booked) AS ticketBookeds," +
                         " ec.* FROM bookings JOIN event_complete ec ON bookings.eventid = ec.eventid JOIN tickets ti " +
-                        "ON ti.eventId = ec.eventid AND bookings.ticketid = ti.ticketid WHERE bookings.userid = ? AND bookings.qty > 0 " +
+                        "ON ti.eventId = ec.eventid AND bookings.ticketid = ti.ticketid WHERE bookings.userid = ? AND bookings.qty > 0 AND date <= ?" +
                         "group by bookings.userid, bookings.eventid, ec.eventid, ec.name, ec.description, ec.locationid, ec.attendance, ec.minPrice, " +
                         "ec.ticketsLeft, ec.typeid, ec.date, ec.imageid, ec.userid, ec.state, ec.locName, ec.typeName, ec.username, " +
                         "ec.ticketIds, ec.ticketNames, ec.ticketQtys, ec.ticketBookeds, ec.ticketPrices, ec.tagIds, ec.tagNames ORDER BY date LIMIT 10 OFFSET ?",
-                new Object[] { id, (page - 1) * 10 }, JdbcUtils.EVENT_BOOKING_ROW_MAPPER);
+                new Object[] { id, Timestamp.valueOf(LocalDateTime.now()), (page - 1) * 10 }, JdbcUtils.EVENT_BOOKING_ROW_MAPPER);
+    }
+
+    //    @Override
+    public List<EventBooking> getAllFutureBookingsFromUser(long id, int page) {
+        return jdbcTemplate.query("SELECT bookings.userid, ARRAY_AGG(bookings.qty) AS qtys, ARRAY_AGG(bookings.ticketid) AS ticketIds, " +
+                        "ARRAY_AGG(ti.name) AS ticketNames, ARRAY_AGG(ti.maxtickets) AS ticketQtys, ARRAY_AGG(ti.booked) AS ticketBookeds," +
+                        " ec.* FROM bookings JOIN event_complete ec ON bookings.eventid = ec.eventid JOIN tickets ti " +
+                        "ON ti.eventId = ec.eventid AND bookings.ticketid = ti.ticketid WHERE bookings.userid = ? AND bookings.qty > 0 AND date > ?" +
+                        "group by bookings.userid, bookings.eventid, ec.eventid, ec.name, ec.description, ec.locationid, ec.attendance, ec.minPrice, " +
+                        "ec.ticketsLeft, ec.typeid, ec.date, ec.imageid, ec.userid, ec.state, ec.locName, ec.typeName, ec.username, " +
+                        "ec.ticketIds, ec.ticketNames, ec.ticketQtys, ec.ticketBookeds, ec.ticketPrices, ec.tagIds, ec.tagNames ORDER BY date LIMIT 10 OFFSET ?",
+                new Object[] { id, Timestamp.valueOf(LocalDateTime.now()), (page - 1) * 10 }, JdbcUtils.EVENT_BOOKING_ROW_MAPPER);
     }
 
     @Override
     public Optional<EventBooking> getBookingFromUser(long userId, long eventId) {
         return jdbcTemplate.query("SELECT bookings.userid, ARRAY_AGG(bookings.qty) AS qtys, ARRAY_AGG(bookings.ticketid) AS ticketIds, " +
-                    "ARRAY_AGG(ti.name) AS ticketNames, ARRAY_AGG(ti.maxtickets) AS ticketQtys, ARRAY_AGG(ti.booked) AS ticketBookeds, ec.* " +
-                        "FROM bookings JOIN event_complete ec ON bookings.eventid = ec.eventid JOIN tickets ti " +
-                        "ON ti.eventId = ec.eventid AND bookings.ticketid = ti.ticketid WHERE bookings.userid = ? AND bookings.qty > 0 AND bookings.eventId = ? " +
+                        "ARRAY_AGG(ti.name) AS ticketNames, ARRAY_AGG(ti.maxtickets) AS ticketQtys, ARRAY_AGG(ti.booked) AS ticketBookeds, " +
+                        "ec.*, rating FROM bookings JOIN event_complete ec ON bookings.eventid = ec.eventid JOIN tickets ti ON ti.eventId = ec.eventid AND " +
+                        "bookings.ticketid = ti.ticketid LEFT JOIN ratings r on ec.userid = r.organizerid WHERE bookings.userid = ? AND bookings.qty > 0 AND bookings.eventid = ?" +
                         "group by bookings.userid, bookings.eventid, ec.eventid, ec.name, ec.description, ec.locationid, ec.attendance, ec.minPrice, " +
-                        "ec.ticketsLeft, ec.typeid, ec.date, ec.imageid, ec.userid, ec.state, ec.locName, ec.typeName, ec.username, " +
-                        "ec.ticketIds, ec.ticketNames, ec.ticketQtys, ec.ticketBookeds, ec.ticketPrices, ec.tagIds, ec.tagNames",
+                        "ec.ticketsLeft, ec.typeid, ec.date, ec.imageid, ec.userid, ec.state, ec.locName, ec.typeName, ec.username, ec.ticketIds, ec.ticketNames, " +
+                        "ec.ticketQtys, ec.ticketBookeds, ec.ticketPrices, ec.tagIds, ec.tagNames, rating ORDER BY date LIMIT 10 OFFSET ?",
                 new Object[] { userId, eventId }, JdbcUtils.EVENT_BOOKING_ROW_MAPPER).stream().findFirst();
     }
 

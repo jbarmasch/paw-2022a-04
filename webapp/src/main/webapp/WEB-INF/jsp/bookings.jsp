@@ -23,24 +23,35 @@
                                 <div class="fill">
                                     <img src="<c:url value="/image/${booking.event.imageId}"/>" onclick="location.href='<c:url value="/events/${booking.event.id}"/>'" alt="Event image"/>
                                 </div>
-                                <div class="transparent">
+                                <div class="transparent booking-card-body">
                                     <h3 class="uk-card-title"><c:out value="${booking.event.name}"/></h3>
                                     <div class="booking-card-info">
                                         <div><img class="icon" src="<c:url value="/resources/svg/date.svg"/>" alt="Date icon"/><span><c:out value="${booking.event.dateFormatted}"/></span></div>
                                         <div><img class="icon" src="<c:url value="/resources/svg/time.svg"/>" alt="Time icon"/><span><c:out value="${booking.event.timeFormatted}"/></span></div>
                                         <div><img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="Location icon"/><span><c:out value="${booking.event.location.name}"/></span></div>
+                                        <div><img class="icon" src="<c:url value="/resources/svg/user.svg"/>" alt="User icon"/><span><c:out value="${booking.event.user.username}"/></span></div>
                                         <div>
                                             <div class="container booking_button">
                                                 <c:choose>
                                                     <c:when test="${booking.event.date < actualTime}">
                                                 <c:url value="/bookings/rate/${booking.event.id}" var="postPath"/>
-                                                <form:form novalidate="true" class="transparent" modelAttribute="rateForm" action="${postPath}" method="post">
-                                                    <div class="horizontal center">
-                                                        <form:label class="sep-right" path="rating"><spring:message code="booking.rate"/>: </form:label>
-                                                        <form:input class="uk-input" type="number" path="rating" min="1" max="5" step="0.5" required="true" id="qty"/>
+                                                <form:form novalidate="true" class="transparent" modelAttribute="rateForm" action="${postPath}" method="post" id="rateForm${booking.event.id}">
+                                                    <spring:message code="booking.rateOrganizer"/>
+                                                    <div class="rate">
+                                                        <input type="radio" id="star5" name="rate" value="5" onclick="rateOrganizer(${booking.event.id}, 5)"/>
+                                                        <label for="star5" title="text"></label>
+                                                        <input type="radio" id="star4" name="rate" value="4" onclick="rateOrganizer(${booking.event.id}, 4)"/>
+                                                        <label for="star4" title="text"></label>
+                                                        <input type="radio" id="star3" name="rate" value="3" onclick="rateOrganizer(${booking.event.id}, 3)"/>
+                                                        <label for="star3" title="text"></label>
+                                                        <input type="radio" id="star2" name="rate" value="2" onclick="rateOrganizer(${booking.event.id}, 2)"/>
+                                                        <label for="star2" title="text"></label>
+                                                        <input type="radio" id="star1" name="rate" value="1" onclick="rateOrganizer(${booking.event.id}, 1)"/>
+                                                        <label for="star1" title="text"></label>
                                                     </div>
-                                                    <hr/>
-                                                    <button class="accept-button-modal uk-button" type="submit" name="submit"><spring:message code="booking.rate"/></button>
+                                                    <form:input class="hidden" id="rating${booking.event.id}" path="rating" type="number"/>
+
+<%--                                                    <button class="accept-button-modal uk-button" type="submit" name="submit"><spring:message code="booking.rate"/></button>--%>
                                                 </form:form>
                                                     </c:when>
                                                     <c:otherwise>
@@ -94,7 +105,7 @@
                     </c:forEach>
                 </c:when>
                 <c:otherwise>
-                    <h5>No has hecho reservas todavía.</h5>
+                    <h5><spring:message code="booking.noBookings"/></h5>
                 </c:otherwise>
             </c:choose>
             <c:set var="page" value="${page}" scope="request"/>
@@ -113,6 +124,12 @@
 </c:choose>
 
 <script type="text/javascript">
+    function rateOrganizer(eventId, i) {
+        console.log("SUSAN")
+        document.getElementById('rating' + eventId).value = i;
+        document.getElementById('rateForm' + eventId).submit();
+    }
+
     (function() {
         var qty = document.getElementById('qty');
         var form = document.getElementsByClassName('transparent');
