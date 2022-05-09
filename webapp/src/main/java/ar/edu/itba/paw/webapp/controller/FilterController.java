@@ -12,6 +12,7 @@ import ar.edu.itba.paw.webapp.helper.FilterUtils;
 import ar.edu.itba.paw.webapp.validations.IntegerArray;
 import ar.edu.itba.paw.webapp.validations.NumberFormat;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -25,10 +26,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Validated
 @Controller
@@ -57,13 +55,14 @@ public class FilterController {
                                      @RequestParam(value = "order", required = false) @Pattern(regexp = "minPrice|date") final String order,
                                      @RequestParam(value = "orderBy", required = false) @Pattern(regexp = "ASC|DESC") final String orderBy,
                                      @RequestParam(value = "page", required = false, defaultValue = "1") @Min(1) final int page) {
-        List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, search, tags, username, order, orderBy, page);
+        Locale locale = LocaleContextHolder.getLocale();
+        List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, search, tags, username, order, orderBy, page, locale);
 
         final ModelAndView mav = new ModelAndView("events");
         mav.addObject("page", page);
         mav.addObject("allLocations", locationService.getAll());
-        mav.addObject("allTypes", typeService.getAll());
-        mav.addObject("allTags", tagService.getAll());
+        mav.addObject("allTypes", typeService.getAll(locale));
+        mav.addObject("allTags", tagService.getAll(locale));
         mav.addObject("events", events);
         mav.addObject("size", events.size());
         return mav;

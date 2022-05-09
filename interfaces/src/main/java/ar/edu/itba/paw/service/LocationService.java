@@ -7,5 +7,4 @@ import java.util.Optional;
 
 public interface LocationService {
     List<Location> getAll();
-    Optional<Location> getLocationById(long id);
 }

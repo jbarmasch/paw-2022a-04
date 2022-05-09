@@ -1,12 +1,14 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.*;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.Array;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class JdbcUtils {
     public static final RowMapper<Event> EVENT_ROW_MAPPER = (rs, i) -> {
@@ -153,5 +155,12 @@ public class JdbcUtils {
             }
         }
         return ticketBookings;
+    }
+
+    public static String getLocateExt(Locale locale) {
+        String localeExt = "";
+        if (!locale.getLanguage().equals("es"))
+            localeExt = "_en";
+        return localeExt;
     }
 }

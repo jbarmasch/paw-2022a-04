@@ -3,11 +3,13 @@ package ar.edu.itba.paw.service;
 import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.persistence.EventDao;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -25,27 +27,22 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> getAll(int page) {
-        return eventDao.getAll(page);
-    }
-
-    @Override
-    public Optional<Event> getEventById(long id) {
-        return eventDao.getEventById(id);
+    public Optional<Event> getEventById(long id, Locale locale) {
+        return eventDao.getEventById(id, locale);
     }
 
     @Transactional
     @Override
-    public Event create(String name, String description, int locationId, int typeId, LocalDateTime date, byte[] imageArray, Integer[] tagIds, int userId) {
+    public Event create(String name, String description, int locationId, int typeId, LocalDateTime date, byte[] imageArray, Integer[] tagIds, int userId, Locale locale) {
         int imageId = 1;
         if (imageArray != null)
             imageId = imageService.addEventImage(imageArray);
-        return eventDao.create(name, description, locationId, typeId, date, imageId, tagIds, userId);
+        return eventDao.create(name, description, locationId, typeId, date, imageId, tagIds, userId, locale);
     }
 
     @Override
-    public List<Event> filterBy(String[] locations, String[] types, String minPrice, String maxPrice, String query, String[] tags, String username, String order, String orderBy, int page) {
-        return eventDao.filterBy(locations, types, minPrice, maxPrice, query, tags, username, order, orderBy, page);
+    public List<Event> filterBy(String[] locations, String[] types, String minPrice, String maxPrice, String query, String[] tags, String username, String order, String orderBy, int page, Locale locale) {
+        return eventDao.filterBy(locations, types, minPrice, maxPrice, query, tags, username, order, orderBy, page, locale);
     }
 
     @Transactional
@@ -63,39 +60,34 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> getUserEvents(long id, int page) {
-        return eventDao.getUserEvents(id, page);
+    public List<Event> getUserEvents(long id, int page, Locale locale) {
+        return eventDao.getUserEvents(id, page, locale);
     }
 
     @Transactional
     @Override
-    public void book(List<Booking> bookings, long userId, String username, String userMail, long eventId, String eventName, String eventMail) {
-        eventDao.book(bookings, userId, eventId);
-        mailService.sendBookMail(userMail, username, eventMail, eventName, bookings.stream().filter(o -> o.getQty() != null).mapToInt(Booking::getQty).sum());
+    public void book(List<Booking> bookings, long userId, String username, String userMail, long eventId, String organizerName, String eventName, String eventMail, Locale locale) {
+        eventDao.book(bookings, userId, eventId, locale);
+        mailService.sendBookMail(userMail, username, eventMail, organizerName, eventName, bookings, bookings.stream().filter(o -> o.getQty() != null).mapToInt(Booking::getQty).sum(), locale);
     }
 
     @Transactional
     @Override
-    public void cancelBooking(List<Booking> bookings, long userId, String username, String userMail, long eventId, String eventName, String eventMail) {
+    public void cancelBooking(List<Booking> bookings, long userId, String username, String userMail, long eventId, String eventName, String organizerName, String eventMail, Locale locale) {
         eventDao.cancelBooking(bookings, userId, eventId);
-        mailService.sendCancelMail(userMail, username, eventMail, eventName, bookings.stream().filter(o -> o.getQty() != null).mapToInt(Booking::getQty).sum());
-//        mailService.sendErrorMail(userMail, eventName);
+        mailService.sendCancelMail(userMail, username, eventMail, organizerName, eventName, bookings, bookings.stream().filter(o -> o.getQty() != null).mapToInt(Booking::getQty).sum(), locale);
     }
 
     @Override
-    public List<Event> getFewTicketsEvents(){
-        return eventDao.getFewTicketsEvents();
+    public List<Event> getFewTicketsEvents(Locale locale){
+        return eventDao.getFewTicketsEvents(locale);
     }
 
     @Override
-    public List<Event> getUpcomingEvents(){
-        return eventDao.getUpcomingEvents();
+    public List<Event> getUpcomingEvents(Locale locale){
+        return eventDao.getUpcomingEvents(locale);
     }
 
-    @Override
-    public Integer getAttendanceOfEventId(long eventId) {
-        return eventDao.getAttendanceOfEventId(eventId);
-    }
     @Override
     public void soldOut(int id) {
         eventDao.soldOut(id);
@@ -107,13 +99,13 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> getSimilarEvents(long eventId) {
-        return eventDao.getSimilarEvents(eventId);
+    public List<Event> getSimilarEvents(long eventId, Locale locale) {
+        return eventDao.getSimilarEvents(eventId, locale);
     }
 
     @Override
-    public List<Event> getPopularEvents(long eventId) {
-        return eventDao.getPopularEvents(eventId);
+    public List<Event> getPopularEvents(long eventId, Locale locale) {
+        return eventDao.getPopularEvents(eventId, locale);
     }
 
     @Override

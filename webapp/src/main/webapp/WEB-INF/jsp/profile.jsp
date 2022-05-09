@@ -12,7 +12,8 @@
         <span>
             <spring:message code="profile.contact"/> <a href="mailto:${mail}">${mail}</a>
         </span>
-        <span><spring:message code="profile.rating"/>: <c:out value="${user.rating}"/></span>
+        <spring:message var="starIconAlt" code="profile.starAlt"/>
+        <span><spring:message code="profile.rating"/>: <c:out value="${user.rating}"/> <img class="icon" src="<c:url value="/resources/svg/star.svg"/>"  alt="starIconAlt"/></span>
         <c:if test="${stats != null}">
             <div class="vertical tickets">
                 <table class="tickets-table">
@@ -54,7 +55,7 @@
                     <c:url value="/events" var="moreUserEvents">
                         <c:param name="username" value="${user.username}"/>
                     </c:url>
-                    <a href="${moreUserEvents}">VER MAS</a>
+                    <a href="${moreUserEvents}"><spring:message code="profile.userEvents"/></a>
                 </c:when>
                 <c:otherwise>
                     <spring:message code="filter.noEvents"/>

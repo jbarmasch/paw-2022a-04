@@ -11,12 +11,12 @@
 </head>
 <body>
     <c:import url="appbar.jsp"/>
-    <c:import url="order.jsp"/>
     <div class="home">
         <div>
             <c:url value="/events" var="postPath"/>
             <form:form novalidate="true" modelAttribute="filterForm" action="${postPath}" method="post" class="filter" id="filterForm">
                 <b><spring:message code="filter.filters"/>: </b>
+                <c:import url="order.jsp"/>
                 <div>
                     <form:label path="locations"><spring:message code="filter.location"/>: </form:label>
                     <form:select class="uk-select" htmlEscape="true" multiple="true" path="locations">
@@ -120,6 +120,8 @@
                 </div>
             </form:form>
         </div>
+
+
         <div class="container browse">
             <c:choose>
                 <c:when test="${size > 0}">
@@ -135,8 +137,11 @@
                 </c:otherwise>
             </c:choose>
         </div>
+        <div class="sep-top-xl sep-right">
+            <c:import url="paging.jsp"/>
+        </div>
+
         <c:set var="page" value="${page}" scope="request"/>
-        <c:import url="paging.jsp"/>
     </div>
 </body>
 </html>

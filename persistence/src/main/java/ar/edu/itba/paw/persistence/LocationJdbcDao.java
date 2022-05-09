@@ -23,11 +23,6 @@ public class LocationJdbcDao implements LocationDao {
 
     @Override
     public List<Location> getAll() {
-        return jdbcTemplate.query("SELECT * FROM locations", ROW_MAPPER);
-    }
-
-    @Override
-    public Optional<Location> getLocationById(long id) {
-        return jdbcTemplate.query("SELECT * FROM locations WHERE locationId = ?", new Object[] {id}, ROW_MAPPER).stream().findFirst();
+        return jdbcTemplate.query("SELECT * FROM locations ORDER BY name", ROW_MAPPER);
     }
 }

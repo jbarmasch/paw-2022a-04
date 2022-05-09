@@ -14,6 +14,7 @@ import ar.edu.itba.paw.webapp.form.UserForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -79,9 +80,10 @@ public class UserController {
 
     @RequestMapping(value = "/profile/{userId}", method = { RequestMethod.GET })
     public ModelAndView userProfile(@PathVariable("userId") final long userId) {
-        UserStats stats = userService.getUserStats(userId).orElse(null);
+        Locale locale = LocaleContextHolder.getLocale();
+        UserStats stats = userService.getUserStats(userId, locale).orElse(null);
         User user = userService.getUserById(userId).orElseThrow(UserNotFoundException::new);
-        List<Event> events = eventService.getUserEvents(userId, 1).stream().limit(5).collect(Collectors.toList());
+        List<Event> events = eventService.getUserEvents(userId, 1, locale).stream().limit(5).collect(Collectors.toList());
 
         final ModelAndView mav = new ModelAndView("profile");
         if (userManager.isAuthenticated() && userId == userManager.getUserId())
@@ -102,13 +104,17 @@ public class UserController {
                                  @ModelAttribute("rateForm") final RateForm rateForm,
                                  @RequestParam(value = "page", required = false, defaultValue = "1") final int page,
                                  @RequestParam(required = false) final Integer eventId) {
-        List<EventBooking> bookings = userService.getAllBookingsFromUser(userManager.getUserId(), page);
+        Locale locale = LocaleContextHolder.getLocale();
+        List<EventBooking> previousBookings = userService.getAllPreviousBookingsFromUser(userManager.getUserId(), page, locale);
+        List<EventBooking> futureBookings = userService.getAllFutureBookingsFromUser(userManager.getUserId(), page, locale);
         final ModelAndView mav = new ModelAndView("bookings");
         mav.addObject("page", page);
         mav.addObject("actualTime", LocalDateTime.now());
-        mav.addObject("bookings", bookings);
+        mav.addObject("previousBookings", previousBookings);
+        mav.addObject("futureBookings", futureBookings);
         mav.addObject("error", eventId);
-        mav.addObject("size", bookings.size());
+        mav.addObject("previousSize", previousBookings.size());
+        mav.addObject("futureSize", futureBookings.size());
         return mav;
     }
 
@@ -116,7 +122,8 @@ public class UserController {
     public ModelAndView rateEvent(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors,
                                   @Valid @ModelAttribute("rateForm") final RateForm rateForm, final BindingResult rateErrors,
                                   @PathVariable("eventId") final int eventId) {
-        Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
+        Locale locale = LocaleContextHolder.getLocale();
+        Event e = eventService.getEventById(eventId, locale).orElseThrow(EventNotFoundException::new);
         if (rateErrors.hasErrors())
             return bookings(form, rateForm, form.getPage(), eventId);
         userService.rateUser(userManager.getUserId(), e.getUser().getId(), rateForm.getRating());
@@ -127,10 +134,11 @@ public class UserController {
     public ModelAndView cancelBooking(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors,
                                       @Valid @ModelAttribute("rateForm") final RateForm rateForm, final BindingResult rateErrors,
                                       @PathVariable("eventId") final int eventId) {
-        final Event e = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
+        Locale locale = LocaleContextHolder.getLocale();
+        final Event e = eventService.getEventById(eventId, locale).orElseThrow(EventNotFoundException::new);
         final User user = userManager.getUser();
         final User eventUser = userService.getUserById(e.getUser().getId()).orElseThrow(RuntimeException::new);
-        EventBooking eventBooking = userService.getBookingFromUser(user.getId(), eventId).orElseThrow(RuntimeException::new);
+        EventBooking eventBooking = userService.getBookingFromUser(user.getId(), eventId, locale).orElseThrow(RuntimeException::new);
 
         int i = 0;
         List<TicketBooking> tickets = eventBooking.getBookings();
@@ -144,7 +152,7 @@ public class UserController {
             return bookings(form, rateForm, form.getPage(), eventId);
         }
 
-        eventService.cancelBooking(form.getBookings(), user.getId(), user.getUsername(), user.getMail(), eventId, e.getName(), eventUser.getMail());
+        eventService.cancelBooking(form.getBookings(), user.getId(), user.getUsername(), user.getMail(), eventId, e.getUser().getUsername(), e.getName(), eventUser.getMail(), LocaleContextHolder.getLocale());
         return new ModelAndView("redirect:/bookings/");
     }
 

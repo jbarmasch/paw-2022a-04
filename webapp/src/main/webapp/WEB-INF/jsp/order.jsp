@@ -5,8 +5,6 @@
 <button class="uk-button uk-button-default" type="button"><spring:message code="order"/></button>
 <div uk-dropdown="mode: click; pos: bottom-center">
     <ul class="uk-nav uk-dropdown-nav">
-    <%--<li><a href="javascript:" onclick="orderBy('price', 'ASC');">Menor precio</a></li>--%>
-    <%--<li><a href="javascript:" onclick="orderBy('price', 'DESC');">Mayor precio</a></li>--%>
         <c:url var="lowPrice" value="">
             <c:forEach items="${param}" var="entry">
                 <c:if test="${entry.key != 'order' && entry.key != 'orderBy' && entry.key != 'page'}">
@@ -16,7 +14,8 @@
             <c:param name="order" value="minPrice" />
             <c:param name="orderBy" value="ASC" />
         </c:url>
-        <a href="${lowPrice}"><spring:message code="order.minPrice"/></a>
+        <li><a href="${lowPrice}"><spring:message code="order.minPrice"/></a></li>
+
         <c:url var="highPrice" value="">
             <c:forEach items="${param}" var="entry">
                 <c:if test="${entry.key != 'order' && entry.key != 'orderBy' && entry.key != 'page'}">
@@ -26,7 +25,8 @@
             <c:param name="order" value="minPrice" />
             <c:param name="orderBy" value="DESC" />
         </c:url>
-        <a href="${highPrice}"><spring:message code="order.maxPrice"/></a>
+        <li><a href="${highPrice}"><spring:message code="order.maxPrice"/></a></li>
+
         <c:url var="lowDate" value="">
             <c:forEach items="${param}" var="entry">
                 <c:if test="${entry.key != 'order' && entry.key != 'orderBy' && entry.key != 'page'}">
@@ -36,7 +36,8 @@
             <c:param name="order" value="date" />
             <c:param name="orderBy" value="ASC" />
         </c:url>
-        <a href="${lowDate}"><spring:message code="order.minDate"/></a>
+        <li><a href="${lowDate}"><spring:message code="order.minDate"/></a></li>
+
         <c:url var="highDate" value="">
             <c:forEach items="${param}" var="entry">
                 <c:if test="${entry.key != 'order' && entry.key != 'orderBy' && entry.key != 'page'}">
@@ -46,6 +47,6 @@
             <c:param name="order" value="date" />
             <c:param name="orderBy" value="DESC" />
         </c:url>
-        <a href="${highDate}"><spring:message code="order.maxDate"/></a>
+        <li><a href="${highDate}"><spring:message code="order.maxDate"/></a></li>
     </ul>
 </div>

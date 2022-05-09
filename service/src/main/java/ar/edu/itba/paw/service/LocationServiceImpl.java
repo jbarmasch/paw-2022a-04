@@ -21,9 +21,4 @@ public class LocationServiceImpl implements LocationService {
     public List<Location> getAll() {
         return locationDao.getAll();
     }
-
-    @Override
-    public Optional<Location> getLocationById(long id) {
-        return locationDao.getLocationById(id);
-    }
 }

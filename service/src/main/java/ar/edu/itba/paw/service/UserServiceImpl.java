@@ -1,15 +1,13 @@
 package ar.edu.itba.paw.service;
 
-import ar.edu.itba.paw.model.EventBooking;
-import ar.edu.itba.paw.model.EventStats;
-import ar.edu.itba.paw.model.User;
-import ar.edu.itba.paw.model.UserStats;
+import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.persistence.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -40,24 +38,20 @@ public class UserServiceImpl implements UserService {
         return userDao.findByUsername(username);
     }
 
+
     @Override
-    public List<EventBooking> getAllBookingsFromUser(long id, int page) {
-        return userDao.getAllBookingsFromUser(id, page);
+    public Optional<EventBooking> getBookingFromUser(long userId, long eventId, Locale locale) {
+        return userDao.getBookingFromUser(userId, eventId, locale);
     }
 
     @Override
-    public Optional<EventBooking> getBookingFromUser(long userId, long eventId) {
-        return userDao.getBookingFromUser(userId, eventId);
+    public Optional<UserStats> getUserStats(long id, Locale locale) {
+        return userDao.getUserStats(id, locale);
     }
 
     @Override
-    public Optional<UserStats> getUserStats(long id) {
-        return userDao.getUserStats(id);
-    }
-
-    @Override
-    public Optional<EventStats> getEventStats(long id) {
-        return userDao.getEventStats(id);
+    public Optional<EventStats> getEventStats(long id, Locale locale) {
+        return userDao.getEventStats(id, locale);
     }
 
     @Override
@@ -75,5 +69,15 @@ public class UserServiceImpl implements UserService {
         if (!userDao.canRate(organizerId, userId))
             return;
         userDao.rateUser(userId, organizerId, rating);
+    }
+
+    @Override
+    public List<EventBooking> getAllPreviousBookingsFromUser(long id, int page, Locale locale){
+        return userDao.getAllPreviousBookingsFromUser(id, page, locale);
+    }
+
+    @Override
+    public List<EventBooking> getAllFutureBookingsFromUser(long id, int page, Locale locale){
+        return userDao.getAllFutureBookingsFromUser(id, page, locale);
     }
 }

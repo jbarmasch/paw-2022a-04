@@ -450,6 +450,11 @@ input[type=submit] {
     align-items: flex-start;
 }
 
+.data {
+    display: flex;
+    justify-content: space-between;
+}
+
 .error-message {
     color: #ff002f;
     display: inline-block;
@@ -503,10 +508,7 @@ input[type=number] {
 }
 
 .booking-divider {
-    border-left: 1px solid #444444;
-    margin: 0 4px 0 4px;
-    min-height: 100%;
-    color: white;
+    border-top: 1px solid #555555;
 }
 
 .bookForm div * {
@@ -680,4 +682,6 @@ select:-webkit-autofill:focus {
     color: #c59b08;
 }
 
-
+.full_width {
+    width: 100%;
+}

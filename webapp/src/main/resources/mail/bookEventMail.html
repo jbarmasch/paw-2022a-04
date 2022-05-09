@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:remove="all" th:text="#{mail.booking}"></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style th:inline="css">
+        .tickets-table {
+            text-align: left;
+            border-collapse: collapse;
+        }
+
+        .tickets-table tbody tr {
+            margin: 5px;
+            border-bottom: 1px solid #cbd1d6;
+        }
+
+        .tickets-table tbody tr th {
+            padding: 8px;
+            border-right: 1px solid #cbd1d6;
+            border-left: 1px solid #cbd1d6;
+            border-top: 1px solid #cbd1d6;
+            text-align: center;
+        }
+
+        .tickets-table tbody tr td {
+            padding: 8px;
+            border-left: 1px solid #cbd1d6;
+            border-right: 1px solid #cbd1d6;
+        }
+
+        .table-number {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+<p th:text="#{mail.greeting(${orgName})}"></p>
+
+    <p th:text="#{mail.ticketsDescOrganizer(${eventName}, ${username})}"></p>
+
+    <table class="tickets-table">
+        <tr>
+            <th th:text="#{tickets.ticketName}">
+            </th>
+            <th th:text="#{tickets.ticketQty}">
+            </th>
+            <th th:text="#{tickets.ticketPrice}">
+            </th>
+        </tr>
+        <tr th:each="booking : ${bookings}" th:if="${booking.getQty() > 0}">
+            <td th:text="${booking.getTicketName()}">
+            </td>
+            <td class="table-number" th:text="${booking.getQty()}">
+            </td>
+            <td class="table-number">
+                $
+                <span th:text="${booking.getPrice()}"></span>
+            </td>
+        </tr>
+    </table>
+
+<p th:text="#{mail.farewell}"></p>
+<p>&emsp; <em>BotPass</em></p>
+</body>
+</html>

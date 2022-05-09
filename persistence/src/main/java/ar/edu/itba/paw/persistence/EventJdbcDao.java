@@ -2,6 +2,7 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
@@ -31,12 +32,12 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public Optional<Event> getEventById(long id) {
-        return jdbcTemplate.query("SELECT * FROM event_complete WHERE eventId = ?", new Object[]{id}, JdbcUtils.EVENT_ROW_MAPPER).stream().findFirst();
+    public Optional<Event> getEventById(long id, Locale locale) {
+        return jdbcTemplate.query("SELECT * FROM event_complete" + JdbcUtils.getLocateExt(locale) + " WHERE eventId = ?", new Object[]{id}, JdbcUtils.EVENT_ROW_MAPPER).stream().findFirst();
     }
 
     @Override
-    public Event create(String name, String description, int locationId, int typeId, LocalDateTime date, int imageId, Integer[] tagIds, int userId) {
+    public Event create(String name, String description, int locationId, int typeId, LocalDateTime date, int imageId, Integer[] tagIds, int userId, Locale locale) {
         final Map<String, Object> eventData = new HashMap<>();
         eventData.put("name", name);
         eventData.put("description", description);
@@ -60,13 +61,14 @@ public class EventJdbcDao implements EventDao {
             jdbcRolesInsert.execute(userRole);
         }
 
-        return getEventById(eventId).orElseThrow(RuntimeException::new);
+        return getEventById(eventId, locale).orElseThrow(RuntimeException::new);
     }
 
     @Override
     public List<Event> filterBy(String[] locations, String[] types , String minPrice, String maxPrice,
-                                String searchQuery, String[] tags, String username, String order, String orderBy, int page) {
-        StringBuilder query = new StringBuilder("SELECT * FROM event_complete ec WHERE state != 1 AND date > ?");
+                                String searchQuery, String[] tags, String username, String order, String orderBy, int page, Locale locale) {
+        String localeExt = JdbcUtils.getLocateExt(locale);
+        StringBuilder query = new StringBuilder("SELECT * FROM event_complete" + localeExt + " ec WHERE state != 1 AND date > ?");
         if (locations != null && locations.length > 0) {
             String lastLocation = locations[locations.length - 1];
             query.append(" AND locationid IN (");
@@ -117,25 +119,25 @@ public class EventJdbcDao implements EventDao {
             query.append(" ORDER BY date ");
         }
 
-        return jdbcTemplate.query(query + "LIMIT 10 OFFSET ?",
+        return jdbcTemplate.query(query + " LIMIT 10 OFFSET ?",
                 new Object[]{ Timestamp.valueOf(LocalDateTime.now()), (page - 1) * 10 }, JdbcUtils.EVENT_ROW_MAPPER);
     }
 
     @Override
-    public List<Event> getAll(int page) {
-        return jdbcTemplate.query("SELECT * FROM event_complete WHERE date > ? LIMIT 10 OFFSET ?",
+    public List<Event> getAll(int page, Locale locale) {
+        return jdbcTemplate.query("SELECT * FROM event_complete" + JdbcUtils.getLocateExt(locale) + " WHERE date > ? LIMIT 10 OFFSET ?",
                 new Object[]{ Timestamp.valueOf(LocalDateTime.now()), (page - 1) * 10 }, JdbcUtils.EVENT_ROW_MAPPER);
     }
 
     @Override
-    public List<Event> getFewTicketsEvents() {
-        return jdbcTemplate.query("SELECT * FROM event_complete WHERE attendance >= (4 * ticketsLeft) AND state != 1 AND state != 2 " +
+    public List<Event> getFewTicketsEvents(Locale locale) {
+        return jdbcTemplate.query("SELECT * FROM event_complete" + JdbcUtils.getLocateExt(locale) + " WHERE attendance >= (4 * ticketsLeft) AND state != 1 AND state != 2 " +
                 "AND ticketsLeft > 0 AND date > ? LIMIT 4", new Object[]{ Timestamp.valueOf(LocalDateTime.now()) }, JdbcUtils.EVENT_ROW_MAPPER);
     }
 
     @Override
-    public List<Event> getUpcomingEvents(){
-        return jdbcTemplate.query("SELECT * FROM event_complete WHERE date > ? AND state != 1 AND state != 2 ORDER BY date LIMIT 5",
+    public List<Event> getUpcomingEvents(Locale locale){
+        return jdbcTemplate.query("SELECT * FROM event_complete" + JdbcUtils.getLocateExt(locale) + " WHERE date > ? AND state != 1 AND state != 2 ORDER BY date LIMIT 5",
                 new Object[]{ Timestamp.valueOf(LocalDateTime.now()) }, JdbcUtils.EVENT_ROW_MAPPER);
     }
 
@@ -171,8 +173,8 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public List<Event> getUserEvents(long id, int page) {
-        return jdbcTemplate.query("SELECT * FROM event_complete WHERE userid = ? LIMIT 10 OFFSET ?", new Object[]{id, (page - 1) * 10}, JdbcUtils.EVENT_ROW_MAPPER);
+    public List<Event> getUserEvents(long id, int page, Locale locale) {
+        return jdbcTemplate.query("SELECT * FROM event_complete" + JdbcUtils.getLocateExt(locale) + " WHERE userid = ? LIMIT 10 OFFSET ?", new Object[]{id, (page - 1) * 10}, JdbcUtils.EVENT_ROW_MAPPER);
     }
 
     private void addTagToEvent(int eventId, int tagId) {
@@ -187,7 +189,7 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public void book(List<Booking> bookings, long userId, long eventId) {
+    public void book(List<Booking> bookings, long userId, long eventId, Locale locale) {
         for (Booking booking : bookings) {
             if (booking.getQty() == null || booking.getQty() <= 0)
                 continue;
@@ -203,7 +205,7 @@ public class EventJdbcDao implements EventDao {
                 jdbcBookInsert.execute(bookingData);
             }
         }
-        Event event = getEventById(eventId).orElse(null);
+        Event event = getEventById(eventId, locale).orElse(null);
         if (event != null && event.getMaxCapacity() <= 0)
             soldOut((int) eventId);
     }
@@ -226,20 +228,21 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public List<Event> getSimilarEvents(long eventId) {
-        return jdbcTemplate.query("WITH event_cte AS (SELECT * FROM event_complete WHERE eventId = ?) " +
+    public List<Event> getSimilarEvents(long eventId, Locale locale) {
+        String localeExt = JdbcUtils.getLocateExt(locale);
+        return jdbcTemplate.query("WITH event_cte AS (SELECT * FROM event_complete" + localeExt + " WHERE eventId = ?) " +
                 "SELECT *, (SELECT COUNT(*) FROM (SELECT unnest((SELECT tagIds FROM event_cte)) INTERSECT SELECT unnest(tagIds)) AS aux) AS similarity " +
-                "FROM (SELECT * FROM event_complete e WHERE e.typeId = (SELECT typeid FROM event_cte) AND e.locationId = (SELECT locationid FROM event_cte) " +
+                "FROM (SELECT * FROM event_complete" + localeExt + " e WHERE e.typeId = (SELECT typeid FROM event_cte) AND e.locationId = (SELECT locationid FROM event_cte) " +
                 "AND e.eventid <> (SELECT eventid FROM event_cte)) as eliteTt WHERE state != 1 AND state != 2 AND date > ? ORDER BY similarity DESC LIMIT 5",
                 new Object[] { eventId, Timestamp.valueOf(LocalDateTime.now()) }, JdbcUtils.EVENT_ROW_MAPPER);
     }
 
     @Override
-    public List<Event> getPopularEvents(long eventId) {
+    public List<Event> getPopularEvents(long eventId, Locale locale) {
         return jdbcTemplate.query("SELECT * FROM (SELECT b.eventId, COUNT(b.userId) AS popularity " +
                 "FROM bookings b JOIN (SELECT userId FROM bookings WHERE bookings.eventId = ?) AS aux ON b.userId = aux.userId " +
                 "WHERE b.eventid <> ? GROUP BY b.eventId ORDER BY popularity DESC) AS aux " +
-                "JOIN event_complete ec on aux.eventid = ec.eventid WHERE state != 1 AND state != 2 AND date > ? LIMIT 5",
+                "JOIN event_complete" + JdbcUtils.getLocateExt(locale) + " ec on aux.eventid = ec.eventid WHERE state != 1 AND state != 2 AND date > ? LIMIT 5",
                 new Object[] { eventId, eventId, Timestamp.valueOf(LocalDateTime.now()) }, JdbcUtils.EVENT_ROW_MAPPER);
     }
 

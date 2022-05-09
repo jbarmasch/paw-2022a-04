@@ -30,6 +30,8 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.messageresolver.IMessageResolver;
+import org.thymeleaf.spring4.SpringTemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import org.thymeleaf.templateresolver.ITemplateResolver;
@@ -83,7 +85,7 @@ public class WebConfig {
         mailSender.setPort(587);
 
         mailSender.setUsername("botpass@zohomail.com");
-        mailSender.setPassword("pawMailPass");
+        mailSender.setPassword("nnevdcwmybudbpmi");
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
@@ -111,7 +113,6 @@ public class WebConfig {
 
     @Bean
     public MessageSource messageSource() {
-//        LocaleContextHolder.getLocaleContext().getLocale()
         final ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
         messageSource.setBasename("classpath:i18n/messages");
         messageSource.setDefaultEncoding(StandardCharsets.UTF_8.displayName());
@@ -148,17 +149,19 @@ public class WebConfig {
         return new PropertySourcesPlaceholderConfigurer();
     }
 
-//    @Bean
-//    public ResourceBundleMessageSource emailMessageSource() {
-//        final ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-//        messageSource.setBasename("classpath:i18n/messages");
-//        return messageSource;
-//    }
+    @Bean
+    public ResourceBundleMessageSource emailMessageSource() {
+        final ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+        messageSource.setBasename("i18n/messages");
+        return messageSource;
+    }
 
     @Bean
-    public TemplateEngine emailTemplateEngine() {
-        final TemplateEngine templateEngine = new TemplateEngine();
+    public SpringTemplateEngine emailTemplateEngine() {
+//  public TemplateEngine emailTemplateEngine() {
+        final SpringTemplateEngine templateEngine = new SpringTemplateEngine();
         templateEngine.addTemplateResolver(htmlTemplateResolver());
+        templateEngine.setTemplateEngineMessageSource(emailMessageSource());
         return templateEngine;
     }
 

@@ -2,6 +2,7 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Type;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -22,12 +23,7 @@ public class TypeJdbcDao implements TypeDao {
     }
 
     @Override
-    public List<Type> getAll() {
-        return jdbcTemplate.query("SELECT * FROM types", ROW_MAPPER);
-    }
-
-    @Override
-    public Optional<Type> getTypeById(long id) {
-        return jdbcTemplate.query("SELECT * FROM types WHERE typeId = ?", new Object[] {id}, ROW_MAPPER).stream().findFirst();
+    public List<Type> getAll(Locale locale) {
+        return jdbcTemplate.query("SELECT * FROM types" + JdbcUtils.getLocateExt(locale) + " ORDER BY name", ROW_MAPPER);
     }
 }
