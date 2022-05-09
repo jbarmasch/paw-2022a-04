@@ -135,9 +135,8 @@ public class UserController {
         int i = 0;
         List<TicketBooking> tickets = eventBooking.getBookings();
         for (Booking booking : form.getBookings()) {
-            if (booking.getQty() != null && booking.getQty() > tickets.get(i).getQty()) {
+            if (booking.getQty() != null && booking.getQty() > tickets.get(i).getQty())
                 errors.rejectValue("bookings[" + i + "].qty", "Max.bookForm.qty", new Object[]{tickets.get(i).getQty()}, "");
-            }
             i++;
         }
 
@@ -146,7 +145,6 @@ public class UserController {
         }
 
         eventService.cancelBooking(form.getBookings(), user.getId(), user.getUsername(), user.getMail(), eventId, e.getName(), eventUser.getMail());
-//            return new ModelAndView("redirect:/error");
         return new ModelAndView("redirect:/bookings/");
     }
 

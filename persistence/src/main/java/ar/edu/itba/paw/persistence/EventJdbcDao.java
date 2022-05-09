@@ -36,8 +36,7 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public Event create(String name, String description, int locationId, int ticketsLeft, double price, int typeId,
-                        LocalDateTime date, int imageId, Integer[] tagIds, int userId) {
+    public Event create(String name, String description, int locationId, int typeId, LocalDateTime date, int imageId, Integer[] tagIds, int userId) {
         final Map<String, Object> eventData = new HashMap<>();
         eventData.put("name", name);
         eventData.put("description", description);
@@ -52,10 +51,14 @@ public class EventJdbcDao implements EventDao {
         for (Integer tagId : tagIds)
             addTagToEvent(eventId, tagId);
 
-        final Map<String, Object> userRole = new HashMap<>();
-        userRole.put("userid", userId);
-        userRole.put("roleid", RoleEnum.CREATOR.ordinal() + 1);
-        jdbcRolesInsert.execute(userRole);
+        Integer roleCount = jdbcTemplate.query("SELECT COUNT(*) AS aux FROM userroles WHERE roleid = ? AND userid = ?",
+                new Object[] { RoleEnum.CREATOR.ordinal() + 1, userId }, (rs, i) -> rs.getInt("aux")).stream().findFirst().orElse(null);
+        if (roleCount == null || roleCount == 0) {
+            final Map<String, Object> userRole = new HashMap<>();
+            userRole.put("userid", userId);
+            userRole.put("roleid", RoleEnum.CREATOR.ordinal() + 1);
+            jdbcRolesInsert.execute(userRole);
+        }
 
         return getEventById(eventId).orElseThrow(RuntimeException::new);
     }

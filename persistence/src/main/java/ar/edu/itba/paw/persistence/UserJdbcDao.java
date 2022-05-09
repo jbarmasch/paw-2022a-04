@@ -117,6 +117,13 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
+    public boolean canRate(long organizerId, long userId) {
+        Integer count = jdbcTemplate.query("SELECT COUNT(*) FROM bookings b JOIN events e ON e.eventid = b.eventid WHERE e.userid = ? AND b.userid = ? AND date <= ?",
+                new Object[]{ organizerId, userId, Timestamp.valueOf(LocalDateTime.now()) }, (rs, i) -> rs.getInt("count")).stream().findFirst().orElse(null);
+        return count != null && count != 0;
+    }
+
+    @Override
     public Optional<EventStats> getEventStats(long id) {
         return jdbcTemplate.query( "SELECT * FROM ((SELECT COUNT(*) AS events, SUM(bookings) AS bookings, SUM(bookings) / SUM(COALESCE(NULLIF(qty, 0), 1)) " +
                         "AS attendance, SUM(income) AS income FROM (SELECT e.eventid, SUM(COALESCE(booked, 0)) AS bookings, SUM(COALESCE(maxTickets, 0)) AS qty, " +

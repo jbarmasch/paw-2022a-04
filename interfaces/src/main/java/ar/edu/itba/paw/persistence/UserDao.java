@@ -18,4 +18,5 @@ public interface UserDao {
     Optional<UserStats> getUserStats(long id);
     Optional<User> findByMail(String mail);
     void rateUser(long userId, long organizerId, double rating);
+    boolean canRate(long organizerId, long userId);
 }

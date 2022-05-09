@@ -55,6 +55,8 @@ public class UserManager {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         List<GrantedAuthority> updatedAuthorities = new ArrayList<>(auth.getAuthorities());
+        if (updatedAuthorities.size() == user.getRoles().size())
+            return;
         for (Role role : user.getRoles()) {
             updatedAuthorities.add(new SimpleGrantedAuthority(role.getRoleName()));
         }

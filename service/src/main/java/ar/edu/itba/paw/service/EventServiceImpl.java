@@ -36,11 +36,11 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public Event create(String name, String description, int locationId, int maxCapacity, double price, int typeId, LocalDateTime date, byte[] imageArray, Integer[] tagIds, int userId) {
+    public Event create(String name, String description, int locationId, int typeId, LocalDateTime date, byte[] imageArray, Integer[] tagIds, int userId) {
         int imageId = 1;
         if (imageArray != null)
             imageId = imageService.addEventImage(imageArray);
-        return eventDao.create(name, description, locationId, maxCapacity, price, typeId, date, imageId, tagIds, userId);
+        return eventDao.create(name, description, locationId, typeId, date, imageId, tagIds, userId);
     }
 
     @Override

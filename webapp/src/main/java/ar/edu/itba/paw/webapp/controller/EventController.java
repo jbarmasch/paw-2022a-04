@@ -5,6 +5,7 @@ import ar.edu.itba.paw.service.*;
 import ar.edu.itba.paw.webapp.auth.PawUserDetailsService;
 import ar.edu.itba.paw.webapp.auth.UserManager;
 import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
+import ar.edu.itba.paw.webapp.exceptions.TicketNotFoundException;
 import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
 import ar.edu.itba.paw.webapp.helper.FilterUtils;
@@ -68,13 +69,17 @@ public class EventController {
         mav.addObject("ticketsSize", event.getTickets().size());
         mav.addObject("isOwner", isOwner);
         mav.addObject("isLogged", isLogged);
+        addSimilarAndPopularEvents(mav, eventId);
+        return mav;
+    }
+
+    private void addSimilarAndPopularEvents(ModelAndView mav, int eventId) {
         List<Event> similarEvents = eventService.getSimilarEvents(eventId);
         List<Event> popularEvents = eventService.getPopularEvents(eventId);
         mav.addObject("similarEvents", similarEvents);
         mav.addObject("similarEventsSize", similarEvents.size());
         mav.addObject("popularEvents", popularEvents);
         mav.addObject("popularEventsSize", popularEvents.size());
-        return mav;
     }
 
     @RequestMapping(value = "/events/{eventId}", method = { RequestMethod.POST }, params = "submit")
@@ -86,15 +91,13 @@ public class EventController {
 
         int i = 0;
         List<Ticket> tickets = e.getTickets();
-        for (Booking booking : form.getBookings()) {
+        for (Booking booking : form.getBookings())
             if (booking.getQty() != null && booking.getQty() > tickets.get(i).getTicketsLeft()) {
                 errors.rejectValue("bookings[" + i + "].qty", "Max.bookForm.qty", new Object[]{tickets.get(i).getTicketsLeft()}, "");
-            }
             i++;
         }
-        if (errors.hasErrors()) {
+        if (errors.hasErrors())
             return eventDescription(form, eventId);
-        }
 
         eventService.book(form.getBookings(), user.getId(), user.getUsername(), user.getMail(), eventId, e.getName(), eventUser.getMail());
         return new ModelAndView("redirect:/events/" + e.getId() + "/booking-success");
@@ -106,12 +109,7 @@ public class EventController {
             return new ModelAndView("redirect:/");
 
         final ModelAndView mav = new ModelAndView("bookingSuccess");
-        List<Event> similarEvents = eventService.getSimilarEvents(eventId);
-        List<Event> popularEvents = eventService.getPopularEvents(eventId);
-        mav.addObject("similarEvents", similarEvents);
-        mav.addObject("similarEventsSize", similarEvents.size());
-        mav.addObject("popularEvents", popularEvents);
-        mav.addObject("popularEventsSize", popularEvents.size());
+        addSimilarAndPopularEvents(mav, eventId);
         return mav;
     }
 
@@ -132,8 +130,8 @@ public class EventController {
             return createForm(form);
 
         final int userId = userManager.getUserId();
-        final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), 0, 0,
-                form.getType(), form.getTimestamp(), (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags(), userId);
+        final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), form.getType(), form.getTimestamp(),
+                (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags(), userId);
 
         userManager.refreshAuthorities();
         return new ModelAndView("redirect:/events/" + e.getId());
@@ -255,7 +253,7 @@ public class EventController {
         if (!isEventOwner(event))
             return new ModelAndView("redirect:/events/" + eventId);
 
-        final Ticket ticket = eventService.getTicketById(ticketId).orElseThrow(EventNotFoundException::new);
+        final Ticket ticket = eventService.getTicketById(ticketId).orElseThrow(TicketNotFoundException::new);
         ModelAndView mav = new ModelAndView("modifyTicket");
         mav.addObject("ticket", ticket);
         return mav;
@@ -268,7 +266,7 @@ public class EventController {
         final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
         if (!isEventOwner(event))
             return new ModelAndView("redirect:/events/" + eventId);
-        final Ticket ticket = eventService.getTicketById(ticketId).orElseThrow(EventNotFoundException::new);
+        final Ticket ticket = eventService.getTicketById(ticketId).orElseThrow(TicketNotFoundException::new);
         if (form.getQty() < ticket.getBooked())
             errors.rejectValue("qty", "Min.bookForm.qty", new Object[]{ticket.getBooked()}, "");
         if (errors.hasErrors())

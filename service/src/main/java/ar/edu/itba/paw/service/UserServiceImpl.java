@@ -72,6 +72,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void rateUser(long userId, long organizerId, double rating) {
+        if (!userDao.canRate(organizerId, userId))
+            return;
         userDao.rateUser(userId, organizerId, rating);
     }
 }
