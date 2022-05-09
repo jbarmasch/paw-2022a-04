@@ -7,7 +7,6 @@ public class EventStats {
     double attendance;
     double income;
 
-
     public EventStats(int eventsCreated, int bookingsGotten, Event popularEvent, double attendance, double income) {
         this.eventsCreated = eventsCreated;
         this.bookingsGotten = bookingsGotten;

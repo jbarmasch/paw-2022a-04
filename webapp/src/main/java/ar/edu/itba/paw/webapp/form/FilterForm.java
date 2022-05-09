@@ -18,6 +18,7 @@ public class FilterForm {
     private String searchQuery;
     private String orderBy;
     private String order;
+    private String username;
 
     public String getOrderBy() {
         return orderBy;
@@ -81,5 +82,13 @@ public class FilterForm {
 
     public void setTypes(String types) {
         this.types = types;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

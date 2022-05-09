@@ -53,10 +53,11 @@ public class FilterController {
                                      @RequestParam(value = "maxPrice", required = false) @NumberFormat(decimal = true) final String maxPrice,
                                      @RequestParam(value = "search", required = false) final String search,
                                      @RequestParam(value = "tags", required = false) @IntegerArray final String[] tags,
-                                     @RequestParam(value = "order", required = false) @Pattern(regexp = "price|date") final String order,
+                                     @RequestParam(value = "username", required = false) final String username,
+                                     @RequestParam(value = "order", required = false) @Pattern(regexp = "minPrice|date") final String order,
                                      @RequestParam(value = "orderBy", required = false) @Pattern(regexp = "ASC|DESC") final String orderBy,
                                      @RequestParam(value = "page", required = false, defaultValue = "1") @Min(1) final int page) {
-        List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, search, tags, order, orderBy, page);
+        List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, search, tags, username, order, orderBy, page);
 
         final ModelAndView mav = new ModelAndView("events");
         mav.addObject("page", page);
@@ -80,6 +81,7 @@ public class FilterController {
         filters.put("minPrice", form.getMinPrice());
         filters.put("maxPrice", form.getMaxPrice());
         filters.put("search", form.getSearchQuery());
+        filters.put("username", form.getUsername());
         filters.put("order", form.getOrder());
         filters.put("orderBy", form.getOrderBy());
         String endURL = FilterUtils.createFilter(filters);
@@ -96,6 +98,8 @@ public class FilterController {
 
         Map<String, Object> filters = new HashMap<>();
         filters.put("search", searchForm.getQuery());
+        if (searchForm.isByUsername())
+            filters.put("username", searchForm.getUsername());
         String endURL = FilterUtils.createFilter(filters);
 
         if (endURL.isEmpty())

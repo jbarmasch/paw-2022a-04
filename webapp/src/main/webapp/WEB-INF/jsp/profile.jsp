@@ -51,6 +51,10 @@
                             <c:import url="eventCard.jsp"/>
                         </c:if>
                     </c:forEach>
+                    <c:url value="/events" var="moreUserEvents">
+                        <c:param name="username" value="${user.username}"/>
+                    </c:url>
+                    <a href="${moreUserEvents}">VER MAS</a>
                 </c:when>
                 <c:otherwise>
                     <spring:message code="filter.noEvents"/>

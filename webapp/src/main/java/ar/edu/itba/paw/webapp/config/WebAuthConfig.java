@@ -39,6 +39,8 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers( "/events", "/", "/search").permitAll()
                     .antMatchers(HttpMethod.GET, "/events/**/add-tickets").authenticated()
                     .antMatchers(HttpMethod.GET, "/events/**").permitAll()
+                    .antMatchers(HttpMethod.GET, "/profile").authenticated()
+                    .antMatchers(HttpMethod.GET, "/profile/**").permitAll()
                     .antMatchers(HttpMethod.POST, "/events/**").authenticated()
                     .antMatchers("/**").authenticated()
                 .and().formLogin()

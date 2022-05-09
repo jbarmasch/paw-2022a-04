@@ -158,6 +158,9 @@ public class EventController {
     public ModelAndView modifyEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors,
                                     @PathVariable("eventId") @Min(1) final int eventId,
                                     @RequestParam("image") CommonsMultipartFile imageFile) {
+        final Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
+        if (!isEventOwner(event))
+            return new ModelAndView("redirect:/events/" + eventId);
         if (errors.hasErrors())
             return modifyForm(form, eventId);
 

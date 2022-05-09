@@ -62,73 +62,78 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public List<Event> filterBy(String[] locations, String[] types , String minPrice, String maxPrice,
-                                String searchQuery, String[] tags, String order, String orderBy, int page) {
-        StringBuilder query = new StringBuilder("SELECT * FROM event_complete ec WHERE state != 1");
-        if (locations != null || minPrice != null || maxPrice != null || types != null || searchQuery != null || tags != null) {
-            if (locations != null && locations.length > 0) {
-                String lastLocation = locations[locations.length - 1];
-                query.append("AND locationid IN (");
-                for (String location : locations) {
-                    query.append("'").append(location).append("'");
-                    if (!Objects.equals(location, lastLocation))
-                        query.append(", ");
-                }
-                query.append(")");
+                                String searchQuery, String[] tags, String username, String order, String orderBy, int page) {
+        StringBuilder query = new StringBuilder("SELECT * FROM event_complete ec WHERE state != 1 AND date > ?");
+        if (locations != null && locations.length > 0) {
+            String lastLocation = locations[locations.length - 1];
+            query.append(" AND locationid IN (");
+            for (String location : locations) {
+                query.append("'").append(location).append("'");
+                if (!Objects.equals(location, lastLocation))
+                    query.append(", ");
             }
-            if (minPrice != null) {
-                query.append(" AND minPrice >= ").append(minPrice);
-            }
-            if (maxPrice != null) {
-                query.append(" AND minPrice <= ").append(maxPrice);
-            }
-            if (types != null && types.length > 0) {
-                String lastType = types[types.length - 1];
-                query.append(" AND typeid IN (");
-                for (String type : types) {
-                    query.append("'").append(type).append("'");
-                    if (!Objects.equals(type, lastType))
-                        query.append(", ");
-                }
-                query.append(")");
-            }
-            if (tags != null && tags.length > 0) {
-                String lastTag = tags[tags.length - 1];
-                query.append(" AND NOT EXISTS (SELECT true FROM UNNEST('{");
-                for (String tag : tags) {
-                    query.append(tag);
-                    if (!Objects.equals(tag, lastTag))
-                        query.append(", ");
-                }
-                query.append("}'::INTEGER[]) t2 WHERE t2 NOT IN (SELECT UNNEST(tagIds) FROM event_complete WHERE ");
-                query.append("event_complete.eventid = ec.eventid)) AND ec.tagIds <> '{null}'");
-            }
-            if (searchQuery != null) {
-                query.append(" AND ((SELECT to_tsvector('Spanish', name) @@ to_tsquery('");
-                query.append(searchQuery).append("')) = 't' OR name ILIKE '%").append(searchQuery).append("%')");
-            }
+            query.append(")");
         }
-
+        if (minPrice != null) {
+            query.append(" AND minPrice >= ").append(minPrice);
+        }
+        if (maxPrice != null) {
+            query.append(" AND minPrice <= ").append(maxPrice);
+        }
+        if (types != null && types.length > 0) {
+            String lastType = types[types.length - 1];
+            query.append(" AND typeid IN (");
+            for (String type : types) {
+                query.append("'").append(type).append("'");
+                if (!Objects.equals(type, lastType))
+                    query.append(", ");
+            }
+            query.append(")");
+        }
+        if (tags != null && tags.length > 0) {
+            String lastTag = tags[tags.length - 1];
+            query.append(" AND NOT EXISTS (SELECT true FROM UNNEST('{");
+            for (String tag : tags) {
+                query.append(tag);
+                if (!Objects.equals(tag, lastTag))
+                    query.append(", ");
+            }
+            query.append("}'::INTEGER[]) t2 WHERE t2 NOT IN (SELECT UNNEST(tagIds) FROM event_complete WHERE ");
+            query.append("event_complete.eventid = ec.eventid)) AND ec.tagIds <> '{null}'");
+        }
+        if (searchQuery != null) {
+            query.append(" AND ((SELECT to_tsvector('Spanish', name) @@ to_tsquery('");
+            query.append(searchQuery).append("')) = 't' OR name ILIKE '%").append(searchQuery).append("%')");
+        }
+        if (username != null) {
+            query.append(" AND username = '").append(username).append("'");
+        }
         if (order != null && orderBy != null) {
             query.append(" ORDER BY ").append(order).append(" ").append(orderBy);
+        } else {
+            query.append(" ORDER BY date ");
         }
 
-        return jdbcTemplate.query(query + "  LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, JdbcUtils.EVENT_ROW_MAPPER);
+        return jdbcTemplate.query(query + "LIMIT 10 OFFSET ?",
+                new Object[]{ Timestamp.valueOf(LocalDateTime.now()), (page - 1) * 10 }, JdbcUtils.EVENT_ROW_MAPPER);
     }
 
     @Override
     public List<Event> getAll(int page) {
-        return jdbcTemplate.query("SELECT * FROM event_complete LIMIT 10 OFFSET ?", new Object[]{(page - 1) * 10}, JdbcUtils.EVENT_ROW_MAPPER);
+        return jdbcTemplate.query("SELECT * FROM event_complete WHERE date > ? LIMIT 10 OFFSET ?",
+                new Object[]{ Timestamp.valueOf(LocalDateTime.now()), (page - 1) * 10 }, JdbcUtils.EVENT_ROW_MAPPER);
     }
 
     @Override
     public List<Event> getFewTicketsEvents() {
-        return jdbcTemplate.query("SELECT * FROM event_complete WHERE attendance >= (4 * ticketsLeft) AND state != 1 AND state != 2 AND ticketsLeft > 0 LIMIT 4", JdbcUtils.EVENT_ROW_MAPPER);
+        return jdbcTemplate.query("SELECT * FROM event_complete WHERE attendance >= (4 * ticketsLeft) AND state != 1 AND state != 2 " +
+                "AND ticketsLeft > 0 AND date > ? LIMIT 4", new Object[]{ Timestamp.valueOf(LocalDateTime.now()) }, JdbcUtils.EVENT_ROW_MAPPER);
     }
 
     @Override
     public List<Event> getUpcomingEvents(){
         return jdbcTemplate.query("SELECT * FROM event_complete WHERE date > ? AND state != 1 AND state != 2 ORDER BY date LIMIT 5",
-                new Object[]{Timestamp.valueOf(LocalDateTime.now())}, JdbcUtils.EVENT_ROW_MAPPER);
+                new Object[]{ Timestamp.valueOf(LocalDateTime.now()) }, JdbcUtils.EVENT_ROW_MAPPER);
     }
 
     @Override
@@ -222,8 +227,8 @@ public class EventJdbcDao implements EventDao {
         return jdbcTemplate.query("WITH event_cte AS (SELECT * FROM event_complete WHERE eventId = ?) " +
                 "SELECT *, (SELECT COUNT(*) FROM (SELECT unnest((SELECT tagIds FROM event_cte)) INTERSECT SELECT unnest(tagIds)) AS aux) AS similarity " +
                 "FROM (SELECT * FROM event_complete e WHERE e.typeId = (SELECT typeid FROM event_cte) AND e.locationId = (SELECT locationid FROM event_cte) " +
-                "AND e.eventid <> (SELECT eventid FROM event_cte)) as eliteTt WHERE state != 1 AND state != 2 ORDER BY similarity DESC LIMIT 5",
-                new Object[] { eventId }, JdbcUtils.EVENT_ROW_MAPPER);
+                "AND e.eventid <> (SELECT eventid FROM event_cte)) as eliteTt WHERE state != 1 AND state != 2 AND date > ? ORDER BY similarity DESC LIMIT 5",
+                new Object[] { eventId, Timestamp.valueOf(LocalDateTime.now()) }, JdbcUtils.EVENT_ROW_MAPPER);
     }
 
     @Override
@@ -231,8 +236,8 @@ public class EventJdbcDao implements EventDao {
         return jdbcTemplate.query("SELECT * FROM (SELECT b.eventId, COUNT(b.userId) AS popularity " +
                 "FROM bookings b JOIN (SELECT userId FROM bookings WHERE bookings.eventId = ?) AS aux ON b.userId = aux.userId " +
                 "WHERE b.eventid <> ? GROUP BY b.eventId ORDER BY popularity DESC) AS aux " +
-                "JOIN event_complete ec on aux.eventid = ec.eventid WHERE state != 1 AND state != 2 LIMIT 5",
-                new Object[] { eventId, eventId }, JdbcUtils.EVENT_ROW_MAPPER);
+                "JOIN event_complete ec on aux.eventid = ec.eventid WHERE state != 1 AND state != 2 AND date > ? LIMIT 5",
+                new Object[] { eventId, eventId, Timestamp.valueOf(LocalDateTime.now()) }, JdbcUtils.EVENT_ROW_MAPPER);
     }
 
     @Override

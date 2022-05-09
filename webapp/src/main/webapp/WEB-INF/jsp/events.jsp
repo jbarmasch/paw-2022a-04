@@ -112,6 +112,7 @@
                 <form:input class="hidden" type="text" path="searchQuery" value="${param.search}"/>
                 <form:input class="hidden" type="text" path="orderBy" value="${param.orderBy}"/>
                 <form:input class="hidden" type="text" path="order" value="${param.order}"/>
+                <form:input class="hidden" type="text" path="username" value="${param.username}"/>
 
                 <div class="container event">
                     <spring:message code="filter.apply" var="applyMessage"/>

@@ -40,10 +40,4 @@ public class ImageJdbcDao implements ImageDao {
         final Number imageId = jdbcInsert.executeAndReturnKey(imageData);
         return imageId.intValue();
     }
-
-    @Override
-    public Optional<Image> getImgFromEventId(int eventId) {
-        return jdbcTemplate.query("SELECT images.imageid, images.image FROM events JOIN images ON events.imageid = images.imageid WHERE eventid = ?",
-                new Object[]{eventId}, ROW_MAPPER).stream().findFirst();
-    }
 }

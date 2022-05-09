@@ -14,6 +14,16 @@
                 <span uk-search-icon></span>
                 <spring:message code="appbar.search" var="searchEvent"/>
                 <form:input class="uk-search-input" type="search" placeholder="${searchEvent}" path="query" value="${param.search}"/>
+                <c:choose>
+                    <c:when test="${param.username != null}">
+                        <form:checkbox path="byUsername" label="Only search ${param.username} events" checked="checked"/>
+                        <form:input class="hidden" path="username" value="${param.username}"/>
+                    </c:when>
+                    <c:otherwise>
+                        <form:checkbox class="hidden" path="byUsername" value="${false}"/>
+                    </c:otherwise>
+                </c:choose>
+                <input class="hidden" type="submit"/>
             </form:form>
         </c:if>
     </div>

@@ -30,10 +30,4 @@ public class TypeJdbcDao implements TypeDao {
     public Optional<Type> getTypeById(long id) {
         return jdbcTemplate.query("SELECT * FROM types WHERE typeId = ?", new Object[] {id}, ROW_MAPPER).stream().findFirst();
     }
-
-    @Override
-    public Optional<Type> getTypeFromEventId(int eventId) {
-        return jdbcTemplate.query("SELECT types.typeid, types.name FROM events JOIN types ON events.typeid = types.typeid WHERE eventid = ?",
-                new Object[]{eventId}, ROW_MAPPER).stream().findFirst();
-    }
 }

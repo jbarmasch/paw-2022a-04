@@ -24,22 +24,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class UserController {
-    private final UserService userService;
-    private final EventService eventService;
-    private final UserManager userManager;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private EventService eventService;
+    @Autowired
+    private UserManager userManager;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
-
-    @Autowired
-    public UserController(final UserService userService, final EventService eventService,
-                          final UserManager userManager) {
-        this.userService = userService;
-        this.eventService = eventService;
-        this.userManager = userManager;
-    }
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public ModelAndView login(@RequestParam(value = "error", required = false) String error, HttpServletRequest request) {
@@ -48,8 +44,10 @@ public class UserController {
             if (error == null) {
                 mav.addObject("error", false);
                 AuthUtils.setReferrer(request, request.getHeader("Referer"));
-            } else
+            } else {
+                LOGGER.debug("Incorrect password or username");
                 mav.addObject("error", true);
+            }
             return mav;
         }
         return new ModelAndView("redirect:/");
@@ -57,18 +55,15 @@ public class UserController {
 
     @RequestMapping(value = "/register", method = { RequestMethod.GET })
     public ModelAndView createForm(@ModelAttribute("userForm") final UserForm form) {
-        if (!userManager.isAuthenticated()) {
+        if (!userManager.isAuthenticated())
             return new ModelAndView("register");
-        }
         return new ModelAndView("redirect:/");
     }
 
     @RequestMapping(value = "/register", method = { RequestMethod.POST })
     public ModelAndView create(@Valid @ModelAttribute("userForm") final UserForm form, final BindingResult errors, HttpServletRequest request) {
-        if (errors.hasErrors()) {
-            System.out.println(Arrays.toString(Arrays.stream(errors.getAllErrors().toArray()).toArray()));
+        if (errors.hasErrors())
             return createForm(form);
-        }
 
         userService.create(form.getUsername(), form.getPassword(), form.getMail());
         AuthUtils.requestAuthentication(request, form.getUsername(), form.getPassword());
@@ -86,10 +81,10 @@ public class UserController {
     public ModelAndView userProfile(@PathVariable("userId") final long userId) {
         UserStats stats = userService.getUserStats(userId).orElse(null);
         User user = userService.getUserById(userId).orElseThrow(UserNotFoundException::new);
-        List<Event> events = eventService.getUserEvents(userId, 1);
+        List<Event> events = eventService.getUserEvents(userId, 1).stream().limit(5).collect(Collectors.toList());
 
         final ModelAndView mav = new ModelAndView("profile");
-        if (userId == userManager.getUserId())
+        if (userManager.isAuthenticated() && userId == userManager.getUserId())
             mav.addObject("stats", stats);
         mav.addObject("user", user);
         mav.addObject("events", events);
