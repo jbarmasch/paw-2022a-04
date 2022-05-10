@@ -254,7 +254,7 @@
 
 <script type="text/javascript">
     function maxTicketsReached() {
-        UiKit.notification("${maxTicketsReached}", {timeout: 4000}, {status: 'danger'});
+        UIkit.notification("${maxTicketsReached}", {timeout: 4000}, {status: 'danger'});
     }
 
     (function() {

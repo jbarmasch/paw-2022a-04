@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.Event;
+import ar.edu.itba.paw.model.Order;
 import ar.edu.itba.paw.service.EventService;
 import ar.edu.itba.paw.service.LocationService;
 import ar.edu.itba.paw.service.TagService;
@@ -45,18 +46,17 @@ public class FilterController {
     @RequestMapping(value = "/events", method = { RequestMethod.GET })
     public ModelAndView browseEvents(@ModelAttribute("filterForm") final FilterForm form, final BindingResult errors,
                                      @ModelAttribute("searchForm") final SearchForm searchForm,
-                                     @RequestParam(value = "locations", required = false) @IntegerArray final String[] locations,
-                                     @RequestParam(value = "types", required = false) @IntegerArray final String[] types,
-                                     @RequestParam(value = "minPrice", required = false) @NumberFormat(decimal = true) final String minPrice,
-                                     @RequestParam(value = "maxPrice", required = false) @NumberFormat(decimal = true) final String maxPrice,
+                                     @RequestParam(value = "locations", required = false) final Integer[] locations,
+                                     @RequestParam(value = "types", required = false) final Integer[] types,
+                                     @RequestParam(value = "minPrice", required = false) final Double minPrice,
+                                     @RequestParam(value = "maxPrice", required = false) final Double maxPrice,
                                      @RequestParam(value = "search", required = false) final String search,
-                                     @RequestParam(value = "tags", required = false) @IntegerArray final String[] tags,
+                                     @RequestParam(value = "tags", required = false) final Integer[] tags,
                                      @RequestParam(value = "username", required = false) final String username,
-                                     @RequestParam(value = "order", required = false) @Pattern(regexp = "minPrice|date") final String order,
-                                     @RequestParam(value = "orderBy", required = false) @Pattern(regexp = "ASC|DESC") final String orderBy,
+                                     @RequestParam(value = "order", required = false) final Order order,
                                      @RequestParam(value = "page", required = false, defaultValue = "1") @Min(1) final int page) {
         Locale locale = LocaleContextHolder.getLocale();
-        List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, search, tags, username, order, orderBy, page, locale);
+        List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, search, tags, username, order, page, locale);
 
         final ModelAndView mav = new ModelAndView("events");
         mav.addObject("page", page);
@@ -82,7 +82,6 @@ public class FilterController {
         filters.put("search", form.getSearchQuery());
         filters.put("username", form.getUsername());
         filters.put("order", form.getOrder());
-        filters.put("orderBy", form.getOrderBy());
         String endURL = FilterUtils.createFilter(filters);
 
         if (endURL.isEmpty())

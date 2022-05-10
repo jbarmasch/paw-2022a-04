@@ -41,8 +41,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> filterBy(String[] locations, String[] types, String minPrice, String maxPrice, String query, String[] tags, String username, String order, String orderBy, int page, Locale locale) {
-        return eventDao.filterBy(locations, types, minPrice, maxPrice, query, tags, username, order, orderBy, page, locale);
+    public List<Event> filterBy(Integer[] locations, Integer[] types, Double minPrice, Double maxPrice, String query, Integer[] tags, String username, Order order, int page, Locale locale) {
+        return eventDao.filterBy(locations, types, minPrice, maxPrice, query, tags, username, order, page, locale);
     }
 
     @Transactional

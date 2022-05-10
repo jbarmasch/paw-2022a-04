@@ -9,6 +9,7 @@ import ar.edu.itba.paw.webapp.exceptions.TicketNotFoundException;
 import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
 import ar.edu.itba.paw.webapp.helper.FilterUtils;
+import ar.edu.itba.paw.webapp.validations.FileSize;
 import ar.edu.itba.paw.webapp.validations.IntegerArray;
 import ar.edu.itba.paw.webapp.validations.NumberFormat;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -19,12 +20,14 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -131,7 +134,7 @@ public class EventController {
 
     @RequestMapping(value = "/create-event", method = { RequestMethod.POST }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ModelAndView createEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors,
-                                    @RequestParam("image") CommonsMultipartFile imageFile) {
+                                    @RequestParam("image") MultipartFile imageFile) throws IOException {
         Locale locale = LocaleContextHolder.getLocale();
         if (errors.hasErrors())
             return createForm(form);

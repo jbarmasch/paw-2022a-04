@@ -110,7 +110,6 @@
                 <span class="formError"></span>
 
                 <form:input class="hidden" type="text" path="searchQuery" value="${param.search}"/>
-                <form:input class="hidden" type="text" path="orderBy" value="${param.orderBy}"/>
                 <form:input class="hidden" type="text" path="order" value="${param.order}"/>
                 <form:input class="hidden" type="text" path="username" value="${param.username}"/>
 
@@ -120,7 +119,6 @@
                 </div>
             </form:form>
         </div>
-
 
         <div class="container browse">
             <c:choose>
@@ -138,21 +136,14 @@
             </c:choose>
         </div>
         <div class="sep-top-xl sep-right">
+            <c:set var="page" value="${page}" scope="request"/>
             <c:import url="paging.jsp"/>
         </div>
-
-        <c:set var="page" value="${page}" scope="request"/>
     </div>
 </body>
 </html>
 
 <script type="text/javascript">
-    // function orderBy(order, orderBy) {
-    //     document.getElementsByName('order')[0].value = order;
-    //     document.getElementsByName('orderBy')[0].value = orderBy;
-    //     document.getElementById('filterForm').submit();
-    // }
-
     (function() {
         var minPrice = document.getElementById('minPrice');
         var maxPrice = document.getElementById('maxPrice');

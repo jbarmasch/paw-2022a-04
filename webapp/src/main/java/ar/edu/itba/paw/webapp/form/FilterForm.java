@@ -16,17 +16,8 @@ public class FilterForm {
     private Double maxPrice;
 
     private String searchQuery;
-    private String orderBy;
     private String order;
     private String username;
-
-    public String getOrderBy() {
-        return orderBy;
-    }
-
-    public void setOrderBy(String orderBy) {
-        this.orderBy = orderBy;
-    }
 
     public String getOrder() {
         return order;

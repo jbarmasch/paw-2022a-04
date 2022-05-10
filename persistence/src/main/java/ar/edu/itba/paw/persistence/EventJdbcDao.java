@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
+import javax.print.attribute.standard.JobOriginatingUserName;
 import javax.sql.DataSource;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -65,62 +66,72 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public List<Event> filterBy(String[] locations, String[] types , String minPrice, String maxPrice,
-                                String searchQuery, String[] tags, String username, String order, String orderBy, int page, Locale locale) {
+    public List<Event> filterBy(Integer[] locations, Integer[] types , Double minPrice, Double maxPrice,
+                                String searchQuery, Integer[] tags, String username, Order order, int page, Locale locale) {
         String localeExt = JdbcUtils.getLocateExt(locale);
+        List<Object> objects = new ArrayList<>();
+        objects.add(Timestamp.valueOf(LocalDateTime.now()));
         StringBuilder query = new StringBuilder("SELECT * FROM event_complete" + localeExt + " ec WHERE state != 1 AND date > ?");
         if (locations != null && locations.length > 0) {
-            String lastLocation = locations[locations.length - 1];
+            Integer lastLocation = locations[locations.length - 1];
             query.append(" AND locationid IN (");
-            for (String location : locations) {
-                query.append("'").append(location).append("'");
+            for (Integer location : locations) {
+                query.append("?");
+                objects.add(location);
                 if (!Objects.equals(location, lastLocation))
                     query.append(", ");
             }
             query.append(")");
         }
         if (minPrice != null) {
-            query.append(" AND minPrice >= ").append(minPrice);
+            query.append(" AND minPrice >= ?");
+            objects.add(minPrice);
         }
         if (maxPrice != null) {
-            query.append(" AND minPrice <= ").append(maxPrice);
+            query.append(" AND minPrice <= ?");
+            objects.add(maxPrice);
         }
         if (types != null && types.length > 0) {
-            String lastType = types[types.length - 1];
+            Integer lastType = types[types.length - 1];
             query.append(" AND typeid IN (");
-            for (String type : types) {
-                query.append("'").append(type).append("'");
+            for (Integer type : types) {
+                query.append("?");
+                objects.add(type);
                 if (!Objects.equals(type, lastType))
                     query.append(", ");
             }
             query.append(")");
         }
         if (tags != null && tags.length > 0) {
-            String lastTag = tags[tags.length - 1];
-            query.append(" AND NOT EXISTS (SELECT true FROM UNNEST('{");
-            for (String tag : tags) {
-                query.append(tag);
+            Integer lastTag = tags[tags.length - 1];
+//            query.append(" AND NOT EXISTS (SELECT true FROM UNNEST('{");
+            query.append(" AND tagIds && ARRAY[");
+            for (Integer tag : tags) {
+                query.append("?");
+                objects.add(tag);
                 if (!Objects.equals(tag, lastTag))
                     query.append(", ");
             }
-            query.append("}'::INTEGER[]) t2 WHERE t2 NOT IN (SELECT UNNEST(tagIds) FROM event_complete WHERE ");
-            query.append("event_complete.eventid = ec.eventid)) AND ec.tagIds <> '{null}'");
+            query.append("]");
+//            query.append("}'::INTEGER[]) t2 WHERE t2 NOT IN (SELECT UNNEST(tagIds) FROM event_complete WHERE ");
+//            query.append("event_complete.eventid = ec.eventid)) AND ec.tagIds <> '{null}'");
         }
         if (searchQuery != null) {
-            query.append(" AND ((SELECT to_tsvector('Spanish', name) @@ to_tsquery('");
-            query.append(searchQuery).append("')) = 't' OR name ILIKE '%").append(searchQuery).append("%')");
+            query.append(" AND ((SELECT to_tsvector('Spanish', name) @@ to_tsquery(?)) = 't' OR name ILIKE CONCAT('%', ?, '%'))");
+            objects.add(searchQuery);
+            objects.add(searchQuery);
         }
         if (username != null) {
-            query.append(" AND username = '").append(username).append("'");
+            query.append(" AND username = ?");
+            objects.add(username);
         }
-        if (order != null && orderBy != null) {
-            query.append(" ORDER BY ").append(order).append(" ").append(orderBy);
+        if (order != null) {
+            query.append(" ORDER BY ").append(order.getOrder()).append(" ").append(order.getOrderBy());
         } else {
             query.append(" ORDER BY date ");
         }
-
-        return jdbcTemplate.query(query + " LIMIT 10 OFFSET ?",
-                new Object[]{ Timestamp.valueOf(LocalDateTime.now()), (page - 1) * 10 }, JdbcUtils.EVENT_ROW_MAPPER);
+        objects.add((page - 1) * 10);
+        return jdbcTemplate.query(query + " LIMIT 10 OFFSET ?", objects.toArray(), JdbcUtils.EVENT_ROW_MAPPER);
     }
 
     @Override

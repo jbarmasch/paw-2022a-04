@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Event;
+import ar.edu.itba.paw.model.Order;
 import ar.edu.itba.paw.model.Ticket;
 import ar.edu.itba.paw.model.Booking;
 
@@ -13,7 +14,7 @@ public interface EventDao {
     List<Event> getAll(int page, Locale locale);
     Optional<Event> getEventById(long id, Locale locale);
     Event create(String name, String description, int locationId, int typeId, LocalDateTime date, int imageId, Integer[] tagIds, int userId, Locale locale);
-    List<Event> filterBy(String[] locations, String[] types, String minPrice, String maxPrice, String query, String[] tags, String username, String order, String orderBy, int page, Locale locale);
+    List<Event> filterBy(Integer[] locations, Integer[] types, Double minPrice, Double maxPrice, String query, Integer[] tags, String username, Order order, int page, Locale locale);
     void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int typeId, LocalDateTime date, int imgId, Integer[] tagIds);
     void deleteEvent(int id);
     List<Event> getUserEvents(long id, int page, Locale locale);

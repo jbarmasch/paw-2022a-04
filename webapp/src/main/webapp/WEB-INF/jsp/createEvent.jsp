@@ -92,6 +92,15 @@
         var type = document.getElementById('type');
         var location = document.getElementById('location');
         var form = document.getElementById('eventForm');
+        var uploadField = document.getElementById("image");
+
+        uploadField.onchange = function() {
+            if (this.files[0].size > 1048576) {
+                UIkit.notification("MUY GRANDE", {timeout: 4000}, {status: 'danger'});
+                // alert("MUY GRANDE");
+                this.value = "";
+            }
+        };
 
         var checkNameValidity = function() {
             if (name.validity.tooLong) {
