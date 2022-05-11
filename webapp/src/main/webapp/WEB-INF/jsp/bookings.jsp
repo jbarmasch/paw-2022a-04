@@ -147,7 +147,9 @@
                     </div>
                 </c:when>
                 <c:otherwise>
-                    <h5><spring:message code="booking.noBookings"/></h5>
+                    <div class="container browse">
+                        <spring:message code="booking.noBookings"/>
+                    </div>
                 </c:otherwise>
             </c:choose>
             <c:set var="page" value="${page}" scope="request"/>

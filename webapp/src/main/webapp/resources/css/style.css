@@ -245,6 +245,7 @@ input {
     align-items: flex-start;
     top: 0;
     right: 0;
+    margin-bottom: 10px;
 }
 
 .event_actions > * {
@@ -449,6 +450,17 @@ input[type=submit] {
     justify-content: space-around;
     margin: 20px;
     align-items: flex-start;
+}
+
+.event_name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.event_desc {
+    white-space: break-spaces;
+    overflow-wrap: break-word;
 }
 
 .data {

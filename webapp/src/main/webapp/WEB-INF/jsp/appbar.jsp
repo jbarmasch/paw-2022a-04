@@ -16,7 +16,8 @@
                 <form:input class="uk-search-input" type="search" placeholder="${searchEvent}" path="query" value="${param.search}"/>
                 <c:choose>
                     <c:when test="${param.username != null}">
-                        <form:checkbox path="byUsername" label="Only search ${param.username} events" checked="checked"/>
+                        <spring:message code="appbar.searchUser" arguments="${param.username}" var="userSearch"/>
+                        <form:checkbox path="byUsername" label="${userSearch}" checked="checked"/>
                         <form:input class="hidden" path="username" value="${param.username}"/>
                     </c:when>
                     <c:otherwise>
@@ -39,6 +40,7 @@
                     <button class="uk-button uk-button-text center"><c:out value="${username}"/><img src="<c:url value='/resources/svg/dropdown.svg'/>" alt="${dropdownAlt}"/></button>
                     <div uk-dropdown="mode: click; pos: bottom-center">
                         <ul class="uk-nav uk-dropdown-nav">
+                            <li><a href="<c:url value="/profile"/>"><spring:message code="appbar.dropdown0"/></a></li>
                             <li><a href="<c:url value="/bookings"/>"><spring:message code="appbar.dropdown1"/></a></li>
                             <li><a href="<c:url value="/my-events"/>"><spring:message code="appbar.dropdown2"/></a></li>
                             <c:if test="${isCreator}">

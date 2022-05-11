@@ -92,11 +92,6 @@ public class UserController {
     @RequestMapping(value = "/profile/{userId}", method = { RequestMethod.GET })
     public ModelAndView userProfile(@PathVariable("userId") final long userId) {
         Locale locale = LocaleContextHolder.getLocale();
-        UserStats stats = userService.getUserStats(userId, locale).orElse(null);
-        if (stats == null) {
-            LOGGER.error("Stats not found");
-            throw new StatsNotFoundException();
-        }
         User user = userService.getUserById(userId).orElse(null);
         if (user == null) {
             LOGGER.error("User not found");
@@ -106,6 +101,7 @@ public class UserController {
 
         final ModelAndView mav = new ModelAndView("profile");
         if (userManager.isAuthenticated() && userId == userManager.getUserId()) {
+            UserStats stats = userService.getUserStats(userId, locale).orElse(null);
             LOGGER.debug("User can see stats");
             mav.addObject("stats", stats);
         }

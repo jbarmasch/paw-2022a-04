@@ -44,8 +44,8 @@
                             </div>
                     </div>
                 </c:if>
-                <h3><c:out value="${event.name}"/></h3>
-                <p><c:out value="${event.description}"/></p>
+                <h3 class="event_name"><c:out value="${event.name}"/></h3>
+                <p class="event_desc"><c:out value="${event.description}"/></p>
                 <div class="container">
                     <spring:message var="altLocationIcon" code="event.locationAlt"/>
                     <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="${altLocationIcon}"/><span><c:out value="${event.location.name}"/></span>
@@ -218,16 +218,16 @@
                 <div class="tickets container vertical">
                     <table class="tickets-table">
                         <tr>
-                            <th><b><spring:message code="tickets.ticketName"/></b></th>
-                            <th><b><spring:message code="event.ticketsLeft"/></b></th>
-                            <th><b><spring:message code="tickets.ticketPrice"/></b></th>
-                            <th><b><spring:message code="tickets.ticketBooked"/></b></th>
-                            <th><b><spring:message code="tickets.actions"/></b></th>
+                            <th><spring:message code="tickets.ticketName"/></th>
+                            <th><spring:message code="event.ticketsLeft"/></th>
+                            <th><spring:message code="tickets.ticketPrice"/></th>
+                            <th><spring:message code="tickets.ticketBooked"/></th>
+                            <th><spring:message code="tickets.actions"/></th>
                         </tr>
 
                         <c:set var="j" value="-1"/>
                         <c:forEach var="ticket" items="${event.tickets}">
-                            <c:set var="j" value="${j += 1}"/>
+                            <c:set var="j" value="${j + 1}"/>
                             <tr>
                                 <td>
                                     <span><c:out value="${ticket.ticketName}"/></span>
