@@ -12,6 +12,7 @@
 <body>
     <%@ include file="appbar.jsp"%>
     <div class="container event">
+        <spring:message code="delete" var="delete"/>
         <div class="container">
             <div class="event_img_container">
                 <spring:message var="altEventMessage" code="event.imageAlt"/>
@@ -27,9 +28,20 @@
                         <spring:message var="altDeleteIcon" code="event.deleteAlt"/>
                         <spring:message var="altEditIcon" code="event.editAlt"/>
                         <input type="image" class="icon" src="<c:url value="/resources/svg/edit.svg"/>" alt="${altEditIcon}" onclick="location.href='<c:url value="/events/${event.id}/modify"/>'"/>
-                        <form class="transparent" action="<c:url value="/events/${event.id}/delete"/>" method="post">
-                            <input class="icon" src="<c:url value="/resources/svg/trash.svg"/>" alt="${altDeleteIcon}" type="image" name="submit" value=""/>
-                        </form>
+                        <input class="icon" src="<c:url value="/resources/svg/trash.svg"/>" alt="${altDeleteIcon}" type="image" uk-toggle="target: #confirmation"/>
+                            <div id="confirmation" uk-modal>
+                                <div class="uk-modal-dialog">
+                                    <button class="uk-modal-close-default" type="button" uk-close></button>
+                                    <div class="uk-modal-header">
+                                        <h3 class="subtitle uk-modal-title"><spring:message code="event.confirmationDelete"/></h3>
+                                    </div>
+                                    <div class="uk-modal-body">
+                                        <form class="transparent form-marginless" action="<c:url value="/events/${event.id}/delete"/>" method="post">
+                                            <input class="accept-button-modal cancel_button" type="submit" value="${delete}" />
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                     </div>
                 </c:if>
                 <h3><c:out value="${event.name}"/></h3>
@@ -43,8 +55,19 @@
                     <img class="icon" src="<c:url value="/resources/svg/price-tag.svg"/>" alt="${altMinPriceIcon}"/>
                     <span>
                         <c:choose>
-                            <c:when test="${event.minPrice == 0}"><spring:message code="event.free"/></c:when>
-                            <c:otherwise>$<c:out value="${event.minPrice}"/></c:otherwise>
+                            <c:when test="${event.soldOut}">
+                                <spring:message code="event.soldOut"/>
+                            </c:when>
+                            <c:when test="${event.ticketsSize == 0}">
+                                <spring:message code="event.notApplies"/>
+                            </c:when>
+                            <c:when test="${event.minPrice != null && event.minPrice == 0}"><spring:message code="event.free"/></c:when>
+                            <c:when test="${event.minPrice != null && event.minPrice > 0}"><spring:message code="event.starting"/>
+                                &nbsp;$<c:out value="${event.minPrice}"/>
+                            </c:when>
+                            <c:otherwise>
+                                <spring:message code="event.notApplies"/>
+                            </c:otherwise>
                         </c:choose>
                     </span>
                 </div>
@@ -202,7 +225,9 @@
                             <th><b><spring:message code="tickets.actions"/></b></th>
                         </tr>
 
+                        <c:set var="j" value="-1"/>
                         <c:forEach var="ticket" items="${event.tickets}">
+                            <c:set var="j" value="${j += 1}"/>
                             <tr>
                                 <td>
                                     <span><c:out value="${ticket.ticketName}"/></span>
@@ -219,8 +244,21 @@
                                 <td>
                                     <div class="horizontal">
                                         <input type="image" class="icon" src="<c:url value="/resources/svg/edit.svg"/>" alt="${altEditIcon}" onclick="location.href='<c:url value="/events/${event.id}/modify-ticket/${ticket.id}"/>'"/>
+                                        <input class="icon" src="<c:url value="/resources/svg/trash.svg"/>" alt="${altDeleteIcon}" type="image" uk-toggle="target: #confirmation${j}" value=""/>
+                                            <div id="confirmation${j}" uk-modal>
+                                                <div class="uk-modal-dialog">
+                                                    <button class="uk-modal-close-default" type="button" uk-close></button>
+                                                    <div class="uk-modal-header">
+                                                        <h3 class="uk-modal-title subtitle"><spring:message code="ticket.confirmationDelete"/></h3>
+                                                    </div>
+                                                    <div class="uk-modal-body">
+                                                            <form class="transparent form-marginless" action="<c:url value="/events/${event.id}/delete-ticket/${ticket.id}"/>" method="post">
+                                                                <input class="accept-button-modal cancel_button" type="submit" value="${delete}">
+                                                            </form>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         <form class="transparent form-marginless" action="<c:url value="/events/${event.id}/delete-ticket/${ticket.id}"/>" method="post">
-                                            <input class="icon" src="<c:url value="/resources/svg/trash.svg"/>" alt="${altDeleteIcon}" type="image" name="submit" value=""/>
                                         </form>
                                     </div>
                                 </td>

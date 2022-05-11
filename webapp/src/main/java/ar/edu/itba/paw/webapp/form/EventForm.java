@@ -1,6 +1,5 @@
 package ar.edu.itba.paw.webapp.form;
 
-import ar.edu.itba.paw.webapp.validations.FileSize;
 import ar.edu.itba.paw.webapp.validations.Future;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,7 +29,6 @@ public class EventForm {
     @NotEmpty
     private Integer[] tags;
 
-    @FileSize
     private MultipartFile image;
 
     public void setImage(MultipartFile image) {

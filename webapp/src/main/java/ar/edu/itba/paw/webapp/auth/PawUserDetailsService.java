@@ -5,6 +5,8 @@ import ar.edu.itba.paw.model.RoleEnum;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.EventService;
 import ar.edu.itba.paw.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,13 +23,19 @@ public class PawUserDetailsService implements UserDetailsService {
     @Autowired
     private UserService us;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(PawUserDetailsService.class);
+
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        final User user = us.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("No user by the name " + username));
+        final User user = us.findByUsername(username).orElse(null);
+        if (user == null) {
+            LOGGER.error("No user by the name {}", username);
+            throw new UsernameNotFoundException("Username not found");
+        }
+
         final Collection<GrantedAuthority> authorities = new ArrayList<>();
-         for (Role role : user.getRoles()) {
-             authorities.add(new SimpleGrantedAuthority(role.getRoleName()));
-         }
+        for (Role role : user.getRoles())
+            authorities.add(new SimpleGrantedAuthority(role.getRoleName()));
         return new org.springframework.security.core.userdetails.User(username, user.getPassword(), authorities);
     }
 }

@@ -10,8 +10,8 @@ import ar.edu.itba.paw.webapp.auth.UserManager;
 import ar.edu.itba.paw.webapp.form.FilterForm;
 import ar.edu.itba.paw.webapp.form.SearchForm;
 import ar.edu.itba.paw.webapp.helper.FilterUtils;
-import ar.edu.itba.paw.webapp.validations.IntegerArray;
-import ar.edu.itba.paw.webapp.validations.NumberFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
@@ -26,7 +26,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
 import java.util.*;
 
 @Validated
@@ -42,6 +41,8 @@ public class FilterController {
     private TagService tagService;
     @Autowired
     private UserManager userManager;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FilterController.class);
 
     @RequestMapping(value = "/events", method = { RequestMethod.GET })
     public ModelAndView browseEvents(@ModelAttribute("filterForm") final FilterForm form, final BindingResult errors,
@@ -70,8 +71,10 @@ public class FilterController {
 
     @RequestMapping(value = "/events", method = { RequestMethod.POST })
     public ModelAndView browseByFilters(@Valid @ModelAttribute("filterForm") final FilterForm form, final BindingResult errors) {
-        if (errors.hasErrors())
-            return new ModelAndView("error");
+        if (errors.hasErrors()) {
+            LOGGER.error("FilterForm has errors: {}", errors.getAllErrors().toArray());
+            return ErrorController.createErrorModel("400");
+        }
 
         Map<String, Object> filters = new HashMap<>();
         filters.put("locations", form.getLocations());
@@ -86,13 +89,17 @@ public class FilterController {
 
         if (endURL.isEmpty())
             return new ModelAndView("redirect:/events");
+
+        LOGGER.debug("Created URL /events?{}", endURL);
         return new ModelAndView("redirect:/events?" + endURL);
     }
 
     @RequestMapping(value = "/search", method = { RequestMethod.POST })
     public ModelAndView search(@Valid @ModelAttribute("searchForm") final SearchForm searchForm, final BindingResult errors) {
-        if (errors.hasErrors())
-            return new ModelAndView("error");
+        if (errors.hasErrors()) {
+            LOGGER.error("SearchForm has errors: {}", errors.getAllErrors().toArray());
+            return ErrorController.createErrorModel("400");
+        }
 
         Map<String, Object> filters = new HashMap<>();
         filters.put("search", searchForm.getQuery());
@@ -102,6 +109,8 @@ public class FilterController {
 
         if (endURL.isEmpty())
             return new ModelAndView("redirect:/events");
+
+        LOGGER.debug("Created URL /events?{}", endURL);
         return new ModelAndView("redirect:/events?" + endURL);
     }
 

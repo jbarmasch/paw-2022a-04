@@ -6,6 +6,8 @@ import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.webapp.helper.AuthUtils;
 import ar.edu.itba.paw.webapp.auth.UserManager;
 import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
+import ar.edu.itba.paw.webapp.exceptions.BookingNotFoundException;
+import ar.edu.itba.paw.webapp.exceptions.StatsNotFoundException;
 import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.BookForm;
 import ar.edu.itba.paw.webapp.form.SearchForm;
@@ -46,11 +48,13 @@ public class UserController {
                 mav.addObject("error", false);
                 AuthUtils.setReferrer(request, request.getHeader("Referer"));
             } else {
-                LOGGER.debug("Incorrect password or username");
+                LOGGER.error("Incorrect password or username");
                 mav.addObject("error", true);
             }
             return mav;
         }
+
+        LOGGER.debug("User is already authenticated");
         return new ModelAndView("redirect:/");
     }
 
@@ -58,14 +62,19 @@ public class UserController {
     public ModelAndView createForm(@ModelAttribute("userForm") final UserForm form) {
         if (!userManager.isAuthenticated())
             return new ModelAndView("register");
+
+        LOGGER.debug("User is already authenticated");
         return new ModelAndView("redirect:/");
     }
 
     @RequestMapping(value = "/register", method = { RequestMethod.POST })
     public ModelAndView create(@Valid @ModelAttribute("userForm") final UserForm form, final BindingResult errors, HttpServletRequest request) {
-        if (errors.hasErrors())
+        if (errors.hasErrors()) {
+            LOGGER.error("UserForm has errors: {}", errors.getAllErrors().toArray());
             return createForm(form);
+        }
 
+        LOGGER.debug("Create new user with username {}", form.getUsername());
         userService.create(form.getUsername(), form.getPassword(), form.getMail());
         AuthUtils.requestAuthentication(request, form.getUsername(), form.getPassword());
         return new ModelAndView("redirect:" + AuthUtils.redirectionAuthenticationSuccess(request));
@@ -75,6 +84,8 @@ public class UserController {
     public ModelAndView forgotPass() {
         if (!userManager.isAuthenticated())
             return new ModelAndView("forgotPass");
+
+        LOGGER.debug("User is already authenticated");
         return new ModelAndView("redirect:/");
     }
 
@@ -82,12 +93,22 @@ public class UserController {
     public ModelAndView userProfile(@PathVariable("userId") final long userId) {
         Locale locale = LocaleContextHolder.getLocale();
         UserStats stats = userService.getUserStats(userId, locale).orElse(null);
-        User user = userService.getUserById(userId).orElseThrow(UserNotFoundException::new);
+        if (stats == null) {
+            LOGGER.error("Stats not found");
+            throw new StatsNotFoundException();
+        }
+        User user = userService.getUserById(userId).orElse(null);
+        if (user == null) {
+            LOGGER.error("User not found");
+            throw new UserNotFoundException();
+        }
         List<Event> events = eventService.getUserEvents(userId, 1, locale).stream().limit(5).collect(Collectors.toList());
 
         final ModelAndView mav = new ModelAndView("profile");
-        if (userManager.isAuthenticated() && userId == userManager.getUserId())
+        if (userManager.isAuthenticated() && userId == userManager.getUserId()) {
+            LOGGER.debug("User can see stats");
             mav.addObject("stats", stats);
+        }
         mav.addObject("user", user);
         mav.addObject("events", events);
         mav.addObject("size", events.size());
@@ -123,9 +144,15 @@ public class UserController {
                                   @Valid @ModelAttribute("rateForm") final RateForm rateForm, final BindingResult rateErrors,
                                   @PathVariable("eventId") final int eventId) {
         Locale locale = LocaleContextHolder.getLocale();
-        Event e = eventService.getEventById(eventId, locale).orElseThrow(EventNotFoundException::new);
-        if (rateErrors.hasErrors())
+        Event e = eventService.getEventById(eventId, locale).orElse(null);
+        if (e == null) {
+            LOGGER.error("Event not found");
+            throw new EventNotFoundException();
+        }
+        if (rateErrors.hasErrors()) {
+            LOGGER.error("BookForm has errors: {}", errors.getAllErrors().toArray());
             return bookings(form, rateForm, form.getPage(), eventId);
+        }
         userService.rateUser(userManager.getUserId(), e.getUser().getId(), rateForm.getRating());
         return new ModelAndView("redirect:/bookings/");
     }
@@ -135,10 +162,22 @@ public class UserController {
                                       @Valid @ModelAttribute("rateForm") final RateForm rateForm, final BindingResult rateErrors,
                                       @PathVariable("eventId") final int eventId) {
         Locale locale = LocaleContextHolder.getLocale();
-        final Event e = eventService.getEventById(eventId, locale).orElseThrow(EventNotFoundException::new);
+        final Event e = eventService.getEventById(eventId, locale).orElse(null);
+        if (e == null) {
+            LOGGER.error("Event not found");
+            throw new EventNotFoundException();
+        }
         final User user = userManager.getUser();
-        final User eventUser = userService.getUserById(e.getUser().getId()).orElseThrow(RuntimeException::new);
-        EventBooking eventBooking = userService.getBookingFromUser(user.getId(), eventId, locale).orElseThrow(RuntimeException::new);
+        final User eventUser = userService.getUserById(e.getUser().getId()).orElse(null);
+        if (eventUser == null) {
+            LOGGER.error("Organizer not found");
+            throw new UserNotFoundException();
+        }
+        EventBooking eventBooking = userService.getBookingFromUser(user.getId(), eventId, locale).orElse(null);
+        if (eventBooking == null) {
+            LOGGER.error("Booking not found");
+            throw new BookingNotFoundException();
+        }
 
         int i = 0;
         List<TicketBooking> tickets = eventBooking.getBookings();
@@ -149,6 +188,7 @@ public class UserController {
         }
 
         if (errors.hasErrors()) {
+            LOGGER.error("BookForm has errors: {}", errors.getAllErrors().toArray());
             return bookings(form, rateForm, form.getPage(), eventId);
         }
 

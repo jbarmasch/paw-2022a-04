@@ -31,11 +31,12 @@
         <div class="uk-inline">
             <c:choose>
                 <c:when test="${username == null}">
-                    <button class="uk-button uk-button-text" onclick="location.href='<c:url value="/login"/>'">Iniciar sesión</button>
+                    <button class="uk-button uk-button-text" onclick="location.href='<c:url value="/login"/>'"><spring:message code="login.login"/></button>
                 </c:when>
                 <c:otherwise>
                 <div class="uk-inline">
-                    <button class="uk-button uk-button-text center"><c:out value="${username}"/><img src="<c:url value='/resources/svg/dropdown.svg'/>" alt="Dropdown"/></button>
+                    <spring:message code="appbar.dropdown" var="dropdownAlt"/>
+                    <button class="uk-button uk-button-text center"><c:out value="${username}"/><img src="<c:url value='/resources/svg/dropdown.svg'/>" alt="${dropdownAlt}"/></button>
                     <div uk-dropdown="mode: click; pos: bottom-center">
                         <ul class="uk-nav uk-dropdown-nav">
                             <li><a href="<c:url value="/bookings"/>"><spring:message code="appbar.dropdown1"/></a></li>

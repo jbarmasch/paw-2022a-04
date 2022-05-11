@@ -11,9 +11,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD })
 public @interface BookingList {
-    String message() default "REQUIRED";
-    String messageNotNull() default "AT LEAST ONE TICKET IS REQUIRED";
-    String messagePositive() default "MUST BE POSITIVE";
+    String message() default "{bookingList.required}";
+    String messageNotNull() default "{bookingList.notNull}";
+    String messagePositive() default "{bookingList.required}";
 
     Class<?>[] groups() default {};
 

@@ -33,7 +33,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public Event create(String name, String description, int locationId, int typeId, LocalDateTime date, byte[] imageArray, Integer[] tagIds, int userId, Locale locale) {
+    public Event create(String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Integer[] tagIds, long userId, Locale locale) {
         int imageId = 1;
         if (imageArray != null)
             imageId = imageService.addEventImage(imageArray);
@@ -47,15 +47,15 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public void updateEvent(int id, String name, String description, Integer locationId, int maxCapacity, double price, int typeId, LocalDateTime date, byte[] imageArray, Integer[] tagIds) {
+    public void updateEvent(long id, String name, String description, Integer locationId, long typeId, LocalDateTime date, byte[] imageArray, Integer[] tagIds) {
         int imageId = 1;
         if (imageArray != null)
             imageId = imageService.addEventImage(imageArray);
-        eventDao.updateEvent(id, name, description, locationId, maxCapacity, price, typeId, date, imageId, tagIds);
+        eventDao.updateEvent(id, name, description, locationId, typeId, date, imageId, tagIds);
     }
 
     @Override
-    public void deleteEvent(int id) {
+    public void deleteEvent(long id) {
         eventDao.deleteEvent(id);
     }
 
@@ -89,12 +89,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void soldOut(int id) {
+    public void soldOut(long id) {
         eventDao.soldOut(id);
     }
 
     @Override
-    public void active(int id) {
+    public void active(long id) {
         eventDao.active(id);
     }
 
@@ -119,12 +119,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void updateTicket(long id, String ticketName, double price, int booked, int qty) {
-        eventDao.updateTicket(id, ticketName, price, booked, qty);
+    public void updateTicket(long id, String ticketName, double price, int qty) {
+        eventDao.updateTicket(id, ticketName, price, qty);
     }
 
     @Override
-    public void deleteTicket(int ticketId) {
+    public void deleteTicket(long ticketId) {
         eventDao.deleteTicket(ticketId);
     }
 }

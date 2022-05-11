@@ -3,7 +3,10 @@ package ar.edu.itba.paw.webapp.auth;
 import ar.edu.itba.paw.model.Role;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.UserService;
+import ar.edu.itba.paw.webapp.controller.UserController;
 import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,6 +25,8 @@ public class UserManager {
     @Autowired
     private UserService userService;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserManager.class);
+
     public boolean isAuthenticated() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return auth != null && !(auth instanceof AnonymousAuthenticationToken);
@@ -30,14 +35,23 @@ public class UserManager {
     public String getUsername() {
         if (isAuthenticated())
             return ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+
+        LOGGER.debug("User is not authenticated");
         return null;
     }
 
     public User getUser() {
         if (isAuthenticated()) {
             String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-            return userService.findByUsername(username).orElseThrow(UserNotFoundException::new);
+            User user = userService.findByUsername(username).orElse(null);
+            if (user == null) {
+                LOGGER.error("User not found");
+                throw new UserNotFoundException();
+            }
+            return user;
         }
+
+        LOGGER.debug("User is not authenticated");
         return null;
     }
 

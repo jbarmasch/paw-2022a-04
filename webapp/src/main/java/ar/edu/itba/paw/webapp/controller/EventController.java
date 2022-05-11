@@ -2,23 +2,20 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.service.*;
-import ar.edu.itba.paw.webapp.auth.PawUserDetailsService;
 import ar.edu.itba.paw.webapp.auth.UserManager;
 import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
-import ar.edu.itba.paw.webapp.exceptions.TicketNotFoundException;
 import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
+import ar.edu.itba.paw.webapp.exceptions.StatsNotFoundException;
+import ar.edu.itba.paw.webapp.exceptions.TicketNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
-import ar.edu.itba.paw.webapp.helper.FilterUtils;
-import ar.edu.itba.paw.webapp.validations.FileSize;
-import ar.edu.itba.paw.webapp.validations.IntegerArray;
-import ar.edu.itba.paw.webapp.validations.NumberFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
@@ -26,7 +23,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -46,6 +42,8 @@ public class EventController {
     @Autowired
     private UserManager userManager;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(EventController.class);
+
     @RequestMapping(value = "/", method = { RequestMethod.GET })
     public ModelAndView home() {
         Locale locale = LocaleContextHolder.getLocale();
@@ -61,9 +59,13 @@ public class EventController {
     }
 
     @RequestMapping(value = "/events/{eventId}", method = RequestMethod.GET)
-    public ModelAndView eventDescription(@ModelAttribute("bookForm") final BookForm form, @PathVariable("eventId") @Min(1) final int eventId) {
+    public ModelAndView eventDescription(@ModelAttribute("bookForm") final BookForm form, @PathVariable("eventId") @Min(1) final long eventId) {
         Locale locale = LocaleContextHolder.getLocale();
-        final Event event = eventService.getEventById(eventId, locale).orElseThrow(EventNotFoundException::new);
+        final Event event = eventService.getEventById(eventId, locale).orElse(null);
+        if (event == null) {
+            LOGGER.error("Event not found");
+            throw new EventNotFoundException();
+        }
         boolean isLogged = false, isOwner = false;
         if (userManager.isAuthenticated()) {
             isLogged = true;
@@ -79,7 +81,7 @@ public class EventController {
         return mav;
     }
 
-    private void addSimilarAndPopularEvents(ModelAndView mav, int eventId) {
+    private void addSimilarAndPopularEvents(ModelAndView mav, long eventId) {
         Locale locale = LocaleContextHolder.getLocale();
         List<Event> similarEvents = eventService.getSimilarEvents(eventId, locale);
         List<Event> popularEvents = eventService.getPopularEvents(eventId, locale);
@@ -91,11 +93,20 @@ public class EventController {
 
     @RequestMapping(value = "/events/{eventId}", method = { RequestMethod.POST }, params = "submit")
     public ModelAndView bookEvent(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors,
-                                  @PathVariable("eventId") @Min(1) final int eventId) {
+                                  @PathVariable("eventId") @Min(1) final long eventId) {
         Locale locale = LocaleContextHolder.getLocale();
-        final Event e = eventService.getEventById(eventId, locale).orElseThrow(EventNotFoundException::new);
+        final Event e = eventService.getEventById(eventId, locale).orElse(null);
+        if (e == null) {
+            LOGGER.error("Event not found");
+            throw new EventNotFoundException();
+        }
+
         final User user = userManager.getUser();
-        final User eventUser = userService.getUserById(e.getUser().getId()).orElseThrow(UserNotFoundException::new);
+        final User eventUser = userService.getUserById(e.getUser().getId()).orElse(null);
+        if (eventUser == null) {
+            LOGGER.error("Organizer not found");
+            throw new UserNotFoundException();
+        }
 
         int i = 0;
         List<Ticket> tickets = e.getTickets();
@@ -104,18 +115,21 @@ public class EventController {
                 errors.rejectValue("bookings[" + i + "].qty", "Max.bookForm.qty", new Object[]{tickets.get(i).getTicketsLeft()}, "");
             i++;
         }
-        if (errors.hasErrors())
+        if (errors.hasErrors()) {
+            LOGGER.error("BookForm has errors: {}", errors.getAllErrors().toArray());
             return eventDescription(form, eventId);
+        }
 
         eventService.book(form.getBookings(), user.getId(), user.getUsername(), user.getMail(), eventId, e.getUser().getUsername(), e.getName(), eventUser.getMail(), LocaleContextHolder.getLocale());
         return new ModelAndView("redirect:/events/" + e.getId() + "/booking-success");
     }
 
     @RequestMapping(value = "/events/{eventId}/booking-success", method = RequestMethod.GET)
-    public ModelAndView bookSuccess(@PathVariable("eventId") @Min(1) final int eventId) {
+    public ModelAndView bookSuccess(@PathVariable("eventId") @Min(1) final long eventId) {
         if (!userManager.isAuthenticated())
             return new ModelAndView("redirect:/");
 
+//        LOGGER.debug("Booking has been made successfully");
         final ModelAndView mav = new ModelAndView("bookingSuccess");
         addSimilarAndPopularEvents(mav, eventId);
         return mav;
@@ -136,8 +150,10 @@ public class EventController {
     public ModelAndView createEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors,
                                     @RequestParam("image") MultipartFile imageFile) throws IOException {
         Locale locale = LocaleContextHolder.getLocale();
-        if (errors.hasErrors())
+        if (errors.hasErrors()) {
+            LOGGER.error("EventForm has errors: {}", errors.getAllErrors().toArray());
             return createForm(form);
+        }
 
         final int userId = userManager.getUserId();
         final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), form.getType(), form.getTimestamp(),
@@ -148,11 +164,18 @@ public class EventController {
     }
 
     @RequestMapping(value = "/events/{eventId}/modify", method = { RequestMethod.GET })
-    public ModelAndView modifyForm(@ModelAttribute("eventForm") final EventForm form, @PathVariable("eventId") @Min(1) final int eventId) {
+    public ModelAndView modifyForm(@ModelAttribute("eventForm") final EventForm form, @PathVariable("eventId") @Min(1) final long eventId) {
         Locale locale = LocaleContextHolder.getLocale();
-        final Event event = eventService.getEventById(eventId, locale).orElseThrow(EventNotFoundException::new);
-        if (!isEventOwner(event))
+        final Event event = eventService.getEventById(eventId, locale).orElse(null);
+        if (event == null) {
+            LOGGER.error("Event not found");
+            throw new EventNotFoundException();
+        }
+
+        if (!isEventOwner(event)) {
+            LOGGER.debug("Logged user is not the owner of event {}", event.getName());
             return new ModelAndView("redirect:/events/" + eventId);
+        }
 
         final ModelAndView mav = new ModelAndView("modifyEvent");
         mav.addObject("locations", locationService.getAll());
@@ -165,48 +188,70 @@ public class EventController {
 
     @RequestMapping(value = "/events/{eventId}/modify", method = { RequestMethod.POST }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ModelAndView modifyEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors,
-                                    @PathVariable("eventId") @Min(1) final int eventId,
+                                    @PathVariable("eventId") @Min(1) final long eventId,
                                     @RequestParam("image") CommonsMultipartFile imageFile) {
         Locale locale = LocaleContextHolder.getLocale();
-        final Event event = eventService.getEventById(eventId, locale).orElseThrow(EventNotFoundException::new);
+        final Event event = eventService.getEventById(eventId, locale).orElse(null);
+        if (event == null) {
+            LOGGER.error("Event not found");
+            throw new EventNotFoundException();
+        }
         if (!isEventOwner(event))
             return new ModelAndView("redirect:/events/" + eventId);
         if (errors.hasErrors())
             return modifyForm(form, eventId);
 
-        eventService.updateEvent(eventId, form.getName(), form.getDescription(), form.getLocation(), 0, 0,
+        eventService.updateEvent(eventId, form.getName(), form.getDescription(), form.getLocation(),
                 form.getType(), form.getTimestamp(), (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags());
         return new ModelAndView("redirect:/events/" + eventId);
     }
 
     @RequestMapping(value = "/events/{eventId}/delete", method = { RequestMethod.POST })
-    public ModelAndView deleteEvent(@PathVariable("eventId") final int eventId) {
+    public ModelAndView deleteEvent(@PathVariable("eventId") final long eventId) {
         Locale locale = LocaleContextHolder.getLocale();
-        final Event event = eventService.getEventById(eventId, locale).orElseThrow(EventNotFoundException::new);
-        if (!isEventOwner(event))
+        final Event event = eventService.getEventById(eventId, locale).orElse(null);
+        if (event == null) {
+            LOGGER.error("Event not found");
+            throw new EventNotFoundException();
+        }
+        if (!isEventOwner(event)) {
+            LOGGER.debug("Logged user is not the owner of event {}", event.getName());
             return new ModelAndView("redirect:/events/" + eventId);
+        }
 
         eventService.deleteEvent(eventId);
         return new ModelAndView("redirect:/events");
     }
 
     @RequestMapping(value = "/events/{eventId}/soldout", method = { RequestMethod.POST })
-    public ModelAndView soldOutEvent(@PathVariable("eventId") @Min(1) final int eventId) {
+    public ModelAndView soldOutEvent(@PathVariable("eventId") @Min(1) final long eventId) {
         Locale locale = LocaleContextHolder.getLocale();
-        final Event event = eventService.getEventById(eventId, locale).orElseThrow(EventNotFoundException::new);
-        if (!isEventOwner(event))
+        final Event event = eventService.getEventById(eventId, locale).orElse(null);
+        if (event == null) {
+            LOGGER.error("Event not found");
+            throw new EventNotFoundException();
+        }
+        if (!isEventOwner(event)) {
+            LOGGER.debug("Logged user is not the owner of event {}", event.getName());
             return new ModelAndView("redirect:/events/" + eventId);
+        }
 
         eventService.soldOut(eventId);
         return new ModelAndView("redirect:/events/" + eventId);
     }
 
     @RequestMapping(value = "/events/{eventId}/active", method = { RequestMethod.POST })
-    public ModelAndView activeEvent(@PathVariable("eventId") @Min(1) final int eventId) {
+    public ModelAndView activeEvent(@PathVariable("eventId") @Min(1) final long eventId) {
         Locale locale = LocaleContextHolder.getLocale();
-        final Event event = eventService.getEventById(eventId, locale).orElseThrow(EventNotFoundException::new);
-        if (!isEventOwner(event))
+        final Event event = eventService.getEventById(eventId, locale).orElse(null);
+        if (event == null) {
+            LOGGER.error("Event not found");
+            throw new EventNotFoundException();
+        }
+        if (!isEventOwner(event)) {
+            LOGGER.debug("Logged user is not the owner of event {}", event.getName());
             return new ModelAndView("redirect:/events/" + eventId);
+        }
 
         eventService.active(eventId);
         return new ModelAndView("redirect:/events");
@@ -228,7 +273,11 @@ public class EventController {
     public ModelAndView getStats() {
         Locale locale = LocaleContextHolder.getLocale();
         final int userId = userManager.getUserId();
-        EventStats stats = userService.getEventStats(userId, locale).orElseThrow(RuntimeException::new);
+        EventStats stats = userService.getEventStats(userId, locale).orElse(null);
+        if (stats == null) {
+            LOGGER.error("Stats not found");
+            throw new StatsNotFoundException();
+        }
         final ModelAndView mav = new ModelAndView("eventStats");
         mav.addObject("stats", stats);
         return mav;
@@ -239,26 +288,42 @@ public class EventController {
     }
 
     @RequestMapping(value = "/events/{eventId}/add-ticket", method = { RequestMethod.GET })
-    public ModelAndView createTicketsForm(@ModelAttribute("ticketForm") TicketForm form, @PathVariable("eventId") @Min(1) final int eventId) {
+    public ModelAndView createTicketsForm(@ModelAttribute("ticketForm") TicketForm form, @PathVariable("eventId") @Min(1) final long eventId) {
         Locale locale = LocaleContextHolder.getLocale();
-        final Event event = eventService.getEventById(eventId, locale).orElseThrow(EventNotFoundException::new);
-        if (!isEventOwner(event))
+        final Event event = eventService.getEventById(eventId, locale).orElse(null);
+        if (event == null) {
+            LOGGER.error("Event not found");
+            throw new EventNotFoundException();
+        }
+        if (!isEventOwner(event)) {
+            LOGGER.debug("Logged user is not the owner of event {}", event.getName());
             return new ModelAndView("redirect:/events/" + eventId);
-        if (event.getTickets().size() >= 5)
+        }
+        if (event.getTickets().size() >= 5) {
+            LOGGER.debug("Event already has maximum amount of tickets");
             return new ModelAndView("redirect:/events/" + eventId);
+        }
 
         return new ModelAndView("ticket");
     }
 
     @RequestMapping(value = "/events/{eventId}/add-ticket", method = { RequestMethod.POST })
     public ModelAndView createTicketsForm(@Valid @ModelAttribute("ticketForm") TicketForm form, final BindingResult errors,
-                                          @PathVariable("eventId") @Min(1) final int eventId) {
+                                          @PathVariable("eventId") @Min(1) final long eventId) {
         Locale locale = LocaleContextHolder.getLocale();
-        final Event event = eventService.getEventById(eventId, locale).orElseThrow(EventNotFoundException::new);
-        if (!isEventOwner(event))
+        final Event event = eventService.getEventById(eventId, locale).orElse(null);
+        if (event == null) {
+            LOGGER.error("Event not found");
+            throw new EventNotFoundException();
+        }
+        if (!isEventOwner(event)) {
+            LOGGER.debug("Logged user is not the owner of event {}", event.getName());
             return new ModelAndView("redirect:/events/" + eventId);
-        if (errors.hasErrors())
+        }
+        if (errors.hasErrors()) {
+            LOGGER.error("TicketForm has errors: {}", errors.getAllErrors().toArray());
             return createTicketsForm(form, eventId);
+        }
 
         eventService.addTicket(event.getId(), form.getTicketName(), form.getPrice(), form.getQty());
         return new ModelAndView("redirect:/events/" + eventId);
@@ -266,14 +331,25 @@ public class EventController {
 
     @RequestMapping(value = "/events/{eventId}/modify-ticket/{ticketId}", method = { RequestMethod.GET })
     public ModelAndView modifyTicketForm(@ModelAttribute("ticketForm") TicketForm form,
-                                          @PathVariable("eventId") @Min(1) final int eventId,
-                                          @PathVariable("ticketId") @Min(1) final int ticketId) {
+                                          @PathVariable("eventId") @Min(1) final long eventId,
+                                          @PathVariable("ticketId") @Min(1) final long ticketId) {
         Locale locale = LocaleContextHolder.getLocale();
-        final Event event = eventService.getEventById(eventId, locale).orElseThrow(EventNotFoundException::new);
-        if (!isEventOwner(event))
+        final Event event = eventService.getEventById(eventId, locale).orElse(null);
+        if (event == null) {
+            LOGGER.error("Event not found");
+            throw new EventNotFoundException();
+        }
+        if (!isEventOwner(event)) {
+            LOGGER.debug("Logged user is not the owner of event {}", event.getName());
             return new ModelAndView("redirect:/events/" + eventId);
+        }
 
-        final Ticket ticket = eventService.getTicketById(ticketId).orElseThrow(TicketNotFoundException::new);
+        final Ticket ticket = eventService.getTicketById(ticketId).orElse(null);
+        if (ticket == null) {
+            LOGGER.error("Ticket not found");
+            throw new TicketNotFoundException();
+        }
+
         ModelAndView mav = new ModelAndView("modifyTicket");
         mav.addObject("ticket", ticket);
         return mav;
@@ -281,28 +357,48 @@ public class EventController {
 
     @RequestMapping(value = "/events/{eventId}/modify-ticket/{ticketId}", method = { RequestMethod.POST })
     public ModelAndView modifyTicket(@Valid @ModelAttribute("ticketForm") TicketForm form, final BindingResult errors,
-                                      @PathVariable("eventId") @Min(1) final int eventId,
-                                      @PathVariable("ticketId") @Min(1) final int ticketId) {
+                                      @PathVariable("eventId") @Min(1) final long eventId,
+                                      @PathVariable("ticketId") @Min(1) final long ticketId) {
         Locale locale = LocaleContextHolder.getLocale();
-        final Event event = eventService.getEventById(eventId, locale).orElseThrow(EventNotFoundException::new);
-        if (!isEventOwner(event))
+        final Event event = eventService.getEventById(eventId, locale).orElse(null);
+        if (event == null) {
+            LOGGER.error("Event not found");
+            throw new EventNotFoundException();
+        }
+
+        if (!isEventOwner(event)) {
+            LOGGER.debug("Logged user is not the owner of event {}", event.getName());
             return new ModelAndView("redirect:/events/" + eventId);
-        final Ticket ticket = eventService.getTicketById(ticketId).orElseThrow(TicketNotFoundException::new);
+        }
+        final Ticket ticket = eventService.getTicketById(ticketId).orElse(null);
+        if (ticket == null) {
+            LOGGER.error("Ticket not found");
+            throw new TicketNotFoundException();
+        }
         if (form.getQty() < ticket.getBooked())
             errors.rejectValue("qty", "Min.bookForm.qty", new Object[]{ticket.getBooked()}, "");
-        if (errors.hasErrors())
+        if (errors.hasErrors()) {
+            LOGGER.error("TicketForm has errors: {}", errors.getAllErrors().toArray());
             return modifyTicketForm(form, eventId, ticketId);
+        }
 
-        eventService.updateTicket(ticketId, form.getTicketName(), form.getPrice(), ticket.getBooked(), form.getQty());
+        eventService.updateTicket(ticketId, form.getTicketName(), form.getPrice(), form.getQty());
         return new ModelAndView("redirect:/events/" + eventId);
     }
 
     @RequestMapping(value = "/events/{eventId}/delete-ticket/{ticketId}", method = { RequestMethod.POST })
-    public ModelAndView deleteTicket(@PathVariable("eventId") @Min(1) final int eventId, @PathVariable("ticketId") @Min(1) final int ticketId) {
+    public ModelAndView deleteTicket(@PathVariable("eventId") @Min(1) final long eventId, @PathVariable("ticketId") @Min(1) final long ticketId) {
         Locale locale = LocaleContextHolder.getLocale();
-        final Event event = eventService.getEventById(eventId, locale).orElseThrow(EventNotFoundException::new);
-        if (!isEventOwner(event))
+        final Event event = eventService.getEventById(eventId, locale).orElse(null);
+        if (event == null) {
+            LOGGER.error("Event not found");
+            throw new EventNotFoundException();
+        }
+
+        if (!isEventOwner(event)) {
+            LOGGER.debug("Logged user is not the owner of event {}", event.getName());
             return new ModelAndView("redirect:/events/" + eventId);
+        }
 
         eventService.deleteTicket(ticketId);
         return new ModelAndView("redirect:/events/" + eventId);

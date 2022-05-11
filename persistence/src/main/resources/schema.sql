@@ -91,11 +91,14 @@ CREATE TABLE IF NOT EXISTS userRoles (
 );
 
 DROP VIEW IF EXISTS event_complete;
+DROP VIEW IF EXISTS event_complete_en;
 
 CREATE OR REPLACE VIEW event_complete AS (
     SELECT aux.*,  ARRAY_AGG(t.tagId) AS tagIds, ARRAY_AGG(t.name) AS tagNames
     FROM
-        (SELECT events.eventid, events.name, events.description, events.locationid, SUM(COALESCE(ti.booked, 0)) AS attendance, MIN(COALESCE(ti.price, 0)) AS minPrice, (SUM(COALESCE(ti.maxTickets, 0)) - SUM(COALESCE(ti.booked, 0))) AS ticketsLeft,
+        (SELECT events.eventid, events.name, events.description, events.locationid, SUM(COALESCE(ti.booked, 0)) AS attendance,
+                MIN(CASE WHEN ti.maxTickets - ti.booked > 0 THEN ti.price END) AS minPrice,
+                (SUM(COALESCE(ti.maxTickets, 0)) - SUM(COALESCE(ti.booked, 0))) AS ticketsLeft,
                 events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, types.name AS typeName, users.username,
                 ARRAY_AGG(ti.ticketId) AS ticketIds, ARRAY_AGG(ti.maxTickets) AS ticketQtys, ARRAY_AGG(ti.booked) AS ticketBookeds, ARRAY_AGG(ti.name) AS ticketNames, ARRAY_AGG(ti.price) AS ticketPrices
          FROM events JOIN locations ON events.locationid = locations.locationid
@@ -109,7 +112,9 @@ CREATE OR REPLACE VIEW event_complete AS (
 CREATE OR REPLACE VIEW event_complete_en AS (
     SELECT aux.*,  ARRAY_AGG(t.tagId) AS tagIds, ARRAY_AGG(t.name) AS tagNames
     FROM
-        (SELECT events.eventid, events.name, events.description, events.locationid, SUM(COALESCE(ti.booked, 0)) AS attendance, MIN(COALESCE(ti.price, 0)) AS minPrice, (SUM(COALESCE(ti.maxTickets, 0)) - SUM(COALESCE(ti.booked, 0))) AS ticketsLeft,
+        (SELECT events.eventid, events.name, events.description, events.locationid, SUM(COALESCE(ti.booked, 0)) AS attendance,
+                MIN(CASE WHEN ti.maxTickets - ti.booked > 0 THEN ti.price END) AS minPrice,
+                (SUM(COALESCE(ti.maxTickets, 0)) - SUM(COALESCE(ti.booked, 0))) AS ticketsLeft,
                 events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, types_en.name AS typeName, users.username,
                 ARRAY_AGG(ti.ticketId) AS ticketIds, ARRAY_AGG(ti.maxTickets) AS ticketQtys, ARRAY_AGG(ti.booked) AS ticketBookeds, ARRAY_AGG(ti.name) AS ticketNames, ARRAY_AGG(ti.price) AS ticketPrices
          FROM events JOIN locations ON events.locationid = locations.locationid

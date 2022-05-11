@@ -13,7 +13,7 @@
             <spring:message code="profile.contact"/> <a href="mailto:${mail}">${mail}</a>
         </span>
         <spring:message var="starIconAlt" code="profile.starAlt"/>
-        <span><spring:message code="profile.rating"/>: <c:out value="${user.rating}"/> <img class="icon" src="<c:url value="/resources/svg/star.svg"/>"  alt="starIconAlt"/></span>
+        <span><spring:message code="profile.rating"/>: <c:out value="${user.rating}"/> <img class="icon" src="<c:url value="/resources/svg/star.svg"/>"  alt="${starIconAlt}"/></span>
         <c:if test="${stats != null}">
             <div class="vertical tickets">
                 <table class="tickets-table">
@@ -21,19 +21,19 @@
                         <th><spring:message code="stats.stats"/></th>
                     </tr>
                     <tr>
-                        <td><spring:message code="stats.bookedEvents"/>: </td>
+                        <td><spring:message code="stats.bookedEvents"/></td>
                         <td class="table-number">${stats.eventsAttended}</td>
                     </tr>
                     <tr>
-                        <td><spring:message code="stats.bookingsMade"/>: </td>
+                        <td><spring:message code="stats.bookingsMade"/></td>
                         <td class="table-number">${stats.bookingsMade}</td>
                     </tr>
                     <tr>
-                        <td><spring:message code="stats.favType"/>: </td>
+                        <td><spring:message code="stats.favType"/></td>
                         <td class="table-number">${stats.favType.name}</td>
                     </tr>
                     <tr>
-                        <td><spring:message code="stats.favLocation"/>: </td>
+                        <td><spring:message code="stats.favLocation"/></td>
                         <td class="table-number">${stats.favLocation.name}</td>
                     </tr>
                 </table>

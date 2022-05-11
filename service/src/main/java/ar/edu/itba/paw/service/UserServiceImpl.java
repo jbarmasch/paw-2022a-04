@@ -14,13 +14,11 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private final UserDao userDao;
     private final PasswordEncoder passwordEncoder;
-    private final MailService mailService;
 
     @Autowired
-    public UserServiceImpl(final UserDao userDao, final PasswordEncoder passwordEncoder, final MailService mailService) {
+    public UserServiceImpl(final UserDao userDao, final PasswordEncoder passwordEncoder) {
         this.userDao = userDao;
         this.passwordEncoder = passwordEncoder;
-        this.mailService = mailService;
     }
 
     @Override

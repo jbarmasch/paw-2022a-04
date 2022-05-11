@@ -2,6 +2,7 @@ package ar.edu.itba.paw.model;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 public class Event {
     private final long id;
@@ -116,5 +117,22 @@ public class Event {
 
     public List<Ticket> getTickets() {
         return tickets;
+    }
+
+    public int getTicketsSize() {
+        return tickets.size();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Event)) return false;
+        Event event = (Event) o;
+        return id == event.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
