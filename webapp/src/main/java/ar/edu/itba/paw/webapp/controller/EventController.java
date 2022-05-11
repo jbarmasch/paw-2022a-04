@@ -110,9 +110,14 @@ public class EventController {
 
         int i = 0;
         List<Ticket> tickets = e.getTickets();
-        for (Booking booking : form.getBookings())
-            if (booking.getQty() != null && booking.getQty() > tickets.get(i).getTicketsLeft()) {
-                errors.rejectValue("bookings[" + i + "].qty", "Max.bookForm.qty", new Object[]{tickets.get(i).getTicketsLeft()}, "");
+        Map<Integer, Ticket> ticketMap = new HashMap<>();
+        for (Ticket ticket : tickets) {
+            ticketMap.put(ticket.getId(), ticket);
+        }
+        for (Booking booking : form.getBookings()) {
+            Ticket ticket = ticketMap.get(booking.getTicketId());
+            if (booking.getQty() != null && booking.getQty() > Math.min(6, ticket.getTicketsLeft()))
+                errors.rejectValue("bookings[" + i + "].qty", "Max.bookForm.qty", new Object[]{Math.min(6, ticket.getTicketsLeft())}, "");
             i++;
         }
         if (errors.hasErrors()) {
@@ -129,7 +134,6 @@ public class EventController {
         if (!userManager.isAuthenticated())
             return new ModelAndView("redirect:/");
 
-//        LOGGER.debug("Booking has been made successfully");
         final ModelAndView mav = new ModelAndView("bookingSuccess");
         addSimilarAndPopularEvents(mav, eventId);
         return mav;
@@ -376,7 +380,7 @@ public class EventController {
             throw new TicketNotFoundException();
         }
         if (form.getQty() < ticket.getBooked())
-            errors.rejectValue("qty", "Min.bookForm.qty", new Object[]{ticket.getBooked()}, "");
+            errors.rejectValue("qty", "Min.bookForm.qtyAnother", new Object[]{ticket.getBooked()}, "");
         if (errors.hasErrors()) {
             LOGGER.error("TicketForm has errors: {}", errors.getAllErrors().toArray());
             return modifyTicketForm(form, eventId, ticketId);

@@ -159,7 +159,7 @@
                                         <td class="table-number">
                                             <c:choose>
                                                 <c:when test="${ticket.ticketsLeft > 0}">
-                                                    <form:select id="type" class="uk-select" htmlEscape="true" multiple="false" path="bookings[${i}].qty" required="true">
+                                                    <form:select id="qty${i}" class="uk-select" htmlEscape="true" multiple="false" path="bookings[${i}].qty" required="true">
                                                         <form:option value="0" selected="true"/>
                                                         <c:if test="${ticket.ticketsLeft > 0}">
                                                             <c:forEach var="j" begin="${1}" step="1" end="${ticket.ticketsLeft < 6 ? ticket.ticketsLeft : 6}">
@@ -167,9 +167,10 @@
                                                             </c:forEach>
                                                         </c:if>
                                                     </form:select>
+                                                    <span class="formError"></span>
                                                 </c:when>
                                                 <c:otherwise>
-                                                    <form:input id="type" value="0" class="hidden" path="bookings[${i}].qty" required="true"/>
+                                                    <form:input id="qty${i}" value="0" class="hidden" path="bookings[${i}].qty" required="true"/>
                                                     <span class="soldout-text"><spring:message code="event.soldOut"/></span>
                                                 </c:otherwise>
                                             </c:choose>
@@ -177,12 +178,12 @@
                                             <spring:message code="Min.bookForm.qty" var="qtyMinSizeError"/>
                                             <spring:message code="Max.bookForm.qtyStr" var="qtyMaxSizeError"/>
                                             <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
-                                            <span class="formError"></span>
+
                                             <form:input class="hidden" type="number" value="${ticket.id}" path="bookings[${i}].ticketId"/>
                                             <form:input class="hidden" type="text" value="${ticket.ticketName}" path="bookings[${i}].ticketName"/>
                                             <form:input class="hidden" type="number" value="${ticket.price}" path="bookings[${i}].price"/>
                                         </td>
-                                        <c:if test="${!disabled && ticket.ticketsLeft > 0 && ticket.ticketsLeft <= ticket.qty * .10}">
+                                        <c:if test="${!disabled && ticket.ticketsLeft > 0 && ticket.ticketsLeft <= ticket.qty * .20}">
                                             <td>
                                                 <span><spring:message code="event.fewTickets"/></span>
                                             </td>
@@ -302,7 +303,6 @@
             return;
 
         var checkQtyValidityWithNumber = function(i) {
-            console.log(i);
             var qty = document.getElementById('qty' + i);
             if (qty.validity.rangeUnderflow) {
                 qty.setCustomValidity('${qtyMinSizeError}');

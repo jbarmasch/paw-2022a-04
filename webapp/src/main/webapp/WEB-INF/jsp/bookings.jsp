@@ -20,6 +20,7 @@
             <spring:message code="event.imageAlt" var="imageAlt"/>
             <c:choose>
                 <c:when test="${futureSize + previousSize > 0}">
+                    <c:if test="${previousSize > 0}">
                     <div class="vertical full_width sep-top-xl">
                         <h4 class="subtitle"><spring:message code="booking.previous"/></h4>
                         <div class="container multi-browse booking-browse full_width">
@@ -73,6 +74,7 @@
                         </c:forEach>
                     </div>
 
+                        <c:if test="${futureSize > 0}">
                     <h4 class="subtitle"><spring:message code="booking.future" /></h4>
                     <div class="container multi-browse booking-browse full_width">
                     <c:set var="j" scope="session" value="0"/>
@@ -99,42 +101,8 @@
 
                                             <div class="container booking_button">
                                                         <spring:message code="booking.cancelTickets" var="cancelTickets"/>
-                                                        <input class="cancel_button uk-button" type="button" value="${cancelTickets}" uk-toggle="target: #confirmation${j}"/>
-                                                        <div id="confirmation${j}" uk-modal>
-                                                            <div class="uk-modal-dialog">
-                                                                <button class="uk-modal-close-default" type="button" uk-close></button>
-                                                                <div class="uk-modal-header">
-                                                                    <h2 class="uk-modal-title"><spring:message code="booking.cancel"/></h2>
-                                                                </div>
-                                                                <div class="uk-modal-body">
-                                                                    <c:url value="/bookings/cancel/${fbooking.event.id}" var="postPath"/>
-                                                                    <form:form novalidate="true" class="transparent" modelAttribute="bookForm" action="${postPath}" method="post" id="bookForm${j}">
-                                                                        <div class="vertical center">
-                                                                            <c:set var="j" value="0"/>
-                                                                            <c:forEach var="tickets" items="${fbooking.bookings}">
-                                                                                <div class="horizontal center">
-                                                                                    <form:label class="sep-right" path="bookings[${j}].qty">*<spring:message code="booking.cancelTickets.qty"/>: </form:label>
-                                                                                    <c:set var="qtyTickets" scope="session" value="${tickets.qty}"/>
-                                                                                    <span><c:out value="${tickets.ticket.ticketName}"/></span>
-                                                                                    <form:input class="uk-input" type="number" path="bookings[${j}].qty" min="1" max="${tickets.qty}" required="true" id="qty${j}"/>
-                                                                                    <spring:message code="Min.bookForm.qty" var="minQtySizeError"/>
-                                                                                    <spring:message code="Max.bookForm.qtyStr" var="maxQtySizeError"/>
-                                                                                    <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
-                                                                                    <span class="formError"></span>
+                                                        <input class="cancel_button uk-button" type="button" value="${cancelTickets}" onclick="location.href='<c:url value="/bookings/cancel/${fbooking.event.id}"/>'"/>
 
-                                                                                    <form:input class="hidden" type="number" path="bookings[${j}].ticketId" value="${tickets.ticket.id}"/>
-                                                                                    <c:set var="j" value="${j + 1}"/>
-                                                                                </div>
-                                                                            </c:forEach>
-                                                                        </div>
-
-                                                                        <form:input class="hidden" type="number" path="page" value="${page}"/>
-                                                                        <hr/>
-                                                                        <button class="accept-button-modal uk-button" type="submit" name="submit"><spring:message code="booking.cancelTickets"/></button>
-                                                                    </form:form>
-                                                                </div>
-                                                            </div>
-                                                        </div>
                                             </div>
                                         </div>
                                     </div>
@@ -144,7 +112,9 @@
                         <c:set var="j" scope="session" value="${j + 1}"/>
                     </c:forEach>
                     </div>
+                        </c:if>
                     </div>
+                    </c:if>
                 </c:when>
                 <c:otherwise>
                     <div class="container browse">

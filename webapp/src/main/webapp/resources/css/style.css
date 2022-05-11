@@ -456,6 +456,7 @@ input[type=submit] {
 }
 
 .event_name {
+    margin-top: 10px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

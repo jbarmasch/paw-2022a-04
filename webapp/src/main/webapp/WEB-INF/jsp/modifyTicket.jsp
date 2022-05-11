@@ -38,7 +38,7 @@
                     <form:errors path="qty" cssClass="error-message" element="span"/>
                     <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
                     <%--<spring:message code="Max.bookForm.qty" var="maxQtySizeError"/>--%>
-                    <spring:message code="Min.bookForm.qty" var="minQtySizeError"/>
+                    <spring:message code="Min.bookForm.qtyAnotherStr" var="minQtySizeError"/>
                     <span class="formError"></span>
                 </div>
                 <spring:message code="tickets.maxTicketsReached" var="maxTicketsReached"/>
@@ -75,7 +75,7 @@
 
         var checkQtyValidity = function() {
             if (qty.validity.rangeUnderflow) {
-                qty.setCustomValidity('${minQtySizeError}');
+                qty.setCustomValidity('${minQtySizeError} ' + qty.min);
                 updateQtyMessage();
             } else if (qty.validity.valueMissing) {
                 qty.setCustomValidity('${qtyNullError}');

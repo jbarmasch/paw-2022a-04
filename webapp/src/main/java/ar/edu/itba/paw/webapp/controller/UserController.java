@@ -154,7 +154,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/bookings/cancel/{eventId}", method = { RequestMethod.POST })
-    public ModelAndView cancelBooking(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors,
+    public ModelAndView cancelBookingPost(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors,
                                       @Valid @ModelAttribute("rateForm") final RateForm rateForm, final BindingResult rateErrors,
                                       @PathVariable("eventId") final int eventId) {
         Locale locale = LocaleContextHolder.getLocale();
@@ -177,19 +177,53 @@ public class UserController {
 
         int i = 0;
         List<TicketBooking> tickets = eventBooking.getBookings();
+        Map<Integer, TicketBooking> ticketMap = new HashMap<>();
+        for (TicketBooking ticket : tickets) {
+            ticketMap.put(ticket.getTicket().getId(), ticket);
+        }
+
         for (Booking booking : form.getBookings()) {
-            if (booking.getQty() != null && booking.getQty() > tickets.get(i).getQty())
-                errors.rejectValue("bookings[" + i + "].qty", "Max.bookForm.qty", new Object[]{tickets.get(i).getQty()}, "");
+            TicketBooking ticket = ticketMap.get(booking.getTicketId());
+            if (booking.getQty() != null && booking.getQty() > ticket.getQty())
+                errors.rejectValue("bookings[" + i + "].qty", "Max.bookForm.qty", new Object[]{ticket.getQty()}, "");
             i++;
         }
 
         if (errors.hasErrors()) {
             LOGGER.error("BookForm has errors: {}", errors.getAllErrors().toArray());
-            return bookings(form, rateForm, form.getPage(), eventId);
+            return cancelBooking(form, rateForm, eventId);
         }
 
         eventService.cancelBooking(form.getBookings(), user.getId(), user.getUsername(), user.getMail(), eventId, e.getUser().getUsername(), e.getName(), eventUser.getMail(), LocaleContextHolder.getLocale());
         return new ModelAndView("redirect:/bookings/");
+    }
+
+
+    @RequestMapping(value = "/bookings/cancel/{eventId}", method = { RequestMethod.GET })
+    public ModelAndView cancelBooking(@ModelAttribute("bookForm") final BookForm form,
+                                      @ModelAttribute("rateForm") final RateForm rateForm,
+                                      @PathVariable("eventId") final int eventId) {
+        Locale locale = LocaleContextHolder.getLocale();
+        final Event e = eventService.getEventById(eventId, locale).orElse(null);
+        if (e == null) {
+            LOGGER.error("Event not found");
+            throw new EventNotFoundException();
+        }
+        final User user = userManager.getUser();
+        final User eventUser = userService.getUserById(e.getUser().getId()).orElse(null);
+        if (eventUser == null) {
+            LOGGER.error("Organizer not found");
+            throw new UserNotFoundException();
+        }
+        EventBooking eventBooking = userService.getBookingFromUser(user.getId(), eventId, locale).orElse(null);
+        if (eventBooking == null) {
+            LOGGER.error("Booking not found");
+            throw new BookingNotFoundException();
+        }
+
+        ModelAndView mav = new ModelAndView("cancelBooking");
+        mav.addObject("eventBooking", eventBooking);
+        return mav;
     }
 
     @ModelAttribute
