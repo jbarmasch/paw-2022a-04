@@ -8,6 +8,7 @@ public class User {
     private String password;
     private String mail;
     private double rating;
+    private int votes;
     private List<Role> roles;
 
     public User(int id, String username, String password, String mail) {
@@ -17,12 +18,13 @@ public class User {
         this.mail = mail;
     }
 
-    public User(int id, String username, String password, String mail, double rating, List<Role> roles) {
+    public User(int id, String username, String password, String mail, double rating, int votes, List<Role> roles) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.mail = mail;
         this.rating = rating;
+        this.votes = votes;
         this.roles = roles;
     }
 
@@ -57,5 +59,9 @@ public class User {
 
     public List<Role> getRoles() {
         return roles;
+    }
+
+    public int getVotes() {
+        return votes;
     }
 }

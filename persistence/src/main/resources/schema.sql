@@ -40,7 +40,6 @@ CREATE TABLE IF NOT EXISTS events (
     name VARCHAR(100) NOT NULL,
     description VARCHAR(100) NOT NULL,
     locationId INTEGER REFERENCES locations,
-    attendance INTEGER NOT NULL,
     date TIMESTAMP NOT NULL,
     typeId INTEGER REFERENCES types,
     userId INTEGER REFERENCES users,

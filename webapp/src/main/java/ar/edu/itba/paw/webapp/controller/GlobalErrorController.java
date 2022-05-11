@@ -1,8 +1,6 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
-import ar.edu.itba.paw.webapp.exceptions.ImageNotFoundException;
-import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
+import ar.edu.itba.paw.webapp.exceptions.*;
 import org.hibernate.validator.method.MethodConstraintViolation;
 import org.hibernate.validator.method.MethodConstraintViolationException;
 import org.slf4j.Logger;
@@ -19,7 +17,8 @@ import org.springframework.web.servlet.ModelAndView;
 public class GlobalErrorController {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalErrorController.class);
 
-    @ExceptionHandler({EventNotFoundException.class, UserNotFoundException.class, ImageNotFoundException.class})
+    @ExceptionHandler({EventNotFoundException.class, UserNotFoundException.class, ImageNotFoundException.class,
+            StatsNotFoundException.class, TicketNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ModelAndView notFound(Exception e) {
         LOGGER.error("NOT FOUND {}", e.getMessage());

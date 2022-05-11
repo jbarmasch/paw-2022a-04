@@ -13,10 +13,15 @@
             <spring:message code="profile.contact"/> <a href="mailto:${mail}">${mail}</a>
         </span>
         <spring:message var="starIconAlt" code="profile.starAlt"/>
-        <span><spring:message code="profile.rating"/>: <c:out value="${user.rating}"/> <img class="icon" src="<c:url value="/resources/svg/star.svg"/>"  alt="${starIconAlt}"/></span>
+        <c:if test="${user.votes > 0}">
+            <div class="horizontal">
+                <span class="center"><spring:message code="profile.rating"/>: <c:out value="${user.rating}"/> <img class="small-icon" src="<c:url value="/resources/svg/star.svg"/>"  alt="${starIconAlt}"/></span>
+                <span>(<c:out value="${user.votes}"/>)</span>
+            </div>
+        </c:if>
         <c:if test="${stats != null}">
-            <div class="vertical tickets">
-                <table class="tickets-table">
+            <div class="vertical tickets sep-top-xl">
+                <table class="stats-table tickets-table">
                     <tr>
                         <th><spring:message code="stats.stats"/></th>
                     </tr>
@@ -53,7 +58,7 @@
                         </c:if>
                     </c:forEach>
                     <c:url value="/events" var="moreUserEvents">
-                        <c:param name="username" value="${user.username}"/>
+                        <c:param name="searchUsername" value="${user.username}"/>
                     </c:url>
                     <a href="${moreUserEvents}"><spring:message code="profile.userEvents"/></a>
                 </c:when>

@@ -53,7 +53,7 @@ public class FilterController {
                                      @RequestParam(value = "maxPrice", required = false) final Double maxPrice,
                                      @RequestParam(value = "search", required = false) final String search,
                                      @RequestParam(value = "tags", required = false) final Integer[] tags,
-                                     @RequestParam(value = "username", required = false) final String username,
+                                     @RequestParam(value = "searchUsername", required = false) final String username,
                                      @RequestParam(value = "order", required = false) final Order order,
                                      @RequestParam(value = "page", required = false, defaultValue = "1") @Min(1) final int page) {
         Locale locale = LocaleContextHolder.getLocale();
@@ -83,7 +83,7 @@ public class FilterController {
         filters.put("minPrice", form.getMinPrice());
         filters.put("maxPrice", form.getMaxPrice());
         filters.put("search", form.getSearchQuery());
-        filters.put("username", form.getUsername());
+        filters.put("searchUsername", form.getUsername());
         filters.put("order", form.getOrder());
         String endURL = FilterUtils.createFilter(filters);
 
@@ -104,7 +104,7 @@ public class FilterController {
         Map<String, Object> filters = new HashMap<>();
         filters.put("search", searchForm.getQuery());
         if (searchForm.isByUsername())
-            filters.put("username", searchForm.getUsername());
+            filters.put("searchUsername", searchForm.getUsername());
         String endURL = FilterUtils.createFilter(filters);
 
         if (endURL.isEmpty())

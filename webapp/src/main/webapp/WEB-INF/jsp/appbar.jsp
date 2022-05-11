@@ -15,10 +15,10 @@
                 <spring:message code="appbar.search" var="searchEvent"/>
                 <form:input class="uk-search-input" type="search" placeholder="${searchEvent}" path="query" value="${param.search}"/>
                 <c:choose>
-                    <c:when test="${param.username != null}">
-                        <spring:message code="appbar.searchUser" arguments="${param.username}" var="userSearch"/>
+                    <c:when test="${param.searchUsername != null}">
+                        <spring:message code="appbar.searchUser" arguments="${param.searchUsername}" var="userSearch"/>
                         <form:checkbox path="byUsername" label="${userSearch}" checked="checked"/>
-                        <form:input class="hidden" path="username" value="${param.username}"/>
+                        <form:input class="hidden" path="username" value="${param.searchUsername}"/>
                     </c:when>
                     <c:otherwise>
                         <form:checkbox class="hidden" path="byUsername" value="${false}"/>

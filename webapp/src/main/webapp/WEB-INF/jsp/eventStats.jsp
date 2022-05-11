@@ -12,7 +12,7 @@
     <%@ include file="appbar.jsp"%>
     <div class="container center">
         <div class="vertical tickets sep-top-xl">
-            <table class="tickets-table">
+            <table class="stats-table tickets-table">
                 <tr>
                     <th><spring:message code="stats.stats"/></th>
                 </tr>

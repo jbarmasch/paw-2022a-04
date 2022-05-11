@@ -39,6 +39,7 @@ public class JdbcUtils {
             rs.getString("password"),
             rs.getString("mail"),
             rs.getDouble("rating"),
+            rs.getInt("votes"),
             getRoles(rs.getArray("rolesids"), rs.getArray("rolesnames"))
     );
 

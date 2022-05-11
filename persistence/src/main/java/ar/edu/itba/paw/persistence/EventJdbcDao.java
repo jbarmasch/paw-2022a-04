@@ -45,7 +45,6 @@ public class EventJdbcDao implements EventDao {
         eventData.put("date", Timestamp.valueOf(date));
         eventData.put("imageId", imageId);
         eventData.put("userId", userId);
-        eventData.put("attendance", 0);
         eventData.put("state", State.ACTIVE.ordinal());
         final long eventId = jdbcInsert.executeAndReturnKey(eventData).longValue();
         for (Integer tagId : tagIds)

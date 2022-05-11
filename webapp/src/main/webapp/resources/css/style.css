@@ -268,6 +268,9 @@ input[type='number'] {
 
 body {
     position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    width: 100%;
 }
 
 body::before {
@@ -579,6 +582,10 @@ select:-webkit-autofill:focus {
     align-items: center;
 }
 
+.stats-table {
+    font-size: 1.1em;
+}
+
 .tickets-table {
     text-align: left;
     border-collapse: collapse;
@@ -697,4 +704,14 @@ select:-webkit-autofill:focus {
 
 .full_width {
     width: 100%;
+}
+
+.small-icon {
+    width: 14px;
+    height: 14px;
+    margin: 2px;
+}
+
+#ticketForm > * {
+    margin: 5px;
 }

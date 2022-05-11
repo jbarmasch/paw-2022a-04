@@ -13,8 +13,9 @@
     <div>
         <%@ include file="appbar.jsp"%>
         <c:url value="/events/${eventId}/add-ticket" var="postPath"/>
-        <div class="only-element">
+        <div class="only-element vertical center">
             <form:form novalidate="true" modelAttribute="ticketForm" action="${postPath}" method="post" id="ticketForm">
+                <h3 class="subtitle"><spring:message code="event.addTicketAlt"/></h3>
                 <div>
                     <spring:message code="tickets.ticketName" var="ticketNameMessage"/>
                     <form:input placeholder="${ticketNameMessage}" class="uk-input" type="text" path="ticketName" required="true"/>

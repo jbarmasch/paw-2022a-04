@@ -29,9 +29,11 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public Optional<User> getUserById(long id) {
-        return jdbcTemplate.query("SELECT users.*, AVG(COALESCE(r.rating, 0)) AS rating, ARRAY_AGG(u.roleid) AS rolesIds, ARRAY_AGG(r2.name) AS rolesNames " +
-                "FROM users LEFT OUTER JOIN ratings r ON r.organizerid = users.userid LEFT OUTER JOIN userroles u on users.userid = u.userid JOIN roles r2 " +
-                "on u.roleid = r2.roleid WHERE users.userid = ? GROUP BY users.userid, users.username, users.mail",
+        return jdbcTemplate.query("SELECT aux.userid, aux.username, aux.mail, aux.password, rolesIds, rolesNames, AVG(COALESCE(rating, 0)) AS rating, COUNT(rating) AS votes FROM " +
+                        "(SELECT users.*, r.rating, ARRAY_AGG(u.roleid) AS rolesIds, ARRAY_AGG(r2.name) AS rolesNames " +
+                        "FROM users LEFT OUTER JOIN ratings r ON r.organizerid = users.userid LEFT OUTER JOIN userroles u on users.userid = u.userid JOIN roles r2 " +
+                        "ON u.roleid = r2.roleid WHERE users.userid = ? GROUP BY users.userid, users.username, users.mail, r.rating) as aux " +
+                        "GROUP BY aux.userid, aux.username, aux.mail, aux.password, rolesIds, rolesNames",
                 new Object[] { id }, JdbcUtils.USER_ROW_MAPPER).stream().findFirst();
     }
 
@@ -54,17 +56,21 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public Optional<User> findByUsername(String username) {
-        return jdbcTemplate.query("SELECT users.*, AVG(COALESCE(r.rating, 0)) AS rating, ARRAY_AGG(u.roleid) AS rolesIds, ARRAY_AGG(r2.name) AS rolesNames " +
-                "FROM users LEFT OUTER JOIN ratings r ON r.organizerid = users.userid LEFT OUTER JOIN userroles u on users.userid = u.userid JOIN roles r2 " +
-                "on u.roleid = r2.roleid WHERE users.username = ? GROUP BY users.userid, users.username, users.mail",
+        return jdbcTemplate.query("SELECT aux.userid, aux.username, aux.mail, aux.password, rolesIds, rolesNames, AVG(COALESCE(rating, 0)) AS rating, COUNT(rating) AS votes FROM " +
+                        "(SELECT users.*, r.rating, ARRAY_AGG(u.roleid) AS rolesIds, ARRAY_AGG(r2.name) AS rolesNames " +
+                        "FROM users LEFT OUTER JOIN ratings r ON r.organizerid = users.userid LEFT OUTER JOIN userroles u on users.userid = u.userid JOIN roles r2 " +
+                        "ON u.roleid = r2.roleid WHERE users.username = ? GROUP BY users.userid, users.username, users.mail, r.rating) as aux " +
+                        "GROUP BY aux.userid, aux.username, aux.mail, aux.password, rolesIds, rolesNames",
                 new Object[] { username }, JdbcUtils.USER_ROW_MAPPER).stream().findFirst();
     }
 
     @Override
     public Optional<User> findByMail(String mail) {
-        return jdbcTemplate.query("SELECT users.*, AVG(COALESCE(r.rating, 0)) AS rating, ARRAY_AGG(u.roleid) AS rolesIds, ARRAY_AGG(r2.name) AS rolesNames " +
+        return jdbcTemplate.query("SELECT aux.userid, aux.username, aux.mail, aux.password, rolesIds, rolesNames, AVG(COALESCE(rating, 0)) AS rating, COUNT(rating) AS votes FROM " +
+                "(SELECT users.*, r.rating, ARRAY_AGG(u.roleid) AS rolesIds, ARRAY_AGG(r2.name) AS rolesNames " +
                 "FROM users LEFT OUTER JOIN ratings r ON r.organizerid = users.userid LEFT OUTER JOIN userroles u on users.userid = u.userid JOIN roles r2 " +
-                "on u.roleid = r2.roleid WHERE users.mail = ? GROUP BY users.userid, users.username, users.mail", new Object[] { mail }, JdbcUtils.USER_ROW_MAPPER).stream().findFirst();
+                "ON u.roleid = r2.roleid WHERE users.mail = ? GROUP BY users.userid, users.username, users.mail, r.rating) as aux " +
+                "GROUP BY aux.userid, aux.username, aux.mail, aux.password, rolesIds, rolesNames", new Object[] { mail }, JdbcUtils.USER_ROW_MAPPER).stream().findFirst();
     }
 
     @Override
