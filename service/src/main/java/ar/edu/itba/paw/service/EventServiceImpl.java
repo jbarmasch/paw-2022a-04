@@ -67,6 +67,8 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public void book(List<Booking> bookings, long userId, String username, String userMail, long eventId, String organizerName, String eventName, String eventMail, Locale locale) {
+        if (eventDao.isFinished(eventId))
+            return;
         eventDao.book(bookings, userId, eventId, locale);
         mailService.sendBookMail(userMail, username, eventMail, organizerName, eventName, bookings, bookings.stream().filter(o -> o.getQty() != null).mapToInt(Booking::getQty).sum(), locale);
     }
@@ -74,6 +76,8 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public void cancelBooking(List<Booking> bookings, long userId, String username, String userMail, long eventId, String eventName, String organizerName, String eventMail, Locale locale) {
+        if (eventDao.isFinished(eventId))
+            return;
         eventDao.cancelBooking(bookings, userId, eventId);
         mailService.sendCancelMail(userMail, username, eventMail, organizerName, eventName, bookings, bookings.stream().filter(o -> o.getQty() != null).mapToInt(Booking::getQty).sum(), locale);
     }

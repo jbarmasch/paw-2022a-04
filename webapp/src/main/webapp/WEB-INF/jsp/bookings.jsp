@@ -73,6 +73,7 @@
                             <c:set var="i" scope="session" value="${i + 1}"/>
                         </c:forEach>
                     </div>
+                    </c:if>
 
                         <c:if test="${futureSize > 0}">
                     <h4 class="subtitle"><spring:message code="booking.future" /></h4>
@@ -112,7 +113,6 @@
                         <c:set var="j" scope="session" value="${j + 1}"/>
                     </c:forEach>
                     </div>
-                        </c:if>
                     </div>
                     </c:if>
                 </c:when>
@@ -142,63 +142,4 @@
         document.getElementById('rating' + eventId).value = i;
         document.getElementById('rateForm' + eventId).submit();
     }
-
-    (function() {
-        var qty = document.getElementById('qty');
-        var form = document.getElementsByClassName('transparent');
-
-        if (qty === null || form === null)
-            return;
-
-        if ("${errorVar}" !== '')
-            UIkit.notification("${maxQtySizeError} ${errorVar}", {status: 'danger'}, {pos: 'bottom-center'})
-
-        var checkQtyValidity = function() {
-            for (var i = 0; i < ${i}; i++) {
-                var qtyTickets = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('uk-input').item(i).getAttribute('max');
-                qty = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('uk-input').item(i);
-                if (qty.validity.rangeUnderflow) {
-                    qty.setCustomValidity('${minQtySizeError}');
-                    updateQtyMessage();
-                } else if (qty.validity.rangeOverflow) {
-                    qty.setCustomValidity('${maxQtySizeError} ' + qtyTickets + '.');
-                    updateQtyMessage();
-                } else if (qty.validity.valueMissing) {
-                    qty.setCustomValidity('${qtyNullError}');
-                    updateQtyMessage();
-                } else {
-                    qty.setCustomValidity('');
-                }
-            }
-        };
-
-        var updateQtyMessage = function() {
-            form = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('transparent').item(0);
-            for (var i = 0; i < ${i}; i++) {
-                qty = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('uk-input').item(i);
-                form.getElementsByClassName('formError')[i].innerHTML = qty.validationMessage;
-            }
-        }
-
-        qty.addEventListener('change', checkQtyValidity, false);
-        qty.addEventListener('keyup', checkQtyValidity, false);
-
-        for (var i = 0; i < ${i}; i++) {
-            qty = document.getElementById('qty' + i);
-            qty.addEventListener('change', checkQtyValidity, false);
-            qty.addEventListener('keyup', checkQtyValidity, false);
-        }
-
-        for (let i = 0; i < form.length; i++) {
-            form.item(i).addEventListener('submit', function (event) {
-                var form = document.getElementsByClassName('uk-open').item(0).getElementsByClassName('transparent').item(0);
-                if (form.classList) form.classList.add('submitted');
-                checkQtyValidity();
-                if (!this.checkValidity()) {
-                    event.preventDefault();
-                    updateQtyMessage();
-                }
-            }, false);
-        }
-    }());
 </script>

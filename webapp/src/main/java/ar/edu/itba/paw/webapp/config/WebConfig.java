@@ -26,6 +26,7 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
@@ -47,7 +48,7 @@ import java.util.Properties;
 @EnableWebMvc
 @ComponentScan({ "ar.edu.itba.paw.webapp.controller", "ar.edu.itba.paw.service", "ar.edu.itba.paw.persistence" })
 @Configuration
-public class WebConfig {
+public class WebConfig extends WebMvcConfigurerAdapter {
     @Value("classpath:schema.sql")
     private Resource schemaSql;
 
@@ -85,7 +86,7 @@ public class WebConfig {
         mailSender.setPort(587);
 
         mailSender.setUsername("botpass@zohomail.com");
-        mailSender.setPassword("nnevdcwmybudbpmi");
+        mailSender.setPassword("pawMailPass");
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
@@ -120,12 +121,13 @@ public class WebConfig {
         return messageSource;
     }
 
-//    @Bean
-//    public LocalValidatorFactoryBean validator() {
-//        LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
-//        bean.setValidationMessageSource(messageSource());
-//        return bean;
-//    }
+    @Bean
+    @Override
+    public LocalValidatorFactoryBean getValidator() {
+        LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
+        bean.setValidationMessageSource(messageSource());
+        return bean;
+    }
 
     @Bean(name = "multipartResolver")
     public CommonsMultipartResolver multipartResolver() {
@@ -158,7 +160,6 @@ public class WebConfig {
 
     @Bean
     public SpringTemplateEngine emailTemplateEngine() {
-//  public TemplateEngine emailTemplateEngine() {
         final SpringTemplateEngine templateEngine = new SpringTemplateEngine();
         templateEngine.addTemplateResolver(htmlTemplateResolver());
         templateEngine.setTemplateEngineMessageSource(emailMessageSource());

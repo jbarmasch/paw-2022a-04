@@ -159,7 +159,9 @@
                                         <td class="table-number">
                                             <c:choose>
                                                 <c:when test="${ticket.ticketsLeft > 0}">
+                                                    <input type="number" class="hidden" id="qtyMax${i}" value="${ticket.ticketsLeft < 6 ? ticket.ticketsLeft : 6}"/>
                                                     <form:select id="qty${i}" class="uk-select" htmlEscape="true" multiple="false" path="bookings[${i}].qty" required="true">
+<%--                                                        <c:set var="qtyMax${i}" value="${ticket.ticketsLeft < 6 ? ticket.ticketsLeft : 6}" scope="session"/>--%>
                                                         <form:option value="0" selected="true"/>
                                                         <c:if test="${ticket.ticketsLeft > 0}">
                                                             <c:forEach var="j" begin="${1}" step="1" end="${ticket.ticketsLeft < 6 ? ticket.ticketsLeft : 6}">
@@ -167,6 +169,9 @@
                                                             </c:forEach>
                                                         </c:if>
                                                     </form:select>
+                                                    <span class="formError"></span>
+                                                    <spring:message code="NotNull.bookForm.allQty" var="allQtyNullError"/>
+                                                    <input type="text" class="hidden" id="errorQty"/>
                                                     <span class="formError"></span>
                                                 </c:when>
                                                 <c:otherwise>
@@ -297,6 +302,7 @@
     }
 
     (function() {
+        var errorQty = document.getElementById('errorQty');
         var form = document.getElementById('bookForm');
 
         if (form === null)
@@ -304,34 +310,45 @@
 
         var checkQtyValidityWithNumber = function(i) {
             var qty = document.getElementById('qty' + i);
-            if (qty.validity.rangeUnderflow) {
+            var qtyMax = document.getElementById('qtyMax' + i);
+            if (qty.value < 0) {
                 qty.setCustomValidity('${qtyMinSizeError}');
                 updateQtyMessage(i);
-            } else if (qty.validity.rangeOverflow) {
-                qty.setCustomValidity('${qtyMaxSizeError} ' + qty.max + '.');
+            } else if (qty.value > qtyMax.value) {
+                qty.setCustomValidity('${qtyMaxSizeError} ' + qtyMax.value + '.');
                 updateQtyMessage(i);
-                // TODO: Chequear que al menos una no debe ser null
-                // } else if (qty.validity.valueMissing) {
-                <%--    qty.setCustomValidity('${qtyNullError}');--%>
-                // updateQtyMessage(i);
             } else {
                 qty.setCustomValidity('');
             }
         };
 
+        var checkQtyValidityAll = function() {
+            var aux = 0;
+            for (var j = 0; j < ${i}; j++) {
+                var qty = document.getElementById('qty' + j);
+                if (qty.value === '' || qty.value <= 0)
+                    aux++;
+            }
+            if (aux === ${i}) {
+                errorQty.setCustomValidity('${allQtyNullError}');
+                UIkit.notification("${allQtyNullError}", {timeout: 4000}, {status: 'danger'});
+            } else {
+                errorQty.setCustomValidity('');
+            }
+        };
+
+
         var checkQtyValidity = function(i) {
             i = i.currentTarget.i;
             console.log(i);
             var qty = document.getElementById('qty' + i);
-            if (qty.validity.rangeUnderflow) {
+            var qtyMax = document.getElementById('qtyMax' + i);
+            if (qty.value < 0) {
                 qty.setCustomValidity('${qtyMinSizeError}');
                 updateQtyMessage(i);
-            } else if (qty.validity.rangeOverflow) {
-                qty.setCustomValidity('${qtyMaxSizeError} ' + qty.max + '.');
+            } else if (qty.value > qtyMax.value) {
+                qty.setCustomValidity('${qtyMaxSizeError} ' + qtyMax.value + '.');
                 updateQtyMessage(i);
-            // } else if (qty.validity.valueMissing) {
-            <%--    qty.setCustomValidity('${qtyNullError}');--%>
-                // updateQtyMessage(i);
             } else {
                 qty.setCustomValidity('');
             }
@@ -354,10 +371,11 @@
             if (form.classList) form.classList.add('submitted');
             for (var j = 0; j < ${i}; j++)
                 checkQtyValidityWithNumber(j);
+            checkQtyValidityAll();
             if (!this.checkValidity()) {
                 event.preventDefault();
-                updateQtyMessage(0);
-                updateQtyMessage(1);
+                // updateQtyMessage(0);
+                // updateQtyMessage(1);
             }
         }, false);
     }());

@@ -111,7 +111,7 @@ public class EventJdbcDao implements EventDao {
             query.append("]");
         }
         if (searchQuery != null) {
-            query.append(" AND ((SELECT to_tsvector('Spanish', name) @@ to_tsquery(?)) = 't' OR name ILIKE CONCAT('%', ?, '%'))");
+            query.append(" AND ((SELECT to_tsvector('Spanish', name) @@ websearch_to_tsquery(?)) = 't' OR name ILIKE CONCAT('%', ?, '%'))");
             objects.add(searchQuery);
             objects.add(searchQuery);
         }
@@ -183,6 +183,13 @@ public class EventJdbcDao implements EventDao {
 
     private void cleanTagsFromEvent(long eventId) {
         jdbcTemplate.update("DELETE FROM eventtags WHERE eventid = ?", eventId);
+    }
+
+    @Override
+    public boolean isFinished(long eventId) {
+        Integer qty = jdbcTemplate.query("SELECT COUNT(*) AS qty FROM events WHERE eventid = ? AND date <= ?",
+                new Object[]{ eventId, Timestamp.valueOf(LocalDateTime.now()) }, (rs, i) -> rs.getInt("qty")).stream().findFirst().orElse(null);
+        return qty != null && qty != 0;
     }
 
     @Override

@@ -23,6 +23,14 @@ public class ErrorController {
         return createErrorModel(errorCode);
     }
 
+    @RequestMapping("/404")
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ModelAndView notFound() {
+        LOGGER.error("NOT FOUND");
+        String errorCode = "404";
+        return createErrorModel(errorCode);
+    }
+
     public static ModelAndView createErrorModel(String errorCode) {
         final ModelAndView mav = new ModelAndView("error");
         String username = null;

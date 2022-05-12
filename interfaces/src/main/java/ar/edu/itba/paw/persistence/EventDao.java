@@ -29,4 +29,5 @@ public interface EventDao {
     Optional<Ticket> getTicketById(long ticketId);
     void updateTicket(long id, String ticketName, double price, int qty);
     void deleteTicket(long ticketId);
+    boolean isFinished(long eventId);
 }

@@ -96,6 +96,8 @@ public class UserController {
         if (user == null) {
             LOGGER.error("User not found");
             throw new UserNotFoundException();
+        } else if (!userManager.isCreator(user)) {
+            return new ModelAndView("redirect:/403");
         }
         List<Event> events = eventService.getUserEvents(userId, 1, locale).stream().limit(5).collect(Collectors.toList());
 

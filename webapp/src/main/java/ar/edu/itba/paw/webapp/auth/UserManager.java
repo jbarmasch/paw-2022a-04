@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -78,10 +79,14 @@ public class UserManager {
         SecurityContextHolder.getContext().setAuthentication(newAuth);
     }
 
-
     public boolean isCreator() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return auth != null && !(auth instanceof AnonymousAuthenticationToken) &&
                 auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_CREATOR"));
+    }
+
+    public boolean isCreator(User user) {
+        System.out.println(Arrays.toString(user.getRoles().toArray()));
+        return user.getRoles().stream().anyMatch(a -> a.getRoleName().equals("ROLE_CREATOR"));
     }
 }
