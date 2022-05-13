@@ -19,5 +19,13 @@ target/
 *.ear
 
 ## SQL
-locations.sql
-paw.sql
+*.sql
+
+## Spring
+config.properties
+
+## NPM
+node_modules
+package-lock.json
+package.json
+

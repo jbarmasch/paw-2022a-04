@@ -86,7 +86,6 @@ public class UserManager {
     }
 
     public boolean isCreator(User user) {
-        System.out.println(Arrays.toString(user.getRoles().toArray()));
         return user.getRoles().stream().anyMatch(a -> a.getRoleName().equals("ROLE_CREATOR"));
     }
 }

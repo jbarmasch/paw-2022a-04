@@ -161,7 +161,6 @@
                                                 <c:when test="${ticket.ticketsLeft > 0}">
                                                     <input type="number" class="hidden" id="qtyMax${i}" value="${ticket.ticketsLeft < 6 ? ticket.ticketsLeft : 6}"/>
                                                     <form:select id="qty${i}" class="uk-select" htmlEscape="true" multiple="false" path="bookings[${i}].qty" required="true">
-<%--                                                        <c:set var="qtyMax${i}" value="${ticket.ticketsLeft < 6 ? ticket.ticketsLeft : 6}" scope="session"/>--%>
                                                         <form:option value="0" selected="true"/>
                                                         <c:if test="${ticket.ticketsLeft > 0}">
                                                             <c:forEach var="j" begin="${1}" step="1" end="${ticket.ticketsLeft < 6 ? ticket.ticketsLeft : 6}">
@@ -172,7 +171,6 @@
                                                     <span class="formError"></span>
                                                     <spring:message code="NotNull.bookForm.allQty" var="allQtyNullError"/>
                                                     <input type="text" class="hidden" id="errorQty"/>
-                                                    <span class="formError"></span>
                                                 </c:when>
                                                 <c:otherwise>
                                                     <form:input id="qty${i}" value="0" class="hidden" path="bookings[${i}].qty" required="true"/>
@@ -311,10 +309,10 @@
         var checkQtyValidityWithNumber = function(i) {
             var qty = document.getElementById('qty' + i);
             var qtyMax = document.getElementById('qtyMax' + i);
-            if (qty.value < 0) {
+            if (parseInt(qty.value) < 0) {
                 qty.setCustomValidity('${qtyMinSizeError}');
                 updateQtyMessage(i);
-            } else if (qty.value > qtyMax.value) {
+            } else if (parseInt(qty.value) > parseInt(qtyMax.value)) {
                 qty.setCustomValidity('${qtyMaxSizeError} ' + qtyMax.value + '.');
                 updateQtyMessage(i);
             } else {
@@ -324,12 +322,12 @@
 
         var checkQtyValidityAll = function() {
             var aux = 0;
-            for (var j = 0; j < ${i}; j++) {
+            for (var j = 0; j < parseInt("${i}"); j++) {
                 var qty = document.getElementById('qty' + j);
-                if (qty.value === '' || qty.value <= 0)
+                if (qty.value === '' || parseInt(qty.value) === 0)
                     aux++;
             }
-            if (aux === ${i}) {
+            if (aux === parseInt("${i}")) {
                 errorQty.setCustomValidity('${allQtyNullError}');
                 UIkit.notification("${allQtyNullError}", {timeout: 4000}, {status: 'danger'});
             } else {
@@ -340,13 +338,12 @@
 
         var checkQtyValidity = function(i) {
             i = i.currentTarget.i;
-            console.log(i);
             var qty = document.getElementById('qty' + i);
             var qtyMax = document.getElementById('qtyMax' + i);
-            if (qty.value < 0) {
+            if (parseInt(qty.value) < 0) {
                 qty.setCustomValidity('${qtyMinSizeError}');
                 updateQtyMessage(i);
-            } else if (qty.value > qtyMax.value) {
+            } else if (parseInt(qty.value) > parseInt(qtyMax.value)) {
                 qty.setCustomValidity('${qtyMaxSizeError} ' + qtyMax.value + '.');
                 updateQtyMessage(i);
             } else {
@@ -359,7 +356,7 @@
             form.getElementsByClassName('formError')[i].innerHTML = qty.validationMessage;
         }
 
-        for (var j = 0; j < ${i}; j++) {
+        for (var j = 0; j < parseInt("${i}"); j++) {
             var qty = document.getElementById('qty' + j);
             qty.addEventListener('change', checkQtyValidity, false);
             qty.i = j;
@@ -369,13 +366,11 @@
 
         form.addEventListener('submit', function(event) {
             if (form.classList) form.classList.add('submitted');
-            for (var j = 0; j < ${i}; j++)
+            for (var j = 0; j < parseInt("${i}"); j++)
                 checkQtyValidityWithNumber(j);
             checkQtyValidityAll();
             if (!this.checkValidity()) {
                 event.preventDefault();
-                // updateQtyMessage(0);
-                // updateQtyMessage(1);
             }
         }, false);
     }());

@@ -31,7 +31,7 @@
                     <c:param name="${entry.key}" value="${entry.value}" />
                 </c:if>
             </c:forEach>
-            <c:param name="order" value="price_asc" />
+            <c:param name="order" value="date_asc" />
         </c:url>
         <li><a href="${lowDate}"><spring:message code="order.minDate"/></a></li>
 
@@ -41,7 +41,7 @@
                     <c:param name="${entry.key}" value="${entry.value}" />
                 </c:if>
             </c:forEach>
-            <c:param name="order" value="price_desc" />
+            <c:param name="order" value="date_desc" />
         </c:url>
         <li><a href="${highDate}"><spring:message code="order.maxDate"/></a></li>
     </ul>

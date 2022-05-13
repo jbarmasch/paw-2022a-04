@@ -64,7 +64,6 @@
                     </c:forEach>
                     <spring:message code="NotNull.bookForm.allQty" var="allQtyNullError"/>
                     <input type="text" class="hidden" id="errorQty"/>
-                    <span class="formError"></span>
                 </table>
             <spring:message code="booking.cancel" var="cancel"/>
             <input class="cancel_button sep-top-xl" type="submit" value="${cancel}"/>
@@ -97,12 +96,12 @@
 
         var checkQtyValidityAll = function() {
             var aux = 0;
-            for (var j = 0; j < ${j}; j++) {
+            for (var j = 0; j < parseInt("${j}"); j++) {
                 var qty = document.getElementById('qty' + j);
-                if (qty.value === '' || qty.value <= 0)
+                if (qty.value === '' || parseInt(qty.value) === 0)
                     aux++;
             }
-            if (aux === ${j}) {
+            if (aux === parseInt("${j}")) {
                 errorQty.setCustomValidity('${allQtyNullError}');
                 UIkit.notification("${allQtyNullError}", {timeout: 4000}, {status: 'danger'});
             } else {
@@ -129,7 +128,7 @@
             form.getElementsByClassName('formError')[i].innerHTML = qty.validationMessage;
         }
 
-        for (var j = 0; j < ${j}; j++) {
+        for (var j = 0; j < parseInt("${j}"); j++) {
             var qty = document.getElementById('qty' + j);
             qty.addEventListener('change', checkQtyValidity, false);
             qty.i = j;
@@ -139,7 +138,7 @@
 
         form.addEventListener('submit', function(event) {
             if (form.classList) form.classList.add('submitted');
-            for (var j = 0; j < ${j}; j++)
+            for (var j = 0; j < parseInt("${j}"); j++)
                 checkQtyValidityWithNumber(j);
             checkQtyValidityAll();
             if (!this.checkValidity()) {

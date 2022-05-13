@@ -8,10 +8,11 @@ pipelines:
             - maven
           script:
             - export webConfigFile="webapp/src/main/java/ar/edu/itba/paw/webapp/config/WebConfig.java"
-            - sed -i "s/pawUser/$PAW_BOTTLER_USER/g" "$webConfigFile"
-            - sed -i "s/pawPass/$PAW_BOTTLER_PASS/g" "$webConfigFile"
-            - sed -i "s/localhost/10.16.1.110/g" "$webConfigFile"
-            - sed -i "s/pawMailPass/$PAW_BOTTLER_MAILPASS/g" "$webConfigFile"
+            - sed -i "s/env.getProperty(\"dbUsername\")/\"$PAW_BOTTLER_USER\"/g" "$webConfigFile"
+            - sed -i "s/env.getProperty(\"dbPassword\")/\"$PAW_BOTTLER_PASS\"/g" "$webConfigFile"
+            - sed -i "s/env.getProperty(\"dbURL\")/\"jdbc:postgresql:\/\/10.16.1.110\/$PAW_BOTTLER_USER\"/g" "$webConfigFile"
+            - sed -i "s/env.getProperty(\"mailUsername\")/\"botpass@zohomail.com\"/g" "$webConfigFile"
+            - sed -i "s/env.getProperty(\"mailPassword\")/\"$PAW_BOTTLER_MAILPASS\"/g" "$webConfigFile"
             - mvn clean package
           artifacts:
             - webapp/target/webapp.war

@@ -6,10 +6,12 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
@@ -46,12 +48,15 @@ import java.util.Properties;
 @EnableAsync
 @EnableTransactionManagement
 @EnableWebMvc
+@PropertySource("classpath:config.properties")
 @ComponentScan({ "ar.edu.itba.paw.webapp.controller", "ar.edu.itba.paw.service", "ar.edu.itba.paw.persistence" })
 @Configuration
 public class WebConfig extends WebMvcConfigurerAdapter {
     @Value("classpath:schema.sql")
     private Resource schemaSql;
 
+    @Autowired
+    private Environment env;
     @Autowired
     private RequestMappingHandlerAdapter requestMappingHandlerAdapter;
 
@@ -73,9 +78,9 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     public DataSource dataSource() {
         final SimpleDriverDataSource ds = new SimpleDriverDataSource();
         ds.setDriverClass(org.postgresql.Driver.class);
-        ds.setUrl("jdbc:postgresql://localhost/pawUser");
-        ds.setUsername("pawUser");
-        ds.setPassword("pawPass");
+        ds.setUrl(env.getProperty("dbURL"));
+        ds.setUsername(env.getProperty("dbUsername"));
+        ds.setPassword(env.getProperty("dbPassword"));
         return ds;
     }
 
@@ -85,8 +90,8 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         mailSender.setHost("smtp.zoho.com");
         mailSender.setPort(587);
 
-        mailSender.setUsername("botpass@zohomail.com");
-        mailSender.setPassword("pawMailPass");
+        mailSender.setUsername(env.getProperty("mailUsername"));
+        mailSender.setPassword(env.getProperty("mailPassword"));
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
