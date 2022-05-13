@@ -2,7 +2,7 @@ pipelines:
   branches:
     master:
       - step:
-          name: Build and Test
+          name: Build, test and minify
           image: maven:3.6.3-jdk-8
           caches:
             - maven
@@ -13,6 +13,18 @@ pipelines:
             - sed -i "s/env.getProperty(\"dbURL\")/\"jdbc:postgresql:\/\/10.16.1.110\/$PAW_BOTTLER_USER\"/g" "$webConfigFile"
             - sed -i "s/env.getProperty(\"mailUsername\")/\"botpass@zohomail.com\"/g" "$webConfigFile"
             - sed -i "s/env.getProperty(\"mailPassword\")/\"$PAW_BOTTLER_MAILPASS\"/g" "$webConfigFile"
+            - npm install html-minifier -g
+            - tmpFilePath="$(mktemp)"
+            - for file in $(ls webapp/src/main/webapp/WEB-INF/jsp); do
+            - filePath="webapp/src/main/webapp/WEB-INF/jsp/$file"
+            - sed -n '/<script/,/<\/script>/p' "$filePath" > "$tmpFilePath"
+            - sed -i 's/<script.*<\/script>//g;/<script/,/<\/script>/{/<script/!{/<\/script>/!d}};s/<script.*//g;s/.*<\/script>//g' "$filePath"
+            - lines=$(cat "$tmpFilePath" | wc -l)
+            - if [ "$lines" -gt 0 ]; then
+            - html-minifier --continue-on-parse-error --remove-comments --case-sensitive --keep-closing-slash --minify-css true --minify-js true "$tmpFilePath" >> "$filePath"
+            - fi
+            - cat "$filePath"
+            - done
             - mvn clean package
           artifacts:
             - webapp/target/webapp.war
