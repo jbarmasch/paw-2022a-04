@@ -13,6 +13,7 @@ pipelines:
             - sed -i "s/env.getProperty(\"dbURL\")/\"jdbc:postgresql:\/\/10.16.1.110\/$PAW_BOTTLER_USER\"/g" "$webConfigFile"
             - sed -i "s/env.getProperty(\"mailUsername\")/\"botpass@zohomail.com\"/g" "$webConfigFile"
             - sed -i "s/env.getProperty(\"mailPassword\")/\"$PAW_BOTTLER_MAILPASS\"/g" "$webConfigFile"
+            - apt-get update && apt-get install -y npm
             - npm install html-minifier -g
             - tmpFilePath="$(mktemp)"
             - for file in $(ls webapp/src/main/webapp/WEB-INF/jsp); do
