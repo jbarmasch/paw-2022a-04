@@ -113,8 +113,6 @@ public class Ticket {
     }
 
     public boolean cancelBooking(int cancel) {
-        System.out.println("BOKE: " + booked);
-        System.out.println("cancel: " + cancel);
         if (booked - cancel < 0)
             return false;
         booked -= cancel;

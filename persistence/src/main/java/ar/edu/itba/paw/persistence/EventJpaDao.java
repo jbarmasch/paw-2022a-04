@@ -46,104 +46,63 @@ public class EventJpaDao implements EventDao {
     @SuppressWarnings("unchecked")
     @Override
     public List<Event> filterBy(Integer[] locations, Integer[] types, Double minPrice, Double maxPrice, String searchQuery, Integer[] tags, String username, Order order, Boolean showSoldOut, int page, Locale locale) {
-//        Session session = em.unwrap(Session.class);
-//        List<String> filters = new ArrayList<>();
-//        if (locations != null && locations.length > 0) {
-//            Filter filter = session.enableFilter("locationFilter");
-//            filters.add("locationFilter");
-//            filter.setParameterList("locations", locations);
-//        }
-//        if (types != null && types.length > 0) {
-//            Filter filter = session.enableFilter("typeFilter");
-//            filters.add("typeFilter");
-//            filter.setParameterList("types", types);
-//        }
-//        if (tags != null && tags.length > 0) {
-//            Filter filter = session.enableFilter("tagFilter");
-//            filters.add("tagFilter");
-//            filter.setParameterList("tags", tags);
-//        }
-//        if (searchQuery != null) {
-//            Filter filter = session.enableFilter("searchFilter");
-//            filters.add("searchFilter");
-//            filter.setParameter("query", searchQuery);
-//        }
-//        if (showSoldOut == null || !showSoldOut) {
-//            session.enableFilter("soldOutFilter");
-//            filters.add("soldOutFilter");
-//        }
-//        StringBuilder priceQuery = new StringBuilder();
-//        if (minPrice != null) {
-//            priceQuery.append(" AND minPrice >= ").append(minPrice);
-//        }
-//        if (maxPrice != null) {
-//            priceQuery.append(" AND minPrice <= ").append(maxPrice);
-//        }
-//        StringBuilder orderQuery = new StringBuilder();
-//        if (order != null) {
-//            orderQuery.append(" ORDER BY ").append(order.getOrder()).append(" ").append(order.getOrderBy());
-//        } else {
-//            orderQuery.append(" ORDER BY date ");
-//        }
-//
-//        List<Event> events = em.createQuery("select e from Event e WHERE e.date > '" + Timestamp.valueOf(LocalDateTime.now()) + "'" + priceQuery + orderQuery, Event.class).getResultList();
-//        for (String filter : filters)
-//            session.disableFilter(filter);
-//
-//        if (events.isEmpty())
-//            return new ArrayList<>();
-//        return events;
-        boolean having = false;
+        boolean having = false, condition = false;
         Map<String, Object> objects = new HashMap<>();
         objects.put("date", Timestamp.valueOf(LocalDateTime.now()));
-        StringBuilder query = new StringBuilder("SELECT ec.eventid FROM events ec LEFT JOIN tickets t on ec.eventid = t.eventid LEFT JOIN eventtags e on ec.eventid = e.eventid ");
-        query.append("WHERE state != 1 AND date > :date");
+        StringBuilder querySelect = new StringBuilder("SELECT ec.eventid FROM events ec");
+        StringBuilder queryCondition = new StringBuilder(" WHERE state != 1 AND date > :date");
         if (showSoldOut == null || !showSoldOut) {
-            query.append(" AND state != 2");
+            queryCondition.append(" AND state != 2");
         }
         if (locations != null && locations.length > 0) {
-            query.append(" AND locationid IN :locationids");
+            queryCondition.append(" AND locationid IN :locationids");
             objects.put("locationids", Arrays.asList(locations));
         }
         if (types != null && types.length > 0) {
-            query.append(" AND typeid IN :typeids");
-                objects.put("typeids", Arrays.asList(types));
+            queryCondition.append(" AND typeid IN :typeids");
+            objects.put("typeids", Arrays.asList(types));
         }
         if (searchQuery != null) {
-            query.append(" AND ((SELECT to_tsvector('Spanish', ec.name) @@ websearch_to_tsquery(:searchquery)) = 't' OR ec.name ILIKE CONCAT('%', :searchquery, '%'))");
+            queryCondition.append(" AND ((SELECT to_tsvector('Spanish', ec.name) @@ websearch_to_tsquery(:searchquery)) = 't' OR ec.name ILIKE CONCAT('%', :searchquery, '%'))");
             objects.put("searchquery", searchQuery);
         }
         if (username != null) {
-            query.append(" AND username = :username");
+            querySelect.append(" JOIN users u ON ec.userid = u.userid");
+            queryCondition.append(" AND username = :username");
             objects.put("username", username);
         }
-        query.append(" GROUP BY ec.eventid");
+        queryCondition.append(" GROUP BY ec.eventid");
         if (minPrice != null) {
-            query.append(" HAVING");
+            querySelect.append(" LEFT JOIN tickets t on ec.eventid = t.eventid");
+            condition = true;
+            queryCondition.append(" HAVING");
             having = true;
-            query.append(" COALESCE(MIN(t.price), 0) >= :minPrice");
+            queryCondition.append(" COALESCE(MIN(t.price), 0) >= :minPrice");
             objects.put("minPrice", minPrice);
         }
         if (maxPrice != null) {
+            if (!condition)
+                querySelect.append(" LEFT JOIN tickets t on ec.eventid = t.eventid");
             if (!having) {
-                query.append(" HAVING");
+                queryCondition.append(" HAVING");
                 having = true;
             }
-            else query.append(" AND");
-            query.append(" COALESCE(MIN(t.price), 0) <= :maxPrice");
+            else queryCondition.append(" AND");
+            queryCondition.append(" COALESCE(MIN(t.price), 0) <= :maxPrice");
             objects.put("maxPrice", maxPrice);
         }
         if (tags != null && tags.length > 0) {
+            querySelect.append(" LEFT JOIN eventtags e on ec.eventid = e.eventid");
             if (!having)
-                query.append(" HAVING");
+                queryCondition.append(" HAVING");
             else
-                query.append(" AND");
-            query.append(" ARRAY_AGG(e.tagid) @> ARRAY[:tagids]");
+                queryCondition.append(" AND");
+            queryCondition.append(" ARRAY_AGG(e.tagid) @> ARRAY[:tagids]");
             objects.put("tagids", Arrays.asList(tags));
         }
         objects.put("page", (page - 1) * 10);
-        query.append(" LIMIT 10 OFFSET :page");
-
+        queryCondition.append(" LIMIT 10 OFFSET :page");
+        StringBuilder query = querySelect.append(queryCondition);
         Query queryNative = em.createNativeQuery(String.valueOf(query));
         objects.forEach(queryNative::setParameter);
         final List<Long> ids = (List<Long>) queryNative.getResultList().stream().map(o -> ((Integer) o).longValue()).collect(Collectors.toList());
@@ -193,11 +152,10 @@ public class EventJpaDao implements EventDao {
         em.persist(event);
     }
 
-    // PODEMOS RETORNAR EVENTBOOKING ACA O NULL CUANDO ES FALSO
     @Override
-    public boolean book(EventBooking booking) {
+    public EventBooking book(EventBooking booking) {
         if (booking.getEvent().isFinished())
-            return false;
+            return null;
 
         final TypedQuery<EventBooking> query = em.createQuery("from EventBooking as eb where eb.user.id = :userid and eb.event.id = :eventid", EventBooking.class);
         query.setParameter("eventid", booking.getEvent().getId());
@@ -210,20 +168,21 @@ public class EventJpaDao implements EventDao {
                     Ticket ticket = ticketBooking.getTicket();
                     if (!ticket.book(ticketBooking.getQty())) {
                         // TODO
-                        // throw
-                        return false;
+                        // throw new RuntimeException();
+                        return null;
                     }
                     em.persist(ticket);
                     em.persist(ticketBooking);
                 }
             }
             em.persist(booking);
+            return booking;
         } else {
             for (TicketBooking ticketBooking : booking.getTicketBookings()) {
                 if (ticketBooking.getTicket().getEvent().getId() != booking.getEvent().getId()) {
                     // TODO
                     // throw new RuntimeException();
-                    return false;
+                    return null;
                 }
 
                 TicketBooking ticketAux = em.find(TicketBooking.class, new BookingId(ticketBooking.getTicket(), eventBooking));
@@ -231,8 +190,8 @@ public class EventJpaDao implements EventDao {
                     Ticket ticket = ticketAux.getTicket();
                     if (!ticket.book(ticketBooking.getQty())) {
                         // TODO
-                        // throw
-                        return false;
+                        // throw new RuntimeException();
+                        return null;
                     }
                     em.persist(ticket);
                     if (ticketAux.getQty() != null && ticketAux.getQty() > 0) {
@@ -244,8 +203,8 @@ public class EventJpaDao implements EventDao {
                     Ticket ticket = ticketBooking.getTicket();
                     if (!ticket.book(ticketBooking.getQty())) {
                         // TODO
-                        // throw
-                        return false;
+                        // throw new RuntimeException();
+                        return null;
                     }
                     em.persist(ticket);
                     eventBooking.addBooking(ticketBooking);
@@ -253,8 +212,8 @@ public class EventJpaDao implements EventDao {
                 }
             }
             em.persist(eventBooking);
+            return eventBooking;
         }
-        return true;
     }
 
     @Override
@@ -283,7 +242,7 @@ public class EventJpaDao implements EventDao {
             Ticket ticket = ticketBooking.getTicket();
             if (!ticket.cancelBooking(ticketBooking.getQty())) {
                 // TODO
-                // throw
+                // throw new RuntimeException();
                 return false;
             }
             em.persist(ticket);

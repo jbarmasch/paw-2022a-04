@@ -100,7 +100,6 @@ public class UserController {
             return new ModelAndView("redirect:/403");
         }
         List<Event> events = user.getEvents();
-        System.out.println("SIZE" + events.size());
         events = events.stream().limit(5).collect(Collectors.toList());
 
         final ModelAndView mav = new ModelAndView("profile");
@@ -111,7 +110,6 @@ public class UserController {
         }
         mav.addObject("user", user);
         mav.addObject("events", events);
-        System.out.println("SIZE" + events.size());
         mav.addObject("size", events.size());
         return mav;
     }
@@ -128,12 +126,12 @@ public class UserController {
         EventBooking eventBooking = userService.getBooking(code, locale).orElse(null);
         User user = userManager.getUser();
         long userId = user.getId();
-        if (eventBooking == null || (userId != eventBooking.getUser().getId() && userId != eventBooking.getEvent().getOrganizer().getId())) {
+        if (eventBooking == null || (userId != eventBooking.getUser().getId() && userId != eventBooking.getEvent().getOrganizer().getId()) ||
+                eventBooking.getEvent().getDate().isBefore(LocalDateTime.now())) {
             LOGGER.error("Booking not found");
             throw new BookingNotFoundException();
         }
 
-//        System.out.println(request.getScheme() + "://" + request.getServerName());
         String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), request.getContextPath());
         String bookUrl = baseUrl + "/bookings/" + code;
         byte[] encodeBase64 = Base64.getEncoder().encode(codeService.createQr(bookUrl));

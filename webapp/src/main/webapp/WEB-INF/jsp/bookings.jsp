@@ -25,7 +25,14 @@
                         <div class="container multi-browse booking-browse full_width">
                         <c:forEach var="booking" items="${eventBookings}">
                             <c:if test="${!booking.event.deleted}">
-                                <div class="horizontal booking-card card uk-card uk-card-default">
+                                <c:choose>
+                                    <c:when test="${booking.event.date >= actualTime}">
+                                        <div class="horizontal booking-card card clickable uk-card uk-card-default" onclick="location.href='<c:url value="/bookings/${booking.code}"/>'">
+                                    </c:when>
+                                            <c:otherwise>
+                                        <div class="horizontal booking-card card uk-card uk-card-default">
+                                            </c:otherwise>
+                                </c:choose>
                                 <div class="horizontal">
                                     <div class="fill">
                                         <img src="<c:url value="/image/${booking.event.image.id}"/>" alt="${imageAlt}"/>

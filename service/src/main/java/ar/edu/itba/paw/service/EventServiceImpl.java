@@ -2,28 +2,10 @@ package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.persistence.EventDao;
-import ar.edu.itba.paw.persistence.UserDao;
-import com.sun.org.apache.bcel.internal.classfile.Code;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -32,8 +14,6 @@ import java.util.Optional;
 public class EventServiceImpl implements EventService {
     @Autowired
     private EventDao eventDao;
-    @Autowired
-    private UserService userService;
     @Autowired
     private MailService mailService;
     @Autowired
@@ -73,24 +53,19 @@ public class EventServiceImpl implements EventService {
         String code = codeService.getCode(booking.getUser().getId() + ":" + booking.getEvent().getId());
         booking.setCode(code);
 
-        if (eventDao.book(booking)) {
-            booking = userService.getBookingFromUser(booking.getUser().getId(), booking.getEvent().getId(), locale).orElse(null);
-            if (booking == null)
-                return;
-            mailService.sendBookMail(baseUrl + "/bookings/" + booking.getCode(), booking, locale);
-        } else
+        EventBooking eventBooking = eventDao.book(booking);
+        if (eventBooking != null)
+            mailService.sendBookMail(baseUrl + "/bookings/" + eventBooking.getCode(), eventBooking, locale);
+        else
             mailService.sendErrorMail(booking.getUser().getMail());
     }
 
     @Transactional
     @Override
     public void cancelBooking(EventBooking booking, Locale locale) {
-        if (eventDao.cancelBooking(booking)) {
-            booking = userService.getBooking(booking.getCode(), locale).orElse(null);
-            if (booking == null)
-                return;
+        if (eventDao.cancelBooking(booking))
             mailService.sendCancelMail(booking, locale);
-        } else
+        else
             mailService.sendErrorMail(booking.getUser().getMail());
     }
 

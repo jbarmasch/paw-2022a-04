@@ -13,7 +13,7 @@ public interface EventDao {
     List<Event> filterBy(Integer[] locations, Integer[] types, Double minPrice, Double maxPrice, String query, Integer[] tags, String username, Order order, Boolean showSoldOut, int page, Locale locale);
     void updateEvent(long id, String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, Integer minAge);
     void deleteEvent(long id);
-    boolean book(EventBooking booking);
+    EventBooking book(EventBooking booking);
     boolean cancelBooking(EventBooking booking);
     void soldOut(long id);
     void active(long id);

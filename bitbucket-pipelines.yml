@@ -16,8 +16,8 @@ pipelines:
             - sed -i "s/env.getProperty(\"mailPassword\")/\"$PAW_BOTTLER_MAILPASS\"/g" "$webConfigFile"
             - export codeServiceFile="service/src/main/java/ar/edu/itba/paw/service/CodeServiceImpl.java"
             - sed -i "s/@PropertySource(\"classpath:config.properties\")//g" "$codeServiceFile"
-            - sed -i "s/env.getProperty(\"encPassword\")/\"$PAW_BOTTLER_MAILPASS\"/g" "$codeServiceFile"
-            - sed -i "s/env.getProperty(\"encSalt\")/\"$PAW_BOTTLER_PASS\"/g" "$codeServiceFile"
+            - sed -i "s/env.getProperty(\"encPassword\")/\"$PAW_BOTTLER_ENCPASS\"/g" "$codeServiceFile"
+            - sed -i "s/env.getProperty(\"encSalt\")/\"$PAW_BOTTLER_ENCSALT\"/g" "$codeServiceFile"
             - apt-get update && apt-get install -y npm
             - npm install html-minifier -g
             - tmpFilePath="$(mktemp)"

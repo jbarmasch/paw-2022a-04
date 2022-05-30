@@ -2,6 +2,10 @@
     max-width: 240px;
     margin: 14px 6px 6px 6px;
     background-color: aliceblue;
+    cursor: default;
+}
+
+.clickable {
     cursor: pointer;
 }
 

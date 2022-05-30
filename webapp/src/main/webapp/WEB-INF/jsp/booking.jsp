@@ -26,7 +26,7 @@
                     </tr>
                     <c:set var="total" value="0"/>
                     <c:forEach var="ticketBooking" items="${eventBooking.ticketBookings}">
-                        <c:set var="total" value="${total = total + ticketBooking.qty * ticketBooking.ticket.price}"/>
+                        <c:set var="total" value="${total + ticketBooking.qty * ticketBooking.ticket.price}"/>
                         <tr>
                             <td>
                                 <span><c:out value="${ticketBooking.ticket.ticketName}"/></span>
