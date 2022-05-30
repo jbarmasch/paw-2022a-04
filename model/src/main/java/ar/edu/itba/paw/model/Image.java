@@ -1,15 +1,27 @@
 package ar.edu.itba.paw.model;
 
+import javax.persistence.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+@Entity
+@Table(name = "images")
 public class Image {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "images_imageid_seq")
+    @SequenceGenerator(sequenceName = "images_imageid_seq", name = "images_imageid_seq", allocationSize = 1)
+    @Column(name = "imageid")
     private long id;
     private byte[] image;
 
-    public Image(long id, byte[] image) {
-        this.id = id;
+    public Image(byte[] image) {
         this.image = image;
+    }
+
+    public Image() {}
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public long getId() {
@@ -18,5 +30,9 @@ public class Image {
 
     public byte[] getImage() {
         return image;
+    }
+
+    public void setImage(byte[] image) {
+        this.image = image;
     }
 }

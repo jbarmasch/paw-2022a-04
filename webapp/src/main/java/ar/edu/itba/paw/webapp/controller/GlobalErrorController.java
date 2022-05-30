@@ -21,7 +21,7 @@ public class GlobalErrorController {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalErrorController.class);
 
     @ExceptionHandler({EventNotFoundException.class, UserNotFoundException.class, ImageNotFoundException.class,
-            StatsNotFoundException.class, TicketNotFoundException.class})
+            StatsNotFoundException.class, TicketNotFoundException.class, BookingNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ModelAndView notFound(Exception e) {
         LOGGER.error("NOT FOUND {}", e.getMessage());
@@ -66,7 +66,7 @@ public class GlobalErrorController {
     @ExceptionHandler({NoHandlerFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ModelAndView typeMismatch(Exception e) {
-        LOGGER.error("PAGE NOT FOUND");
+        LOGGER.error("PAGE NOT FOUND {}", e.getMessage());
         String errorCode = "404";
         return ErrorController.createErrorModel(errorCode);
     }

@@ -7,7 +7,7 @@
     <div class="uk-card-media-top">
         <spring:message code="event.imageAlt" var="imageAlt"/>
         <div class="card_img_container">
-            <img class="card_img" src="<c:url value="/image/${event.imageId}"/>" alt="${imageAlt}">
+            <img class="card_img" src="<c:url value="/image/${event.image.id}"/>" alt="${imageAlt}">
             <c:if test="${event.soldOut}">
                 <spring:message code="event.soldOut" var="soldOut"/>
                 <img class="soldout_card" src="<c:url value="/resources/png/sold_out.png"/>" alt="${soldOut}"/>

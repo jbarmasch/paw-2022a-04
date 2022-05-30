@@ -18,7 +18,6 @@
         <div>
             <h2 class="subtitle"><spring:message code="booking.cancel"/></h2>
         </div>
-
                 <table class="tickets tickets-table">
                     <tr>
                         <th><spring:message code="tickets.ticketName"/></th>
@@ -27,15 +26,15 @@
                         <th><spring:message code="booking.cancel"/></th>
                     </tr>
                     <c:set var="j" scope="session" value="0"/>
-                    <c:forEach var="booking" items="${eventBooking.bookings}">
+                    <c:forEach var="ticketBooking" items="${eventBooking.ticketBookings}">
                         <tr>
                             <td>
-                                <span><c:out value="${booking.ticket.ticketName}"/></span>
+                                <span><c:out value="${ticketBooking.ticket.ticketName}"/></span>
                             </td>
                             <td class="table-number">
                                 <c:choose>
-                                    <c:when test="${booking.ticket.price > 0}">
-                                        <span>$<c:out value="${booking.ticket.price}"/></span>
+                                    <c:when test="${ticketBooking.ticket.price > 0}">
+                                        <span>$<c:out value="${ticketBooking.ticket.price}"/></span>
                                     </c:when>
                                     <c:otherwise>
                                         <spring:message code="event.free"/>
@@ -43,15 +42,13 @@
                                 </c:choose>
                             </td>
                             <td class="table-number">
-                                <span><c:out value="${booking.qty}"/></span>
+                                <span><c:out value="${ticketBooking.qty}"/></span>
                             </td>
                             <td class="table-number">
-                                <form:input path="bookings[${j}].qty" id="qty${j}" type="number" min="0" max="${booking.qty}" step="1" value="0"/>
+                                <form:input path="bookings[${j}].qty" id="qty${j}" type="number" min="0" max="${ticketBooking.qty}" step="1" value="0"/>
                                 <span class="formError"></span>
 
-                                <form:input class="hidden" type="number" path="bookings[${j}].ticketId" value="${booking.ticket.id}"/>
-                                <form:input class="hidden" type="text" value="${booking.ticket.ticketName}" path="bookings[${j}].ticketName"/>
-                                <form:input class="hidden" type="number" value="${booking.ticket.price}" path="bookings[${j}].price"/>
+                                <form:input class="hidden" type="number" path="bookings[${j}].ticketId" value="${ticketBooking.ticket.id}"/>
 
                                 <form:errors path="bookings[${j}].qty" cssClass="error-message" element="span"/>
                                 <spring:message code="Min.bookForm.qty" var="qtyMinSizeError"/>
@@ -65,9 +62,9 @@
                     <spring:message code="NotNull.bookForm.allQty" var="allQtyNullError"/>
                     <input type="text" class="hidden" id="errorQty"/>
                 </table>
-            <spring:message code="booking.cancel" var="cancel"/>
-            <input class="cancel_button sep-top-xl" type="submit" value="${cancel}"/>
-            <form:input class="hidden" type="number" path="page" value="${1}"/>
+                <spring:message code="booking.cancelBtn" var="cancel"/>
+                <input class="cancel_button sep-top-xl" type="submit" value="${cancel}"/>
+                <form:input class="hidden" type="number" path="page" value="${1}"/>
             </form:form>
     </div>
 </body>

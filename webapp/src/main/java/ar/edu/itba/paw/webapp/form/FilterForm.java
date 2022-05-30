@@ -18,6 +18,7 @@ public class FilterForm {
     private String searchQuery;
     private String order;
     private String username;
+    private boolean showSoldOut;
 
     public String getOrder() {
         return order;
@@ -25,6 +26,14 @@ public class FilterForm {
 
     public void setOrder(String order) {
         this.order = order;
+    }
+
+    public boolean getShowSoldOut() {
+        return showSoldOut;
+    }
+
+    public void setShowSoldOut(boolean showSoldOut) {
+        this.showSoldOut = showSoldOut;
     }
 
     public String getSearchQuery() {

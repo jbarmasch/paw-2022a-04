@@ -105,6 +105,10 @@
                     <spring:message code="Pattern.filterForm.maxPrice" var="maxPriceTypeError"/>
                     <span class="formError"></span>
                 </div>
+                <div>
+                    <form:checkbox path="showSoldOut"/>
+                    <form:label class="sep-left" path="showSoldOut"><spring:message code="filter.showSoldOut"/></form:label>
+                </div>
                 <spring:message code="Price.filterForm" var="minMaxError"/>
                 <form:errors cssClass="error-message" element="span"/>
                 <span class="formError"></span>
@@ -131,7 +135,11 @@
                     </c:forEach>
                 </c:when>
                 <c:otherwise>
-                    <spring:message code="filter.noEvents"/>
+                    <div class="center sep-top-xl full_width">
+                        <h2 class="subtitle">
+                            <spring:message code="filter.noEvents"/>
+                        </h2>
+                    </div>
                 </c:otherwise>
             </c:choose>
         </div>
@@ -175,7 +183,7 @@
 
         var checkRangeValidity = function() {
             if (maxPrice.value.length !== 0 && minPrice.value.length !== 0) {
-                if (maxPrice.value < minPrice.value) {
+                if (parseInt(maxPrice.value) < parseInt(minPrice.value)) {
                     maxPrice.setCustomValidity('${minMaxError}');
                     updateMinMaxMessage();
                 }

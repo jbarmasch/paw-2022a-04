@@ -3,11 +3,14 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.service.*;
 import ar.edu.itba.paw.webapp.auth.UserManager;
-import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
-import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
-import ar.edu.itba.paw.webapp.exceptions.StatsNotFoundException;
-import ar.edu.itba.paw.webapp.exceptions.TicketNotFoundException;
+import ar.edu.itba.paw.webapp.exceptions.*;
 import ar.edu.itba.paw.webapp.form.*;
+import ar.edu.itba.paw.webapp.helper.AESUtil;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -21,9 +24,25 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.crypto.*;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
+import javax.imageio.ImageIO;
+import javax.jws.WebParam;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -92,7 +111,7 @@ public class EventController {
     }
 
     @RequestMapping(value = "/events/{eventId}", method = { RequestMethod.POST }, params = "submit")
-    public ModelAndView bookEvent(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors,
+    public ModelAndView bookEvent(HttpServletRequest request, @Valid@ModelAttribute("bookForm") final BookForm form, final BindingResult errors,
                                   @PathVariable("eventId") @Min(1) final long eventId) {
         Locale locale = LocaleContextHolder.getLocale();
         final Event e = eventService.getEventById(eventId, locale).orElse(null);
@@ -102,7 +121,7 @@ public class EventController {
         }
 
         final User user = userManager.getUser();
-        final User eventUser = userService.getUserById(e.getUser().getId()).orElse(null);
+        final User eventUser = userService.getUserById(e.getOrganizer().getId()).orElse(null);
         if (eventUser == null) {
             LOGGER.error("Organizer not found");
             throw new UserNotFoundException();
@@ -110,22 +129,29 @@ public class EventController {
 
         int i = 0;
         List<Ticket> tickets = e.getTickets();
-        Map<Integer, Ticket> ticketMap = new HashMap<>();
+        Map<Long, Ticket> ticketMap = new HashMap<>();
         for (Ticket ticket : tickets) {
             ticketMap.put(ticket.getId(), ticket);
         }
-        for (Booking booking : form.getBookings()) {
-            Ticket ticket = ticketMap.get(booking.getTicketId());
-            if (booking.getQty() != null && booking.getQty() > Math.min(6, ticket.getTicketsLeft()))
+        EventBooking booking = new EventBooking(user, e, new ArrayList<>(), null);
+        for (BookingForm bookingForm : form.getBookings()) {
+            TicketBooking ticketBooking = new TicketBooking(eventService.getTicketById(bookingForm.getTicketId()).orElse(null), bookingForm.getQty(), booking);
+            booking.addBooking(ticketBooking);
+        }
+
+        for (TicketBooking ticketBooking : booking.getTicketBookings()) {
+            Ticket ticket = ticketMap.get(ticketBooking.getTicket().getId());
+            if (ticketBooking.getQty() != null && ticketBooking.getQty() > Math.min(6, ticket.getTicketsLeft()))
                 errors.rejectValue("bookings[" + i + "].qty", "Max.bookForm.qty", new Object[]{Math.min(6, ticket.getTicketsLeft())}, "");
             i++;
         }
+
         if (errors.hasErrors()) {
             LOGGER.error("BookForm has errors: {}", errors.getAllErrors().toArray());
             return eventDescription(form, eventId);
         }
 
-        eventService.book(form.getBookings(), user.getId(), user.getUsername(), user.getMail(), eventId, e.getUser().getUsername(), e.getName(), eventUser.getMail(), LocaleContextHolder.getLocale());
+        eventService.book(booking, request.getRequestURL().toString().replace(request.getRequestURI(), request.getContextPath()), LocaleContextHolder.getLocale());
         return new ModelAndView("redirect:/events/" + e.getId() + "/booking-success");
     }
 
@@ -134,7 +160,14 @@ public class EventController {
         if (!userManager.isAuthenticated())
             return new ModelAndView("redirect:/");
 
+        EventBooking eventBooking = userService.getBookingFromUser(userManager.getUserId(), eventId, null).orElse(null);
+        if (eventBooking == null) {
+            LOGGER.error("Booking not found");
+            throw new BookingNotFoundException();
+        }
+
         final ModelAndView mav = new ModelAndView("bookingSuccess");
+        mav.addObject("code", eventBooking.getCode());
         addSimilarAndPopularEvents(mav, eventId);
         return mav;
     }
@@ -159,9 +192,9 @@ public class EventController {
             return createForm(form);
         }
 
-        final int userId = userManager.getUserId();
+        final long userId = userManager.getUserId();
         final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), form.getType(), form.getTimestamp(),
-                (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags(), userId, locale);
+                (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags(), userId, form.isHasMinAge() ? form.getMinAge() : null, locale);
 
         userManager.refreshAuthorities();
         return new ModelAndView("redirect:/events/" + e.getId());
@@ -206,7 +239,7 @@ public class EventController {
             return modifyForm(form, eventId);
 
         eventService.updateEvent(eventId, form.getName(), form.getDescription(), form.getLocation(),
-                form.getType(), form.getTimestamp(), (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags());
+                form.getType(), form.getTimestamp(), (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags(), form.isHasMinAge() ? form.getMinAge() : null);
         return new ModelAndView("redirect:/events/" + eventId);
     }
 
@@ -258,14 +291,14 @@ public class EventController {
         }
 
         eventService.active(eventId);
-        return new ModelAndView("redirect:/events");
+        return new ModelAndView("redirect:/events/" + eventId);
     }
 
     @RequestMapping(value = "/my-events", method = { RequestMethod.GET })
     public ModelAndView myEvents(@RequestParam(value = "page", required = false, defaultValue = "1") @Min(1) final int page) {
         Locale locale = LocaleContextHolder.getLocale();
-        final int userId = userManager.getUserId();
-        List<Event> events = eventService.getUserEvents(userId, page, locale);
+        final User user = userManager.getUser();
+        List<Event> events = user.getEvents();
         final ModelAndView mav = new ModelAndView("myEvents");
         mav.addObject("page", page);
         mav.addObject("myEvents", events);
@@ -276,7 +309,7 @@ public class EventController {
     @RequestMapping(value = "/stats", method = { RequestMethod.GET })
     public ModelAndView getStats() {
         Locale locale = LocaleContextHolder.getLocale();
-        final int userId = userManager.getUserId();
+        final long userId = userManager.getUserId();
         EventStats stats = userService.getEventStats(userId, locale).orElse(null);
         if (stats == null) {
             LOGGER.error("Stats not found");
@@ -288,7 +321,7 @@ public class EventController {
     }
 
     private boolean isEventOwner(Event event) {
-        return event.getUser().getId() == userManager.getUserId();
+        return event.getOrganizer().getId() == userManager.getUserId();
     }
 
     @RequestMapping(value = "/events/{eventId}/add-ticket", method = { RequestMethod.GET })

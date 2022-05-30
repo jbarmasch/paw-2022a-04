@@ -1,17 +1,21 @@
 package ar.edu.itba.paw.webapp.form;
 
-import ar.edu.itba.paw.model.Booking;
+import ar.edu.itba.paw.model.EventBooking;
+import ar.edu.itba.paw.model.Ticket;
 import ar.edu.itba.paw.webapp.validations.BookingList;
 
-import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.util.List;
 
 public class BookForm {
     @NotNull
-    @BookingList
+//    @BookingList
 //    @Valid
-    private List<Booking> bookings;
+//    private EventBooking booking;
+
+//    private List<Long> ticketIds;
+//    private List<Integer> qtys;
+    private List<BookingForm> bookings;
 
     private int page;
 
@@ -23,11 +27,36 @@ public class BookForm {
         this.page = page;
     }
 
-    public List<Booking> getBookings() {
+//    public EventBooking getBooking() {
+//        return booking;
+//    }
+//
+//    public void setBooking(EventBooking booking) {
+//        this.booking = booking;
+//    }
+
+//    public List<Long> getTicketIds() {
+//        return ticketIds;
+//    }
+//
+//    public void setTicketIds(List<Long> ticketIds) {
+//        this.ticketIds = ticketIds;
+//    }
+//
+//    public List<Integer> getQtys() {
+//        return qtys;
+//    }
+//
+//    public void setQtys(List<Integer> qtys) {
+//        this.qtys = qtys;
+//    }
+
+
+    public List<BookingForm> getBookings() {
         return bookings;
     }
 
-    public void setBookings(List<Booking> bookings) {
+    public void setBookings(List<BookingForm> bookings) {
         this.bookings = bookings;
     }
 }

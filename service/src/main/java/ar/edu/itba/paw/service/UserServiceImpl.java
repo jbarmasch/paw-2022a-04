@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -36,12 +37,6 @@ public class UserServiceImpl implements UserService {
         return userDao.findByUsername(username);
     }
 
-
-    @Override
-    public Optional<EventBooking> getBookingFromUser(long userId, long eventId, Locale locale) {
-        return userDao.getBookingFromUser(userId, eventId, locale);
-    }
-
     @Override
     public Optional<UserStats> getUserStats(long id, Locale locale) {
         return userDao.getUserStats(id, locale);
@@ -63,19 +58,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void rateUser(long userId, long organizerId, double rating) {
+    public void rateUser(long userId, long organizerId, int rating) {
         if (!userDao.canRate(organizerId, userId))
             return;
         userDao.rateUser(userId, organizerId, rating);
     }
 
     @Override
-    public List<EventBooking> getAllPreviousBookingsFromUser(long id, int page, Locale locale){
-        return userDao.getAllPreviousBookingsFromUser(id, page, locale);
+    public List<EventBooking> getAllBookingsFromUser(long userId, int page, Locale locale) {
+        return userDao.getAllBookingsFromUser(userId, page, locale);
     }
 
     @Override
-    public List<EventBooking> getAllFutureBookingsFromUser(long id, int page, Locale locale){
-        return userDao.getAllFutureBookingsFromUser(id, page, locale);
+    public Optional<EventBooking> getBookingFromUser(long userId, long eventId, Locale locale) {
+        return userDao.getBookingFromUser(userId, eventId, locale);
+    }
+
+    @Override
+    public Optional<EventBooking> getBooking(String code, Locale locale){
+        return userDao.getBooking(code, locale);
     }
 }

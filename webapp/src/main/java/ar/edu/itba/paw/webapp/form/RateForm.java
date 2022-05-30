@@ -5,13 +5,22 @@ public class RateForm {
     @DecimalMin("0")
     @DecimalMax("5.0")
     @NotNull
-    private Double rating;
+    private Integer rating;
+    private Integer eventId;
 
-    public Double getRating() {
+    public Integer getRating() {
         return rating;
     }
 
-    public void setRating(Double rating) {
+    public void setRating(Integer rating) {
         this.rating = rating;
+    }
+
+    public Integer getEventId() {
+        return eventId;
+    }
+
+    public void setEventId(Integer eventId) {
+        this.eventId = eventId;
     }
 }

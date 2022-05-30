@@ -13,6 +13,8 @@ public class UserStats {
         this.favLocation = favLocation;
     }
 
+    public UserStats() {}
+
     public int getEventsAttended() {
         return eventsAttended;
     }
@@ -20,6 +22,7 @@ public class UserStats {
     public int getBookingsMade() {
         return bookingsMade;
     }
+
     public Type getFavType() {
         return favType;
     }

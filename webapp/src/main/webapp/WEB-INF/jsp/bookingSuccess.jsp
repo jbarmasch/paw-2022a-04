@@ -8,8 +8,10 @@
 </head>
 <body>
     <%@ include file="appbar.jsp"%>
-    <div class="container only-element">
+    <div class="container only-element vertical">
         <h1><spring:message code="booking.success"/></h1>
+
+        <h3><a href="<c:url value="/bookings/${code}"/>"><spring:message code="booking.see"/></a></h3>
     </div>
 
     <c:set var="similarEvents" value="${similarEvents}" scope="request"/>

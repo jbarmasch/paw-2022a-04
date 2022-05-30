@@ -1,31 +1,64 @@
 package ar.edu.itba.paw.model;
 
+import javax.persistence.*;
+import java.util.Objects;
+
+@Entity
+//@Table(name = "tickets", uniqueConstraints = {
+//        @UniqueConstraint(columnNames = {"eventid", "name"})
+//})
+@Table(name = "tickets")
 public class Ticket {
-    private Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tickets_ticketid_seq")
+    @SequenceGenerator(sequenceName = "tickets_ticketid_seq", name = "tickets_ticketid_seq", allocationSize = 1)
+    @Column(name = "ticketid")
+    private long id;
+    @Column(name = "name", length = 100)
     private String ticketName;
     private Double price;
+    @Column(name = "maxTickets")
     private Integer qty;
     private Integer booked;
-
-    public Ticket() {}
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "eventid")
+    private Event event;
 
     public Ticket(String ticketName, Double price, Integer qty) {
         this.ticketName = ticketName;
         this.price = price;
         this.qty = qty;
+        this.booked = 0;
     }
 
-    public Ticket(Integer id, String ticketName, Double price, Integer qty, Integer booked) {
-        this.id = id;
+    public Ticket(String ticketName, Double price, Integer qty, Integer booked) {
         this.ticketName = ticketName;
         this.price = price;
         this.qty = qty;
         this.booked = booked;
     }
 
-    public Ticket(Integer id, String name) {
-        this.id = id;
+    public Ticket(String ticketName, Double price, Integer qty, Event event) {
+        this.ticketName = ticketName;
+        this.price = price;
+        this.qty = qty;
+        this.booked = 0;
+        this.event = event;
+    }
+
+    public Ticket(String name) {
         this.ticketName = name;
+    }
+
+    public Ticket() {}
+
+    public Event getEvent() {
+        return event;
+    }
+
+    public void setEvent(Event event) {
+        this.event = event;
     }
 
     public String getTicketName() {
@@ -52,11 +85,11 @@ public class Ticket {
         this.qty = qty;
     }
 
-    public Integer getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -71,4 +104,34 @@ public class Ticket {
     public Integer getTicketsLeft() {
         return qty - booked;
     }
+
+    public boolean book(int book) {
+        if (booked + book > qty)
+            return false;
+        booked += book;
+        return true;
+    }
+
+    public boolean cancelBooking(int cancel) {
+        System.out.println("BOKE: " + booked);
+        System.out.println("cancel: " + cancel);
+        if (booked - cancel < 0)
+            return false;
+        booked -= cancel;
+        return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Ticket)) return false;
+        Ticket ticket = (Ticket) o;
+        return id == ticket.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }
+

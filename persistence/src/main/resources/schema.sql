@@ -44,7 +44,8 @@ CREATE TABLE IF NOT EXISTS events (
     typeId INTEGER REFERENCES types,
     userId INTEGER REFERENCES users,
     imageId INTEGER REFERENCES images,
-    state INTEGER NOT NULL
+    state INTEGER NOT NULL,
+    minage INTEGER CHECK(minage >= 14 AND minage <= 2)
 );
 
 CREATE TABLE IF NOT EXISTS eventTags (
@@ -63,12 +64,19 @@ CREATE TABLE IF NOT EXISTS tickets (
     UNIQUE (eventId, name)
 );
 
-CREATE TABLE IF NOT EXISTS bookings (
+CREATE TABLE IF NOT EXISTS eventbookings (
+    id SERIAL PRIMARY KEY,
+    code VARCHAR(100) UNIQUE NOT NULL,
     userId INTEGER REFERENCES users,
     eventId INTEGER REFERENCES events,
+    UNIQUE (userId, eventId)
+);
+
+CREATE TABLE IF NOT EXISTS ticketbookings (
+    id INTEGER REFERENCES eventbookings,
     ticketId INTEGER REFERENCES tickets ON DELETE CASCADE,
     qty INTEGER CHECK (qty >= 0),
-    PRIMARY KEY (userId, eventId, ticketId)
+    PRIMARY KEY (id, ticketId)
 );
 
 CREATE TABLE IF NOT EXISTS ratings (

@@ -13,7 +13,9 @@
     <%@ include file="appbar.jsp"%>
     <c:url value="/events/${eventId}/modify" var="postPath"/>
     <div class="only-element">
-        <form:form novalidate="true" modelAttribute="eventForm" action="${postPath}" method="post" id="eventForm" enctype="multipart/form-data">
+        <form:form class="horizontal" novalidate="true" modelAttribute="eventForm" action="${postPath}" method="post" id="eventForm" enctype="multipart/form-data">
+            <div class="interline">
+            <h4 class="subtitle"><spring:message code="modify.event"/></h4>
             <div>
                 <span class="required">* </span>
                 <form:label path="name"><spring:message code="create.name"/>: </form:label>
@@ -110,6 +112,41 @@
                 <span class="formError"></span>
             </div>
 
+            <div class="horizontal align-center">
+                <div class="horizontal center">
+                    <c:choose>
+                        <c:when test="${event.minAge != null}">
+                            <c:set value="true" var="checked"/>
+                            <form:checkbox path="hasMinAge" id="hasMinAge" checked="checked"/>
+                        </c:when>
+                        <c:otherwise>
+                            <c:set value="false" var="checked"/>
+                            <form:checkbox path="hasMinAge" id="hasMinAge"/>
+                        </c:otherwise>
+                    </c:choose>
+
+                    <form:label path="hasMinAge" class="sep-left"><spring:message code="create.minAge"/></form:label>
+                </div>
+
+                <form:select class="uk-select input_select sep-left-l" htmlEscape="true" multiple="false" path="minAge" id="minAgeInput">
+                    <c:forEach var="item" step="1" begin="14" end="27">
+                        <c:choose>
+                            <c:when test="${item == event.minAge}">
+                                <form:option value="${item}" selected="selected" >${item}</form:option>
+                            </c:when>
+                            <c:otherwise>
+                                <form:option value="${item}">${item}</form:option>
+                            </c:otherwise>
+                        </c:choose>
+                    </c:forEach>
+                </form:select>
+                <form:errors path="minAge" cssClass="error-message" element="span"/>
+                <spring:message code="Range.eventForm.minAge" var="rangeAgeMinError"/>
+<%--                <spring:message code="Max.eventForm.minAge" var="minAgeMaxError"/>--%>
+                <spring:message code="NotNull.eventForm.minAge" var="minAgeNullError"/>
+                <span class="formError"></span>
+            </div>
+
             <div class="container event">
                 <spring:message code="modify.update" var="modifyMessage"/>
                 <input class="filter_button" type="submit" value="${modifyMessage}"/>
@@ -120,15 +157,34 @@
 </html>
 
 <script type="text/javascript">
+    function hasMinimumAge() {
+        var checkBox = document.getElementById("hasMinAge");
+        var minAgeInput = document.getElementById("minAgeInput");
+
+        if (checkBox == null || minAgeInput == null)
+            return;
+
+        minAgeInput.disabled = !checkBox.checked;
+    }
+
     (function() {
+        hasMinimumAge();
+
         var name = document.getElementById('name');
         var description = document.getElementById('description');
-        // var maxCapacity = document.getElementById('maxCapacity');
-        // var price = document.getElementById('price');
         var date = document.getElementById('date');
+        var age = document.getElementById('minAgeInput');
         var type = document.getElementById('type');
         var location = document.getElementById('location');
         var form = document.getElementById('eventForm');
+        var uploadField = document.getElementById("image");
+
+        uploadField.onchange = function() {
+            if (this.files[0].size > 1048576) {
+                UIkit.notification("MUY GRANDE", {timeout: 4000}, {status: 'danger'});
+                this.value = "";
+            }
+        };
 
         var checkNameValidity = function() {
             if (name.validity.tooLong) {
@@ -141,21 +197,6 @@
                 name.setCustomValidity('');
             }
         };
-
-        <%--var checkMaxCapacityValidity = function() {--%>
-        <%--    if (maxCapacity.validity.typeMismatch) {--%>
-        <%--        maxCapacity.setCustomValidity('${maxCapacityTypeError}');--%>
-        <%--        updateMaxCapacityMessage()--%>
-        <%--    } else if (maxCapacity.validity.rangeUnderflow) {--%>
-        <%--        maxCapacity.setCustomValidity('${maxCapacitySizeError}');--%>
-        <%--        updateMaxCapacityMessage()--%>
-        <%--    } else if (maxCapacity.validity.valueMissing) {--%>
-        <%--        maxCapacity.setCustomValidity('${maxCapacityNullError}');--%>
-        <%--        updateMaxCapacityMessage()--%>
-        <%--    } else {--%>
-        <%--        maxCapacity.setCustomValidity('');--%>
-        <%--    }--%>
-        <%--};--%>
 
         var checkTypeValidity = function() {
             if (type.validity.valueMissing) {
@@ -175,6 +216,18 @@
             }
         };
 
+        var checkAgeValidity = function() {
+            if (age.validity.valueMissing) {
+                age.setCustomValidity('${minAgeNullError}');
+                updateAgeMessage()
+            } else if (parseInt(age.value) < 14 || parseInt(age.value) > 27) {
+                age.setCustomValidity('${rangeAgeMinError}');
+                updateAgeMessage();
+            } else {
+                age.setCustomValidity('');
+            }
+        };
+
         var checkDescriptionValidity = function() {
             if (description.validity.tooLong) {
                 description.setCustomValidity('${descriptionSizeError}');
@@ -183,21 +236,6 @@
                 description.setCustomValidity('');
             }
         };
-
-        <%--var checkPriceValidity = function() {--%>
-        <%--    if (price.validity.typeMismatch) {--%>
-        <%--        price.setCustomValidity('${priceTypeError}');--%>
-        <%--        updatePriceMessage();--%>
-        <%--    } else if (price.validity.valueMissing) {--%>
-        <%--        price.setCustomValidity('${priceNullError}');--%>
-        <%--        updatePriceMessage();--%>
-        <%--    } else if (price.validity.rangeUnderflow) {--%>
-        <%--        price.setCustomValidity('${priceMinError}');--%>
-        <%--        updatePriceMessage();--%>
-        <%--    } else {--%>
-        <%--        price.setCustomValidity('');--%>
-        <%--    }--%>
-        <%--};--%>
 
         var checkDateValidity = function() {
             if (date.validity.valueMissing) {
@@ -230,30 +268,24 @@
             form.getElementsByClassName('formError')[3].innerHTML = type.validationMessage;
         }
 
-        // var updateMaxCapacityMessage = function() {
-        //     form.getElementsByClassName('formError')[4].innerHTML = maxCapacity.validationMessage;
-        // }
-        //
-        // var updatePriceMessage = function() {
-        //     form.getElementsByClassName('formError')[5].innerHTML = price.validationMessage;
-        // }
-
         var updateDateMessage = function() {
-            form.getElementsByClassName('formError')[6].innerHTML = date.validationMessage;
+            form.getElementsByClassName('formError')[4].innerHTML = date.validationMessage;
+        }
+
+        var updateAgeMessage = function() {
+            form.getElementsByClassName('formError')[7].innerHTML = age.validationMessage;
         }
 
         name.addEventListener('change', checkNameValidity, false);
         name.addEventListener('keyup', checkNameValidity, false);
-        // maxCapacity.addEventListener('change', checkMaxCapacityValidity, false);
-        // maxCapacity.addEventListener('keyup', checkMaxCapacityValidity, false);
+        age.addEventListener('change', checkAgeValidity, false);
+        age.addEventListener('keyup', checkAgeValidity, false);
         description.addEventListener('change', checkDescriptionValidity, false);
         description.addEventListener('keyup', checkDescriptionValidity, false);
         location.addEventListener('change', checkLocationValidity, false);
         location.addEventListener('keyup', checkLocationValidity, false);
         type.addEventListener('change', checkTypeValidity, false);
         type.addEventListener('keyup', checkTypeValidity, false);
-        // price.addEventListener('change', checkPriceValidity, false);
-        // price.addEventListener('keyup', checkPriceValidity, false);
         date.addEventListener('change', checkDateValidity, false);
         date.addEventListener('keyup', checkDateValidity, false);
 
@@ -261,21 +293,19 @@
         form.addEventListener('submit', function(event) {
             if (form.classList) form.classList.add('submitted');
             checkNameValidity()
-            // checkMaxCapacityValidity()
             checkDescriptionValidity();
             checkLocationValidity();
             checkTypeValidity();
-            // checkPriceValidity();
             checkDateValidity();
+            checkAgeValidity();
             if (!this.checkValidity()) {
                 event.preventDefault();
                 updateNameMessage();
-                // updateMaxCapacityMessage();
                 updateDescriptionMessage();
                 updateLocationMessage();
                 updateTypeMessage();
-                // updatePriceMessage();
                 updateDateMessage();
+                updateAgeMessage();
             }
         }, false);
     }());

@@ -45,28 +45,23 @@
             </div>
         </c:if>
 
+    <c:if test="${size > 0}">
         <div class="left">
             <h3><spring:message code="profile.events"/></h3>
         </div>
         <div class="container multi-browse">
-            <c:choose>
-                <c:when test="${size > 0}">
-                    <c:forEach var="event" items="${events}">
-                        <c:if test="${!event.deleted}">
-                            <c:set var="event" value="${event}" scope="request"/>
-                            <c:import url="eventCard.jsp"/>
-                        </c:if>
-                    </c:forEach>
-                    <c:url value="/events" var="moreUserEvents">
-                        <c:param name="searchUsername" value="${user.username}"/>
-                    </c:url>
-                    <a href="${moreUserEvents}"><spring:message code="profile.userEvents"/></a>
-                </c:when>
-                <c:otherwise>
-                    <spring:message code="filter.noEvents"/>
-                </c:otherwise>
-            </c:choose>
+            <c:forEach var="event" items="${events}">
+                <c:if test="${!event.deleted}">
+                    <c:set var="event" value="${event}" scope="request"/>
+                    <c:import url="eventCard.jsp"/>
+                </c:if>
+            </c:forEach>
+            <c:url value="/events" var="moreUserEvents">
+                <c:param name="searchUsername" value="${user.username}"/>
+            </c:url>
+            <a href="${moreUserEvents}"><spring:message code="profile.userEvents"/></a>
         </div>
+    </c:if>
     </div>
 </body>
 </html>

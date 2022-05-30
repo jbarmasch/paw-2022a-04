@@ -1,10 +1,9 @@
 package ar.edu.itba.paw.service;
 
-import ar.edu.itba.paw.model.Booking;
-import ar.edu.itba.paw.model.Event;
-import ar.edu.itba.paw.model.Order;
-import ar.edu.itba.paw.model.Ticket;
+import ar.edu.itba.paw.model.*;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
@@ -12,13 +11,12 @@ import java.util.Optional;
 
 public interface EventService {
     Optional<Event> getEventById(long id, Locale locale);
-    Event create(String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Integer[] tagIds, long userId, Locale locale);
-    List<Event> filterBy(Integer[] locations, Integer[] types, Double minPrice, Double maxPrice, String query, Integer[] tags, String username, Order orderBy, int page, Locale locale);
-    void updateEvent(long id, String name, String description, Integer locationId, long typeId, LocalDateTime date, byte[] imageArray, Integer[] tagIds);
+    Event create(String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, long userId, Integer minAge, Locale locale);
+    List<Event> filterBy(Integer[] locations, Integer[] types, Double minPrice, Double maxPrice, String query, Integer[] tags, String username, Order orderBy, Boolean showSoldOut, int page, Locale locale);
+    void updateEvent(long id, String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, Integer minAge);
     void deleteEvent(long id);
-    List<Event> getUserEvents(long id, int page, Locale locale);
-    void book(List<Booking> bookings, long userId, String username, String mail, long eventId, String organizerName, String eventName, String eventMail, Locale locale);
-    void cancelBooking(List<Booking> bookings, long userId, String username, String userMail, long eventId, String organizerName, String eventName, String eventMail, Locale locale);
+    void book(EventBooking booking, String baseURL, Locale locale);
+    void cancelBooking(EventBooking booking, Locale locale);
     void soldOut(long id);
     void active(long id);
     List<Event> getFewTicketsEvents(Locale locale);

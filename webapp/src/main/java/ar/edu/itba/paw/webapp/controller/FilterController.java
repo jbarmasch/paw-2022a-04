@@ -55,9 +55,10 @@ public class FilterController {
                                      @RequestParam(value = "tags", required = false) final Integer[] tags,
                                      @RequestParam(value = "searchUsername", required = false) final String username,
                                      @RequestParam(value = "order", required = false) final Order order,
+                                     @RequestParam(value = "showSoldOut", required = false) final Boolean showSoldOut,
                                      @RequestParam(value = "page", required = false, defaultValue = "1") @Min(1) final int page) {
         Locale locale = LocaleContextHolder.getLocale();
-        List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, search, tags, username, order, page, locale);
+        List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, search, tags, username, order, showSoldOut, page, locale);
 
         final ModelAndView mav = new ModelAndView("events");
         mav.addObject("page", page);
@@ -85,6 +86,7 @@ public class FilterController {
         filters.put("search", form.getSearchQuery());
         filters.put("searchUsername", form.getUsername());
         filters.put("order", form.getOrder());
+        filters.put("showSoldOut", form.getShowSoldOut());
         String endURL = FilterUtils.createFilter(filters);
 
         if (endURL.isEmpty())

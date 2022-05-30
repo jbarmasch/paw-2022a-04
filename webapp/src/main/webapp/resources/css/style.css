@@ -149,6 +149,10 @@
     margin-left: 5px;
 }
 
+.sep-left-l {
+    margin-left: 10px;
+}
+
 .sep-top {
     margin-top: 8px;
 }
@@ -571,7 +575,7 @@ select:-webkit-autofill:focus {
 }
 
 #eventForm > div {
-    margin: 10px 0;
+    margin: 5px 8px 0 8px;
 }
 
 .tickets {
@@ -715,4 +719,26 @@ select:-webkit-autofill:focus {
 
 #ticketForm > * {
     margin: 5px;
+}
+
+.booking_cancel:hover {
+    background-color: #FF2222 !important;
+}
+
+.align-center {
+    align-content: center;
+    align-items: center;
+}
+
+.input_select {
+    max-width: 100px;
+}
+
+.interline > div {
+    margin: 15px 0 5px 0;
+}
+
+.min_age {
+    color: red;
+    font-weight: bold;
 }

@@ -26,10 +26,30 @@ public class EventForm {
     @Pattern(regexp = "[0-9]{1,4}-[0-9]{1,2}-[0-9]{1,2}T[0-9]{1,2}:[0-9]{1,2}")
     private String date;
 
-    @NotEmpty
-    private Integer[] tags;
+    private Long[] tags;
+
+    private boolean hasMinAge;
+    @Min(value = 14)
+    @Max(value = 27)
+    private Integer minAge;
 
     private MultipartFile image;
+
+    public boolean isHasMinAge() {
+        return hasMinAge;
+    }
+
+    public void setHasMinAge(boolean hasMinAge) {
+        this.hasMinAge = hasMinAge;
+    }
+
+    public Integer getMinAge() {
+        return minAge;
+    }
+
+    public void setMinAge(Integer minAge) {
+        this.minAge = minAge;
+    }
 
     public void setImage(MultipartFile image) {
         this.image = image;
@@ -83,11 +103,11 @@ public class EventForm {
         this.location = location;
     }
 
-    public Integer[] getTags() {
+    public Long[] getTags() {
         return tags;
     }
 
-    public void setTags(Integer[] tags) {
+    public void setTags(Long[] tags) {
         this.tags = tags;
     }
 }

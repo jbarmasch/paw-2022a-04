@@ -13,10 +13,10 @@
     <%@ include file="appbar.jsp"%>
     <div class="container event">
         <spring:message code="delete" var="delete"/>
-        <div class="container">
+        <div class="container align-center">
             <div class="event_img_container">
                 <spring:message var="altEventMessage" code="event.imageAlt"/>
-                <img class="event_img" alt="${altEventMessage}" src="<c:url value="/image/${event.imageId}"/>"/>
+                <img class="event_img" alt="${altEventMessage}" src="<c:url value="/image/${event.image.id}"/>"/>
                 <c:if test="${event.soldOut}">
                     <spring:message code="event.soldOut" var="soldOut"/>
                     <img class="soldout_event" src="<c:url value="/resources/png/sold_out.png"/>" alt="${soldOut}"/>
@@ -91,8 +91,13 @@
                 <div class="container">
                     <spring:message var="altUserIcon" code="event.altUser"/>
                     <img class="icon" src="<c:url value="/resources/svg/user.svg"/>" alt="${altUserIcon}"/>
-                    <a href="<c:url value="/profile/${event.user.id}"/>"><c:out value="${event.user.username}"/></a>
+                    <a href="<c:url value="/profile/${event.organizer.id}"/>"><c:out value="${event.organizer.username}"/></a>
                 </div>
+                <c:if test="${event.minAge != null}">
+                    <div class="container min_age">
+                        <spring:message code="event.minimumAge" arguments="${event.minAge}"/>
+                    </div>
+                </c:if>
                 <div>
                     <c:if test="${isOwner}">
                         <c:choose>
@@ -183,8 +188,6 @@
                                             <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
 
                                             <form:input class="hidden" type="number" value="${ticket.id}" path="bookings[${i}].ticketId"/>
-                                            <form:input class="hidden" type="text" value="${ticket.ticketName}" path="bookings[${i}].ticketName"/>
-                                            <form:input class="hidden" type="number" value="${ticket.price}" path="bookings[${i}].price"/>
                                         </td>
                                         <c:if test="${!disabled && ticket.ticketsLeft > 0 && ticket.ticketsLeft <= ticket.qty * .20}">
                                             <td>
@@ -194,7 +197,7 @@
                                     </tr>
                                     <c:set var="i" scope="session" value="${i + 1}"/>
                                 </c:forEach>
-                                <form:errors path="bookings" cssClass="error-message" element="span"/>
+                                <form:errors path="bookings[${i}].ticketId" cssClass="error-message" element="span"/>
                                 </table>
                                 <c:choose>
                                     <c:when test="${event.soldOut || ticketsLeft <= 0}">

@@ -1,9 +1,7 @@
 package ar.edu.itba.paw.webapp.auth;
 
 import ar.edu.itba.paw.model.Role;
-import ar.edu.itba.paw.model.RoleEnum;
 import ar.edu.itba.paw.model.User;
-import ar.edu.itba.paw.service.EventService;
 import ar.edu.itba.paw.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

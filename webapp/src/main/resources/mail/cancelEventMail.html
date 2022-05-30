@@ -34,9 +34,9 @@
     </style>
 </head>
 <body>
-    <p th:text="#{mail.greeting(${orgName})}"></p>
+    <p th:text="#{mail.greeting(${booking.getEvent().getOrganizer().getUsername()})}"></p>
 
-    <p th:text="#{mail.cancelDescOrganizer(${eventName}, ${username})}"></p>
+    <p th:text="#{mail.cancelDescOrganizer(${booking.getEvent().getName()}, ${booking.getUser().getUsername()})}"></p>
 
     <table class="tickets-table">
         <tr>
@@ -47,14 +47,14 @@
             <th th:text="#{tickets.ticketPrice}">
             </th>
         </tr>
-        <tr th:each="booking : ${bookings}" th:if="${booking.getQty() > 0}">
-            <td th:text="${booking.getTicketName()}">
+        <tr th:each="ticketBooking : ${booking.getTicketBookings()}" th:if="${ticketBooking.getQty() > 0}">
+            <td th:text="${ticketBooking.getTicket().getTicketName()}">
             </td>
-            <td class="table-number" th:text="${booking.getQty()}">
+            <td class="table-number" th:text="${ticketBooking.getQty()}">
             </td>
             <td class="table-number">
                 $
-                <span th:text="${booking.getPrice()}"></span>
+                <span th:text="${ticketBooking.getTicket().getPrice()}"></span>
             </td>
         </tr>
     </table>

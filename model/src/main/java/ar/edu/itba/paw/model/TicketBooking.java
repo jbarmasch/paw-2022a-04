@@ -1,27 +1,65 @@
 package ar.edu.itba.paw.model;
 
+import org.hibernate.annotations.Check;
+
+import javax.persistence.*;
+import java.util.List;
+
+@Entity
+@Table(name = "ticketbookings")
+@IdClass(BookingId.class)
+@Check(constraints = "qty >= 0")
 public class TicketBooking {
-    private int qty;
+    @Id
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "ticketid")
     private Ticket ticket;
 
-    public TicketBooking(int qty, Ticket ticket) {
-        this.qty = qty;
+    @Id
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id")
+    private EventBooking eventBooking;
+
+    private Integer qty;
+
+    public TicketBooking(Ticket ticket, Integer qty, EventBooking eventBooking) {
         this.ticket = ticket;
+        this.qty = qty;
+        this.eventBooking = eventBooking;
     }
 
-    public int getQty() {
-        return qty;
+    public TicketBooking(Ticket ticket, int qty) {
+        this.ticket = ticket;
+        this.qty = qty;
+    }
+
+    public TicketBooking() {}
+
+    public long getId() {
+        return eventBooking.getId();
+    }
+
+    public EventBooking getEventBooking() {
+        return eventBooking;
+    }
+
+    public void setEventBooking(EventBooking eventBooking) {
+        this.eventBooking = eventBooking;
     }
 
     public Ticket getTicket() {
         return ticket;
     }
 
-    public void setQty(int qty) {
-        this.qty = qty;
-    }
-
     public void setTicket(Ticket ticket) {
         this.ticket = ticket;
+    }
+
+    public Integer getQty() {
+        return qty;
+    }
+
+    public void setQty(Integer qty) {
+        this.qty = qty;
     }
 }

@@ -3,7 +3,6 @@ package ar.edu.itba.paw.webapp.auth;
 import ar.edu.itba.paw.model.Role;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.UserService;
-import ar.edu.itba.paw.webapp.controller.UserController;
 import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +17,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -56,7 +54,7 @@ public class UserManager {
         return null;
     }
 
-    public Integer getUserId() {
+    public Long getUserId() {
         User user = getUser();
         if (user != null)
             return user.getId();
