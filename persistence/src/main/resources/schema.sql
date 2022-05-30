@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS events (
     userId INTEGER REFERENCES users,
     imageId INTEGER REFERENCES images,
     state INTEGER NOT NULL,
-    minage INTEGER CHECK(minage >= 14 AND minage <= 2)
+    minage INTEGER CHECK(minage >= 14 AND minage <= 27)
 );
 
 CREATE TABLE IF NOT EXISTS eventTags (
