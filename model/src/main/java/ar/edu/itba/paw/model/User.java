@@ -48,6 +48,13 @@ public class User {
         this.roles = roles;
     }
 
+    public User(String username, String password, String mail, List<Role> roles) {
+        this.username = username;
+        this.password = password;
+        this.mail = mail;
+        this.roles = roles;
+    }
+
     public User(String username, String password, String mail) {
         this.username = username;
         this.password = password;
@@ -118,5 +125,9 @@ public class User {
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
+    }
+
+    public void addRole(Role role) {
+        this.roles.add(role);
     }
 }

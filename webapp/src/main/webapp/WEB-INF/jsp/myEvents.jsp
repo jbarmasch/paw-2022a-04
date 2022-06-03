@@ -21,7 +21,11 @@
                     </c:forEach>
                 </c:when>
                 <c:otherwise>
-                    <spring:message code="filter.noEvents"/>
+                    <div class="center sep-top-xl full_width">
+                        <h2>
+                            <spring:message code="filter.noEvents"/>
+                        </h2>
+                    </div>
                 </c:otherwise>
             </c:choose>
             <c:set var="page" value="${page}" scope="request"/>

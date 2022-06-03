@@ -12,22 +12,14 @@ CREATE TABLE IF NOT EXISTS locations (
 
 CREATE TABLE IF NOT EXISTS types (
     typeId SERIAL PRIMARY KEY,
-    name VARCHAR(100)
-);
-
-CREATE TABLE IF NOT EXISTS types_en (
-    typeId SERIAL PRIMARY KEY,
-    name VARCHAR(100)
+    name VARCHAR(100),
+    name_en VARCHAR(100)
 );
 
 CREATE TABLE IF NOT EXISTS tags (
     tagId SERIAL PRIMARY KEY,
-    name VARCHAR(100)
-);
-
-CREATE TABLE IF NOT EXISTS tags_en (
-    tagId SERIAL PRIMARY KEY,
-    name VARCHAR(100)
+    name VARCHAR(100),
+    name_en VARCHAR(100)
 );
 
 CREATE TABLE IF NOT EXISTS images (
@@ -61,6 +53,8 @@ CREATE TABLE IF NOT EXISTS tickets (
     price DOUBLE PRECISION,
     booked INTEGER,
     maxTickets INTEGER,
+--     starting TIMESTAMP,
+--     until TIMESTAMP,
     UNIQUE (eventId, name)
 );
 

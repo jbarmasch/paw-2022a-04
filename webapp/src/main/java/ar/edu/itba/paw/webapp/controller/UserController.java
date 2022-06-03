@@ -91,12 +91,11 @@ public class UserController {
 
     @RequestMapping(value = "/profile/{userId}", method = { RequestMethod.GET })
     public ModelAndView userProfile(@PathVariable("userId") final long userId) {
-        Locale locale = LocaleContextHolder.getLocale();
         User user = userService.getUserById(userId).orElse(null);
         if (user == null) {
             LOGGER.error("User not found");
             throw new UserNotFoundException();
-        } else if (!userManager.isCreator(user)) {
+        } else if (userManager.getUserId() != userId && !userManager.isCreator(user)) {
             return new ModelAndView("redirect:/403");
         }
         List<Event> events = user.getEvents();
@@ -104,7 +103,7 @@ public class UserController {
 
         final ModelAndView mav = new ModelAndView("profile");
         if (userManager.isAuthenticated() && userId == userManager.getUserId()) {
-            UserStats stats = userService.getUserStats(userId, locale).orElse(null);
+            UserStats stats = userService.getUserStats(userId).orElse(null);
             LOGGER.debug("User can see stats");
             mav.addObject("stats", stats);
         }
@@ -122,8 +121,7 @@ public class UserController {
 
     @RequestMapping(value = "/bookings/{code}", method = { RequestMethod.GET })
     public ModelAndView booking(HttpServletRequest request, @PathVariable("code") final String code) {
-        Locale locale = LocaleContextHolder.getLocale();
-        EventBooking eventBooking = userService.getBooking(code, locale).orElse(null);
+        EventBooking eventBooking = userService.getBooking(code).orElse(null);
         User user = userManager.getUser();
         long userId = user.getId();
         if (eventBooking == null || (userId != eventBooking.getUser().getId() && userId != eventBooking.getEvent().getOrganizer().getId()) ||
@@ -147,8 +145,7 @@ public class UserController {
     public ModelAndView bookings(@ModelAttribute("bookForm") final BookForm form,
                                  @ModelAttribute("rateForm") final RateForm rateForm,
                                  @RequestParam(value = "page", required = false, defaultValue = "1") final int page) {
-        Locale locale = LocaleContextHolder.getLocale();
-        List<EventBooking> eventBookings = userService.getAllBookingsFromUser(userManager.getUserId(), page, locale);
+        List<EventBooking> eventBookings = userService.getAllBookingsFromUser(userManager.getUserId(), page);
         final ModelAndView mav = new ModelAndView("bookings");
         mav.addObject("page", page);
         mav.addObject("actualTime", LocalDateTime.now());
@@ -162,8 +159,7 @@ public class UserController {
     public ModelAndView rateEvent(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors,
                                   @Valid @ModelAttribute("rateForm") final RateForm rateForm, final BindingResult rateErrors,
                                   @PathVariable("eventId") final long eventId) {
-        Locale locale = LocaleContextHolder.getLocale();
-        Event e = eventService.getEventById(eventId, locale).orElse(null);
+        Event e = eventService.getEventById(eventId).orElse(null);
         if (e == null) {
             LOGGER.error("Event not found");
             throw new EventNotFoundException();
@@ -180,8 +176,7 @@ public class UserController {
     public ModelAndView cancelBookingPost(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors,
                                       @Valid @ModelAttribute("rateForm") final RateForm rateForm, final BindingResult rateErrors,
                                       @PathVariable("eventId") final int eventId) {
-        Locale locale = LocaleContextHolder.getLocale();
-        final Event e = eventService.getEventById(eventId, locale).orElse(null);
+        final Event e = eventService.getEventById(eventId).orElse(null);
         if (e == null) {
             LOGGER.error("Event not found");
             throw new EventNotFoundException();
@@ -193,7 +188,7 @@ public class UserController {
             throw new UserNotFoundException();
         }
 
-        EventBooking eventBooking = userService.getBookingFromUser(user.getId(), eventId, locale).orElse(null);
+        EventBooking eventBooking = userService.getBookingFromUser(user.getId(), eventId).orElse(null);
         if (eventBooking == null) {
             LOGGER.error("Booking not found");
             throw new BookingNotFoundException();
@@ -213,7 +208,7 @@ public class UserController {
         }
 
         for (TicketBooking ticketBooking : booking.getTicketBookings()) {
-            if (ticketBooking.getQty() != null && ticketBooking.getQty() >= ticketMap.get(ticketBooking.getTicket().getId()).getQty())
+            if (ticketBooking.getQty() != null && ticketBooking.getQty() > ticketMap.get(ticketBooking.getTicket().getId()).getQty())
                 errors.rejectValue("bookings[" + i + "].qty", "Max.bookForm.qty", new Object[]{ticketMap.get(ticketBooking.getTicket().getId()).getQty()}, "");
             i++;
         }
@@ -232,8 +227,7 @@ public class UserController {
     public ModelAndView cancelBooking(@ModelAttribute("bookForm") final BookForm form,
                                       @ModelAttribute("rateForm") final RateForm rateForm,
                                       @PathVariable("eventId") final int eventId) {
-        Locale locale = LocaleContextHolder.getLocale();
-        final Event e = eventService.getEventById(eventId, locale).orElse(null);
+        final Event e = eventService.getEventById(eventId).orElse(null);
         if (e == null) {
             LOGGER.error("Event not found");
             throw new EventNotFoundException();
@@ -244,7 +238,7 @@ public class UserController {
             LOGGER.error("Organizer not found");
             throw new UserNotFoundException();
         }
-        EventBooking eventBooking = userService.getBookingFromUser(user.getId(), eventId, locale).orElse(null);
+        EventBooking eventBooking = userService.getBookingFromUser(user.getId(), eventId).orElse(null);
         if (eventBooking == null) {
             LOGGER.error("Booking not found");
             throw new BookingNotFoundException();
@@ -257,6 +251,9 @@ public class UserController {
 
     @ModelAttribute
     public void addAttributes(Model model, final SearchForm searchForm) {
+        Locale locale = LocaleContextHolder.getLocale();
+        Tag.setLocale(locale);
+        Type.setLocale(locale);
         model.addAttribute("username", userManager.getUsername());
         model.addAttribute("isCreator", userManager.isCreator());
     }

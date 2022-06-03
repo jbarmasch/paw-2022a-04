@@ -15,7 +15,7 @@
     <div class="container event">
         <div class="vertical">
                 <div>
-                    <h2 class="subtitle"><spring:message code="mail.booking"/></h2>
+                    <h2 class="title2"><spring:message code="mail.booking"/></h2>
                 </div>
 
                 <table class="tickets tickets-table">

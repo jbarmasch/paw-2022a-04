@@ -136,7 +136,7 @@
                 </c:when>
                 <c:otherwise>
                     <div class="center sep-top-xl full_width">
-                        <h2 class="subtitle">
+                        <h2 class="title2">
                             <spring:message code="filter.noEvents"/>
                         </h2>
                     </div>

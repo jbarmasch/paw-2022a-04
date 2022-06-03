@@ -15,7 +15,7 @@
     <div class="only-element">
         <form:form class="horizontal" novalidate="true" modelAttribute="eventForm" action="${postPath}" method="post" id="eventForm" enctype="multipart/form-data">
             <div class="interline">
-            <h4 class="subtitle"><spring:message code="modify.event"/></h4>
+            <h4 class="title2"><spring:message code="modify.event"/></h4>
             <div>
                 <span class="required">* </span>
                 <form:label path="name"><spring:message code="create.name"/>: </form:label>
@@ -80,6 +80,8 @@
                 <spring:message code="Pattern.eventForm.date" var="dateTypeError"/>
                 <span class="formError"></span>
             </div>
+            </div>
+            <div class="interline">
             <div>
                 <form:label path="tags" for="tags"><spring:message code="create.tags"/>:: </form:label>
                 <form:select id="type" class="uk-select" htmlEscape="true" multiple="true" path="tags" required="true">
@@ -150,6 +152,7 @@
             <div class="container event">
                 <spring:message code="modify.update" var="modifyMessage"/>
                 <input class="filter_button" type="submit" value="${modifyMessage}"/>
+            </div>
             </div>
         </form:form>
     </div>

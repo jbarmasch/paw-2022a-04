@@ -15,7 +15,7 @@ public class TypeJpaDao implements TypeDao {
     private EntityManager em;
 
     @Override
-    public List<Type> getAll(Locale locale) {
+    public List<Type> getAll() {
         final TypedQuery<Type> query = em.createQuery("from Type", Type.class);
         return query.getResultList();
     }

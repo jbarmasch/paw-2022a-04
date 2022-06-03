@@ -65,9 +65,8 @@ public class EventController {
 
     @RequestMapping(value = "/", method = { RequestMethod.GET })
     public ModelAndView home() {
-        Locale locale = LocaleContextHolder.getLocale();
-        List<Event> fewTicketsEvents = eventService.getFewTicketsEvents(locale);
-        List<Event> upcomingEvents = eventService.getUpcomingEvents(locale);
+        List<Event> fewTicketsEvents = eventService.getFewTicketsEvents();
+        List<Event> upcomingEvents = eventService.getUpcomingEvents();
 
         final ModelAndView mav = new ModelAndView("index");
         mav.addObject("fewTicketsEvents", fewTicketsEvents);
@@ -79,8 +78,7 @@ public class EventController {
 
     @RequestMapping(value = "/events/{eventId}", method = RequestMethod.GET)
     public ModelAndView eventDescription(@ModelAttribute("bookForm") final BookForm form, @PathVariable("eventId") @Min(1) final long eventId) {
-        Locale locale = LocaleContextHolder.getLocale();
-        final Event event = eventService.getEventById(eventId, locale).orElse(null);
+        final Event event = eventService.getEventById(eventId).orElse(null);
         if (event == null) {
             LOGGER.error("Event not found");
             throw new EventNotFoundException();
@@ -101,9 +99,8 @@ public class EventController {
     }
 
     private void addSimilarAndPopularEvents(ModelAndView mav, long eventId) {
-        Locale locale = LocaleContextHolder.getLocale();
-        List<Event> similarEvents = eventService.getSimilarEvents(eventId, locale);
-        List<Event> popularEvents = eventService.getPopularEvents(eventId, locale);
+        List<Event> similarEvents = eventService.getSimilarEvents(eventId);
+        List<Event> popularEvents = eventService.getPopularEvents(eventId);
         mav.addObject("similarEvents", similarEvents);
         mav.addObject("similarEventsSize", similarEvents.size());
         mav.addObject("popularEvents", popularEvents);
@@ -113,8 +110,7 @@ public class EventController {
     @RequestMapping(value = "/events/{eventId}", method = { RequestMethod.POST }, params = "submit")
     public ModelAndView bookEvent(HttpServletRequest request, @Valid@ModelAttribute("bookForm") final BookForm form, final BindingResult errors,
                                   @PathVariable("eventId") @Min(1) final long eventId) {
-        Locale locale = LocaleContextHolder.getLocale();
-        final Event e = eventService.getEventById(eventId, locale).orElse(null);
+        final Event e = eventService.getEventById(eventId).orElse(null);
         if (e == null) {
             LOGGER.error("Event not found");
             throw new EventNotFoundException();
@@ -133,6 +129,7 @@ public class EventController {
         for (Ticket ticket : tickets) {
             ticketMap.put(ticket.getId(), ticket);
         }
+
         EventBooking booking = new EventBooking(user, e, new ArrayList<>(), null);
         for (BookingForm bookingForm : form.getBookings()) {
             TicketBooking ticketBooking = new TicketBooking(eventService.getTicketById(bookingForm.getTicketId()).orElse(null), bookingForm.getQty(), booking);
@@ -160,7 +157,7 @@ public class EventController {
         if (!userManager.isAuthenticated())
             return new ModelAndView("redirect:/");
 
-        EventBooking eventBooking = userService.getBookingFromUser(userManager.getUserId(), eventId, null).orElse(null);
+        EventBooking eventBooking = userService.getBookingFromUser(userManager.getUserId(), eventId).orElse(null);
         if (eventBooking == null) {
             LOGGER.error("Booking not found");
             throw new BookingNotFoundException();
@@ -174,19 +171,17 @@ public class EventController {
 
     @RequestMapping(value = "/create-event", method = { RequestMethod.GET })
     public ModelAndView createForm(@ModelAttribute("eventForm") final EventForm form) {
-        Locale locale = LocaleContextHolder.getLocale();
         final ModelAndView mav = new ModelAndView("createEvent");
         mav.addObject("locations", locationService.getAll());
         mav.addObject("currentDate", LocalDateTime.now().toString().substring(0,16));
-        mav.addObject("types", typeService.getAll(locale));
-        mav.addObject("allTags", tagService.getAll(locale));
+        mav.addObject("types", typeService.getAll());
+        mav.addObject("allTags", tagService.getAll());
         return mav;
     }
 
     @RequestMapping(value = "/create-event", method = { RequestMethod.POST }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ModelAndView createEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors,
                                     @RequestParam("image") MultipartFile imageFile) throws IOException {
-        Locale locale = LocaleContextHolder.getLocale();
         if (errors.hasErrors()) {
             LOGGER.error("EventForm has errors: {}", errors.getAllErrors().toArray());
             return createForm(form);
@@ -194,7 +189,7 @@ public class EventController {
 
         final long userId = userManager.getUserId();
         final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), form.getType(), form.getTimestamp(),
-                (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags(), userId, form.isHasMinAge() ? form.getMinAge() : null, locale);
+                (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags(), userId, form.isHasMinAge() ? form.getMinAge() : null);
 
         userManager.refreshAuthorities();
         return new ModelAndView("redirect:/events/" + e.getId());
@@ -202,8 +197,7 @@ public class EventController {
 
     @RequestMapping(value = "/events/{eventId}/modify", method = { RequestMethod.GET })
     public ModelAndView modifyForm(@ModelAttribute("eventForm") final EventForm form, @PathVariable("eventId") @Min(1) final long eventId) {
-        Locale locale = LocaleContextHolder.getLocale();
-        final Event event = eventService.getEventById(eventId, locale).orElse(null);
+        final Event event = eventService.getEventById(eventId).orElse(null);
         if (event == null) {
             LOGGER.error("Event not found");
             throw new EventNotFoundException();
@@ -217,8 +211,8 @@ public class EventController {
         final ModelAndView mav = new ModelAndView("modifyEvent");
         mav.addObject("locations", locationService.getAll());
         mav.addObject("currentDate", LocalDateTime.now().toString().substring(0,16));
-        mav.addObject("allTags", tagService.getAll(locale));
-        mav.addObject("types", typeService.getAll(locale));
+        mav.addObject("allTags", tagService.getAll());
+        mav.addObject("types", typeService.getAll());
         mav.addObject("event", event);
         return mav;
     }
@@ -227,8 +221,7 @@ public class EventController {
     public ModelAndView modifyEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors,
                                     @PathVariable("eventId") @Min(1) final long eventId,
                                     @RequestParam("image") CommonsMultipartFile imageFile) {
-        Locale locale = LocaleContextHolder.getLocale();
-        final Event event = eventService.getEventById(eventId, locale).orElse(null);
+        final Event event = eventService.getEventById(eventId).orElse(null);
         if (event == null) {
             LOGGER.error("Event not found");
             throw new EventNotFoundException();
@@ -245,8 +238,7 @@ public class EventController {
 
     @RequestMapping(value = "/events/{eventId}/delete", method = { RequestMethod.POST })
     public ModelAndView deleteEvent(@PathVariable("eventId") final long eventId) {
-        Locale locale = LocaleContextHolder.getLocale();
-        final Event event = eventService.getEventById(eventId, locale).orElse(null);
+        final Event event = eventService.getEventById(eventId).orElse(null);
         if (event == null) {
             LOGGER.error("Event not found");
             throw new EventNotFoundException();
@@ -262,8 +254,7 @@ public class EventController {
 
     @RequestMapping(value = "/events/{eventId}/soldout", method = { RequestMethod.POST })
     public ModelAndView soldOutEvent(@PathVariable("eventId") @Min(1) final long eventId) {
-        Locale locale = LocaleContextHolder.getLocale();
-        final Event event = eventService.getEventById(eventId, locale).orElse(null);
+        final Event event = eventService.getEventById(eventId).orElse(null);
         if (event == null) {
             LOGGER.error("Event not found");
             throw new EventNotFoundException();
@@ -279,8 +270,7 @@ public class EventController {
 
     @RequestMapping(value = "/events/{eventId}/active", method = { RequestMethod.POST })
     public ModelAndView activeEvent(@PathVariable("eventId") @Min(1) final long eventId) {
-        Locale locale = LocaleContextHolder.getLocale();
-        final Event event = eventService.getEventById(eventId, locale).orElse(null);
+        final Event event = eventService.getEventById(eventId).orElse(null);
         if (event == null) {
             LOGGER.error("Event not found");
             throw new EventNotFoundException();
@@ -296,7 +286,6 @@ public class EventController {
 
     @RequestMapping(value = "/my-events", method = { RequestMethod.GET })
     public ModelAndView myEvents(@RequestParam(value = "page", required = false, defaultValue = "1") @Min(1) final int page) {
-        Locale locale = LocaleContextHolder.getLocale();
         final User user = userManager.getUser();
         List<Event> events = user.getEvents();
         final ModelAndView mav = new ModelAndView("myEvents");
@@ -308,9 +297,8 @@ public class EventController {
 
     @RequestMapping(value = "/stats", method = { RequestMethod.GET })
     public ModelAndView getStats() {
-        Locale locale = LocaleContextHolder.getLocale();
         final long userId = userManager.getUserId();
-        EventStats stats = userService.getEventStats(userId, locale).orElse(null);
+        EventStats stats = userService.getEventStats(userId).orElse(null);
         if (stats == null) {
             LOGGER.error("Stats not found");
             throw new StatsNotFoundException();
@@ -326,8 +314,7 @@ public class EventController {
 
     @RequestMapping(value = "/events/{eventId}/add-ticket", method = { RequestMethod.GET })
     public ModelAndView createTicketsForm(@ModelAttribute("ticketForm") TicketForm form, @PathVariable("eventId") @Min(1) final long eventId) {
-        Locale locale = LocaleContextHolder.getLocale();
-        final Event event = eventService.getEventById(eventId, locale).orElse(null);
+        final Event event = eventService.getEventById(eventId).orElse(null);
         if (event == null) {
             LOGGER.error("Event not found");
             throw new EventNotFoundException();
@@ -347,8 +334,7 @@ public class EventController {
     @RequestMapping(value = "/events/{eventId}/add-ticket", method = { RequestMethod.POST })
     public ModelAndView createTicketsForm(@Valid @ModelAttribute("ticketForm") TicketForm form, final BindingResult errors,
                                           @PathVariable("eventId") @Min(1) final long eventId) {
-        Locale locale = LocaleContextHolder.getLocale();
-        final Event event = eventService.getEventById(eventId, locale).orElse(null);
+        final Event event = eventService.getEventById(eventId).orElse(null);
         if (event == null) {
             LOGGER.error("Event not found");
             throw new EventNotFoundException();
@@ -370,8 +356,7 @@ public class EventController {
     public ModelAndView modifyTicketForm(@ModelAttribute("ticketForm") TicketForm form,
                                           @PathVariable("eventId") @Min(1) final long eventId,
                                           @PathVariable("ticketId") @Min(1) final long ticketId) {
-        Locale locale = LocaleContextHolder.getLocale();
-        final Event event = eventService.getEventById(eventId, locale).orElse(null);
+        final Event event = eventService.getEventById(eventId).orElse(null);
         if (event == null) {
             LOGGER.error("Event not found");
             throw new EventNotFoundException();
@@ -396,8 +381,7 @@ public class EventController {
     public ModelAndView modifyTicket(@Valid @ModelAttribute("ticketForm") TicketForm form, final BindingResult errors,
                                       @PathVariable("eventId") @Min(1) final long eventId,
                                       @PathVariable("ticketId") @Min(1) final long ticketId) {
-        Locale locale = LocaleContextHolder.getLocale();
-        final Event event = eventService.getEventById(eventId, locale).orElse(null);
+        final Event event = eventService.getEventById(eventId).orElse(null);
         if (event == null) {
             LOGGER.error("Event not found");
             throw new EventNotFoundException();
@@ -425,8 +409,7 @@ public class EventController {
 
     @RequestMapping(value = "/events/{eventId}/delete-ticket/{ticketId}", method = { RequestMethod.POST })
     public ModelAndView deleteTicket(@PathVariable("eventId") @Min(1) final long eventId, @PathVariable("ticketId") @Min(1) final long ticketId) {
-        Locale locale = LocaleContextHolder.getLocale();
-        final Event event = eventService.getEventById(eventId, locale).orElse(null);
+        final Event event = eventService.getEventById(eventId).orElse(null);
         if (event == null) {
             LOGGER.error("Event not found");
             throw new EventNotFoundException();
@@ -443,6 +426,9 @@ public class EventController {
 
     @ModelAttribute
     public void addAttributes(Model model, final SearchForm searchForm) {
+        Locale locale = LocaleContextHolder.getLocale();
+        Tag.setLocale(locale);
+        Type.setLocale(locale);
         model.addAttribute("username", userManager.getUsername());
         model.addAttribute("isCreator", userManager.isCreator());
     }

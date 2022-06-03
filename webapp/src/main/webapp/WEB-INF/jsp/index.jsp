@@ -17,7 +17,7 @@
     <c:choose>
         <c:when test="${upcomingSize > 0}">
             <div>
-                <h2 class="subtitle"><spring:message code="index.nextEvents"/></h2>
+                <h2 class="title2"><spring:message code="index.nextEvents"/></h2>
             </div>
             <div class="container multi-browse">
                 <c:forEach var="event" items="${upcomingEvents}">
@@ -30,7 +30,7 @@
     <c:choose>
         <c:when test="${fewTicketsSize > 0}">
             <div>
-                <h2 class="subtitle"><spring:message code="index.popularEvents"/></h2>
+                <h2 class="title2"><spring:message code="index.popularEvents"/></h2>
             </div>
             <div class="container multi-browse">
             <c:forEach var="event" items="${fewTicketsEvents}">

@@ -21,7 +21,7 @@
             <c:choose>
                 <c:when test="${eventBookingsSize > 0}">
                     <div class="vertical full_width sep-top-xl">
-                        <h4 class="subtitle"><spring:message code="booking.yours"/></h4>
+                        <h4 class="title2"><spring:message code="booking.yours"/></h4>
                         <div class="container multi-browse booking-browse full_width">
                         <c:forEach var="booking" items="${eventBookings}">
                             <c:if test="${!booking.event.deleted}">
@@ -90,7 +90,7 @@
                 </c:when>
                 <c:otherwise>
                     <div class="center sep-top-xl full_width">
-                        <h2 class="subtitle">
+                        <h2 class="title2">
                             <spring:message code="booking.noBookings"/>
                         </h2>
                     </div>

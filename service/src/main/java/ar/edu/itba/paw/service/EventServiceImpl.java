@@ -18,21 +18,23 @@ public class EventServiceImpl implements EventService {
     private MailService mailService;
     @Autowired
     private CodeService codeService;
+    @Autowired
+    private UserService userService;
 
     @Override
-    public Optional<Event> getEventById(long id, Locale locale) {
-        return eventDao.getEventById(id, locale);
+    public Optional<Event> getEventById(long id) {
+        return eventDao.getEventById(id);
     }
 
     @Transactional
     @Override
-    public Event create(String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, long userId, Integer minAge, Locale locale) {
-        return eventDao.create(name, description, locationId, typeId, date, imageArray, tagIds, userId, minAge, locale);
+    public Event create(String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, long userId, Integer minAge) {
+        return eventDao.create(name, description, locationId, typeId, date, imageArray, tagIds, userId, minAge);
     }
 
     @Override
-    public List<Event> filterBy(Integer[] locations, Integer[] types, Double minPrice, Double maxPrice, String query, Integer[] tags, String username, Order order, Boolean showSoldOut, int page, Locale locale) {
-        return eventDao.filterBy(locations, types, minPrice, maxPrice, query, tags, username, order, showSoldOut, page, locale);
+    public List<Event> filterBy(Integer[] locations, Integer[] types, Double minPrice, Double maxPrice, String query, Integer[] tags, String username, Order order, Boolean showSoldOut, int page) {
+        return eventDao.filterBy(locations, types, minPrice, maxPrice, query, tags, username, order, showSoldOut, page);
     }
 
     @Transactional
@@ -54,8 +56,10 @@ public class EventServiceImpl implements EventService {
         booking.setCode(code);
 
         EventBooking eventBooking = eventDao.book(booking);
-        if (eventBooking != null)
-            mailService.sendBookMail(baseUrl + "/bookings/" + eventBooking.getCode(), eventBooking, locale);
+        if (eventBooking != null) {
+            TransactionUtil.executeAfterTransaction(() -> mailService.sendBookMail(baseUrl + "/bookings/" + eventBooking.getCode(), eventBooking, locale));
+//            mailService.sendBookMail(baseUrl + "/bookings/" + eventBooking.getCode(), eventBooking, locale);
+        }
         else
             mailService.sendErrorMail(booking.getUser().getMail());
     }
@@ -70,13 +74,13 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> getFewTicketsEvents(Locale locale) {
-        return eventDao.getFewTicketsEvents(locale);
+    public List<Event> getFewTicketsEvents() {
+        return eventDao.getFewTicketsEvents();
     }
 
     @Override
-    public List<Event> getUpcomingEvents(Locale locale) {
-        return eventDao.getUpcomingEvents(locale);
+    public List<Event> getUpcomingEvents() {
+        return eventDao.getUpcomingEvents();
     }
 
     @Transactional
@@ -92,13 +96,13 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> getSimilarEvents(long eventId, Locale locale) {
-        return eventDao.getSimilarEvents(eventId, locale);
+    public List<Event> getSimilarEvents(long eventId) {
+        return eventDao.getSimilarEvents(eventId);
     }
 
     @Override
-    public List<Event> getPopularEvents(long eventId, Locale locale) {
-        return eventDao.getPopularEvents(eventId, locale);
+    public List<Event> getPopularEvents(long eventId) {
+        return eventDao.getPopularEvents(eventId);
     }
 
     @Transactional

@@ -11,7 +11,7 @@
 </head>
 <body>
     <%@ include file="appbar.jsp"%>
-    <div class="container event">
+    <div class="container event sep-bot-xl">
         <spring:message code="delete" var="delete"/>
         <div class="container align-center">
             <div class="event_img_container">
@@ -33,7 +33,7 @@
                                 <div class="uk-modal-dialog">
                                     <button class="uk-modal-close-default" type="button" uk-close></button>
                                     <div class="uk-modal-header">
-                                        <h3 class="subtitle uk-modal-title"><spring:message code="event.confirmationDelete"/></h3>
+                                        <h3 class="title2 uk-modal-title"><spring:message code="event.confirmationDelete"/></h3>
                                     </div>
                                     <div class="uk-modal-body">
                                         <form class="transparent form-marginless" action="<c:url value="/events/${event.id}/delete"/>" method="post">
@@ -256,7 +256,7 @@
                                                 <div class="uk-modal-dialog">
                                                     <button class="uk-modal-close-default" type="button" uk-close></button>
                                                     <div class="uk-modal-header">
-                                                        <h3 class="uk-modal-title subtitle"><spring:message code="ticket.confirmationDelete"/></h3>
+                                                        <h3 class="uk-modal-title title2"><spring:message code="ticket.confirmationDelete"/></h3>
                                                     </div>
                                                     <div class="uk-modal-body">
                                                             <form class="transparent form-marginless" action="<c:url value="/events/${event.id}/delete-ticket/${ticket.id}"/>" method="post">

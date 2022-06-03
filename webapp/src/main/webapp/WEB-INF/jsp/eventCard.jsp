@@ -3,7 +3,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <c:set var="event" value="${requestScope.event}"/>
-<div class="card uk-card uk-card-default" onclick="location.href='<c:url value="/events/${event.id}"/>'">
+<div class="card uk-card uk-card-default clickable" onclick="location.href='<c:url value="/events/${event.id}"/>'">
     <div class="uk-card-media-top">
         <spring:message code="event.imageAlt" var="imageAlt"/>
         <div class="card_img_container">

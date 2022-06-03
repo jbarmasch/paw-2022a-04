@@ -2,6 +2,8 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.model.Order;
+import ar.edu.itba.paw.model.Tag;
+import ar.edu.itba.paw.model.Type;
 import ar.edu.itba.paw.service.EventService;
 import ar.edu.itba.paw.service.LocationService;
 import ar.edu.itba.paw.service.TagService;
@@ -55,16 +57,16 @@ public class FilterController {
                                      @RequestParam(value = "tags", required = false) final Integer[] tags,
                                      @RequestParam(value = "searchUsername", required = false) final String username,
                                      @RequestParam(value = "order", required = false) final Order order,
-                                     @RequestParam(value = "showSoldOut", required = false) final Boolean showSoldOut,
+                                     @RequestParam(value = "soldOut", required = false) final Boolean showSoldOut,
                                      @RequestParam(value = "page", required = false, defaultValue = "1") @Min(1) final int page) {
         Locale locale = LocaleContextHolder.getLocale();
-        List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, search, tags, username, order, showSoldOut, page, locale);
+        List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, search, tags, username, order, showSoldOut, page);
 
         final ModelAndView mav = new ModelAndView("events");
         mav.addObject("page", page);
         mav.addObject("allLocations", locationService.getAll());
-        mav.addObject("allTypes", typeService.getAll(locale));
-        mav.addObject("allTags", tagService.getAll(locale));
+        mav.addObject("allTypes", typeService.getAll());
+        mav.addObject("allTags", tagService.getAll());
         mav.addObject("events", events);
         mav.addObject("size", events.size());
         return mav;
@@ -86,7 +88,8 @@ public class FilterController {
         filters.put("search", form.getSearchQuery());
         filters.put("searchUsername", form.getUsername());
         filters.put("order", form.getOrder());
-        filters.put("showSoldOut", form.getShowSoldOut());
+        if (form.getShowSoldOut())
+            filters.put("soldOut", form.getShowSoldOut());
         String endURL = FilterUtils.createFilter(filters);
 
         if (endURL.isEmpty())
@@ -118,6 +121,9 @@ public class FilterController {
 
     @ModelAttribute
     public void addAttributes(Model model, final SearchForm searchForm) {
+        Locale locale = LocaleContextHolder.getLocale();
+        Tag.setLocale(locale);
+        Type.setLocale(locale);
         model.addAttribute("username", userManager.getUsername());
         model.addAttribute("isCreator", userManager.isCreator());
     }

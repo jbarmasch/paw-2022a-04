@@ -5,5 +5,5 @@ import java.util.List;
 import java.util.Locale;
 
 public interface TagDao {
-    List<Tag> getAll(Locale locale);
+    List<Tag> getAll();
 }

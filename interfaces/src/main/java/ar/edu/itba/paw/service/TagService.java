@@ -7,5 +7,5 @@ import java.util.Locale;
 import java.util.Optional;
 
 public interface TagService {
-    List<Tag> getAll(Locale locale);
+    List<Tag> getAll();
 }

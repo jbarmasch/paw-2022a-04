@@ -42,8 +42,8 @@
                             <li><a href="<c:url value="/profile"/>"><spring:message code="appbar.dropdown0"/></a></li>
                             <li><a href="<c:url value="/create-event"/>"><spring:message code="appbar.dropdown5"/></a></li>
                             <li><a href="<c:url value="/bookings"/>"><spring:message code="appbar.dropdown1"/></a></li>
-                            <li><a href="<c:url value="/my-events"/>"><spring:message code="appbar.dropdown2"/></a></li>
                             <c:if test="${isCreator}">
+                                <li><a href="<c:url value="/my-events"/>"><spring:message code="appbar.dropdown2"/></a></li>
                                 <li><a href="<c:url value="/stats"/>"><spring:message code="appbar.dropdown3"/></a></li>
                             </c:if>
                             <li class="uk-nav-divider"></li>

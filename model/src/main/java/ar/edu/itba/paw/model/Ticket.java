@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.model;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -24,6 +25,19 @@ public class Ticket {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "eventid")
     private Event event;
+
+//    private LocalDateTime starting;
+//    private LocalDateTime until;
+
+//    public Ticket(String ticketName, Double price, Integer qty, Integer booked, Event event, LocalDateTime starting, LocalDateTime until) {
+//        this.ticketName = ticketName;
+//        this.price = price;
+//        this.qty = qty;
+//        this.booked = booked;
+//        this.event = event;
+//        this.starting = starting;
+//        this.until = until;
+//    }
 
     public Ticket(String ticketName, Double price, Integer qty) {
         this.ticketName = ticketName;
@@ -118,6 +132,22 @@ public class Ticket {
         booked -= cancel;
         return true;
     }
+
+//    public LocalDateTime getStarting() {
+//        return starting;
+//    }
+//
+//    public void setStarting(LocalDateTime starting) {
+//        this.starting = starting;
+//    }
+//
+//    public LocalDateTime getUntil() {
+//        return until;
+//    }
+//
+//    public void setUntil(LocalDateTime until) {
+//        this.until = until;
+//    }
 
     @Override
     public boolean equals(Object o) {

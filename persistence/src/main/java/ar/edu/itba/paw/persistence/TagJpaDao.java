@@ -15,7 +15,7 @@ public class TagJpaDao implements TagDao {
     private EntityManager em;
 
     @Override
-    public List<Tag> getAll(Locale locale) {
+    public List<Tag> getAll() {
         final TypedQuery<Tag> query = em.createQuery("from Tag", Tag.class);
         return query.getResultList();
     }

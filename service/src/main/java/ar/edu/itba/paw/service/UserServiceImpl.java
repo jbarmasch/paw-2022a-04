@@ -5,10 +5,9 @@ import ar.edu.itba.paw.persistence.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -27,6 +26,7 @@ public class UserServiceImpl implements UserService {
         return userDao.getUserById(id);
     }
 
+    @Transactional
     @Override
     public User create(String username, String password, String mail) {
         return userDao.create(username, passwordEncoder.encode(password), mail);
@@ -38,13 +38,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserStats> getUserStats(long id, Locale locale) {
-        return userDao.getUserStats(id, locale);
+    public Optional<UserStats> getUserStats(long id) {
+        return userDao.getUserStats(id);
     }
 
     @Override
-    public Optional<EventStats> getEventStats(long id, Locale locale) {
-        return userDao.getEventStats(id, locale);
+    public Optional<EventStats> getEventStats(long id) {
+        return userDao.getEventStats(id);
     }
 
     @Override
@@ -65,17 +65,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<EventBooking> getAllBookingsFromUser(long userId, int page, Locale locale) {
-        return userDao.getAllBookingsFromUser(userId, page, locale);
+    public List<EventBooking> getAllBookingsFromUser(long userId, int page) {
+        return userDao.getAllBookingsFromUser(userId, page);
     }
 
     @Override
-    public Optional<EventBooking> getBookingFromUser(long userId, long eventId, Locale locale) {
-        return userDao.getBookingFromUser(userId, eventId, locale);
+    public Optional<EventBooking> getBookingFromUser(long userId, long eventId) {
+        return userDao.getBookingFromUser(userId, eventId);
     }
 
     @Override
-    public Optional<EventBooking> getBooking(String code, Locale locale){
-        return userDao.getBooking(code, locale);
+    public Optional<EventBooking> getBooking(String code){
+        return userDao.getBooking(code);
     }
 }

@@ -15,7 +15,7 @@
     <div class="only-element">
         <form:form class="horizontal" novalidate="true" modelAttribute="eventForm" action="${postPath}" method="post" id="eventForm" enctype="multipart/form-data">
             <div class="interline">
-            <h4 class="subtitle"><spring:message code="create.event"/></h4>
+            <h4 class="title2"><spring:message code="create.event"/></h4>
             <div>
                 <spring:message code="create.name" var="namePlaceholder"/>
                 <form:input placeholder="* ${namePlaceholder}" class="uk-input" type="text" path="name" required="true"/>
@@ -65,10 +65,10 @@
             <div class="interline">
             <div>
                 <form:label path="tags" for="tags"><spring:message code="create.tags"/>: </form:label>
-                <form:select id="type" class="uk-select" htmlEscape="true" multiple="true" path="tags">
+                <form:select id="tags" class="uk-select" htmlEscape="true" multiple="true" path="tags">
                     <form:options items="${allTags}" itemValue="id" itemLabel="name"/>
                 </form:select>
-                <form:errors path="type" cssClass="error-message" element="span"/>
+                <form:errors path="tags" cssClass="error-message" element="span"/>
                 <span class="formError"></span>
             </div>
             <div>

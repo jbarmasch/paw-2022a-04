@@ -20,7 +20,7 @@ public class EventJpaDao implements EventDao {
     private EntityManager em;
 
     @Override
-    public Event create(String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, long userId, Integer minAge, Locale locale) {
+    public Event create(String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, long userId, Integer minAge) {
         Location location = em.getReference(Location.class, locationId);
         Type type = em.getReference(Type.class, typeId);
         Image image;
@@ -33,19 +33,21 @@ public class EventJpaDao implements EventDao {
         for (Long tagId : tagIds)
             tagList.add(em.getReference(Tag.class, tagId));
         User user = em.getReference(User.class, userId);
+        user.addRole(em.getReference(Role.class, RoleEnum.CREATOR.ordinal() + 1));
+        em.persist(user);
         final Event event = new Event(name, description, location, type, date, tagList, user, State.ACTIVE, null, image, minAge);
         em.persist(event);
         return event;
     }
 
     @Override
-    public Optional<Event> getEventById(long id, Locale locale) {
+    public Optional<Event> getEventById(long id) {
         return Optional.ofNullable(em.find(Event.class, id));
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Event> filterBy(Integer[] locations, Integer[] types, Double minPrice, Double maxPrice, String searchQuery, Integer[] tags, String username, Order order, Boolean showSoldOut, int page, Locale locale) {
+    public List<Event> filterBy(Integer[] locations, Integer[] types, Double minPrice, Double maxPrice, String searchQuery, Integer[] tags, String username, Order order, Boolean showSoldOut, int page) {
         boolean having = false, condition = false;
         Map<String, Object> objects = new HashMap<>();
         objects.put("date", Timestamp.valueOf(LocalDateTime.now()));
@@ -162,6 +164,9 @@ public class EventJpaDao implements EventDao {
         query.setParameter("userid", booking.getUser().getId());
         EventBooking eventBooking = query.getResultList().stream().findFirst().orElse(null);
 
+        System.out.println("evb: " + eventBooking);
+        System.out.println("uid: " + booking.getUser().getId() + " eid: " + booking.getEvent().getId());
+
         if (eventBooking == null) {
             for (TicketBooking ticketBooking : booking.getTicketBookings()) {
                 if (ticketBooking.getQty() != null && ticketBooking.getQty() > 0) {
@@ -207,11 +212,16 @@ public class EventJpaDao implements EventDao {
                         return null;
                     }
                     em.persist(ticket);
+                    ticketBooking.setEventBooking(eventBooking);
                     eventBooking.addBooking(ticketBooking);
                     em.persist(ticketBooking);
+                    System.out.println("1ro aca");
                 }
             }
+            System.out.println(eventBooking.getCode());
             em.persist(eventBooking);
+
+            System.out.println("susana");
             return eventBooking;
         }
     }
@@ -269,7 +279,7 @@ public class EventJpaDao implements EventDao {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Event> getFewTicketsEvents(Locale locale) {
+    public List<Event> getFewTicketsEvents() {
         Query idQuery = em.createNativeQuery("SELECT aux.eventid FROM " +
                 "(SELECT events.eventid, events.name, events.description, events.locationid, SUM(COALESCE(ti.booked, 0)) AS attendance, " +
                 "MIN(CASE WHEN ti.maxTickets - ti.booked > 0 THEN ti.price END) AS minPrice, (SUM(COALESCE(ti.maxTickets, 0)) - SUM(COALESCE(ti.booked, 0))) " +
@@ -290,7 +300,7 @@ public class EventJpaDao implements EventDao {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Event> getUpcomingEvents(Locale locale) {
+    public List<Event> getUpcomingEvents() {
         Query idQuery = em.createNativeQuery("SELECT aux.eventid FROM " +
                 "(SELECT events.eventid, events.name, events.description, events.locationid, SUM(COALESCE(ti.booked, 0)) AS attendance, " +
                 "MIN(CASE WHEN ti.maxTickets - ti.booked > 0 THEN ti.price END) AS minPrice, (SUM(COALESCE(ti.maxTickets, 0)) - SUM(COALESCE(ti.booked, 0))) " +
@@ -311,7 +321,7 @@ public class EventJpaDao implements EventDao {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Event> getSimilarEvents(long eventId, Locale locale) {
+    public List<Event> getSimilarEvents(long eventId) {
         Query idQuery = em.createNativeQuery("WITH event_cte AS (SELECT e.eventid, name, description, locationid, date, typeid, userid, " +
                 "imageid, state, ARRAY_AGG(tagId) AS tagIds FROM events e LEFT OUTER JOIN eventTags eT ON e.eventId = eT.eventId WHERE e.eventId = :eventid " +
                 "GROUP BY e.eventid, name, description, locationid, date, typeid, userid, imageid, state) SELECT eventid FROM (SELECT *, (SELECT COUNT(*) " +
@@ -331,7 +341,7 @@ public class EventJpaDao implements EventDao {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Event> getPopularEvents(long eventId, Locale locale) {
+    public List<Event> getPopularEvents(long eventId) {
         Query idQuery = em.createNativeQuery("SELECT e.eventid FROM (SELECT b.eventId, COUNT(b.userId) AS popularity " +
                 "FROM eventbookings b JOIN (SELECT userId FROM eventbookings eb WHERE eb.eventId = :eventid) AS aux ON b.userId = aux.userId " +
                 "WHERE b.eventid <> :eventid GROUP BY b.eventId ORDER BY popularity DESC) AS aux " +

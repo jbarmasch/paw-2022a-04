@@ -18,7 +18,7 @@ public class TypeServiceImpl implements TypeService {
     }
 
     @Override
-    public List<Type> getAll(Locale locale) {
-        return typeDao.getAll(locale);
+    public List<Type> getAll() {
+        return typeDao.getAll();
     }
 }

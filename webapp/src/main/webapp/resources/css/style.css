@@ -165,6 +165,10 @@
     margin-top: 16px;
 }
 
+.sep-bot-xl {
+    margin-bottom: 60px !important;
+}
+
 a {
     text-decoration: underline;
     color: black;
@@ -221,6 +225,11 @@ input {
 }
 
 .subtitle {
+    margin: 0 0 8px 0;
+    font-weight: 550;
+}
+
+.title2 {
     margin: 0 0 8px 13%;
     font-weight: 550;
 }
@@ -745,4 +754,9 @@ select:-webkit-autofill:focus {
 .min_age {
     color: red;
     font-weight: bold;
+}
+
+.event-box {
+    background-color: rgba(255, 255, 255, 0.3);
+    padding: 10px;
 }

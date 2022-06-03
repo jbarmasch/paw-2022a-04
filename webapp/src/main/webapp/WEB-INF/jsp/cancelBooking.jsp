@@ -16,7 +16,7 @@
         <c:url value="/bookings/cancel/${eventBooking.event.id}" var="postPath"/>
         <form:form novalidate="true" class="transparent" modelAttribute="bookForm" action="${postPath}" method="post" id="bookForm">
         <div>
-            <h2 class="subtitle"><spring:message code="booking.cancel"/></h2>
+            <h2 class="title2"><spring:message code="booking.cancel"/></h2>
         </div>
                 <table class="tickets tickets-table">
                     <tr>

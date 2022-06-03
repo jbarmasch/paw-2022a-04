@@ -19,12 +19,9 @@ public class UserJpaDao implements UserDao {
     @PersistenceContext
     private EntityManager em;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
     @Override
     public User create(String username, String password, String mail) {
-        final User user = new User(username, passwordEncoder.encode(password), mail);
+        final User user = new User(username, password, mail, Collections.singletonList(em.getReference(Role.class, RoleEnum.USER.ordinal() + 1)));
         em.persist(user);
         return user;
     }
@@ -42,14 +39,14 @@ public class UserJpaDao implements UserDao {
     }
 
     @Override
-    public List<EventBooking> getAllBookingsFromUser(long userId, int page, Locale locale) {
+    public List<EventBooking> getAllBookingsFromUser(long userId, int page) {
         final TypedQuery<EventBooking> query = em.createQuery("from EventBooking as eb where eb.user.id = :userid order by eb.event.date DESC", EventBooking.class);
         query.setParameter("userid", userId);
         return query.getResultList();
     }
 
     @Override
-    public Optional<EventBooking> getBookingFromUser(long userId, long eventId, Locale locale) {
+    public Optional<EventBooking> getBookingFromUser(long userId, long eventId) {
         final TypedQuery<EventBooking> query = em.createQuery("from EventBooking as eb where eb.user.id = :userid AND eb.event.id = :eventid", EventBooking.class);
         query.setParameter("userid", userId);
         query.setParameter("eventid", eventId);
@@ -57,7 +54,7 @@ public class UserJpaDao implements UserDao {
     }
 
     @Override
-    public Optional<EventBooking> getBooking(String code, Locale locale) {
+    public Optional<EventBooking> getBooking(String code) {
         final TypedQuery<EventBooking> query = em.createQuery("from EventBooking as eb where eb.code = :code", EventBooking.class);
         query.setParameter("code", code);
         return query.getResultList().stream().findFirst();
@@ -65,7 +62,7 @@ public class UserJpaDao implements UserDao {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Optional<EventStats> getEventStats(long id, Locale locale) {
+    public Optional<EventStats> getEventStats(long id) {
         Query query = em.createNativeQuery("SELECT events, bookings, attendance, income, eventid FROM ((SELECT COUNT(*) AS events, SUM(bookings) AS bookings, SUM(bookings) / SUM(COALESCE(NULLIF(qty, 0), 1)) " +
                "AS attendance, SUM(income) AS income FROM (SELECT e.eventid, SUM(COALESCE(booked, 0)) AS bookings, SUM(COALESCE(maxTickets, 0)) AS qty, " +
                "booked * price AS income FROM events e LEFT JOIN tickets t ON t.eventId = e.eventId WHERE e.userId = :userId GROUP BY e.eventid, booked, price) AS aux " +
@@ -82,13 +79,15 @@ public class UserJpaDao implements UserDao {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Optional<UserStats> getUserStats(long id, Locale locale) {
+    public Optional<UserStats> getUserStats(long id) {
         Query query = em.createNativeQuery("SELECT attended, booked, favTypeId, favLocId " +
                 "FROM (SELECT COUNT(*) AS attended, SUM(qty) AS booked, MODE() WITHIN GROUP (ORDER BY e.typeId) AS favTypeId, MODE() WITHIN GROUP " +
                 "(ORDER BY e.locationId) AS favLocId FROM eventbookings eb JOIN ticketbookings tb ON eb.id = tb.id JOIN events e ON eb.eventId = e.eventId " +
                 "WHERE eb.userId = :userId) AS pre JOIN types t ON pre.favTypeId = t.typeid JOIN locations l ON pre.favLocId = l.locationid");
         query.setParameter("userId", id);
         List<Object[]> resultSet = query.getResultList();
+        if (resultSet.isEmpty())
+            return Optional.empty();
         Object[] result = resultSet.get(0);
         if (result == null)
             return Optional.empty();

@@ -18,7 +18,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<Tag> getAll(Locale locale) {
-        return tagDao.getAll(locale);
+    public List<Tag> getAll() {
+        return tagDao.getAll();
     }
 }
