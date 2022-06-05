@@ -21,8 +21,8 @@ public interface EventService {
     List<Event> getUpcomingEvents();
     List<Event> getSimilarEvents(long eventId);
     List<Event> getPopularEvents(long eventId);
-    void addTicket(long eventId, String ticketName, double price, int qty);
+    void addTicket(long eventId, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until);
     Optional<Ticket> getTicketById(long ticketId);
-    void updateTicket(long id, String ticketName, double price, int qty);
-    void deleteTicket(long ticketId);
+    void updateTicket(long id, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until);
+    void deleteTicket(long ticketId, Locale locale);
 }

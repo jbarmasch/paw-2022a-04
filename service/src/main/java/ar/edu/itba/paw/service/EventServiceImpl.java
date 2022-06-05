@@ -5,10 +5,13 @@ import ar.edu.itba.paw.persistence.EventDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Service
 public class EventServiceImpl implements EventService {
@@ -29,7 +32,22 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public Event create(String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, long userId, Integer minAge) {
-        return eventDao.create(name, description, locationId, typeId, date, imageArray, tagIds, userId, minAge);
+        Random random = new SecureRandom();
+        IntStream specialChars = random.ints(8, 48, 58);
+        Stream<Character> passwordStream = specialChars.mapToObj(data -> (char) data);
+        specialChars = random.ints(8, 65, 91);
+        passwordStream = Stream.concat(passwordStream, specialChars.mapToObj(data -> (char) data));
+        specialChars = random.ints(8, 97, 123);
+        passwordStream = Stream.concat(passwordStream, specialChars.mapToObj(data -> (char) data));
+        List<Character> charList = passwordStream.collect(Collectors.toList());
+        Collections.shuffle(charList);
+        String password = charList.stream()
+                .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
+                .substring(0, 8);
+        System.out.println("pass: " + password);
+
+        String bouncerPass = userService.encodePassword(password);
+        return eventDao.create(name, description, locationId, typeId, date, imageArray, tagIds, userId, minAge, bouncerPass);
     }
 
     @Override
@@ -107,8 +125,8 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public void addTicket(long eventId, String ticketName, double price, int qty) {
-        eventDao.addTicket(eventId, ticketName, price, qty);
+    public void addTicket(long eventId, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until) {
+        eventDao.addTicket(eventId, ticketName, price, qty, starting, until);
     }
 
     @Override
@@ -118,13 +136,18 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public void updateTicket(long id, String ticketName, double price, int qty) {
-        eventDao.updateTicket(id, ticketName, price, qty);
+    public void updateTicket(long id, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until) {
+        eventDao.updateTicket(id, ticketName, price, qty, starting, until);
     }
 
     @Transactional
     @Override
-    public void deleteTicket(long ticketId) {
+    public void deleteTicket(long ticketId, Locale locale) {
+        List<TicketBooking> ticketBookings = eventDao.getTicketBookings(ticketId);
+
+        for (TicketBooking ticketBooking : ticketBookings) {
+            mailService.sendCancelTicketMail(ticketBooking, locale);
+        }
         eventDao.deleteTicket(ticketId);
     }
 }

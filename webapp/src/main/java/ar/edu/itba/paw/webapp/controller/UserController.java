@@ -89,6 +89,11 @@ public class UserController {
         return new ModelAndView("redirect:/");
     }
 
+    @RequestMapping(value = "/profile", method = { RequestMethod.GET })
+    public ModelAndView getUser() {
+        return new ModelAndView("redirect:/profile/" + userManager.getUserId());
+    }
+
     @RequestMapping(value = "/profile/{userId}", method = { RequestMethod.GET })
     public ModelAndView userProfile(@PathVariable("userId") final long userId) {
         User user = userService.getUserById(userId).orElse(null);
@@ -113,34 +118,6 @@ public class UserController {
         return mav;
     }
 
-    @RequestMapping(value = "/profile", method = { RequestMethod.GET })
-    public ModelAndView getUser() {
-        return new ModelAndView("redirect:/profile/" + userManager.getUserId());
-    }
-
-
-    @RequestMapping(value = "/bookings/{code}", method = { RequestMethod.GET })
-    public ModelAndView booking(HttpServletRequest request, @PathVariable("code") final String code) {
-        EventBooking eventBooking = userService.getBooking(code).orElse(null);
-        User user = userManager.getUser();
-        long userId = user.getId();
-        if (eventBooking == null || (userId != eventBooking.getUser().getId() && userId != eventBooking.getEvent().getOrganizer().getId()) ||
-                eventBooking.getEvent().getDate().isBefore(LocalDateTime.now())) {
-            LOGGER.error("Booking not found");
-            throw new BookingNotFoundException();
-        }
-
-        String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), request.getContextPath());
-        String bookUrl = baseUrl + "/bookings/" + code;
-        byte[] encodeBase64 = Base64.getEncoder().encode(codeService.createQr(bookUrl));
-        String base64Encoded = new String(encodeBase64, StandardCharsets.UTF_8);
-
-        final ModelAndView mav = new ModelAndView("booking");
-        mav.addObject("eventBooking", eventBooking);
-        mav.addObject("image", base64Encoded);
-        return mav;
-    }
-
     @RequestMapping(value = "/bookings", method = { RequestMethod.GET })
     public ModelAndView bookings(@ModelAttribute("bookForm") final BookForm form,
                                  @ModelAttribute("rateForm") final RateForm rateForm,
@@ -155,12 +132,13 @@ public class UserController {
         return mav;
     }
 
+
     @RequestMapping(value = "/bookings/rate/{eventId}", method = { RequestMethod.POST })
     public ModelAndView rateEvent(@Valid @ModelAttribute("bookForm") final BookForm form, final BindingResult errors,
                                   @Valid @ModelAttribute("rateForm") final RateForm rateForm, final BindingResult rateErrors,
                                   @PathVariable("eventId") final long eventId) {
         Event e = eventService.getEventById(eventId).orElse(null);
-        if (e == null) {
+        if (e == null || LocalDateTime.now().isBefore(e.getDate().plusMonths(1))) {
             LOGGER.error("Event not found");
             throw new EventNotFoundException();
         }
@@ -170,6 +148,32 @@ public class UserController {
         }
         userService.rateUser(userManager.getUserId(), e.getOrganizer().getId(), rateForm.getRating());
         return new ModelAndView("redirect:/bookings/");
+    }
+
+    @RequestMapping(value = "/bookings/cancel/{eventId}", method = { RequestMethod.GET })
+    public ModelAndView cancelBooking(@ModelAttribute("bookForm") final BookForm form,
+                                      @ModelAttribute("rateForm") final RateForm rateForm,
+                                      @PathVariable("eventId") final int eventId) {
+        final Event e = eventService.getEventById(eventId).orElse(null);
+        if (e == null) {
+            LOGGER.error("Event not found");
+            throw new EventNotFoundException();
+        }
+        final User user = userManager.getUser();
+        final User eventUser = userService.getUserById(e.getOrganizer().getId()).orElse(null);
+        if (eventUser == null) {
+            LOGGER.error("Organizer not found");
+            throw new UserNotFoundException();
+        }
+        EventBooking eventBooking = userService.getBookingFromUser(user.getId(), eventId).orElse(null);
+        if (eventBooking == null) {
+            LOGGER.error("Booking not found");
+            throw new BookingNotFoundException();
+        }
+
+        ModelAndView mav = new ModelAndView("cancelBooking");
+        mav.addObject("eventBooking", eventBooking);
+        return mav;
     }
 
     @RequestMapping(value = "/bookings/cancel/{eventId}", method = { RequestMethod.POST })
@@ -222,31 +226,39 @@ public class UserController {
         return new ModelAndView("redirect:/bookings/");
     }
 
+    @RequestMapping(value = "/bookings/{code}", method = { RequestMethod.GET })
+    public ModelAndView booking(HttpServletRequest request, @PathVariable("code") final String code) {
+        EventBooking eventBooking = userService.getBooking(code).orElse(null);
+        User user = userManager.getUser();
+        long userId = user.getId();
+        if (eventBooking == null || (userId != eventBooking.getUser().getId() && userId != eventBooking.getEvent().getOrganizer().getId() &&
+                userId != eventBooking.getEvent().getBouncer().getId()) || eventBooking.getEvent().getDate().isBefore(LocalDateTime.now()) ||
+                eventBooking.getTicketBookingsSize() == 0) {
+            LOGGER.error("Booking not found");
+            throw new BookingNotFoundException();
+        }
 
-    @RequestMapping(value = "/bookings/cancel/{eventId}", method = { RequestMethod.GET })
-    public ModelAndView cancelBooking(@ModelAttribute("bookForm") final BookForm form,
-                                      @ModelAttribute("rateForm") final RateForm rateForm,
-                                      @PathVariable("eventId") final int eventId) {
-        final Event e = eventService.getEventById(eventId).orElse(null);
-        if (e == null) {
-            LOGGER.error("Event not found");
-            throw new EventNotFoundException();
-        }
-        final User user = userManager.getUser();
-        final User eventUser = userService.getUserById(e.getOrganizer().getId()).orElse(null);
-        if (eventUser == null) {
-            LOGGER.error("Organizer not found");
-            throw new UserNotFoundException();
-        }
-        EventBooking eventBooking = userService.getBookingFromUser(user.getId(), eventId).orElse(null);
+        String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), request.getContextPath());
+        String bookUrl = baseUrl + "/bookings/" + code;
+        byte[] encodeBase64 = Base64.getEncoder().encode(codeService.createQr(bookUrl));
+        String base64Encoded = new String(encodeBase64, StandardCharsets.UTF_8);
+
+        final ModelAndView mav = new ModelAndView("booking");
+        mav.addObject("eventBooking", eventBooking);
+        mav.addObject("image", base64Encoded);
+        return mav;
+    }
+
+    @RequestMapping(value = "/bookings/{code}/confirm", method = { RequestMethod.POST })
+    public ModelAndView confirmBooking(@PathVariable("code") final String code) {
+        EventBooking eventBooking = userService.getBooking(code).orElse(null);
         if (eventBooking == null) {
             LOGGER.error("Booking not found");
             throw new BookingNotFoundException();
         }
 
-        ModelAndView mav = new ModelAndView("cancelBooking");
-        mav.addObject("eventBooking", eventBooking);
-        return mav;
+        userService.confirmBooking(eventBooking);
+        return new ModelAndView("redirect:/bookings/" + code);
     }
 
     @ModelAttribute
@@ -256,5 +268,6 @@ public class UserController {
         Type.setLocale(locale);
         model.addAttribute("username", userManager.getUsername());
         model.addAttribute("isCreator", userManager.isCreator());
+        model.addAttribute("isBouncer", userManager.isBouncer());
     }
 }

@@ -18,15 +18,15 @@
                 <h3 class="title2"><spring:message code="event.addTicketAlt"/></h3>
                 <div>
                     <spring:message code="tickets.ticketName" var="ticketNameMessage"/>
-                    <form:input placeholder="${ticketNameMessage}" class="uk-input" type="text" path="ticketName" required="true"/>
+                    <form:input placeholder="* ${ticketNameMessage}" class="uk-input" type="text" path="ticketName" required="true"/>
                     <form:errors path="ticketName" cssClass="error-message" element="span"/>
                     <spring:message code="NotEmpty.eventForm.name" var="nameEmptyError"/>
                     <spring:message code="Size.eventForm.name" var="nameSizeError"/>
                     <span class="formError"></span>
                 </div>
                 <div>
-                    <form:label path="price"><spring:message code="tickets.ticketPrice"/>: </form:label>
-                    <form:input class="uk-input" type="number" path="price" min="0.00" step="0.01" value="0.00" required="true"/>
+                    * <form:label path="price"><spring:message code="tickets.ticketPrice"/>: </form:label>
+                    <form:input class="uk-input" type="number" path="price" min="0.00" step="0.01" required="true"/>
                     <form:errors path="price" cssClass="error-message" element="span"/>
                     <spring:message code="NotNull.eventForm.price" var="priceNullError"/>
                     <spring:message code="typeMismatch.eventForm.price" var="priceTypeError"/>
@@ -34,33 +34,31 @@
                     <span class="formError"></span>
                 </div>
                 <div>
-                    <form:label path="qty"><spring:message code="tickets.ticketQty"/>: </form:label>
-                    <form:input class="uk-input" type="number" path="qty" min="1" step="1" value="0" required="true"/>
+                    * <form:label path="qty"><spring:message code="tickets.ticketQty"/>: </form:label>
+                    <form:input class="uk-input" type="number" path="qty" min="1" step="1" required="true"/>
                     <form:errors path="qty" cssClass="error-message" element="span"/>
                     <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
 <%--                    <spring:message code="Max.bookForm.qty" var="maxQtySizeError"/>--%>
                     <spring:message code="Min.bookForm.qty" var="minQtySizeError"/>
                     <span class="formError"></span>
                 </div>
-                <div class="horizontal align-center">
-                    <div class="horizontal center">
-                        <form:checkbox path="starts" id="starts" onclick="hasStarting()"/>
-                        <form:label path="hasStarting" class="sep-left"><spring:message code="create.minAge"/></form:label>
-                    </div>
-
-                    <span class="required">* </span>
-                    <form:label path="date"><spring:message code="create.date"/>: </form:label>
-                    <form:input class="uk-input" type="datetime-local" min="${currentDate}" path="date" required="true"/>
-                    <form:errors path="date" cssClass="error-message" element="span"/>
+                <div>
+                    <form:label path="starting"><spring:message code="tickets.starting"/>: </form:label>
+                    <form:input class="uk-input" type="datetime-local" min="${currentDate}" max="${event.date}" path="starting"/>
+                    <form:errors path="starting" cssClass="error-message" element="span"/>
                     <spring:message code="NotEmpty.eventForm.date" var="dateEmptyError"/>
                     <spring:message code="Future.eventForm.date" var="dateMinError"/>
                     <spring:message code="Pattern.eventForm.date" var="dateTypeError"/>
                     <span class="formError"></span>
-
-                    <form:errors path="minAge" cssClass="error-message" element="span"/>
-                    <spring:message code="Range.eventForm.minAge" var="rangeAgeMinError"/>
-                    <spring:message code="NotNull.eventForm.minAge" var="minAgeNullError"/>
-                    <span class="sep-left formError"></span>
+                </div>
+                <div>
+                    <form:label path="until"><spring:message code="tickets.until"/>: </form:label>
+                    <form:input class="uk-input" type="datetime-local" min="${currentDate}" max="${event.date}" path="until"/>
+                    <form:errors path="until" cssClass="error-message" element="span"/>
+                    <spring:message code="NotEmpty.eventForm.date" var="dateEmptyError"/>
+                    <spring:message code="Future.eventForm.date" var="dateMinError"/>
+                    <spring:message code="Pattern.eventForm.date" var="dateTypeError"/>
+                    <span class="formError"></span>
                 </div>
                 <spring:message code="tickets.maxTicketsReached" var="maxTicketsReached"/>
                 <div class="container event">

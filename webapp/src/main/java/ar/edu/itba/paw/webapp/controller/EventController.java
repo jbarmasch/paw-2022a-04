@@ -41,10 +41,14 @@ import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Controller
 public class EventController {
@@ -90,6 +94,7 @@ public class EventController {
         }
 
         final ModelAndView mav = new ModelAndView("event");
+        mav.addObject("currentDate", LocalDateTime.now().toString().substring(0,16));
         mav.addObject("event", event);
         mav.addObject("ticketsSize", event.getTickets().size());
         mav.addObject("isOwner", isOwner);
@@ -284,34 +289,6 @@ public class EventController {
         return new ModelAndView("redirect:/events/" + eventId);
     }
 
-    @RequestMapping(value = "/my-events", method = { RequestMethod.GET })
-    public ModelAndView myEvents(@RequestParam(value = "page", required = false, defaultValue = "1") @Min(1) final int page) {
-        final User user = userManager.getUser();
-        List<Event> events = user.getEvents();
-        final ModelAndView mav = new ModelAndView("myEvents");
-        mav.addObject("page", page);
-        mav.addObject("myEvents", events);
-        mav.addObject("size", events.size());
-        return mav;
-    }
-
-    @RequestMapping(value = "/stats", method = { RequestMethod.GET })
-    public ModelAndView getStats() {
-        final long userId = userManager.getUserId();
-        EventStats stats = userService.getEventStats(userId).orElse(null);
-        if (stats == null) {
-            LOGGER.error("Stats not found");
-            throw new StatsNotFoundException();
-        }
-        final ModelAndView mav = new ModelAndView("eventStats");
-        mav.addObject("stats", stats);
-        return mav;
-    }
-
-    private boolean isEventOwner(Event event) {
-        return event.getOrganizer().getId() == userManager.getUserId();
-    }
-
     @RequestMapping(value = "/events/{eventId}/add-ticket", method = { RequestMethod.GET })
     public ModelAndView createTicketsForm(@ModelAttribute("ticketForm") TicketForm form, @PathVariable("eventId") @Min(1) final long eventId) {
         final Event event = eventService.getEventById(eventId).orElse(null);
@@ -328,7 +305,10 @@ public class EventController {
             return new ModelAndView("redirect:/events/" + eventId);
         }
 
-        return new ModelAndView("ticket");
+        ModelAndView mav = new ModelAndView("ticket");
+        mav.addObject("event", event);
+        mav.addObject("currentDate", LocalDateTime.now().toString().substring(0,16));
+        return mav;
     }
 
     @RequestMapping(value = "/events/{eventId}/add-ticket", method = { RequestMethod.POST })
@@ -343,12 +323,21 @@ public class EventController {
             LOGGER.debug("Logged user is not the owner of event {}", event.getName());
             return new ModelAndView("redirect:/events/" + eventId);
         }
+        if (form.getLocalDate(form.getStarting()) != null && form.getLocalDate(form.getStarting()).isAfter(event.getDate()))
+            errors.rejectValue("starting", "Min.bookForm.qtyAnother", null, "");
+        if (form.getLocalDate(form.getUntil()) != null && form.getLocalDate(form.getUntil()).isAfter(event.getDate()))
+            errors.rejectValue("until", "Min.bookForm.qtyAnother", null, "");
+        if (form.getLocalDate(form.getStarting()) != null && form.getLocalDate(form.getUntil()) != null &&
+                form.getLocalDate(form.getStarting()).isAfter(form.getLocalDate(form.getUntil())))
+            errors.rejectValue("until", "Min.bookForm.qtyAnother", null, "");
+
         if (errors.hasErrors()) {
             LOGGER.error("TicketForm has errors: {}", errors.getAllErrors().toArray());
             return createTicketsForm(form, eventId);
         }
 
-        eventService.addTicket(event.getId(), form.getTicketName(), form.getPrice(), form.getQty());
+        eventService.addTicket(event.getId(), form.getTicketName(), form.getPrice(), form.getQty(),
+                form.getLocalDate(form.getStarting()), form.getLocalDate(form.getUntil()));
         return new ModelAndView("redirect:/events/" + eventId);
     }
 
@@ -374,6 +363,8 @@ public class EventController {
 
         ModelAndView mav = new ModelAndView("modifyTicket");
         mav.addObject("ticket", ticket);
+        mav.addObject("event", event);
+        mav.addObject("currentDate", LocalDateTime.now().toString().substring(0,16));
         return mav;
     }
 
@@ -403,7 +394,7 @@ public class EventController {
             return modifyTicketForm(form, eventId, ticketId);
         }
 
-        eventService.updateTicket(ticketId, form.getTicketName(), form.getPrice(), form.getQty());
+        eventService.updateTicket(ticketId, form.getTicketName(), form.getPrice(), form.getQty(), form.getLocalDate(form.getStarting()), form.getLocalDate(form.getUntil()));
         return new ModelAndView("redirect:/events/" + eventId);
     }
 
@@ -420,8 +411,36 @@ public class EventController {
             return new ModelAndView("redirect:/events/" + eventId);
         }
 
-        eventService.deleteTicket(ticketId);
+        eventService.deleteTicket(ticketId, LocaleContextHolder.getLocale());
         return new ModelAndView("redirect:/events/" + eventId);
+    }
+
+    @RequestMapping(value = "/my-events", method = { RequestMethod.GET })
+    public ModelAndView myEvents(@RequestParam(value = "page", required = false, defaultValue = "1") @Min(1) final int page) {
+        final User user = userManager.getUser();
+        List<Event> events = user.getEvents();
+        final ModelAndView mav = new ModelAndView("myEvents");
+        mav.addObject("page", page);
+        mav.addObject("myEvents", events);
+        mav.addObject("size", events.size());
+        return mav;
+    }
+
+    @RequestMapping(value = "/stats", method = { RequestMethod.GET })
+    public ModelAndView getStats() {
+        final long userId = userManager.getUserId();
+        EventStats stats = userService.getEventStats(userId).orElse(null);
+        if (stats == null) {
+            LOGGER.error("Stats not found");
+            throw new StatsNotFoundException();
+        }
+        final ModelAndView mav = new ModelAndView("eventStats");
+        mav.addObject("stats", stats);
+        return mav;
+    }
+
+    private boolean isEventOwner(Event event) {
+        return event.getOrganizer().getId() == userManager.getUserId();
     }
 
     @ModelAttribute
@@ -431,5 +450,6 @@ public class EventController {
         Type.setLocale(locale);
         model.addAttribute("username", userManager.getUsername());
         model.addAttribute("isCreator", userManager.isCreator());
+        model.addAttribute("isBouncer", userManager.isBouncer());
     }
 }

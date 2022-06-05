@@ -19,4 +19,5 @@ public interface UserDao {
     void rateUser(long userId, long organizerId, int rating);
     boolean canRate(long organizerId, long userId);
     Optional<EventBooking> getBooking(String code);
+    void confirmBooking(EventBooking eventBooking);
 }

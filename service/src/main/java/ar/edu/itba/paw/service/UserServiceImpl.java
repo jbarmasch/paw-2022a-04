@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,5 +78,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<EventBooking> getBooking(String code){
         return userDao.getBooking(code);
+    }
+
+    @Transactional
+    @Override
+    public void confirmBooking(EventBooking eventBooking) {
+        userDao.confirmBooking(eventBooking);
+    }
+
+    @Override
+    public String encodePassword(String password) {
+        return passwordEncoder.encode(password);
     }
 }

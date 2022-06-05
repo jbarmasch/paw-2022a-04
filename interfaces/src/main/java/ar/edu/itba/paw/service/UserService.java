@@ -17,4 +17,6 @@ public interface UserService {
     List<EventBooking> getAllBookingsFromUser(long userId, int page);
     Optional<EventBooking> getBookingFromUser(long userId, long eventId);
     Optional<EventBooking> getBooking(String code);
+    void confirmBooking(EventBooking eventBooking);
+    String encodePassword(String password);
 }

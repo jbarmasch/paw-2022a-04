@@ -2,7 +2,8 @@ package ar.edu.itba.paw.model;
 
 public enum RoleEnum {
     USER,
-    CREATOR;
+    CREATOR,
+    BOUNCER;
 
     public static RoleEnum getRole(int id) {
         RoleEnum[] roles = RoleEnum.values();

@@ -149,8 +149,16 @@
     margin-right: 5px;
 }
 
+.sep-right-xl {
+    margin-right: 15px;
+}
+
 .sep-left {
     margin-left: 5px;
+}
+
+.sep-left-xl {
+    margin-left: 15px;
 }
 
 .sep-left-l {
@@ -163,6 +171,10 @@
 
 .sep-top-xl {
     margin-top: 16px;
+}
+
+.sep-top-xxl {
+    margin-top: 25px;
 }
 
 .sep-bot-xl {
@@ -227,6 +239,10 @@ input {
 .subtitle {
     margin: 0 0 8px 0;
     font-weight: 550;
+}
+
+.subtitle_light {
+    margin: 0 0 8px 0;
 }
 
 .title2 {
@@ -759,4 +775,8 @@ select:-webkit-autofill:focus {
 .event-box {
     background-color: rgba(255, 255, 255, 0.3);
     padding: 10px;
+}
+
+.upper {
+    text-transform: uppercase;
 }

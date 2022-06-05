@@ -77,7 +77,7 @@ public class Event {
     private String description;
     private LocalDateTime date;
 
-    @Formula("(select coalesce(min(t.price), 0) from tickets t where t.eventid = eventid)")
+    @Formula("(select coalesce(min(t.price), -1) from tickets t where t.eventid = eventid and (t.starting IS NULL OR t.starting <= NOW()) and (t.until IS NULL OR t.until >= NOW()) AND t.maxtickets - t.booked > 0)")
     private double minPrice;
     @Formula("(select coalesce(sum(t.booked), 0) from tickets t where t.eventid = eventid)")
     private int attendance;
@@ -107,6 +107,10 @@ public class Event {
     )
     private List<Tag> tags;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bouncerid")
+    private User bouncer;
+
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "event")
     private List<Ticket> tickets;
 
@@ -129,6 +133,22 @@ public class Event {
         this.state = state;
         this.tickets = tickets;
         this.minAge = minAge;
+    }
+
+    public Event(String name, String description, Location location, Type type, LocalDateTime date, List<Tag> tags, User organizer,
+                 State state, List<Ticket> tickets, Image image, Integer minAge, User bouncer) {
+        this.name = name;
+        this.description = description;
+        this.location = location;
+        this.date = date;
+        this.type = type;
+        this.tags = tags;
+        this.organizer = organizer;
+        this.state = state;
+        this.tickets = tickets;
+        this.image = image;
+        this.minAge = minAge;
+        this.bouncer = bouncer;
     }
 
     public Event(String name, String description, Location location, Type type, LocalDateTime date, List<Tag> tags, User organizer,
@@ -294,6 +314,14 @@ public class Event {
 
     public void addTicket(Ticket ticket) {
         tickets.add(ticket);
+    }
+
+    public User getBouncer() {
+        return bouncer;
+    }
+
+    public void setBouncer(User bouncer) {
+        this.bouncer = bouncer;
     }
 
     @Override

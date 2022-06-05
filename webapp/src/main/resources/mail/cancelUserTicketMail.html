@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:remove="all" th:text="#{mail.booking}"></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style th:inline="css">
+    </style>
+</head>
+<body>
+    <p th:text="#{mail.greeting(${ticketbooking.getEventBooking().getUser().getUsername()})}"></p>
+
+    <p th:text="#{mail.cancelDescTicket(${ticketbooking.getTicket().getTicketName()}, ${ticketbooking.getEventBooking().getEvent().getName()})}"></p>
+
+    <p th:text="#{mail.farewell}"></p>
+    <p>&emsp; <em>BotPass</em></p>
+</body>
+</html>

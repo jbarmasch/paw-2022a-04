@@ -25,9 +25,6 @@
                         <c:when test="${event.soldOut}">
                             <spring:message code="event.soldOut"/>
                         </c:when>
-                        <c:when test="${event.ticketsSize == 0}">
-                            <spring:message code="event.notApplies"/>
-                        </c:when>
                         <c:when test="${event.minPrice != null && event.minPrice == 0}">
                             <spring:message code="event.free"/>
                         </c:when>

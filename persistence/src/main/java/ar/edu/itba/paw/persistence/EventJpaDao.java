@@ -20,7 +20,7 @@ public class EventJpaDao implements EventDao {
     private EntityManager em;
 
     @Override
-    public Event create(String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, long userId, Integer minAge) {
+    public Event create(String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, long userId, Integer minAge, String bouncerPass) {
         Location location = em.getReference(Location.class, locationId);
         Type type = em.getReference(Type.class, typeId);
         Image image;
@@ -35,8 +35,12 @@ public class EventJpaDao implements EventDao {
         User user = em.getReference(User.class, userId);
         user.addRole(em.getReference(Role.class, RoleEnum.CREATOR.ordinal() + 1));
         em.persist(user);
-        final Event event = new Event(name, description, location, type, date, tagList, user, State.ACTIVE, null, image, minAge);
+        User bouncer = new User(null, bouncerPass, null, Collections.singletonList(em.getReference(Role.class, RoleEnum.BOUNCER.ordinal() + 1)));
+        final Event event = new Event(name, description, location, type, date, tagList, user, State.ACTIVE, null, image, minAge, bouncer);
         em.persist(event);
+        bouncer.setUsername(String.valueOf(event.getId()));
+        bouncer.setMail(String.valueOf(event.getId()));
+        em.persist(bouncer);
         return event;
     }
 
@@ -357,9 +361,9 @@ public class EventJpaDao implements EventDao {
     }
 
     @Override
-    public void addTicket(long eventId, String ticketName, double price, int qty) {
+    public void addTicket(long eventId, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until) {
         final Event event = em.find(Event.class, eventId);
-        Ticket newTicket = new Ticket(ticketName, price, qty, event);
+        Ticket newTicket = new Ticket(ticketName, price, qty, event, starting, until);
         event.addTicket(newTicket);
         em.persist(event);
         em.persist(newTicket);
@@ -371,16 +375,25 @@ public class EventJpaDao implements EventDao {
     }
 
     @Override
-    public void updateTicket(long id, String ticketName, double price, int qty) {
+    public void updateTicket(long id, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until) {
         final Ticket ticket = em.find(Ticket.class, id);
         ticket.setTicketName(ticketName);
         ticket.setPrice(price);
         ticket.setQty(qty);
+        ticket.setStarting(starting);
+        ticket.setUntil(until);
         em.persist(ticket);
     }
 
     @Override
     public void deleteTicket(long ticketId) {
         em.remove(em.find(Ticket.class, ticketId));
+    }
+
+    @Override
+    public List<TicketBooking> getTicketBookings(long ticketId) {
+        final TypedQuery<TicketBooking> query = em.createQuery("from TicketBooking where :ticketid = ticketid", TicketBooking.class);
+        query.setParameter("ticketid", ticketId);
+        return query.getResultList();
     }
 }

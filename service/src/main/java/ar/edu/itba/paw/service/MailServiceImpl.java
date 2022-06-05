@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.model.EventBooking;
+import ar.edu.itba.paw.model.TicketBooking;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.io.ByteArrayResource;
@@ -77,18 +78,22 @@ public class MailServiceImpl implements MailService {
         sendMailWithImage("bookUserMail", subject, recipientEmail, bookingURL, ctx);
     }
 
-
     public void sendCancelEventMail(String recipientEmail, String subject, EventBooking booking) {
         final Context ctx = new Context();
         ctx.setVariable("booking", booking);
         sendMail("cancelEventMail", subject, recipientEmail, ctx);
     }
 
-
     public void sendCancelUserMail(String recipientEmail, String subject, EventBooking booking) {
         final Context ctx = new Context();
         ctx.setVariable("booking", booking);
         sendMail("cancelUserMail", subject, recipientEmail, ctx);
+    }
+
+    public void sendCancelUserTicketMail(String recipientEmail, String subject, TicketBooking ticketBooking) {
+        final Context ctx = new Context();
+        ctx.setVariable("ticketbooking", ticketBooking);
+        sendMail("cancelUserTicketMail", subject, recipientEmail, ctx);
     }
 
     @Async
@@ -103,6 +108,11 @@ public class MailServiceImpl implements MailService {
     public void sendCancelMail(EventBooking booking, Locale locale) {
         sendCancelUserMail(booking.getUser().getMail(), messageSource.getMessage("mail.subjectCancelUser", null, locale), booking);
         sendCancelEventMail(booking.getEvent().getOrganizer().getMail(), messageSource.getMessage("mail.subjectCancelOrganizer", null, locale), booking);
+    }
+
+    @Override
+    public void sendCancelTicketMail(TicketBooking ticketBooking, Locale locale) {
+        sendCancelUserTicketMail(ticketBooking.getEventBooking().getUser().getMail(), messageSource.getMessage("mail.subjectCancelTicketUser", null, locale), ticketBooking);
     }
 
     @Async

@@ -1,6 +1,8 @@
 package ar.edu.itba.paw.model;
 
 import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.Where;
+import org.omg.CORBA.PUBLIC_MEMBER;
 
 import javax.persistence.*;
 import java.util.List;
@@ -26,6 +28,7 @@ public class EventBooking {
     private Event event;
 
     @OneToMany(mappedBy = "eventBooking", fetch = FetchType.EAGER)
+    @Where(clause = "qty > 0")
     private List<TicketBooking> ticketBookings;
 
     @Column(length = 100, unique = true)
@@ -33,6 +36,9 @@ public class EventBooking {
 
     @Formula("(select r.rating from ratings r join events e on r.organizerid = e.userid where r.userid = userid and e.eventid = eventid)")
     private Integer rating;
+
+    @Column(nullable = false)
+    private boolean confirmed;
 
     public EventBooking(User user, Event event, List<TicketBooking> ticketBookings, String code, Integer rating) {
         this.user = user;
@@ -47,6 +53,15 @@ public class EventBooking {
         this.event = event;
         this.ticketBookings = ticketBookings;
         this.code = code;
+        this.confirmed = false;
+    }
+
+    public EventBooking(User user, Event event, List<TicketBooking> ticketBookings, String code, boolean confirmed) {
+        this.user = user;
+        this.event = event;
+        this.ticketBookings = ticketBookings;
+        this.code = code;
+        this.confirmed = confirmed;
     }
 
     public EventBooking() {}
@@ -97,5 +112,17 @@ public class EventBooking {
 
     public Integer getRating() {
         return rating;
+    }
+
+    public boolean isConfirmed() {
+        return confirmed;
+    }
+
+    public void setConfirmed(boolean confirmed) {
+        this.confirmed = confirmed;
+    }
+
+    public int getTicketBookingsSize() {
+        return ticketBookings.size();
     }
 }

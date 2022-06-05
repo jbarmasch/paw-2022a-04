@@ -9,12 +9,7 @@ import java.util.List;
 
 public class BookForm {
     @NotNull
-//    @BookingList
-//    @Valid
-//    private EventBooking booking;
-
-//    private List<Long> ticketIds;
-//    private List<Integer> qtys;
+    @BookingList
     private List<BookingForm> bookings;
 
     private int page;
@@ -26,31 +21,6 @@ public class BookForm {
     public void setPage(int page) {
         this.page = page;
     }
-
-//    public EventBooking getBooking() {
-//        return booking;
-//    }
-//
-//    public void setBooking(EventBooking booking) {
-//        this.booking = booking;
-//    }
-
-//    public List<Long> getTicketIds() {
-//        return ticketIds;
-//    }
-//
-//    public void setTicketIds(List<Long> ticketIds) {
-//        this.ticketIds = ticketIds;
-//    }
-//
-//    public List<Integer> getQtys() {
-//        return qtys;
-//    }
-//
-//    public void setQtys(List<Integer> qtys) {
-//        this.qtys = qtys;
-//    }
-
 
     public List<BookingForm> getBookings() {
         return bookings;

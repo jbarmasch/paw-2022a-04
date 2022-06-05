@@ -41,6 +41,24 @@
                     <spring:message code="Min.bookForm.qtyAnotherStr" var="minQtySizeError"/>
                     <span class="formError"></span>
                 </div>
+                <div>
+                    <form:label path="starting"><spring:message code="tickets.starting"/>: </form:label>
+                    <form:input class="uk-input" type="datetime-local" min="${currentDate}" max="${event.date}" path="starting" value="${ticket.starting}"/>
+                    <form:errors path="starting" cssClass="error-message" element="span"/>
+                    <spring:message code="NotEmpty.eventForm.date" var="dateEmptyError"/>
+                    <spring:message code="Future.eventForm.date" var="dateMinError"/>
+                    <spring:message code="Pattern.eventForm.date" var="dateTypeError"/>
+                    <span class="formError"></span>
+                </div>
+                <div>
+                    <form:label path="until"><spring:message code="tickets.until"/>: </form:label>
+                    <form:input class="uk-input" type="datetime-local" min="${currentDate}" max="${event.date}" path="until" value="${ticket.until}"/>
+                    <form:errors path="until" cssClass="error-message" element="span"/>
+                    <spring:message code="NotEmpty.eventForm.date" var="dateEmptyError"/>
+                    <spring:message code="Future.eventForm.date" var="dateMinError"/>
+                    <spring:message code="Pattern.eventForm.date" var="dateTypeError"/>
+                    <span class="formError"></span>
+                </div>
                 <spring:message code="tickets.maxTicketsReached" var="maxTicketsReached"/>
                 <div class="container event">
                     <spring:message code="create.button" var="create"/>

@@ -63,12 +63,14 @@ public class UserJpaDao implements UserDao {
     @SuppressWarnings("unchecked")
     @Override
     public Optional<EventStats> getEventStats(long id) {
-        Query query = em.createNativeQuery("SELECT events, bookings, attendance, income, eventid FROM ((SELECT COUNT(*) AS events, SUM(bookings) AS bookings, SUM(bookings) / SUM(COALESCE(NULLIF(qty, 0), 1)) " +
-               "AS attendance, SUM(income) AS income FROM (SELECT e.eventid, SUM(COALESCE(booked, 0)) AS bookings, SUM(COALESCE(maxTickets, 0)) AS qty, " +
-               "booked * price AS income FROM events e LEFT JOIN tickets t ON t.eventId = e.eventId WHERE e.userId = :userId GROUP BY e.eventid, booked, price) AS aux " +
-               ") AS general CROSS JOIN (SELECT ec.eventid FROM events ec JOIN (SELECT e.eventid, SUM(COALESCE(booked, 0)) AS sumqty FROM events e LEFT JOIN tickets t ON " +
-               "t.eventId = e.eventId WHERE e.userid = :userId GROUP BY e.eventid ORDER BY sumqty DESC LIMIT 1) AS aux ON ec.eventid = aux.eventid) AS event) AS aux"                );
-        query.setParameter("userId", id);
+        Query query = em.createNativeQuery("SELECT events, bookings, bookings / COALESCE(NULLIF(expetedBooked, 0), 1) AS attendance, income, eventid FROM ( " +
+                "SELECT (SELECT COUNT(eventid) FROM events e WHERE e.userid = :userid) AS events, SUM(realqty) AS bookings, SUM(booked) AS expetedBooked, " +
+                "SUM(price * realqty) AS income FROM (SELECT booked, price, SUM(CASE WHEN confirmed THEN qty ELSE 0 END) AS realqty FROM events e LEFT JOIN tickets t " +
+                "ON e.eventId = t.eventId LEFT JOIN ticketbookings tb on t.ticketId = tb.ticketId JOIN eventbookings eb on tb.id = eb.id WHERE e.userid = :userid " +
+                "GROUP BY t.ticketid) AS aux ) AS general CROSS JOIN (SELECT ec.eventid FROM events ec JOIN (SELECT e.eventid, SUM(COALESCE(booked, 0)) AS sumqty " +
+                "FROM events e LEFT JOIN tickets t ON t.eventId = e.eventId WHERE e.userid = :userid GROUP BY e.eventid ORDER BY sumqty DESC LIMIT 1) AS aux " +
+                "ON ec.eventid = aux.eventid) AS event");
+        query.setParameter("userid", id);
         List<Object[]> resultSet = query.getResultList();
         Object[] result = resultSet.get(0);
         if (result == null)
@@ -122,5 +124,10 @@ public class UserJpaDao implements UserDao {
         query.setParameter("organizerid", organizerId);
         query.setParameter("date", LocalDateTime.now());
         return !query.getResultList().isEmpty();
+    }
+
+    public void confirmBooking(EventBooking eventBooking) {
+        eventBooking.setConfirmed(true);
+        em.persist(eventBooking);
     }
 }

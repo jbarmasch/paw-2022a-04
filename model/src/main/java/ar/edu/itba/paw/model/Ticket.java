@@ -26,31 +26,17 @@ public class Ticket {
     @JoinColumn(name = "eventid")
     private Event event;
 
-//    private LocalDateTime starting;
-//    private LocalDateTime until;
+    private LocalDateTime starting;
+    private LocalDateTime until;
 
-//    public Ticket(String ticketName, Double price, Integer qty, Integer booked, Event event, LocalDateTime starting, LocalDateTime until) {
-//        this.ticketName = ticketName;
-//        this.price = price;
-//        this.qty = qty;
-//        this.booked = booked;
-//        this.event = event;
-//        this.starting = starting;
-//        this.until = until;
-//    }
-
-    public Ticket(String ticketName, Double price, Integer qty) {
+    public Ticket(String ticketName, Double price, Integer qty, Event event, LocalDateTime starting, LocalDateTime until) {
         this.ticketName = ticketName;
         this.price = price;
         this.qty = qty;
         this.booked = 0;
-    }
-
-    public Ticket(String ticketName, Double price, Integer qty, Integer booked) {
-        this.ticketName = ticketName;
-        this.price = price;
-        this.qty = qty;
-        this.booked = booked;
+        this.event = event;
+        this.starting = starting;
+        this.until = until;
     }
 
     public Ticket(String ticketName, Double price, Integer qty, Event event) {
@@ -59,10 +45,6 @@ public class Ticket {
         this.qty = qty;
         this.booked = 0;
         this.event = event;
-    }
-
-    public Ticket(String name) {
-        this.ticketName = name;
     }
 
     public Ticket() {}
@@ -133,21 +115,45 @@ public class Ticket {
         return true;
     }
 
-//    public LocalDateTime getStarting() {
-//        return starting;
-//    }
-//
-//    public void setStarting(LocalDateTime starting) {
-//        this.starting = starting;
-//    }
-//
-//    public LocalDateTime getUntil() {
-//        return until;
-//    }
-//
-//    public void setUntil(LocalDateTime until) {
-//        this.until = until;
-//    }
+    public LocalDateTime getStarting() {
+        return starting;
+    }
+
+    public void setStarting(LocalDateTime starting) {
+        this.starting = starting;
+    }
+
+    public LocalDateTime getUntil() {
+        return until;
+    }
+
+    public void setUntil(LocalDateTime until) {
+        this.until = until;
+    }
+
+    public String getStartingDateFormatted() {
+        String dateStr = starting.toString();
+        String year = dateStr.substring(0, 4);
+        String month = dateStr.substring(5, 7);
+        String day = dateStr.substring(8, 10);
+        return day + "/" + month + "/" + year;
+    }
+
+    public String getStartingTimeFormatted() {
+        return starting.toString().substring(11, 16);
+    }
+
+    public String getUntilDateFormatted() {
+        String dateStr = until.toString();
+        String year = dateStr.substring(0, 4);
+        String month = dateStr.substring(5, 7);
+        String day = dateStr.substring(8, 10);
+        return day + "/" + month + "/" + year;
+    }
+
+    public String getUntilTimeFormatted() {
+        return until.toString().substring(11, 16);
+    }
 
     @Override
     public boolean equals(Object o) {

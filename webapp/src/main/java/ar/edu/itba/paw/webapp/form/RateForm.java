@@ -2,11 +2,10 @@ package ar.edu.itba.paw.webapp.form;
 import javax.validation.constraints.*;
 
 public class RateForm {
-    @DecimalMin("0")
-    @DecimalMax("5.0")
+    @Min(1)
+    @Max(5)
     @NotNull
     private Integer rating;
-    private Integer eventId;
 
     public Integer getRating() {
         return rating;
@@ -14,13 +13,5 @@ public class RateForm {
 
     public void setRating(Integer rating) {
         this.rating = rating;
-    }
-
-    public Integer getEventId() {
-        return eventId;
-    }
-
-    public void setEventId(Integer eventId) {
-        this.eventId = eventId;
     }
 }

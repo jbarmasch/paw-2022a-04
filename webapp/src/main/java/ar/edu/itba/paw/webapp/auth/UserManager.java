@@ -86,4 +86,10 @@ public class UserManager {
     public boolean isCreator(User user) {
         return user.getRoles().stream().anyMatch(a -> a.getRoleName().equals("ROLE_CREATOR"));
     }
+
+    public boolean isBouncer() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth != null && !(auth instanceof AnonymousAuthenticationToken) &&
+                auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_BOUNCER"));
+    }
 }

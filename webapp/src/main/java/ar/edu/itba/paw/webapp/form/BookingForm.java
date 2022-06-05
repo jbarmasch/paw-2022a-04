@@ -1,7 +1,5 @@
 package ar.edu.itba.paw.webapp.form;
 
-import java.util.List;
-
 public class BookingForm {
     private Long ticketId;
     private Integer qty;

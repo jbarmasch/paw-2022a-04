@@ -58,9 +58,6 @@
                             <c:when test="${event.soldOut}">
                                 <spring:message code="event.soldOut"/>
                             </c:when>
-                            <c:when test="${event.ticketsSize == 0}">
-                                <spring:message code="event.notApplies"/>
-                            </c:when>
                             <c:when test="${event.minPrice != null && event.minPrice == 0}"><spring:message code="event.free"/></c:when>
                             <c:when test="${event.minPrice != null && event.minPrice > 0}"><spring:message code="event.starting"/>
                                 &nbsp;$<c:out value="${event.minPrice}"/>
@@ -109,7 +106,7 @@
                             </c:when>
                             <c:when test="${event.soldOut && !event.deleted}">
                                 <spring:message var="setAvailable" code="event.setAvailable"/>
-                                <form action="<c:url value="/events/${event.id}/active"/>" class="transparent" method="post">
+                                <form class="transparent" method="post">
                                     <input class="uk-button uk-button-text" type="submit" name="submit" value="${setAvailable}"/>
                                 </form>
                             </c:when>
@@ -146,57 +143,61 @@
                                 <c:set var="i" scope="session" value="0"/>
                                 <c:set var="ticketsLeft" scope="session" value="${0}"/>
                                 <c:forEach var="ticket" items="${event.tickets}">
-                                    <c:set var="ticketsLeft" scope="session" value="${ticketsLeft + ticket.ticketsLeft}"/>
-                                    <tr>
-                                        <td>
-                                            <span><c:out value="${ticket.ticketName}"/></span>
-                                        </td>
-                                        <td class="table-number">
-                                            <c:choose>
-                                                <c:when test="${ticket.price > 0}">
-                                                    <span>$<c:out value="${ticket.price}"/></span>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <spring:message code="event.free"/>
-                                                </c:otherwise>
-                                            </c:choose>
-                                        </td>
-                                        <td class="table-number">
-                                            <c:choose>
-                                                <c:when test="${ticket.ticketsLeft > 0}">
-                                                    <input type="number" class="hidden" id="qtyMax${i}" value="${ticket.ticketsLeft < 6 ? ticket.ticketsLeft : 6}"/>
-                                                    <form:select id="qty${i}" class="uk-select" htmlEscape="true" multiple="false" path="bookings[${i}].qty" required="true">
-                                                        <form:option value="0" selected="true"/>
-                                                        <c:if test="${ticket.ticketsLeft > 0}">
-                                                            <c:forEach var="j" begin="${1}" step="1" end="${ticket.ticketsLeft < 6 ? ticket.ticketsLeft : 6}">
-                                                                <form:option value="${j}"/>
-                                                            </c:forEach>
-                                                        </c:if>
-                                                    </form:select>
-                                                    <span class="formError"></span>
-                                                    <spring:message code="NotNull.bookForm.allQty" var="allQtyNullError"/>
-                                                    <input type="text" class="hidden" id="errorQty"/>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <form:input id="qty${i}" value="0" class="hidden" path="bookings[${i}].qty" required="true"/>
-                                                    <span class="soldout-text"><spring:message code="event.soldOut"/></span>
-                                                </c:otherwise>
-                                            </c:choose>
-                                            <form:errors path="bookings[${i}].qty" cssClass="error-message" element="span"/>
-                                            <spring:message code="Min.bookForm.qty" var="qtyMinSizeError"/>
-                                            <spring:message code="Max.bookForm.qtyStr" var="qtyMaxSizeError"/>
-                                            <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
-
-                                            <form:input class="hidden" type="number" value="${ticket.id}" path="bookings[${i}].ticketId"/>
-                                        </td>
-                                        <c:if test="${!disabled && ticket.ticketsLeft > 0 && ticket.ticketsLeft <= ticket.qty * .20}">
+                                    <c:if test="${(ticket.starting == null || ticket.starting <= currentDate) && (ticket.until == null || ticket.until >= currentDate)}">
+                                        <c:set var="ticketsLeft" scope="session" value="${ticketsLeft + ticket.ticketsLeft}"/>
+                                        <tr>
                                             <td>
-                                                <span><spring:message code="event.fewTickets"/></span>
+                                                <span><c:out value="${ticket.ticketName}"/></span>
                                             </td>
-                                        </c:if>
-                                    </tr>
-                                    <c:set var="i" scope="session" value="${i + 1}"/>
+                                            <td class="table-number">
+                                                <c:choose>
+                                                    <c:when test="${ticket.price > 0}">
+                                                        <span>$<c:out value="${ticket.price}"/></span>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <spring:message code="event.free"/>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </td>
+                                            <td class="table-number">
+                                                <c:choose>
+                                                    <c:when test="${ticket.ticketsLeft > 0}">
+                                                        <input type="number" class="hidden" id="qtyMax${i}" value="${ticket.ticketsLeft < 6 ? ticket.ticketsLeft : 6}"/>
+                                                        <form:select id="qty${i}" class="uk-select" htmlEscape="true" multiple="false" path="bookings[${i}].qty" required="true">
+                                                            <form:option value="0" selected="true"/>
+                                                            <c:if test="${ticket.ticketsLeft > 0}">
+                                                                <c:forEach var="j" begin="${1}" step="1" end="${ticket.ticketsLeft < 6 ? ticket.ticketsLeft : 6}">
+                                                                    <form:option value="${j}"/>
+                                                                </c:forEach>
+                                                            </c:if>
+                                                        </form:select>
+                                                        <span class="formError"></span>
+                                                        <spring:message code="NotNull.bookForm.allQty" var="allQtyNullError"/>
+                                                        <input type="text" class="hidden" id="errorQty"/>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <form:input id="qty${i}" value="0" class="hidden" path="bookings[${i}].qty" required="true"/>
+                                                        <span class="soldout-text"><spring:message code="event.soldOut"/></span>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                                <form:errors path="bookings[${i}].qty" cssClass="error-message" element="span"/>
+                                                <spring:message code="Min.bookForm.qty" var="qtyMinSizeError"/>
+                                                <spring:message code="Max.bookForm.qtyStr" var="qtyMaxSizeError"/>
+                                                <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
+
+                                                <form:input class="hidden" type="number" value="${ticket.id}" path="bookings[${i}].ticketId"/>
+                                            </td>
+                                            <c:if test="${!disabled && ticket.ticketsLeft > 0 && ticket.ticketsLeft <= ticket.qty * .20}">
+                                                <td>
+                                                    <span><spring:message code="event.fewTickets"/></span>
+                                                </td>
+                                            </c:if>
+                                        </tr>
+                                        <c:set var="i" scope="session" value="${i + 1}"/>
+                                    </c:if>
                                 </c:forEach>
+                                <form:errors path="bookings" cssClass="error-message" element="span"/>
+                                <form:errors path="bookings[${i}]" cssClass="error-message" element="span"/>
                                 <form:errors path="bookings[${i}].ticketId" cssClass="error-message" element="span"/>
                                 </table>
                                 <c:choose>
@@ -229,6 +230,8 @@
                             <th><spring:message code="event.ticketsLeft"/></th>
                             <th><spring:message code="tickets.ticketPrice"/></th>
                             <th><spring:message code="tickets.ticketBooked"/></th>
+                            <th><spring:message code="tickets.starting"/></th>
+                            <th><spring:message code="tickets.until"/></th>
                             <th><spring:message code="tickets.actions"/></th>
                         </tr>
 
@@ -247,6 +250,16 @@
                                 </td>
                                 <td class="table-number">
                                     <span><c:out value="${ticket.booked}"/></span>
+                                </td>
+                                <td class="table-number">
+                                    <c:if test="${ticket.starting != null}">
+                                        <span><c:out value="${ticket.startingDateFormatted}"/>&nbsp;<c:out value="${ticket.startingTimeFormatted}"/></span>
+                                    </c:if>
+                                </td>
+                                <td class="table-number">
+                                    <c:if test="${ticket.until != null}">
+                                        <span><c:out value="${ticket.untilDateFormatted}"/>&nbsp;<c:out value="${ticket.untilTimeFormatted}"/></span>
+                                    </c:if>
                                 </td>
                                 <td>
                                     <div class="horizontal">

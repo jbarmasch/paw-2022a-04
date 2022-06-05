@@ -24,7 +24,7 @@
                         <h4 class="title2"><spring:message code="booking.yours"/></h4>
                         <div class="container multi-browse booking-browse full_width">
                         <c:forEach var="booking" items="${eventBookings}">
-                            <c:if test="${!booking.event.deleted}">
+                            <c:if test="${!booking.event.deleted && booking.ticketBookingsSize > 0}">
                                 <c:choose>
                                     <c:when test="${booking.event.date >= actualTime}">
                                         <div class="horizontal booking-card card clickable uk-card uk-card-default" onclick="location.href='<c:url value="/bookings/${booking.code}"/>'">
@@ -55,7 +55,7 @@
                                                             <spring:message code="booking.cancelTickets" var="cancelTickets"/>
                                                             <input class="cancel_button uk-button booking_cancel" type="button" value="${cancelTickets}" onclick="event.stopImmediatePropagation(); location.href='<c:url value="/bookings/cancel/${booking.event.id}"/>'"/>
                                                         </c:when>
-                                                        <c:when test="${booking.event.date >= oneMonthPrior}">
+                                                        <c:when test="${oneMonthPrior >= booking.event.date}">
                                                             <c:url value="/bookings/rate/${booking.event.id}" var="postPath"/>
                                                             <form:form novalidate="true" class="transparent" modelAttribute="rateForm" action="${postPath}" method="post" id="rateForm${booking.event.id}">
                                                                 <div class="horizontal">
@@ -74,7 +74,7 @@
                                                                         </div>
                                                                 </div>
                                                                 <form:input class="hidden" id="rating${booking.event.id}" path="rating" type="number"/>
-                                                                <form:input class="hidden" id="rating${booking.event.id}" path="eventId" type="number"/>
+                                                                <form:errors path="rating"/>
                                                             </form:form>
                                                         </c:when>
                                                     </c:choose>

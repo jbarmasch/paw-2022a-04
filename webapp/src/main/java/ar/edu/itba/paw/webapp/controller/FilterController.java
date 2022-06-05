@@ -126,5 +126,6 @@ public class FilterController {
         Type.setLocale(locale);
         model.addAttribute("username", userManager.getUsername());
         model.addAttribute("isCreator", userManager.isCreator());
+        model.addAttribute("isBouncer", userManager.isBouncer());
     }
 }
