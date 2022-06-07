@@ -1,7 +1,9 @@
 package ar.edu.itba.paw.service;
 
+import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.model.EventBooking;
 import ar.edu.itba.paw.model.TicketBooking;
+import ar.edu.itba.paw.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.io.ByteArrayResource;
@@ -96,6 +98,14 @@ public class MailServiceImpl implements MailService {
         sendMail("cancelUserTicketMail", subject, recipientEmail, ctx);
     }
 
+    public void sendBouncerEventMail(String recipientEmail, String subject, Event event, String password, String eventURL) {
+        final Context ctx = new Context();
+        ctx.setVariable("event", event);
+        ctx.setVariable("password", password);
+        ctx.setVariable("eventURL", eventURL);
+        sendMail("bouncerEventMail", subject, recipientEmail, ctx);
+    }
+
     @Async
     @Override
     public void sendBookMail(String bookingURL, EventBooking booking, Locale locale) {
@@ -110,9 +120,16 @@ public class MailServiceImpl implements MailService {
         sendCancelEventMail(booking.getEvent().getOrganizer().getMail(), messageSource.getMessage("mail.subjectCancelOrganizer", null, locale), booking);
     }
 
+    @Async
     @Override
     public void sendCancelTicketMail(TicketBooking ticketBooking, Locale locale) {
         sendCancelUserTicketMail(ticketBooking.getEventBooking().getUser().getMail(), messageSource.getMessage("mail.subjectCancelTicketUser", null, locale), ticketBooking);
+    }
+
+    @Async
+    @Override
+    public void sendBouncerMail(Event event, String password, String eventURL, Locale locale) {
+        sendBouncerEventMail(event.getOrganizer().getMail(), messageSource.getMessage("mail.subjectBookingUser", null, locale), event, password, eventURL);
     }
 
     @Async

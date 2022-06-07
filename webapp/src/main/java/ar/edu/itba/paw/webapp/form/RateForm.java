@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.webapp.form;
 import javax.validation.constraints.*;
 
+//@Before()
 public class RateForm {
     @Min(1)
     @Max(5)

@@ -1,16 +1,17 @@
 package ar.edu.itba.paw.webapp.form;
 
 import ar.edu.itba.paw.webapp.validations.Date;
+import ar.edu.itba.paw.webapp.validations.DateOrder;
 import ar.edu.itba.paw.webapp.validations.Future;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+@DateOrder
 public class TicketForm {
     private int id;
     @NotEmpty

@@ -1,4 +1,4 @@
-package ar.edu.itba.paw.webapp.exceptions;
+package ar.edu.itba.paw.exceptions;
 
 public class BookingNotFoundException extends RuntimeException {
     private static final long serialVersionUID = -49L;

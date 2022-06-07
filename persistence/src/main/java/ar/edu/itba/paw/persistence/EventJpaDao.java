@@ -6,6 +6,7 @@ import org.hibernate.Filter;
 import org.hibernate.Session;
 import org.hibernate.jpa.TypedParameterValue;
 import org.hibernate.type.IntegerType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
@@ -18,29 +19,19 @@ import java.util.stream.Collectors;
 public class EventJpaDao implements EventDao {
     @PersistenceContext
     private EntityManager em;
+    @Autowired
+    private ImageDao imageDao;
 
     @Override
-    public Event create(String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, long userId, Integer minAge, String bouncerPass) {
+    public Event createEvent(String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, User organizer, Integer minAge, User bouncer) {
         Location location = em.getReference(Location.class, locationId);
         Type type = em.getReference(Type.class, typeId);
-        Image image;
-        if (imageArray != null) {
-            image = new Image(imageArray);
-            em.persist(image);
-        } else
-            image = em.getReference(Image.class, 1L);
+        Image image = imageDao.createImage(imageArray);
         List<Tag> tagList = new ArrayList<>();
         for (Long tagId : tagIds)
             tagList.add(em.getReference(Tag.class, tagId));
-        User user = em.getReference(User.class, userId);
-        user.addRole(em.getReference(Role.class, RoleEnum.CREATOR.ordinal() + 1));
-        em.persist(user);
-        User bouncer = new User(null, bouncerPass, null, Collections.singletonList(em.getReference(Role.class, RoleEnum.BOUNCER.ordinal() + 1)));
-        final Event event = new Event(name, description, location, type, date, tagList, user, State.ACTIVE, null, image, minAge, bouncer);
+        final Event event = new Event(name, description, location, type, date, tagList, organizer, State.ACTIVE, null, image, minAge, bouncer);
         em.persist(event);
-        bouncer.setUsername(String.valueOf(event.getId()));
-        bouncer.setMail(String.valueOf(event.getId()));
-        em.persist(bouncer);
         return event;
     }
 
@@ -130,12 +121,7 @@ public class EventJpaDao implements EventDao {
     public void updateEvent(long id, String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, Integer minAge) {
         Location location = em.getReference(Location.class, locationId);
         Type type = em.getReference(Type.class, typeId);
-        Image image;
-        if (imageArray != null) {
-            image = new Image(imageArray);
-            em.persist(image);
-        } else
-            image = em.getReference(Image.class, 1L);
+        Image image = imageDao.createImage(imageArray);
         List<Tag> tagList = new ArrayList<>();
         for (Long tagId : tagIds)
             tagList.add(em.getReference(Tag.class, tagId));
@@ -156,115 +142,6 @@ public class EventJpaDao implements EventDao {
         final Event event = em.find(Event.class, id);
         event.setState(State.DELETED);
         em.persist(event);
-    }
-
-    @Override
-    public EventBooking book(EventBooking booking) {
-        if (booking.getEvent().isFinished())
-            return null;
-
-        final TypedQuery<EventBooking> query = em.createQuery("from EventBooking as eb where eb.user.id = :userid and eb.event.id = :eventid", EventBooking.class);
-        query.setParameter("eventid", booking.getEvent().getId());
-        query.setParameter("userid", booking.getUser().getId());
-        EventBooking eventBooking = query.getResultList().stream().findFirst().orElse(null);
-
-        System.out.println("evb: " + eventBooking);
-        System.out.println("uid: " + booking.getUser().getId() + " eid: " + booking.getEvent().getId());
-
-        if (eventBooking == null) {
-            for (TicketBooking ticketBooking : booking.getTicketBookings()) {
-                if (ticketBooking.getQty() != null && ticketBooking.getQty() > 0) {
-                    Ticket ticket = ticketBooking.getTicket();
-                    if (!ticket.book(ticketBooking.getQty())) {
-                        // TODO
-                        // throw new RuntimeException();
-                        return null;
-                    }
-                    em.persist(ticket);
-                    em.persist(ticketBooking);
-                }
-            }
-            em.persist(booking);
-            return booking;
-        } else {
-            for (TicketBooking ticketBooking : booking.getTicketBookings()) {
-                if (ticketBooking.getTicket().getEvent().getId() != booking.getEvent().getId()) {
-                    // TODO
-                    // throw new RuntimeException();
-                    return null;
-                }
-
-                TicketBooking ticketAux = em.find(TicketBooking.class, new BookingId(ticketBooking.getTicket(), eventBooking));
-                if (ticketAux != null) {
-                    Ticket ticket = ticketAux.getTicket();
-                    if (!ticket.book(ticketBooking.getQty())) {
-                        // TODO
-                        // throw new RuntimeException();
-                        return null;
-                    }
-                    em.persist(ticket);
-                    if (ticketAux.getQty() != null && ticketAux.getQty() > 0) {
-                        ticketAux.setQty(ticketAux.getQty() + ticketBooking.getQty());
-                        em.persist(ticketAux);
-                    }
-                }
-                else {
-                    Ticket ticket = ticketBooking.getTicket();
-                    if (!ticket.book(ticketBooking.getQty())) {
-                        // TODO
-                        // throw new RuntimeException();
-                        return null;
-                    }
-                    em.persist(ticket);
-                    ticketBooking.setEventBooking(eventBooking);
-                    eventBooking.addBooking(ticketBooking);
-                    em.persist(ticketBooking);
-                    System.out.println("1ro aca");
-                }
-            }
-            System.out.println(eventBooking.getCode());
-            em.persist(eventBooking);
-
-            System.out.println("susana");
-            return eventBooking;
-        }
-    }
-
-    @Override
-    public boolean cancelBooking(EventBooking booking) {
-        if (booking.getEvent().isFinished())
-            return false;
-
-        final TypedQuery<EventBooking> query = em.createQuery("from EventBooking as eb where eb.user.id = :userid and eb.event.id = :eventid", EventBooking.class);
-        query.setParameter("userid", booking.getUser().getId());
-        query.setParameter("eventid", booking.getEvent().getId());
-        EventBooking eventBooking = query.getResultList().stream().findFirst().orElse(null);
-
-        if (eventBooking == null) {
-            // TODO
-            // throw new RuntimeException();
-            return false;
-        }
-
-        for (TicketBooking ticketBooking : booking.getTicketBookings()) {
-            TicketBooking tb = em.find(TicketBooking.class, new BookingId(ticketBooking.getTicket(), eventBooking));
-            if (tb == null) {
-                // TODO
-                // throw new RuntimeException();
-                return false;
-            }
-            Ticket ticket = ticketBooking.getTicket();
-            if (!ticket.cancelBooking(ticketBooking.getQty())) {
-                // TODO
-                // throw new RuntimeException();
-                return false;
-            }
-            em.persist(ticket);
-            tb.setQty(tb.getQty() - ticketBooking.getQty());
-            em.persist(tb);
-        }
-        em.persist(eventBooking);
-        return true;
     }
 
     @Override
@@ -357,43 +234,6 @@ public class EventJpaDao implements EventDao {
             return new ArrayList<>();
         final TypedQuery<Event> query = em.createQuery("from Event where eventid IN :ids", Event.class);
         query.setParameter("ids", ids);
-        return query.getResultList();
-    }
-
-    @Override
-    public void addTicket(long eventId, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until) {
-        final Event event = em.find(Event.class, eventId);
-        Ticket newTicket = new Ticket(ticketName, price, qty, event, starting, until);
-        event.addTicket(newTicket);
-        em.persist(event);
-        em.persist(newTicket);
-    }
-
-    @Override
-    public Optional<Ticket> getTicketById(long ticketId) {
-        return Optional.ofNullable(em.find(Ticket.class, ticketId));
-    }
-
-    @Override
-    public void updateTicket(long id, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until) {
-        final Ticket ticket = em.find(Ticket.class, id);
-        ticket.setTicketName(ticketName);
-        ticket.setPrice(price);
-        ticket.setQty(qty);
-        ticket.setStarting(starting);
-        ticket.setUntil(until);
-        em.persist(ticket);
-    }
-
-    @Override
-    public void deleteTicket(long ticketId) {
-        em.remove(em.find(Ticket.class, ticketId));
-    }
-
-    @Override
-    public List<TicketBooking> getTicketBookings(long ticketId) {
-        final TypedQuery<TicketBooking> query = em.createQuery("from TicketBooking where :ticketid = ticketid", TicketBooking.class);
-        query.setParameter("ticketid", ticketId);
         return query.getResultList();
     }
 }

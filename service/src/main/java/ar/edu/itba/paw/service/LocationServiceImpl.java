@@ -9,12 +9,8 @@ import java.util.List;
 
 @Service
 public class LocationServiceImpl implements LocationService {
-    private final LocationDao locationDao;
-
     @Autowired
-    public LocationServiceImpl(final LocationDao locationDao) {
-        this.locationDao = locationDao;
-    }
+    private LocationDao locationDao;
 
     @Override
     public List<Location> getAll() {

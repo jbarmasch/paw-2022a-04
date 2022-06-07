@@ -60,7 +60,7 @@
       <groupId>com.google.zxing</groupId>
       <artifactId>javase</artifactId>
     </dependency>
-</dependencies>
+  </dependencies>
 
   <build>
     <pluginManagement>

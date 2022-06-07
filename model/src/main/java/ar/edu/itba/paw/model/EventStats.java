@@ -1,11 +1,11 @@
 package ar.edu.itba.paw.model;
 
 public class EventStats {
-    int eventsCreated;
-    int bookingsGotten;
-    Event popularEvent;
-    double attendance;
-    double income;
+    private int eventsCreated;
+    private int bookingsGotten;
+    private Event popularEvent;
+    private double attendance;
+    private double income;
 
     public EventStats(int eventsCreated, int bookingsGotten, Event popularEvent, double attendance, double income) {
         this.eventsCreated = eventsCreated;

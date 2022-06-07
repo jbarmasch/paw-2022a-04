@@ -1,6 +1,6 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.webapp.exceptions.*;
+import ar.edu.itba.paw.exceptions.*;
 import org.hibernate.validator.method.MethodConstraintViolation;
 import org.hibernate.validator.method.MethodConstraintViolationException;
 import org.slf4j.Logger;
@@ -25,6 +25,14 @@ public class GlobalErrorController {
     public ModelAndView notFound(Exception e) {
         LOGGER.error("NOT FOUND {}", e.getMessage());
         String errorCode = "404";
+        return ErrorController.createErrorModel(errorCode);
+    }
+
+    @ExceptionHandler({UserCannotRateException.class})
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ModelAndView forbiddenAction(Exception e) {
+        LOGGER.error("FORBIDDEN {}", e.getMessage());
+        String errorCode = "403";
         return ErrorController.createErrorModel(errorCode);
     }
 

@@ -6,4 +6,5 @@ import java.util.Optional;
 
 public interface ImageService {
     Optional<Image> getImageById(long id);
+    Image createImage(byte[] imageArray);
 }

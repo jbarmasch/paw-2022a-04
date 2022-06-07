@@ -10,12 +10,8 @@ import java.util.Locale;
 
 @Service
 public class TagServiceImpl implements TagService {
-    private final TagDao tagDao;
-
     @Autowired
-    public TagServiceImpl(final TagDao tagDao) {
-        this.tagDao = tagDao;
-    }
+    private TagDao tagDao;
 
     @Override
     public List<Tag> getAll() {

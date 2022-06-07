@@ -9,15 +9,15 @@ import java.util.Optional;
 
 public interface UserDao {
     Optional<User> getUserById(long id);
-    User create(String username, String password, String mail);
+    User createUser(String username, String password, String mail);
+    User createBouncer(String password);
+    void updateUser(long userId, String username, String password, String mail);
     Optional<User> findByUsername(String username);
-    Optional<EventBooking> getBookingFromUser(long userId, long eventId);
-    List<EventBooking> getAllBookingsFromUser(long userId, int page);
     Optional<EventStats> getEventStats(long id);
     Optional<UserStats> getUserStats(long id);
     Optional<User> findByMail(String mail);
     void rateUser(long userId, long organizerId, int rating);
+    void makeCreator(User user);
+    void makeBouncer(User user);
     boolean canRate(long organizerId, long userId);
-    Optional<EventBooking> getBooking(String code);
-    void confirmBooking(EventBooking eventBooking);
 }

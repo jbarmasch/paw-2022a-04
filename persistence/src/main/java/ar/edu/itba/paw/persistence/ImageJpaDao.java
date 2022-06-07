@@ -22,6 +22,16 @@ public class ImageJpaDao implements ImageDao {
     private EntityManager em;
 
     @Override
+    public Image createImage(byte[] imageArray) {
+        if (imageArray == null)
+            return em.getReference(Image.class, 1L);
+
+        Image image = new Image(imageArray);
+        em.persist(image);
+        return image;
+    }
+
+    @Override
     public Optional<Image> getImageById(long id) {
         return Optional.ofNullable(em.find(Image.class, id));
     }

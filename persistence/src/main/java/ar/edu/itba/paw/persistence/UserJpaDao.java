@@ -1,8 +1,6 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,7 +8,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -20,10 +17,39 @@ public class UserJpaDao implements UserDao {
     private EntityManager em;
 
     @Override
-    public User create(String username, String password, String mail) {
-        final User user = new User(username, password, mail, Collections.singletonList(em.getReference(Role.class, RoleEnum.USER.ordinal() + 1)));
+    public User createUser(String username, String password, String mail) {
+        final User user = new User(username, password, mail, em.getReference(Role.class, RoleEnum.USER.ordinal() + 1));
         em.persist(user);
         return user;
+    }
+
+    @Override
+    public User createBouncer(String password) {
+        final User user = new User("", password, "", em.getReference(Role.class, RoleEnum.BOUNCER.ordinal() + 1));
+        em.persist(user);
+        return user;
+    }
+
+    @Override
+    public void updateUser(long userId, String username, String password, String mail) {
+        final User user = em.find(User.class, userId);
+        user.setUsername(username);
+        if (password != null)
+            user.setPassword(password);
+        user.setMail(mail);
+        em.persist(user);
+    }
+
+    @Override
+    public void makeCreator(User user) {
+        user.addRole(em.getReference(Role.class, RoleEnum.CREATOR.ordinal() + 1));
+        em.persist(user);
+    }
+
+    @Override
+    public void makeBouncer(User user) {
+        user.addRole(em.getReference(Role.class, RoleEnum.BOUNCER.ordinal() + 1));
+        em.persist(user);
     }
 
     @Override
@@ -36,28 +62,6 @@ public class UserJpaDao implements UserDao {
     @Override
     public Optional<User> getUserById(long id) {
         return Optional.ofNullable(em.find(User.class, id));
-    }
-
-    @Override
-    public List<EventBooking> getAllBookingsFromUser(long userId, int page) {
-        final TypedQuery<EventBooking> query = em.createQuery("from EventBooking as eb where eb.user.id = :userid order by eb.event.date DESC", EventBooking.class);
-        query.setParameter("userid", userId);
-        return query.getResultList();
-    }
-
-    @Override
-    public Optional<EventBooking> getBookingFromUser(long userId, long eventId) {
-        final TypedQuery<EventBooking> query = em.createQuery("from EventBooking as eb where eb.user.id = :userid AND eb.event.id = :eventid", EventBooking.class);
-        query.setParameter("userid", userId);
-        query.setParameter("eventid", eventId);
-        return query.getResultList().stream().findFirst();
-    }
-
-    @Override
-    public Optional<EventBooking> getBooking(String code) {
-        final TypedQuery<EventBooking> query = em.createQuery("from EventBooking as eb where eb.code = :code", EventBooking.class);
-        query.setParameter("code", code);
-        return query.getResultList().stream().findFirst();
     }
 
     @SuppressWarnings("unchecked")
@@ -122,12 +126,7 @@ public class UserJpaDao implements UserDao {
         final TypedQuery<EventBooking> query = em.createQuery("from EventBooking as eb where eb.user.id = :userid and eb.event.date <= :date and eb.event.organizer.id = :organizerid", EventBooking.class);
         query.setParameter("userid", userId);
         query.setParameter("organizerid", organizerId);
-        query.setParameter("date", LocalDateTime.now());
+        query.setParameter("date", LocalDateTime.now().minusMonths(1));
         return !query.getResultList().isEmpty();
-    }
-
-    public void confirmBooking(EventBooking eventBooking) {
-        eventBooking.setConfirmed(true);
-        em.persist(eventBooking);
     }
 }

@@ -59,7 +59,6 @@ public class FilterController {
                                      @RequestParam(value = "order", required = false) final Order order,
                                      @RequestParam(value = "soldOut", required = false) final Boolean showSoldOut,
                                      @RequestParam(value = "page", required = false, defaultValue = "1") @Min(1) final int page) {
-        Locale locale = LocaleContextHolder.getLocale();
         List<Event> events = eventService.filterBy(locations, types, minPrice, maxPrice, search, tags, username, order, showSoldOut, page);
 
         final ModelAndView mav = new ModelAndView("events");
@@ -119,13 +118,13 @@ public class FilterController {
         return new ModelAndView("redirect:/events?" + endURL);
     }
 
-    @ModelAttribute
-    public void addAttributes(Model model, final SearchForm searchForm) {
-        Locale locale = LocaleContextHolder.getLocale();
-        Tag.setLocale(locale);
-        Type.setLocale(locale);
-        model.addAttribute("username", userManager.getUsername());
-        model.addAttribute("isCreator", userManager.isCreator());
-        model.addAttribute("isBouncer", userManager.isBouncer());
-    }
+//    @ModelAttribute
+//    public void addAttributes(Model model, final SearchForm searchForm) {
+//        final Locale locale = LocaleContextHolder.getLocale();
+//        Tag.setLocale(locale);
+//        Type.setLocale(locale);
+//        model.addAttribute("username", userManager.getUsername());
+//        model.addAttribute("isCreator", userManager.isCreator());
+//        model.addAttribute("isBouncer", userManager.isBouncer());
+//    }
 }

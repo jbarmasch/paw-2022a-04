@@ -3,8 +3,12 @@ package ar.edu.itba.paw.service;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-public class TransactionUtil {
-//    TransactionUtil.executeAfterTransaction(() -> );
+// USO: TransactionUtil.executeAfterTransaction(() -> );
+public final class TransactionUtil {
+
+    private TransactionUtil() {
+        throw new UnsupportedOperationException();
+    }
 
     public static void executeAfterTransaction(Runnable task) {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {

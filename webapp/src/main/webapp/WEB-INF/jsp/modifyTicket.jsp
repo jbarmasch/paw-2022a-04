@@ -61,8 +61,8 @@
                 </div>
                 <spring:message code="tickets.maxTicketsReached" var="maxTicketsReached"/>
                 <div class="container event">
-                    <spring:message code="create.button" var="create"/>
-                    <input class="filter_button" type="submit" value="${create}"/>
+                    <spring:message code="modify.update" var="modify"/>
+                    <input class="filter_button upper" type="submit" value="${modify}"/>
                 </div>
             </form:form>
         </div>

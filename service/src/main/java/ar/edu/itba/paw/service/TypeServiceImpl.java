@@ -10,12 +10,8 @@ import java.util.Locale;
 
 @Service
 public class TypeServiceImpl implements TypeService {
-    private final TypeDao typeDao;
-
     @Autowired
-    public TypeServiceImpl(final TypeDao typeDao) {
-        this.typeDao = typeDao;
-    }
+    private TypeDao typeDao;
 
     @Override
     public List<Type> getAll() {

@@ -1,17 +1,23 @@
 package ar.edu.itba.paw.model;
 
 public enum Order {
-    price_asc("minPrice", "ASC"),
-    price_desc("minPrice", "DESC"),
-    date_asc("date", "ASC"),
-    date_desc("date", "DESC");
+    PRICE_ASC("price_asc", "minPrice", "ASC"),
+    PRICE_DESC("price_desc", "minPrice", "DESC"),
+    DATE_ASC("date_asc", "date", "ASC"),
+    DATE_DESC("date_desc", "date", "DESC");
 
-    private String order;
-    private String orderBy;
+    private final String name;
+    private final String order;
+    private final String orderBy;
 
-    Order(String order, String orderBy) {
+    Order(String name, String order, String orderBy) {
+        this.name = name;
         this.order = order;
         this.orderBy = orderBy;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getOrder() {

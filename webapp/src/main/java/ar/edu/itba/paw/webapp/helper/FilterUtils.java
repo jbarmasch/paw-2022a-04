@@ -3,6 +3,10 @@ package ar.edu.itba.paw.webapp.helper;
 import java.util.Map;
 
 public class FilterUtils {
+    private FilterUtils() {
+        throw new UnsupportedOperationException();
+    }
+
     public static String createFilter(Map<String, Object> filters) {
         StringBuilder queryBuilder = new StringBuilder();
         boolean isFirst = true;

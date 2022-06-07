@@ -7,7 +7,11 @@ import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-public class AuthUtils {
+public final class AuthUtils {
+    private AuthUtils() {
+        throw new UnsupportedOperationException();
+    }
+
     public static void setReferrer(HttpServletRequest request, String referrer) {
         HttpSession session = request.getSession();
         if (session != null && referrer != null && !referrer.contains("login") && !referrer.contains("register")) {

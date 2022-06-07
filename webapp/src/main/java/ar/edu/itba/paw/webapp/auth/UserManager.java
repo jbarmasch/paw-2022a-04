@@ -1,9 +1,10 @@
 package ar.edu.itba.paw.webapp.auth;
 
+import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.model.Role;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.UserService;
-import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
+import ar.edu.itba.paw.exceptions.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,5 +92,9 @@ public class UserManager {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return auth != null && !(auth instanceof AnonymousAuthenticationToken) &&
                 auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_BOUNCER"));
+    }
+
+    public boolean isEventOwner(Event event) {
+        return event.getOrganizer().getId() == getUserId();
     }
 }

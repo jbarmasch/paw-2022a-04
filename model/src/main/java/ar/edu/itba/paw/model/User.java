@@ -1,10 +1,10 @@
 package ar.edu.itba.paw.model;
 
-import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,26 +40,12 @@ public class User {
     @Where(clause = "state != 2")
     private List<Event> events;
 
-    public User(String username, String password, String mail, double rating, int votes, List<Role> roles) {
+    public User(String username, String password, String mail, Role initialRole) {
         this.username = username;
         this.password = password;
         this.mail = mail;
-        this.rating = rating;
-        this.votes = votes;
-        this.roles = roles;
-    }
-
-    public User(String username, String password, String mail, List<Role> roles) {
-        this.username = username;
-        this.password = password;
-        this.mail = mail;
-        this.roles = roles;
-    }
-
-    public User(String username, String password, String mail) {
-        this.username = username;
-        this.password = password;
-        this.mail = mail;
+        this.roles = new ArrayList<>();
+        roles.add(initialRole);
     }
 
     public User() {}

@@ -1,7 +1,5 @@
 package ar.edu.itba.paw.webapp.form;
 
-import ar.edu.itba.paw.model.EventBooking;
-import ar.edu.itba.paw.model.Ticket;
 import ar.edu.itba.paw.webapp.validations.BookingList;
 
 import javax.validation.constraints.*;
