@@ -740,6 +740,18 @@ select:-webkit-autofill:focus {
     width: 100%;
 }
 
+.full_height {
+    height: 100%;
+}
+
+.partial_height {
+    height: 75%;
+}
+
+.limit-width {
+    max-width: 300px;
+}
+
 .small-icon {
     width: 14px;
     height: 14px;
@@ -779,4 +791,10 @@ select:-webkit-autofill:focus {
 
 .upper {
     text-transform: uppercase;
+}
+
+.error_icon {
+    max-height: 160px;
+    max-width: 160px;
+    aspect-ratio: 1;
 }

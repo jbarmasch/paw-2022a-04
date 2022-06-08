@@ -2,7 +2,7 @@ package ar.edu.itba.paw.exceptions;
 
 import java.time.LocalDateTime;
 
-public class DateRangeException extends RuntimeException {
+public class DateRangeException extends Exception {
     private static final long serialVersionUID = -53L;
     private final LocalDateTime starting;
     private final LocalDateTime until;

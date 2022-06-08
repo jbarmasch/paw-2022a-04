@@ -19,4 +19,5 @@ public interface EventDao {
     List<Event> getUpcomingEvents();
     List<Event> getSimilarEvents(long eventId);
     List<Event> getPopularEvents(long eventId);
+    List<Event> getUserEvents(long id, int page);
 }

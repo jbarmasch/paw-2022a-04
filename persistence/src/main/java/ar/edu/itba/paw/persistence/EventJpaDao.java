@@ -236,4 +236,18 @@ public class EventJpaDao implements EventDao {
         query.setParameter("ids", ids);
         return query.getResultList();
     }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<Event> getUserEvents(long id, int page) {
+        Query idQuery = em.createNativeQuery("SELECT eventId FROM events WHERE userid = :userid AND state NOT IN (1, 2) LIMIT 10 OFFSET :offset");
+        idQuery.setParameter("userid", id);
+        idQuery.setParameter("offset", (page - 1) * 10);
+        final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Integer) o).longValue()).collect(Collectors.toList());
+        if (ids.isEmpty())
+            return new ArrayList<>();
+        final TypedQuery<Event> query = em.createQuery("from Event where eventid IN :ids", Event.class);
+        query.setParameter("ids", ids);
+        return query.getResultList();
+    }
 }

@@ -8,6 +8,9 @@ import ar.edu.itba.paw.service.TicketService;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.webapp.auth.UserManager;
 import ar.edu.itba.paw.exceptions.*;
+import ar.edu.itba.paw.webapp.exceptions.BookingNotFoundException;
+import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
+import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.BookForm;
 import ar.edu.itba.paw.webapp.form.BookingForm;
 import ar.edu.itba.paw.webapp.form.RateForm;
@@ -141,6 +144,8 @@ public class BookingController {
             for (Map.Entry<Integer, Integer> error : ex.getErrorMap().entrySet()) {
                 errors.rejectValue("bookings[" + error.getKey() + "].qty", "Max.bookForm.qty", new Object[]{error.getValue()}, "");
             }
+            LOGGER.error("BookForm has errors: {}", errors.getAllErrors().toArray());
+            return cancelBooking(form, rateForm, eventId);
         }
 
         return new ModelAndView("redirect:/bookings/");
@@ -179,14 +184,4 @@ public class BookingController {
         eventBookingService.confirmBooking(eventBooking);
         return new ModelAndView("redirect:/bookings/" + code);
     }
-
-//    @ModelAttribute
-//    public void addAttributes(Model model, final SearchForm searchForm) {
-//        final Locale locale = LocaleContextHolder.getLocale();
-//        Tag.setLocale(locale);
-//        Type.setLocale(locale);
-//        model.addAttribute("username", userManager.getUsername());
-//        model.addAttribute("isCreator", userManager.isCreator());
-//        model.addAttribute("isBouncer", userManager.isBouncer());
-//    }
 }

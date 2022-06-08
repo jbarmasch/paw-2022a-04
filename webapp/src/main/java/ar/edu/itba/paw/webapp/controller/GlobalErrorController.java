@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.exceptions.*;
+import ar.edu.itba.paw.webapp.exceptions.*;
 import org.hibernate.validator.method.MethodConstraintViolation;
 import org.hibernate.validator.method.MethodConstraintViolationException;
 import org.slf4j.Logger;
@@ -19,13 +20,23 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 public class GlobalErrorController {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalErrorController.class);
 
+    @ExceptionHandler({IllegalTicketException.class, TicketNotBookedException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ModelAndView illegalTicket(Exception e) {
+        LOGGER.error("BAD REQUEST {}", e.getMessage());
+        String errorCode = "400";
+        String errorMessage = e.getMessage(); // TODO: i18n
+        return ErrorController.createErrorModel(errorCode, errorMessage);
+    }
+
     @ExceptionHandler({EventNotFoundException.class, UserNotFoundException.class, ImageNotFoundException.class,
             StatsNotFoundException.class, TicketNotFoundException.class, BookingNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ModelAndView notFound(Exception e) {
         LOGGER.error("NOT FOUND {}", e.getMessage());
         String errorCode = "404";
-        return ErrorController.createErrorModel(errorCode);
+        String errorMessage = e.getMessage(); // TODO: i18n
+        return ErrorController.createErrorModel(errorCode, errorMessage);
     }
 
     @ExceptionHandler({UserCannotRateException.class})
@@ -33,7 +44,8 @@ public class GlobalErrorController {
     public ModelAndView forbiddenAction(Exception e) {
         LOGGER.error("FORBIDDEN {}", e.getMessage());
         String errorCode = "403";
-        return ErrorController.createErrorModel(errorCode);
+        String errorMessage = e.getMessage(); // TODO: i18n
+        return ErrorController.createErrorModel(errorCode, errorMessage);
     }
 
     @SuppressWarnings("deprecation")
@@ -43,15 +55,17 @@ public class GlobalErrorController {
         MethodConstraintViolation<?> violation = e.getConstraintViolations().iterator().next();
         LOGGER.error("BAD REQUEST -- {} {}", violation.getParameterName(), violation.getMessage());
         String errorCode = "400";
-        return ErrorController.createErrorModel(errorCode);
+        String errorMessage = e.getMessage(); // TODO: i18n
+        return ErrorController.createErrorModel(errorCode, errorMessage);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView typeMismatch(MethodArgumentTypeMismatchException e) {
-        LOGGER.error("BAD REQUEST -- {} must be {}", e.getParameter(), e.getRequiredType().getSimpleName());
+        LOGGER.error("BAD REQUEST -- {} must be {}", e.getParameter().getParameterName(), e.getRequiredType().getSimpleName());
         String errorCode = "400";
-        return ErrorController.createErrorModel(errorCode);
+        String errorMessage = e.getMessage(); // TODO: i18n
+        return ErrorController.createErrorModel(errorCode, errorMessage);
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
@@ -59,7 +73,8 @@ public class GlobalErrorController {
     public ModelAndView maxUploadSize(MaxUploadSizeExceededException e) {
         LOGGER.error("INTERNAL SERVER ERROR -- Max upload size is {}", e.getMaxUploadSize());
         String errorCode = "500";
-        return ErrorController.createErrorModel(errorCode);
+        String errorMessage = e.getMessage(); // TODO: i18n
+        return ErrorController.createErrorModel(errorCode, errorMessage);
     }
 
     @ExceptionHandler({DataIntegrityViolationException.class})
@@ -67,7 +82,8 @@ public class GlobalErrorController {
     public ModelAndView integrityViolation(Exception e) {
         LOGGER.error("DATA INTEGRITY VIOLATION {}", e.getMessage());
         String errorCode = "500";
-        return ErrorController.createErrorModel(errorCode);
+        String errorMessage = e.getMessage(); // TODO: i18n
+        return ErrorController.createErrorModel(errorCode, errorMessage);
     }
 
     @ExceptionHandler({NoHandlerFoundException.class})
@@ -75,6 +91,7 @@ public class GlobalErrorController {
     public ModelAndView typeMismatch(Exception e) {
         LOGGER.error("PAGE NOT FOUND {}", e.getMessage());
         String errorCode = "404";
-        return ErrorController.createErrorModel(errorCode);
+        String errorMessage = e.getMessage(); // TODO: i18n
+        return ErrorController.createErrorModel(errorCode, errorMessage);
     }
 }

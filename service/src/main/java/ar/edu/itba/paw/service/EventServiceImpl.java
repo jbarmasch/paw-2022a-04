@@ -99,6 +99,11 @@ public class EventServiceImpl implements EventService {
     public List<Event> getPopularEvents(long eventId) {
         return eventDao.getPopularEvents(eventId);
     }
+
+    @Override
+    public List<Event> getUserEvents(long id, int page){
+        return eventDao.getUserEvents(id, page);
+    }
 }
 
 

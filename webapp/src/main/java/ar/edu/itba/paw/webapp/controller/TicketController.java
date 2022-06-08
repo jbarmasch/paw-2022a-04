@@ -5,8 +5,8 @@ import ar.edu.itba.paw.model.Ticket;
 import ar.edu.itba.paw.service.*;
 import ar.edu.itba.paw.webapp.auth.UserManager;
 import ar.edu.itba.paw.exceptions.DateRangeException;
-import ar.edu.itba.paw.exceptions.EventNotFoundException;
-import ar.edu.itba.paw.exceptions.TicketNotFoundException;
+import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
+import ar.edu.itba.paw.webapp.exceptions.TicketNotFoundException;
 import ar.edu.itba.paw.exceptions.TicketUnderflowException;
 import ar.edu.itba.paw.webapp.form.TicketForm;
 import org.slf4j.Logger;
@@ -159,14 +159,4 @@ public class TicketController {
         ticketService.deleteTicket(ticketId);
         return new ModelAndView("redirect:/events/" + eventId);
     }
-
-//    @ModelAttribute
-//    public void addAttributes(Model model, final SearchForm searchForm) {
-//        final Locale locale = LocaleContextHolder.getLocale();
-//        Tag.setLocale(locale);
-//        Type.setLocale(locale);
-//        model.addAttribute("username", userManager.getUsername());
-//        model.addAttribute("isCreator", userManager.isCreator());
-//        model.addAttribute("isBouncer", userManager.isBouncer());
-//    }
 }

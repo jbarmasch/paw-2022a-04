@@ -19,7 +19,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Transactional
     @Override
-    public void addTicket(Event event, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until) {
+    public void addTicket(Event event, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until) throws DateRangeException {
         if (starting != null && starting.isAfter(event.getDate()))
             throw new DateRangeException(starting, null);
         if (until != null && until.isAfter(event.getDate()))
@@ -34,7 +34,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Transactional
     @Override
-    public void updateTicket(Ticket ticket, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until) {
+    public void updateTicket(Ticket ticket, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until) throws TicketUnderflowException {
         if (qty < ticket.getBooked())
             throw new TicketUnderflowException();
         ticketDao.updateTicket(ticket, ticketName, price, qty, starting, until);

@@ -1,10 +1,10 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.exceptions.AlreadyMaxTicketsException;
-import ar.edu.itba.paw.exceptions.BookingNotFoundException;
+import ar.edu.itba.paw.exceptions.IllegalTicketException;
 import ar.edu.itba.paw.exceptions.SurpassedMaxTicketsException;
+import ar.edu.itba.paw.exceptions.TicketNotBookedException;
 import ar.edu.itba.paw.model.EventBooking;
-import ar.edu.itba.paw.model.Ticket;
 import ar.edu.itba.paw.model.TicketBooking;
 import ar.edu.itba.paw.persistence.EventBookingDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,28 +33,30 @@ public class EventBookingServiceImpl implements EventBookingService {
     @Override
     public Optional<EventBooking> getBookingFromUser(long userId, long eventId) {
         Optional<EventBooking> eb =  eventBookingDao.getBookingFromUser(userId, eventId);
-        if (eb.isPresent() && (eb.get().getEvent().getDate().isBefore(LocalDateTime.now()) || eb.get().getTicketBookingsSize() == 0))
-            throw new BookingNotFoundException();
+        if (!eb.isPresent() || (eb.get().getEvent().getDate().isBefore(LocalDateTime.now()) || eb.get().getTicketBookingsSize() == 0))
+            return Optional.empty();
         return eb;
     }
 
     @Override
     public Optional<EventBooking> getBooking(String code) {
         Optional<EventBooking> eb = eventBookingDao.getBooking(code);
-        if (eb.isPresent() && (eb.get().getEvent().getDate().isBefore(LocalDateTime.now()) || eb.get().getTicketBookingsSize() == 0))
-            throw new BookingNotFoundException();
+        if (!eb.isPresent() || (eb.get().getEvent().getDate().isBefore(LocalDateTime.now()) || eb.get().getTicketBookingsSize() == 0))
+            return Optional.empty();
         return eb;
     }
 
     @Transactional
     @Override
-    public void book(EventBooking booking, String baseUrl, Locale locale) {
+    public void book(EventBooking booking, String baseUrl, Locale locale) throws AlreadyMaxTicketsException, SurpassedMaxTicketsException {
         EventBooking persistedBooking = eventBookingDao.getBookingFromUser(booking.getUser().getId(), booking.getEvent().getId()).orElse(null);
 
         Map<Long, TicketBooking> ticketMap = new HashMap<>();
         if (persistedBooking != null) {
             List<TicketBooking> ticketBookings = persistedBooking.getTicketBookings();
             for (TicketBooking ticketBooking : ticketBookings) {
+                if (ticketBooking.getTicket().getEvent().getId() != booking.getEvent().getId())
+                    throw new IllegalTicketException();
                 ticketMap.put(ticketBooking.getTicket().getId(), ticketBooking);
             }
         }
@@ -99,23 +101,23 @@ public class EventBookingServiceImpl implements EventBookingService {
 
     @Transactional
     @Override
-    public void cancelBooking(EventBooking booking, Locale locale) {
+    public void cancelBooking(EventBooking booking, Locale locale) throws SurpassedMaxTicketsException {
         EventBooking persistedBooking = eventBookingDao.getBookingFromUser(booking.getUser().getId(), booking.getEvent().getId()).orElse(null);
         Map<Long, TicketBooking> ticketMap = new HashMap<>();
         if (persistedBooking != null) {
             List<TicketBooking> ticketBookings = persistedBooking.getTicketBookings();
             for (TicketBooking ticketBooking : ticketBookings) {
-                ticketMap.put(ticketBooking.getId(), ticketBooking);
+                ticketMap.put(ticketBooking.getTicket().getId(), ticketBooking);
             }
         }
 
         Map<Integer, Integer> ticketsError = new HashMap<>();
         int i = 0;
         for (TicketBooking ticketBooking : booking.getTicketBookings()) {
-            if (ticketMap.get(ticketBooking.getId()) == null) {
-                throw new BookingNotFoundException();
+            if (ticketMap.get(ticketBooking.getTicket().getId()) == null) {
+                throw new TicketNotBookedException();
             }
-            if (ticketBooking.getQty() != null && ticketBooking.getQty() > ticketMap.get(ticketBooking.getId()).getQty())
+            if (ticketBooking.getQty() != null && ticketBooking.getQty() > ticketMap.get(ticketBooking.getTicket().getId()).getQty())
                 ticketsError.put(i, ticketMap.get(ticketBooking.getTicket().getId()).getQty());
             i++;
         }

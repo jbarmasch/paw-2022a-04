@@ -1,11 +1,12 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.*;
+import ar.edu.itba.paw.service.EventService;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.webapp.form.*;
 import ar.edu.itba.paw.webapp.helper.AuthUtils;
 import ar.edu.itba.paw.webapp.auth.UserManager;
-import ar.edu.itba.paw.exceptions.UserNotFoundException;
+import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ import java.util.stream.Collectors;
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private EventService eventService;
     @Autowired
     private UserManager userManager;
 
@@ -91,8 +94,7 @@ public class UserController {
         } else if (userManager.getUserId() != userId && !userManager.isCreator(user)) {
             return new ModelAndView("redirect:/403");
         }
-        List<Event> events = user.getEvents();
-        events = events.stream().limit(5).collect(Collectors.toList());
+        List<Event> events = eventService.getUserEvents(userId, 1).stream().limit(5).collect(Collectors.toList());
 
         final ModelAndView mav = new ModelAndView("profile");
         if (userManager.isAuthenticated() && userId == userManager.getUserId()) {
@@ -105,14 +107,4 @@ public class UserController {
         mav.addObject("size", events.size());
         return mav;
     }
-
-//    @ModelAttribute
-//    public void addAttributes(Model model, final SearchForm searchForm) {
-//        Locale locale = LocaleContextHolder.getLocale();
-//        Tag.setLocale(locale);
-//        Type.setLocale(locale);
-//        model.addAttribute("username", userManager.getUsername());
-//        model.addAttribute("isCreator", userManager.isCreator());
-//        model.addAttribute("isBouncer", userManager.isBouncer());
-//    }
 }

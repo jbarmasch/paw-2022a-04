@@ -4,6 +4,10 @@ import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.service.*;
 import ar.edu.itba.paw.webapp.auth.UserManager;
 import ar.edu.itba.paw.exceptions.*;
+import ar.edu.itba.paw.webapp.exceptions.BookingNotFoundException;
+import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
+import ar.edu.itba.paw.webapp.exceptions.StatsNotFoundException;
+import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -293,15 +297,4 @@ public class EventController {
         mav.addObject("stats", stats);
         return mav;
     }
-
-//    @ModelAttribute
-//    public void addAttributes(Model model, final SearchForm searchForm) {
-//        final Locale locale = LocaleContextHolder.getLocale();
-//        Tag.setLocale(locale);
-//        Type.setLocale(locale);
-//        System.out.println("hola me gusta Bianca2");
-//        model.addAttribute("username", userManager.getUsername());
-//        model.addAttribute("isCreator", userManager.isCreator());
-//        model.addAttribute("isBouncer", userManager.isBouncer());
-//    }
 }

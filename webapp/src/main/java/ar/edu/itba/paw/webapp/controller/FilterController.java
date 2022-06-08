@@ -41,8 +41,6 @@ public class FilterController {
     private TypeService typeService;
     @Autowired
     private TagService tagService;
-    @Autowired
-    private UserManager userManager;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FilterController.class);
 
@@ -75,7 +73,7 @@ public class FilterController {
     public ModelAndView browseByFilters(@Valid @ModelAttribute("filterForm") final FilterForm form, final BindingResult errors) {
         if (errors.hasErrors()) {
             LOGGER.error("FilterForm has errors: {}", errors.getAllErrors().toArray());
-            return ErrorController.createErrorModel("400");
+            return ErrorController.createErrorModel("400", "Bad request");
         }
 
         Map<String, Object> filters = new HashMap<>();
@@ -102,7 +100,7 @@ public class FilterController {
     public ModelAndView search(@Valid @ModelAttribute("searchForm") final SearchForm searchForm, final BindingResult errors) {
         if (errors.hasErrors()) {
             LOGGER.error("SearchForm has errors: {}", errors.getAllErrors().toArray());
-            return ErrorController.createErrorModel("400");
+            return ErrorController.createErrorModel("400", "Bad request");
         }
 
         Map<String, Object> filters = new HashMap<>();
@@ -117,14 +115,4 @@ public class FilterController {
         LOGGER.debug("Created URL /events?{}", endURL);
         return new ModelAndView("redirect:/events?" + endURL);
     }
-
-//    @ModelAttribute
-//    public void addAttributes(Model model, final SearchForm searchForm) {
-//        final Locale locale = LocaleContextHolder.getLocale();
-//        Tag.setLocale(locale);
-//        Type.setLocale(locale);
-//        model.addAttribute("username", userManager.getUsername());
-//        model.addAttribute("isCreator", userManager.isCreator());
-//        model.addAttribute("isBouncer", userManager.isBouncer());
-//    }
 }
