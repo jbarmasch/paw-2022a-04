@@ -44,7 +44,7 @@
                 </div>
                 <div>
                     <form:label path="starting"><spring:message code="tickets.starting"/>: </form:label>
-                    <form:input class="uk-input" type="datetime-local" min="${currentDate}" max="${event.date}" path="starting"/>
+                    <form:input class="uk-input" type="datetime-local" max="${event.date}" path="starting"/>
                     <form:errors path="starting" cssClass="error-message" element="span"/>
                     <spring:message code="NotEmpty.eventForm.date" var="dateEmptyError"/>
                     <spring:message code="Future.eventForm.date" var="dateMinError"/>
@@ -59,6 +59,25 @@
                     <spring:message code="Future.eventForm.date" var="dateMinError"/>
                     <spring:message code="Pattern.eventForm.date" var="dateTypeError"/>
                     <span class="formError"></span>
+                </div>
+                <div class="horizontal align-center">
+                    <spring:message code="tickets.maxPerUser"/>:
+                    <form:select class="uk-select input_select sep-left-l" htmlEscape="true" multiple="false" path="maxPerUser" id="maxPerUserInput">
+                        <c:forEach var="val" step="1" begin="1" end="10">
+                            <c:choose>
+                                <c:when test="${6 == val}">
+                                    <form:option value="${val}" selected="selected"/>
+                                </c:when>
+                                <c:otherwise>
+                                    <form:option value="${val}"/>
+                                </c:otherwise>
+                            </c:choose>
+                        </c:forEach>
+                    </form:select>
+                    <form:errors path="maxPerUser" cssClass="error-message" element="span"/>
+                    <spring:message code="Range.eventForm.minAge" var="rangeAgeMinError"/>
+                    <spring:message code="NotNull.eventForm.minAge" var="minAgeNullError"/>
+                    <span class="sep-left formError"></span>
                 </div>
                 <spring:message code="tickets.maxTicketsReached" var="maxTicketsReached"/>
                 <div class="container event">

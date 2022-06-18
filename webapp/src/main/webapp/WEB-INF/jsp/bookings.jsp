@@ -21,7 +21,7 @@
             <c:choose>
                 <c:when test="${eventBookingsSize > 0}">
                     <div class="vertical full_width sep-top-xl">
-                        <h4 class="title2"><spring:message code="booking.yours"/></h4>
+                        <h2 class="center title"><spring:message code="booking.yours"/></h2>
                         <div class="container multi-browse booking-browse full_width">
                         <c:forEach var="booking" items="${eventBookings}">
                             <c:if test="${!booking.event.deleted && booking.ticketBookingsSize > 0}">
@@ -46,7 +46,7 @@
                                             </div>
                                             <div class="data full_width">
                                                 <div><img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="${locationAlt}"/><span><c:out value="${booking.event.location.name}"/></span></div>
-                                                <div><img class="icon" src="<c:url value="/resources/svg/user.svg"/>" alt="${userAlt}"/><span><c:out value="${booking.event.organizer.username}"/></span></div>
+                                                <div><img class="icon" src="<c:url value="/resources/svg/user.svg"/>" alt="${userAlt}"/><a onclick="event.stopImmediatePropagation()" href="<c:url value="/profile/${booking.event.organizer.id}"/>"><c:out value="${booking.event.organizer.username}"/></a></div>
                                             </div>
                                             <hr/>
                                                 <div class="container booking_button">
@@ -55,7 +55,7 @@
                                                             <spring:message code="booking.cancelTickets" var="cancelTickets"/>
                                                             <input class="cancel_button uk-button booking_cancel" type="button" value="${cancelTickets}" onclick="event.stopImmediatePropagation(); location.href='<c:url value="/bookings/cancel/${booking.event.id}"/>'"/>
                                                         </c:when>
-                                                        <c:when test="${oneMonthPrior >= booking.event.date}">
+                                                        <c:when test="${oneMonthPrior < booking.event.date}">
                                                             <c:url value="/bookings/rate/${booking.event.id}" var="postPath"/>
                                                             <form:form novalidate="true" class="transparent" modelAttribute="rateForm" action="${postPath}" method="post" id="rateForm${booking.event.id}">
                                                                 <div class="horizontal">
@@ -90,7 +90,7 @@
                 </c:when>
                 <c:otherwise>
                     <div class="center sep-top-xl full_width">
-                        <h2 class="title2">
+                        <h2 class="title">
                             <spring:message code="booking.noBookings"/>
                         </h2>
                     </div>

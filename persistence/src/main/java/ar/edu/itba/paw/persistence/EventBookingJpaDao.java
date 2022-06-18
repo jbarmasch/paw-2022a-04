@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.persistence;
 
+import ar.edu.itba.paw.exceptions.*;
 import ar.edu.itba.paw.model.BookingId;
 import ar.edu.itba.paw.model.EventBooking;
 import ar.edu.itba.paw.model.Ticket;
@@ -54,9 +55,7 @@ public class EventBookingJpaDao implements EventBookingDao {
                 if (ticketBooking.getQty() != null && ticketBooking.getQty() > 0) {
                     Ticket ticket = ticketBooking.getTicket();
                     if (!ticket.book(ticketBooking.getQty())) {
-                        // TODO
-                        // throw new RuntimeException();
-                        return null;
+                        throw new BookingFailedException();
                     }
                     em.persist(ticket);
                     em.persist(ticketBooking);
@@ -67,18 +66,14 @@ public class EventBookingJpaDao implements EventBookingDao {
         } else {
             for (TicketBooking ticketBooking : booking.getTicketBookings()) {
                 if (ticketBooking.getTicket().getEvent().getId() != booking.getEvent().getId()) {
-                    // TODO
-                    // throw new RuntimeException();
-                    return null;
+                    throw new IllegalTicketException();
                 }
 
                 TicketBooking ticketAux = em.find(TicketBooking.class, new BookingId(ticketBooking.getTicket(), eventBooking));
                 if (ticketAux != null) {
                     Ticket ticket = ticketAux.getTicket();
                     if (!ticket.book(ticketBooking.getQty())) {
-                        // TODO
-                        // throw new RuntimeException();
-                        return null;
+                        throw new BookingFailedException();
                     }
                     em.persist(ticket);
                     if (ticketAux.getQty() != null && ticketAux.getQty() > 0) {
@@ -89,9 +84,7 @@ public class EventBookingJpaDao implements EventBookingDao {
                 else {
                     Ticket ticket = ticketBooking.getTicket();
                     if (!ticket.book(ticketBooking.getQty())) {
-                        // TODO
-                        // throw new RuntimeException();
-                        return null;
+                        throw new BookingFailedException();
                     }
                     em.persist(ticket);
                     ticketBooking.setEventBooking(eventBooking);
@@ -116,23 +109,17 @@ public class EventBookingJpaDao implements EventBookingDao {
         EventBooking eventBooking = query.getResultList().stream().findFirst().orElse(null);
 
         if (eventBooking == null) {
-            // TODO
-            // throw new RuntimeException();
-            return false;
+             throw new CancelBookingFailedException();
         }
 
         for (TicketBooking ticketBooking : booking.getTicketBookings()) {
             TicketBooking tb = em.find(TicketBooking.class, new BookingId(ticketBooking.getTicket(), eventBooking));
             if (tb == null) {
-                // TODO
-                // throw new RuntimeException();
-                return false;
+                throw new CancelBookingFailedException();
             }
             Ticket ticket = ticketBooking.getTicket();
             if (!ticket.cancelBooking(ticketBooking.getQty())) {
-                // TODO
-                // throw new RuntimeException();
-                return false;
+                throw new CancelBookingFailedException();
             }
             em.persist(ticket);
             tb.setQty(tb.getQty() - ticketBooking.getQty());

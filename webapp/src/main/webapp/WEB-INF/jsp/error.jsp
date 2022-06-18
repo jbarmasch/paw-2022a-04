@@ -12,7 +12,8 @@
 <body class="full_width full_height">
     <div class="container full_width partial_height horizontal center">
         <div class="vertical sep-right-xl limit-width">
-            <h1 class="subtitle">Error <c:out value="${code}"/></h1>
+            <spring:message var="errorCode" code="error.error" arguments="${code}"/>
+            <h1 class="subtitle"><c:out value="${errorCode}"/></h1>
             <h5 class="subtitle_light event_desc"><c:out value="${message}"/></h5>
             <a class="sep-top-xl" href="<c:url value="/"/>"><spring:message code="goHome"/></a>
         </div>

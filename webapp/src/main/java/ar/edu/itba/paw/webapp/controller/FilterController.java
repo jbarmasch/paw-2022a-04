@@ -29,6 +29,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Validated
 @Controller
@@ -64,7 +65,7 @@ public class FilterController {
         mav.addObject("allLocations", locationService.getAll());
         mav.addObject("allTypes", typeService.getAll());
         mav.addObject("allTags", tagService.getAll());
-        mav.addObject("events", events);
+        mav.addObject("events", events.stream().limit(10).collect(Collectors.toList()));
         mav.addObject("size", events.size());
         return mav;
     }

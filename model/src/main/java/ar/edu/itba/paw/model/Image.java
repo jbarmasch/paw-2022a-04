@@ -1,8 +1,6 @@
 package ar.edu.itba.paw.model;
 
 import javax.persistence.*;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 @Entity
 @Table(name = "images")

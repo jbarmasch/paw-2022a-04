@@ -1,5 +1,9 @@
 package ar.edu.itba.paw.webapp.config;
 
+import ar.edu.itba.paw.model.Role;
+import ar.edu.itba.paw.model.RoleEnum;
+import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.webapp.auth.PawUserDetailsService;
 import ar.edu.itba.paw.webapp.auth.RefererRedirectionAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,19 +13,27 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableWebSecurity
+//@EnableGlobalMethodSecurity(prePostEnabled = true)
 @PropertySource("classpath:authentication.properties")
 @ComponentScan("ar.edu.itba.paw.webapp.auth")
 public class WebAuthConfig extends WebSecurityConfigurerAdapter {
@@ -29,6 +41,8 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     private PawUserDetailsService userDetailsService;
     @Autowired
     private Environment env;
+    @Autowired
+    private UserService userService;
 
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
@@ -37,16 +51,13 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers("/login", "/register", "/forgot-pass").permitAll()
                     .antMatchers("/stats").hasRole("CREATOR")
                     .antMatchers("/my-events").hasRole("CREATOR")
-                    .antMatchers( "/events", "/", "/search").permitAll()
+//                    .antMatchers("/profile/{userId}").access("@webAuthConfig.checkProfile(authentication, #userId)")
+                    .antMatchers( "/events", "/", "/search", "/events/*", "/profile/**").not().hasAnyRole("BOUNCER")
                     .antMatchers(HttpMethod.POST, "/bookings/*/confirm").hasRole("BOUNCER")
                     .antMatchers(HttpMethod.POST, "/bookings/**").hasRole("USER")
                     .antMatchers(HttpMethod.GET, "/bookings/**").authenticated()
-//                    .antMatchers(HttpMethod.GET, "/events/**/add-tickets").hasAnyRole("CREATOR", "USER")
                     .antMatchers(HttpMethod.GET, "/events/*").permitAll()
-//                    .antMatchers(HttpMethod.GET, "/events/*/**").hasAnyRole("CREATOR", "USER")
-//                    .antMatchers(HttpMethod.GET, "/profile").hasAnyRole("CREATOR", "USER")
                     .antMatchers(HttpMethod.GET, "/profile/**").permitAll()
-//                    .antMatchers(HttpMethod.POST, "/events/**").hasAnyRole("CREATOR", "USER")
                     .antMatchers("/**").hasAnyRole("CREATOR", "USER")
                 .and().formLogin()
                     .usernameParameter("j_username")
@@ -85,5 +96,21 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public AuthenticationSuccessHandler successHandler() {
         return new RefererRedirectionAuthentication("/");
+    }
+
+    public boolean checkProfile(Authentication authentication, int userId) {
+        User profile = userService.getUserById(userId).orElse(null);
+        if (profile != null) {
+            if (profile.getRoles().stream().anyMatch(a -> a.getRoleName().equals("ROLE_CREATOR"))) {
+                return true;
+            }
+        }
+        if (authentication == null || authentication instanceof AnonymousAuthenticationToken)
+            return false;
+        String username = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userService.findByUsername(username).orElse(null);
+        if (user != null)
+            return user.getId() == userId;
+        return false;
     }
 }

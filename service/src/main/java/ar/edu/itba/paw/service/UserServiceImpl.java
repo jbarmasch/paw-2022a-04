@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -24,8 +25,8 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public User create(String username, String password, String mail) {
-        return userDao.createUser(username, passwordEncoder.encode(password), mail);
+    public User create(String username, String password, String mail, Locale locale) {
+        return userDao.createUser(username, passwordEncoder.encode(password), mail, locale);
     }
 
     @Transactional
@@ -50,8 +51,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<EventStats> getEventStats(long id) {
-        return userDao.getEventStats(id);
+    public Optional<OrganizerStats> getOrganizerStats(long id) {
+        return userDao.getOrganizerStats(id);
     }
 
     @Override

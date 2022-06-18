@@ -23,7 +23,11 @@
                 </c:if>
             </div>
             <div class="event_info">
-                <c:if test="${isOwner}">
+                <c:if test="${isOwner && event.date >= currentDate}">
+                    <div class="event_actions_left">
+                        <spring:message var="altStatsIcon" code="event.statsAlt"/>
+                        <input type="image" class="stats_icon" src="<c:url value="/resources/svg/stats.svg"/>" alt="${altStatsIcon}" onclick="location.href='<c:url value="/events/${event.id}/stats"/>'"/>
+                    </div>
                     <div class="event_actions">
                         <spring:message var="altDeleteIcon" code="event.deleteAlt"/>
                         <spring:message var="altEditIcon" code="event.editAlt"/>
@@ -96,7 +100,7 @@
                     </div>
                 </c:if>
                 <div>
-                    <c:if test="${isOwner}">
+                    <c:if test="${isOwner && event.date >= currentDate}">
                         <c:choose>
                             <c:when test="${!event.soldOut && !event.deleted}">
                                 <spring:message var="setSoldOut" code="event.setSoldout"/>
@@ -131,7 +135,7 @@
                             <c:set var="disabled" scope="session" value="false"/>
                         </c:otherwise>
                     </c:choose>
-
+                    <c:if test="${event.date >= currentDate}">
                         <c:choose>
                             <c:when test="${ticketsSize > 0}">
                                 <table class="tickets-table booking-table">
@@ -162,11 +166,11 @@
                                             <td class="table-number">
                                                 <c:choose>
                                                     <c:when test="${ticket.ticketsLeft > 0}">
-                                                        <input type="number" class="hidden" id="qtyMax${i}" value="${ticket.ticketsLeft < 6 ? ticket.ticketsLeft : 6}"/>
+                                                        <input type="number" class="hidden" id="qtyMax${i}" value="${ticket.ticketsLeft < ticket.maxPerUser ? ticket.ticketsLeft : ticket.maxPerUser}"/>
                                                         <form:select id="qty${i}" class="uk-select" htmlEscape="true" multiple="false" path="bookings[${i}].qty" required="true">
                                                             <form:option value="0" selected="true"/>
                                                             <c:if test="${ticket.ticketsLeft > 0}">
-                                                                <c:forEach var="j" begin="${1}" step="1" end="${ticket.ticketsLeft < 6 ? ticket.ticketsLeft : 6}">
+                                                                <c:forEach var="j" begin="${1}" step="1" end="${ticket.ticketsLeft < ticket.maxPerUser ? ticket.ticketsLeft : ticket.maxPerUser}">
                                                                     <form:option value="${j}"/>
                                                                 </c:forEach>
                                                             </c:if>
@@ -200,26 +204,27 @@
                                 <form:errors path="bookings[${i}]" cssClass="error-message" element="span"/>
                                 <form:errors path="bookings[${i}].ticketId" cssClass="error-message" element="span"/>
                                 </table>
-                                <c:choose>
-                                    <c:when test="${event.soldOut || ticketsLeft <= 0}">
-                                        <div class="container event_buttons">
-                                            <spring:message var="soldOut" code="event.soldOut"/>
-                                            <input disabled class="uk-button book-button" type="submit" name="submit" value="${soldOut}"/>
-                                        </div>
-                                    </c:when>
-                                    <c:when test="${!event.deleted}">
-                                        <div class="container event_buttons">
-                                            <spring:message var="book" code="event.book"/>
-                                            <input class="uk-button book-button" type="submit" name="submit" value="${book}"/>
-                                        </div>
-                                    </c:when>
-                                </c:choose>
+
+                                    <c:choose>
+                                        <c:when test="${event.soldOut || ticketsLeft <= 0}">
+                                            <div class="container event_buttons">
+                                                <spring:message var="soldOut" code="event.soldOut"/>
+                                                <input disabled class="uk-button book-button" type="submit" name="submit" value="${soldOut}"/>
+                                            </div>
+                                        </c:when>
+                                        <c:when test="${!event.deleted}">
+                                            <div class="container event_buttons">
+                                                <spring:message var="book" code="event.book"/>
+                                                <input class="uk-button book-button" type="submit" name="submit" value="${book}"/>
+                                            </div>
+                                        </c:when>
+                                    </c:choose>
                             </c:when>
                             <c:otherwise>
                                 <spring:message code="event.noTickets"/>
                             </c:otherwise>
                         </c:choose>
-
+                    </c:if>
                 </form:form>
             </c:when>
             <c:otherwise>
@@ -230,9 +235,12 @@
                             <th><spring:message code="event.ticketsLeft"/></th>
                             <th><spring:message code="tickets.ticketPrice"/></th>
                             <th><spring:message code="tickets.ticketBooked"/></th>
+                            <th><spring:message code="tickets.maxUser"/></th>
                             <th><spring:message code="tickets.starting"/></th>
                             <th><spring:message code="tickets.until"/></th>
-                            <th><spring:message code="tickets.actions"/></th>
+                            <c:if test="${event.date >= currentDate}">
+                                <th><spring:message code="tickets.actions"/></th>
+                            </c:if>
                         </tr>
 
                         <c:set var="j" value="-1"/>
@@ -252,6 +260,9 @@
                                     <span><c:out value="${ticket.booked}"/></span>
                                 </td>
                                 <td class="table-number">
+                                    <span><c:out value="${ticket.maxPerUser}"/></span>
+                                </td>
+                                <td class="table-number">
                                     <c:if test="${ticket.starting != null}">
                                         <span><c:out value="${ticket.startingDateFormatted}"/>&nbsp;<c:out value="${ticket.startingTimeFormatted}"/></span>
                                     </c:if>
@@ -261,39 +272,43 @@
                                         <span><c:out value="${ticket.untilDateFormatted}"/>&nbsp;<c:out value="${ticket.untilTimeFormatted}"/></span>
                                     </c:if>
                                 </td>
-                                <td>
-                                    <div class="horizontal">
-                                        <input type="image" class="icon" src="<c:url value="/resources/svg/edit.svg"/>" alt="${altEditIcon}" onclick="location.href='<c:url value="/events/${event.id}/modify-ticket/${ticket.id}"/>'"/>
-                                        <input class="icon" src="<c:url value="/resources/svg/trash.svg"/>" alt="${altDeleteIcon}" type="image" uk-toggle="target: #confirmation${j}" value=""/>
-                                            <div id="confirmation${j}" uk-modal>
-                                                <div class="uk-modal-dialog">
-                                                    <button class="uk-modal-close-default" type="button" uk-close></button>
-                                                    <div class="uk-modal-header">
-                                                        <h3 class="uk-modal-title title2"><spring:message code="ticket.confirmationDelete"/></h3>
-                                                    </div>
-                                                    <div class="uk-modal-body">
-                                                            <form class="transparent form-marginless" action="<c:url value="/events/${event.id}/delete-ticket/${ticket.id}"/>" method="post">
-                                                                <input class="accept-button-modal cancel_button" type="submit" value="${delete}">
-                                                            </form>
+                                <c:if test="${event.date >= currentDate}">
+                                    <td>
+                                        <div class="horizontal">
+                                            <input type="image" class="icon" src="<c:url value="/resources/svg/edit.svg"/>" alt="${altEditIcon}" onclick="location.href='<c:url value="/events/${event.id}/modify-ticket/${ticket.id}"/>'"/>
+                                            <input class="icon" src="<c:url value="/resources/svg/trash.svg"/>" alt="${altDeleteIcon}" type="image" uk-toggle="target: #confirmation${j}" value=""/>
+                                                <div id="confirmation${j}" uk-modal>
+                                                    <div class="uk-modal-dialog">
+                                                        <button class="uk-modal-close-default" type="button" uk-close></button>
+                                                        <div class="uk-modal-header">
+                                                            <h3 class="uk-modal-title title2"><spring:message code="ticket.confirmationDelete"/></h3>
+                                                        </div>
+                                                        <div class="uk-modal-body">
+                                                                <form class="transparent form-marginless" action="<c:url value="/events/${event.id}/delete-ticket/${ticket.id}"/>" method="post">
+                                                                    <input class="accept-button-modal cancel_button" type="submit" value="${delete}">
+                                                                </form>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        <form class="transparent form-marginless" action="<c:url value="/events/${event.id}/delete-ticket/${ticket.id}"/>" method="post">
-                                        </form>
-                                    </div>
-                                </td>
+                                            <form class="transparent form-marginless" action="<c:url value="/events/${event.id}/delete-ticket/${ticket.id}"/>" method="post">
+                                            </form>
+                                        </div>
+                                    </td>
+                                </c:if>
                             </tr>
                         </c:forEach>
                     </table>
                     <spring:message code="event.addTicketAlt" var="altAddTicketIcon"/>
-                    <c:choose>
-                        <c:when test="${ticketsSize >= 5}">
-                            <input type="image" class="icon fab" src="<c:url value="/resources/svg/add.svg"/>" alt="${altAddTicketIcon}" onclick="maxTicketsReached()"/>
-                        </c:when>
-                        <c:otherwise>
-                            <input type="image" class="icon fab" src="<c:url value="/resources/svg/add.svg"/>" alt="${altAddTicketIcon}" onclick="location.href='<c:url value="/events/${event.id}/add-ticket"/>'"/>
-                        </c:otherwise>
-                    </c:choose>
+                    <c:if test="${event.date >= currentDate}">
+                        <c:choose>
+                            <c:when test="${ticketsSize >= 5}">
+                                <input type="image" class="icon fab" src="<c:url value="/resources/svg/add.svg"/>" alt="${altAddTicketIcon}" onclick="maxTicketsReached()"/>
+                            </c:when>
+                            <c:otherwise>
+                                <input type="image" class="icon fab" src="<c:url value="/resources/svg/add.svg"/>" alt="${altAddTicketIcon}" onclick="location.href='<c:url value="/events/${event.id}/add-ticket"/>'"/>
+                            </c:otherwise>
+                        </c:choose>
+                    </c:if>
                 </div>
             </c:otherwise>
         </c:choose>

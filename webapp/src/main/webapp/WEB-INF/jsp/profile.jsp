@@ -60,10 +60,12 @@
                             <c:import url="eventCard.jsp"/>
                         </c:if>
                     </c:forEach>
-                    <c:url value="/events" var="moreUserEvents">
-                        <c:param name="searchUsername" value="${user.username}"/>
-                    </c:url>
-                    <a href="${moreUserEvents}"><spring:message code="profile.userEvents"/></a>
+                    <c:if test="${size > 5}">
+                        <c:url value="/events" var="moreUserEvents">
+                            <c:param name="searchUsername" value="${user.username}"/>
+                        </c:url>
+                        <a href="${moreUserEvents}"><spring:message code="profile.userEvents"/></a>
+                    </c:if>
                 </div>
             </div>
         </div>

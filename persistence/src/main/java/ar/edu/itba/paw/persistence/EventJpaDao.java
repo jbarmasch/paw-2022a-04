@@ -1,11 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
+import ar.edu.itba.paw.exceptions.EventFinishedException;
 import ar.edu.itba.paw.model.*;
-import com.sun.org.apache.xalan.internal.xsltc.util.IntegerArray;
-import org.hibernate.Filter;
-import org.hibernate.Session;
-import org.hibernate.jpa.TypedParameterValue;
-import org.hibernate.type.IntegerType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -83,8 +79,7 @@ public class EventJpaDao implements EventDao {
             if (!having) {
                 queryCondition.append(" HAVING");
                 having = true;
-            }
-            else queryCondition.append(" AND");
+            } else queryCondition.append(" AND");
             queryCondition.append(" COALESCE(MIN(t.price), 0) <= :maxPrice");
             objects.put("maxPrice", maxPrice);
         }
@@ -98,7 +93,7 @@ public class EventJpaDao implements EventDao {
             objects.put("tagids", Arrays.asList(tags));
         }
         objects.put("page", (page - 1) * 10);
-        queryCondition.append(" LIMIT 10 OFFSET :page");
+        queryCondition.append(" LIMIT 11 OFFSET :page");
         StringBuilder query = querySelect.append(queryCondition);
         Query queryNative = em.createNativeQuery(String.valueOf(query));
         objects.forEach(queryNative::setParameter);
@@ -147,6 +142,8 @@ public class EventJpaDao implements EventDao {
     @Override
     public void soldOut(long id) {
         final Event event = em.find(Event.class, id);
+        if (event.isFinished())
+            throw new EventFinishedException();
         event.setState(State.SOLDOUT);
         em.persist(event);
     }
@@ -154,6 +151,8 @@ public class EventJpaDao implements EventDao {
     @Override
     public void active(long id) {
         final Event event = em.find(Event.class, id);
+        if (event.isFinished())
+            throw new EventFinishedException();
         event.setState(State.ACTIVE);
         em.persist(event);
     }
@@ -163,9 +162,9 @@ public class EventJpaDao implements EventDao {
     public List<Event> getFewTicketsEvents() {
         Query idQuery = em.createNativeQuery("SELECT aux.eventid FROM " +
                 "(SELECT events.eventid, events.name, events.description, events.locationid, SUM(COALESCE(ti.booked, 0)) AS attendance, " +
-                "MIN(CASE WHEN ti.maxTickets - ti.booked > 0 THEN ti.price END) AS minPrice, (SUM(COALESCE(ti.maxTickets, 0)) - SUM(COALESCE(ti.booked, 0))) " +
+                "MIN(CASE WHEN ti.qty - ti.booked > 0 THEN ti.price END) AS minPrice, (SUM(COALESCE(ti.qty, 0)) - SUM(COALESCE(ti.booked, 0))) " +
                 "AS ticketsLeft, events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, types.name AS typeName, " +
-                "users.username, ARRAY_AGG(ti.ticketId) AS ticketIds, ARRAY_AGG(ti.maxTickets) AS ticketQtys, ARRAY_AGG(ti.booked) AS ticketBookeds, " +
+                "users.username, ARRAY_AGG(ti.ticketId) AS ticketIds, ARRAY_AGG(ti.qty) AS ticketQtys, ARRAY_AGG(ti.booked) AS ticketBookeds, " +
                 "ARRAY_AGG(ti.name) AS ticketNames, ARRAY_AGG(ti.price) AS ticketPrices FROM events JOIN locations ON events.locationid = locations.locationid " +
                 "LEFT OUTER JOIN tickets ti ON events.eventid = ti.eventid JOIN types ON events.typeid = types.typeid JOIN users ON events.userid = users.userid " +
                 "GROUP BY events.eventId, locations.locationid, types.typeid, users.username) AS aux LEFT OUTER JOIN eventTags eT ON aux.eventId = eT.eventId " +
@@ -184,9 +183,9 @@ public class EventJpaDao implements EventDao {
     public List<Event> getUpcomingEvents() {
         Query idQuery = em.createNativeQuery("SELECT aux.eventid FROM " +
                 "(SELECT events.eventid, events.name, events.description, events.locationid, SUM(COALESCE(ti.booked, 0)) AS attendance, " +
-                "MIN(CASE WHEN ti.maxTickets - ti.booked > 0 THEN ti.price END) AS minPrice, (SUM(COALESCE(ti.maxTickets, 0)) - SUM(COALESCE(ti.booked, 0))) " +
+                "MIN(CASE WHEN ti.qty - ti.booked > 0 THEN ti.price END) AS minPrice, (SUM(COALESCE(ti.qty, 0)) - SUM(COALESCE(ti.booked, 0))) " +
                 "AS ticketsLeft, events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, types.name AS typeName, " +
-                "users.username, ARRAY_AGG(ti.ticketId) AS ticketIds, ARRAY_AGG(ti.maxTickets) AS ticketQtys, ARRAY_AGG(ti.booked) AS ticketBookeds, " +
+                "users.username, ARRAY_AGG(ti.ticketId) AS ticketIds, ARRAY_AGG(ti.qty) AS ticketQtys, ARRAY_AGG(ti.booked) AS ticketBookeds, " +
                 "ARRAY_AGG(ti.name) AS ticketNames, ARRAY_AGG(ti.price) AS ticketPrices FROM events JOIN locations ON events.locationid = locations.locationid " +
                 "LEFT OUTER JOIN tickets ti ON events.eventid = ti.eventid JOIN types ON events.typeid = types.typeid JOIN users ON events.userid = users.userid " +
                 "GROUP BY events.eventId, locations.locationid, types.typeid, users.username) AS aux LEFT OUTER JOIN eventTags eT ON aux.eventId = eT.eventId " +
@@ -240,14 +239,32 @@ public class EventJpaDao implements EventDao {
     @SuppressWarnings("unchecked")
     @Override
     public List<Event> getUserEvents(long id, int page) {
-        Query idQuery = em.createNativeQuery("SELECT eventId FROM events WHERE userid = :userid AND state NOT IN (1, 2) LIMIT 10 OFFSET :offset");
+        Query idQuery = em.createNativeQuery("SELECT eventId FROM events WHERE userid = :userid AND state != 1 AND date > NOW() ORDER BY date LIMIT 10 OFFSET :offset");
         idQuery.setParameter("userid", id);
         idQuery.setParameter("offset", (page - 1) * 10);
         final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Integer) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
             return new ArrayList<>();
-        final TypedQuery<Event> query = em.createQuery("from Event where eventid IN :ids", Event.class);
+        final TypedQuery<Event> query = em.createQuery("from Event where eventid IN :ids ORDER BY date", Event.class);
         query.setParameter("ids", ids);
         return query.getResultList();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Optional<EventStats> getEventStats(long id) {
+        Query query = em.createNativeQuery("SELECT eventName, bookings AS attended, expectedBooked AS booked, CAST(bookings AS numeric) / COALESCE(NULLIF(expectedBooked, 0), 1) " +
+                "AS attendance, CAST(bookings AS numeric) / COALESCE(NULLIF(qty, 0), 1) AS saleRatio, income, expectedIncome FROM (SELECT eventName, SUM(realqty) AS bookings, SUM(booked) " +
+                "AS expectedBooked, SUM(qty) AS qty, SUM(price * realqty) AS income, SUM(price * booked) AS expectedIncome FROM (SELECT booked, price, " +
+                "SUM(CASE WHEN confirmed THEN tb.qty ELSE 0 END) AS realqty, t.qty AS qty, e.name AS eventName FROM events e LEFT JOIN tickets t ON e.eventId = t.eventId LEFT " +
+                "JOIN ticketbookings tb on t.ticketId = tb.ticketId JOIN eventbookings eb on tb.id = eb.id WHERE e.eventid = :eventid " +
+                "GROUP BY t.ticketid, e.eventid) AS aux GROUP BY eventName) AS general");
+        query.setParameter("eventid", id);
+        List<Object[]> resultSet = query.getResultList();
+        Object[] result = resultSet.get(0);
+        if (result == null)
+            return Optional.empty();
+        return Optional.of(new EventStats((String) result[0], ((Number) result[1]).intValue(), ((Number) result[2]).intValue(), ((Number) result[3]).doubleValue(),
+                ((Number) result[4]).doubleValue(), ((Number) result[5]).doubleValue(), ((Number) result[6]).doubleValue()));
     }
 }

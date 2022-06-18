@@ -2,7 +2,6 @@ package ar.edu.itba.paw.model;
 
 import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Where;
-import org.omg.CORBA.PUBLIC_MEMBER;
 
 import javax.persistence.*;
 import java.util.List;

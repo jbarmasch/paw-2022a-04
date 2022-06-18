@@ -77,11 +77,11 @@ public class Event {
     private String description;
     private LocalDateTime date;
 
-    @Formula("(select coalesce(min(t.price), -1) from tickets t where t.eventid = eventid and (t.starting IS NULL OR t.starting <= NOW()) and (t.until IS NULL OR t.until >= NOW()) AND t.maxtickets - t.booked > 0)")
+    @Formula("(select coalesce(min(t.price), -1) from tickets t where t.eventid = eventid and (t.starting IS NULL OR t.starting <= NOW()) and (t.until IS NULL OR t.until >= NOW()) AND t.qty - t.booked > 0)")
     private double minPrice;
     @Formula("(select coalesce(sum(t.booked), 0) from tickets t where t.eventid = eventid)")
     private int attendance;
-    @Formula("(select coalesce(sum(t.maxtickets), 0) from tickets t where t.eventid = eventid)")
+    @Formula("(select coalesce(sum(t.qty), 0) from tickets t where t.eventid = eventid)")
     private int maxCapacity;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
@@ -111,7 +111,7 @@ public class Event {
     @JoinColumn(name = "bouncerid")
     private User bouncer;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "event")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "event")
     private List<Ticket> tickets;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

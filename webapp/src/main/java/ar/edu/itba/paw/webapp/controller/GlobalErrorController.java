@@ -6,6 +6,9 @@ import org.hibernate.validator.method.MethodConstraintViolation;
 import org.hibernate.validator.method.MethodConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -19,13 +22,15 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 @ControllerAdvice
 public class GlobalErrorController {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalErrorController.class);
+    @Autowired
+    private MessageSource messageSource;
 
     @ExceptionHandler({IllegalTicketException.class, TicketNotBookedException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView illegalTicket(Exception e) {
         LOGGER.error("BAD REQUEST {}", e.getMessage());
         String errorCode = "400";
-        String errorMessage = e.getMessage(); // TODO: i18n
+        String errorMessage = messageSource.getMessage(e.getMessage(), null, LocaleContextHolder.getLocale());
         return ErrorController.createErrorModel(errorCode, errorMessage);
     }
 
@@ -35,16 +40,25 @@ public class GlobalErrorController {
     public ModelAndView notFound(Exception e) {
         LOGGER.error("NOT FOUND {}", e.getMessage());
         String errorCode = "404";
-        String errorMessage = e.getMessage(); // TODO: i18n
+        String errorMessage = messageSource.getMessage(e.getMessage(), null, LocaleContextHolder.getLocale());
         return ErrorController.createErrorModel(errorCode, errorMessage);
     }
 
-    @ExceptionHandler({UserCannotRateException.class})
+    @ExceptionHandler({CancelBookingFailedException.class, BookingFailedException.class})
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ModelAndView serverError(Exception e) {
+        LOGGER.error("SERVER ERROR {}", e.getMessage());
+        String errorCode = "500";
+        String errorMessage = messageSource.getMessage(e.getMessage(), null, LocaleContextHolder.getLocale());
+        return ErrorController.createErrorModel(errorCode, errorMessage);
+    }
+
+    @ExceptionHandler({UserCannotRateException.class, EventFinishedException.class})
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ModelAndView forbiddenAction(Exception e) {
         LOGGER.error("FORBIDDEN {}", e.getMessage());
         String errorCode = "403";
-        String errorMessage = e.getMessage(); // TODO: i18n
+        String errorMessage = messageSource.getMessage(e.getMessage(), null, LocaleContextHolder.getLocale());
         return ErrorController.createErrorModel(errorCode, errorMessage);
     }
 
@@ -55,7 +69,7 @@ public class GlobalErrorController {
         MethodConstraintViolation<?> violation = e.getConstraintViolations().iterator().next();
         LOGGER.error("BAD REQUEST -- {} {}", violation.getParameterName(), violation.getMessage());
         String errorCode = "400";
-        String errorMessage = e.getMessage(); // TODO: i18n
+        String errorMessage = messageSource.getMessage("exception.methodConstraint", null, LocaleContextHolder.getLocale());
         return ErrorController.createErrorModel(errorCode, errorMessage);
     }
 
@@ -64,7 +78,7 @@ public class GlobalErrorController {
     public ModelAndView typeMismatch(MethodArgumentTypeMismatchException e) {
         LOGGER.error("BAD REQUEST -- {} must be {}", e.getParameter().getParameterName(), e.getRequiredType().getSimpleName());
         String errorCode = "400";
-        String errorMessage = e.getMessage(); // TODO: i18n
+        String errorMessage = messageSource.getMessage("exception.argumentTypeMismatch", null, LocaleContextHolder.getLocale());
         return ErrorController.createErrorModel(errorCode, errorMessage);
     }
 
@@ -73,7 +87,7 @@ public class GlobalErrorController {
     public ModelAndView maxUploadSize(MaxUploadSizeExceededException e) {
         LOGGER.error("INTERNAL SERVER ERROR -- Max upload size is {}", e.getMaxUploadSize());
         String errorCode = "500";
-        String errorMessage = e.getMessage(); // TODO: i18n
+        String errorMessage = messageSource.getMessage("exception.maxUploadSize", null, LocaleContextHolder.getLocale());
         return ErrorController.createErrorModel(errorCode, errorMessage);
     }
 
@@ -82,16 +96,16 @@ public class GlobalErrorController {
     public ModelAndView integrityViolation(Exception e) {
         LOGGER.error("DATA INTEGRITY VIOLATION {}", e.getMessage());
         String errorCode = "500";
-        String errorMessage = e.getMessage(); // TODO: i18n
+        String errorMessage = messageSource.getMessage("exception.dataIntegrity", null, LocaleContextHolder.getLocale());
         return ErrorController.createErrorModel(errorCode, errorMessage);
     }
 
-    @ExceptionHandler({NoHandlerFoundException.class})
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ModelAndView typeMismatch(Exception e) {
-        LOGGER.error("PAGE NOT FOUND {}", e.getMessage());
-        String errorCode = "404";
-        String errorMessage = e.getMessage(); // TODO: i18n
-        return ErrorController.createErrorModel(errorCode, errorMessage);
-    }
+//    @ExceptionHandler({NoHandlerFoundException.class})
+//    @ResponseStatus(HttpStatus.NOT_FOUND)
+//    public ModelAndView noHandler(Exception e) {
+//        LOGGER.error("PAGE NOT FOUND {}", e.getMessage());
+//        String errorCode = "404";
+//        String errorMessage = messageSource.getMessage("exception.noHandler", null, LocaleContextHolder.getLocale());
+//        return ErrorController.createErrorModel(errorCode, errorMessage);
+//    }
 }

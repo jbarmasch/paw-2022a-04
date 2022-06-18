@@ -9,7 +9,7 @@ import java.util.Locale;
 public interface MailService {
     void sendBookMail(String URL, EventBooking booking, Locale locale);
     void sendCancelMail(EventBooking booking, Locale locale);
-    void sendCancelTicketMail(TicketBooking ticketBooking, Locale locale);
+    void sendCancelTicketMail(TicketBooking ticketBooking);
     void sendErrorMail(String userMail);
     void sendBouncerMail(Event event, String password, String eventURL, Locale locale);
 }

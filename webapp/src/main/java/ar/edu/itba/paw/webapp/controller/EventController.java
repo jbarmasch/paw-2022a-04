@@ -4,10 +4,7 @@ import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.service.*;
 import ar.edu.itba.paw.webapp.auth.UserManager;
 import ar.edu.itba.paw.exceptions.*;
-import ar.edu.itba.paw.webapp.exceptions.BookingNotFoundException;
-import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
-import ar.edu.itba.paw.webapp.exceptions.StatsNotFoundException;
-import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
+import ar.edu.itba.paw.webapp.exceptions.*;
 import ar.edu.itba.paw.webapp.form.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,7 +110,12 @@ public class EventController {
 
         EventBooking booking = new EventBooking(user, e, new ArrayList<>(), null);
         for (BookingForm bookingForm : form.getBookings()) {
-            TicketBooking ticketBooking = new TicketBooking(ticketService.getTicketById(bookingForm.getTicketId()).orElse(null), bookingForm.getQty(), booking);
+            Ticket ticket = ticketService.getTicketById(bookingForm.getTicketId()).orElse(null);
+            if (ticket == null) {
+                LOGGER.error("Ticket not found");
+                throw new TicketNotFoundException();
+            }
+            TicketBooking ticketBooking = new TicketBooking(ticket, bookingForm.getQty(), booking);
             booking.addBooking(ticketBooking);
         }
 
@@ -153,6 +155,36 @@ public class EventController {
         final ModelAndView mav = new ModelAndView("bookingSuccess");
         mav.addObject("code", eventBooking.getCode());
         addSimilarAndPopularEvents(mav, eventId);
+        return mav;
+    }
+
+    @RequestMapping(value = "/events/{eventId}/stats", method = RequestMethod.GET)
+    public ModelAndView eventStats(@PathVariable("eventId") @Min(1) final long eventId) {
+        if (!userManager.isAuthenticated())
+            return new ModelAndView("redirect:/");
+
+        final Event event = eventService.getEventById(eventId).orElse(null);
+        if (event == null) {
+            LOGGER.error("Event not found");
+            throw new EventNotFoundException();
+        }
+        if (!userManager.isEventOwner(event)) {
+            LOGGER.debug("Logged user is not the owner of event {}", event.getName());
+            return new ModelAndView("redirect:/events/" + eventId);
+        }
+
+        EventStats eventStats = eventService.getEventStats(eventId).orElse(null);
+        if (eventStats == null) {
+            LOGGER.error("Stats not found");
+            throw new StatsNotFoundException();
+        }
+        List<TicketStats> ticketsStats = ticketService.getTicketStats(eventId);
+
+        final ModelAndView mav = new ModelAndView("statsForEvent");
+        mav.addObject("currentDate", LocalDateTime.now().toString().substring(0,16));
+        mav.addObject("eventStats", eventStats);
+        mav.addObject("ticketsStats", ticketsStats);
+        mav.addObject("ticketsStatsSize", ticketsStats.size());
         return mav;
     }
 
@@ -219,8 +251,8 @@ public class EventController {
         if (errors.hasErrors())
             return modifyForm(form, eventId);
 
-        eventService.updateEvent(eventId, form.getName(), form.getDescription(), form.getLocation(),
-                form.getType(), form.getTimestamp(), (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags(), form.isHasMinAge() ? form.getMinAge() : null);
+        eventService.updateEvent(eventId, form.getName(), form.getDescription(), form.getLocation(), form.getType(), form.getTimestamp(),
+                (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags(), form.isHasMinAge() ? form.getMinAge() : null);
         return new ModelAndView("redirect:/events/" + eventId);
     }
 
@@ -275,7 +307,7 @@ public class EventController {
     @RequestMapping(value = "/my-events", method = { RequestMethod.GET })
     public ModelAndView myEvents(@RequestParam(value = "page", required = false, defaultValue = "1") @Min(1) final int page) {
         final User user = userManager.getUser();
-        final List<Event> events = user.getEvents();
+        List<Event> events = eventService.getUserEvents(user.getId(), page);
 
         final ModelAndView mav = new ModelAndView("myEvents");
         mav.addObject("page", page);
@@ -287,14 +319,20 @@ public class EventController {
     @RequestMapping(value = "/stats", method = { RequestMethod.GET })
     public ModelAndView getStats() {
         final long userId = userManager.getUserId();
-        final EventStats stats = userService.getEventStats(userId).orElse(null);
+        final OrganizerStats stats = userService.getOrganizerStats(userId).orElse(null);
         if (stats == null) {
+            LOGGER.error("Stats not found");
+            throw new StatsNotFoundException();
+        }
+        final EventStats eventStats = eventService.getEventStats(stats.getPopularEvent().getId()).orElse(null);
+        if (eventStats == null) {
             LOGGER.error("Stats not found");
             throw new StatsNotFoundException();
         }
 
         final ModelAndView mav = new ModelAndView("eventStats");
         mav.addObject("stats", stats);
+        mav.addObject("eventStats", eventStats);
         return mav;
     }
 }

@@ -10,8 +10,8 @@
     <%@ include file="appbar.jsp"%>
     <c:url value="/login" var="loginUrl" />
     <div class="only-element">
-        <form action="${loginUrl}" class="loginForm" method="post" enctype="application/x-www-form-urlencoded">
-            <h3>Inicio de sesión</h3>
+        <form action="${loginUrl}" class="loginForm login-form" method="post" enctype="application/x-www-form-urlencoded">
+            <h3><spring:message code="login.login"/></h3>
             <div class="space-bet sep-top">
                 <spring:message code="login.username" var="usernamePlaceholder"/>
                 <input id="username" placeholder="${usernamePlaceholder}" name="j_username" type="text"/>
@@ -23,8 +23,8 @@
             <c:if test="${error}">
                 <span class="formError visible"><spring:message code="login.error"/></span>
             </c:if>
-            <div class="sep-top">
-                <label class="small-text align-center"><input name="j_rememberme" type="checkbox"/><spring:message code="login.rememberMe"/></label>
+            <div class="sep-top align-center">
+                <label class="small-text align-center zoom"><input name="j_rememberme" type="checkbox"/><spring:message code="login.rememberMe"/></label>
             </div>
             <div class="center sep-top-xl">
                 <spring:message code="login.login" var="loginMessage"/>

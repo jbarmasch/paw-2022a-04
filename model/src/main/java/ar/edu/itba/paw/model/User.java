@@ -28,6 +28,8 @@ public class User {
     @Formula("(select count(coalesce(r.rating, 0)) from ratings r where r.organizerid = userid)")
     private int votes;
 
+    private String language;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "userroles",
@@ -39,6 +41,15 @@ public class User {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "organizer")
     @Where(clause = "state != 2")
     private List<Event> events;
+
+    public User(String username, String password, String mail, Role initialRole, String language) {
+        this.username = username;
+        this.password = password;
+        this.mail = mail;
+        this.roles = new ArrayList<>();
+        roles.add(initialRole);
+        this.language = language;
+    }
 
     public User(String username, String password, String mail, Role initialRole) {
         this.username = username;
@@ -82,6 +93,10 @@ public class User {
         return events;
     }
 
+    public String getLanguage() {
+        return language;
+    }
+
     public void setEvents(List<Event> events) {
         this.events = events;
     }
@@ -117,6 +132,10 @@ public class User {
     public void addRole(Role role) {
         if (!this.roles.contains(role))
             this.roles.add(role);
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     @Override

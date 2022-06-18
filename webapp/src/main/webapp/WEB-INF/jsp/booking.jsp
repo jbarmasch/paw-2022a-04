@@ -14,11 +14,11 @@
     <c:import url="appbar.jsp"/>
     <div class="container event">
         <c:set var="event" value="${eventBooking.event}" scope="request"/>
-        <c:import url="eventCard.jsp"/>
+        <c:import url="eventCardZoomed.jsp"/>
 
         <div class="vertical">
             <div>
-                <h4 class="subtitle"><spring:message code="tickets.ticketBooked"/></h4>
+                <h4 class="subtitle subtitle_zoomed"><spring:message code="tickets.ticketBooked"/></h4>
             </div>
 
             <table class="tickets tickets-table">

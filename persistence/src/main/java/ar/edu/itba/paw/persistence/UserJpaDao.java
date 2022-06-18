@@ -17,8 +17,8 @@ public class UserJpaDao implements UserDao {
     private EntityManager em;
 
     @Override
-    public User createUser(String username, String password, String mail) {
-        final User user = new User(username, password, mail, em.getReference(Role.class, RoleEnum.USER.ordinal() + 1));
+    public User createUser(String username, String password, String mail, Locale locale) {
+        final User user = new User(username, password, mail, em.getReference(Role.class, RoleEnum.USER.ordinal() + 1), locale.getLanguage());
         em.persist(user);
         return user;
     }
@@ -66,20 +66,20 @@ public class UserJpaDao implements UserDao {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Optional<EventStats> getEventStats(long id) {
+    public Optional<OrganizerStats> getOrganizerStats(long id) {
         Query query = em.createNativeQuery("SELECT events, bookings, bookings / COALESCE(NULLIF(expetedBooked, 0), 1) AS attendance, income, eventid FROM ( " +
                 "SELECT (SELECT COUNT(eventid) FROM events e WHERE e.userid = :userid) AS events, SUM(realqty) AS bookings, SUM(booked) AS expetedBooked, " +
-                "SUM(price * realqty) AS income FROM (SELECT booked, price, SUM(CASE WHEN confirmed THEN qty ELSE 0 END) AS realqty FROM events e LEFT JOIN tickets t " +
+                "SUM(price * realqty) AS income FROM (SELECT booked, price, SUM(CASE WHEN confirmed THEN tb.qty ELSE 0 END) AS realqty FROM events e LEFT JOIN tickets t " +
                 "ON e.eventId = t.eventId LEFT JOIN ticketbookings tb on t.ticketId = tb.ticketId JOIN eventbookings eb on tb.id = eb.id WHERE e.userid = :userid " +
-                "GROUP BY t.ticketid) AS aux ) AS general CROSS JOIN (SELECT ec.eventid FROM events ec JOIN (SELECT e.eventid, SUM(COALESCE(booked, 0)) AS sumqty " +
-                "FROM events e LEFT JOIN tickets t ON t.eventId = e.eventId WHERE e.userid = :userid GROUP BY e.eventid ORDER BY sumqty DESC LIMIT 1) AS aux " +
+                "GROUP BY t.ticketid) AS aux) AS general CROSS JOIN (SELECT ec.eventid FROM events ec JOIN (SELECT e.eventid, SUM(COALESCE(booked, 0)) AS sumqty " +
+                "FROM events e LEFT JOIN tickets t ON t.eventId = e.eventId WHERE e.userid = :userid AND e.state != 1 GROUP BY e.eventid ORDER BY sumqty DESC LIMIT 1) AS aux " +
                 "ON ec.eventid = aux.eventid) AS event");
         query.setParameter("userid", id);
         List<Object[]> resultSet = query.getResultList();
         Object[] result = resultSet.get(0);
         if (result == null)
             return Optional.empty();
-        return Optional.of(new EventStats(((Number) result[0]).intValue(), ((Number) result[1]).intValue(),
+        return Optional.of(new OrganizerStats(((Number) result[0]).intValue(), ((Number) result[1]).intValue(),
                 em.getReference(Event.class, ((Number) result[4]).longValue()), ((Number) result[2]).doubleValue(), ((Number) result[3]).doubleValue()));
     }
 
@@ -123,7 +123,7 @@ public class UserJpaDao implements UserDao {
 
     @Override
     public boolean canRate(long organizerId, long userId) {
-        final TypedQuery<EventBooking> query = em.createQuery("from EventBooking as eb where eb.user.id = :userid and eb.event.date <= :date and eb.event.organizer.id = :organizerid", EventBooking.class);
+        final TypedQuery<EventBooking> query = em.createQuery("from EventBooking as eb where eb.user.id = :userid and eb.event.date > :date and eb.event.date < NOW() and eb.event.organizer.id = :organizerid", EventBooking.class);
         query.setParameter("userid", userId);
         query.setParameter("organizerid", organizerId);
         query.setParameter("date", LocalDateTime.now().minusMonths(1));

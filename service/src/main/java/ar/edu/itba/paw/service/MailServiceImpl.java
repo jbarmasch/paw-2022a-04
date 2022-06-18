@@ -5,6 +5,7 @@ import ar.edu.itba.paw.model.EventBooking;
 import ar.edu.itba.paw.model.TicketBooking;
 import ar.edu.itba.paw.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.context.MessageSource;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamSource;
@@ -65,41 +66,41 @@ public class MailServiceImpl implements MailService {
         }
     }
 
-    public void sendBookEventMail(String recipientEmail, String subject, EventBooking booking) {
-        final Context ctx = new Context();
+    public void sendBookEventMail(String recipientEmail, String subject, EventBooking booking, Locale locale) {
+        final Context ctx = new Context(locale);
         ctx.setVariable("booking", booking);
         sendMail("bookEventMail", subject, recipientEmail, ctx);
     }
 
 
-    public void sendBookUserMail(String recipientEmail, String subject, String bookingURL, EventBooking booking) {
-        final Context ctx = new Context();
+    public void sendBookUserMail(String recipientEmail, String subject, String bookingURL, EventBooking booking, Locale locale) {
+        final Context ctx = new Context(locale);
         ctx.setVariable("booking", booking);
         ctx.setVariable("imageResourceName", "image");
         ctx.setVariable("bookingURL", bookingURL);
         sendMailWithImage("bookUserMail", subject, recipientEmail, bookingURL, ctx);
     }
 
-    public void sendCancelEventMail(String recipientEmail, String subject, EventBooking booking) {
-        final Context ctx = new Context();
+    public void sendCancelEventMail(String recipientEmail, String subject, EventBooking booking, Locale locale) {
+        final Context ctx = new Context(locale);
         ctx.setVariable("booking", booking);
         sendMail("cancelEventMail", subject, recipientEmail, ctx);
     }
 
-    public void sendCancelUserMail(String recipientEmail, String subject, EventBooking booking) {
-        final Context ctx = new Context();
+    public void sendCancelUserMail(String recipientEmail, String subject, EventBooking booking, Locale locale) {
+        final Context ctx = new Context(locale);
         ctx.setVariable("booking", booking);
         sendMail("cancelUserMail", subject, recipientEmail, ctx);
     }
 
-    public void sendCancelUserTicketMail(String recipientEmail, String subject, TicketBooking ticketBooking) {
-        final Context ctx = new Context();
+    public void sendCancelUserTicketMail(String recipientEmail, String subject, TicketBooking ticketBooking, Locale locale) {
+        final Context ctx = new Context(locale);
         ctx.setVariable("ticketbooking", ticketBooking);
         sendMail("cancelUserTicketMail", subject, recipientEmail, ctx);
     }
 
-    public void sendBouncerEventMail(String recipientEmail, String subject, Event event, String password, String eventURL) {
-        final Context ctx = new Context();
+    public void sendBouncerEventMail(String recipientEmail, String subject, Event event, String password, String eventURL, Locale locale) {
+        final Context ctx = new Context(locale);
         ctx.setVariable("event", event);
         ctx.setVariable("password", password);
         ctx.setVariable("eventURL", eventURL);
@@ -109,27 +110,35 @@ public class MailServiceImpl implements MailService {
     @Async
     @Override
     public void sendBookMail(String bookingURL, EventBooking booking, Locale locale) {
-        sendBookUserMail(booking.getUser().getMail(), messageSource.getMessage("mail.subjectBookingUser", null, locale), bookingURL, booking);
-        sendBookEventMail(booking.getEvent().getOrganizer().getMail(), messageSource.getMessage("mail.subjectBookingOrganizer", null, locale), booking);
+        sendBookUserMail(booking.getUser().getMail(),
+                messageSource.getMessage("mail.subjectBookingUser", null, locale), bookingURL, booking, locale);
+        sendBookEventMail(booking.getEvent().getOrganizer().getMail(),
+                messageSource.getMessage("mail.subjectBookingOrganizer", null, locale), booking,
+                new Locale(booking.getEvent().getOrganizer().getLanguage()));
     }
 
     @Async
     @Override
     public void sendCancelMail(EventBooking booking, Locale locale) {
-        sendCancelUserMail(booking.getUser().getMail(), messageSource.getMessage("mail.subjectCancelUser", null, locale), booking);
-        sendCancelEventMail(booking.getEvent().getOrganizer().getMail(), messageSource.getMessage("mail.subjectCancelOrganizer", null, locale), booking);
+        sendCancelUserMail(booking.getUser().getMail(), messageSource.getMessage("mail.subjectCancelUser", null, locale), booking, locale);
+        sendCancelEventMail(booking.getEvent().getOrganizer().getMail(),
+                messageSource.getMessage("mail.subjectCancelOrganizer", null, locale), booking,
+                new Locale(booking.getEvent().getOrganizer().getLanguage()));
     }
 
     @Async
     @Override
-    public void sendCancelTicketMail(TicketBooking ticketBooking, Locale locale) {
-        sendCancelUserTicketMail(ticketBooking.getEventBooking().getUser().getMail(), messageSource.getMessage("mail.subjectCancelTicketUser", null, locale), ticketBooking);
+    public void sendCancelTicketMail(TicketBooking ticketBooking) {
+        Locale locale = new Locale(ticketBooking.getEventBooking().getUser().getLanguage());
+        sendCancelUserTicketMail(ticketBooking.getEventBooking().getUser().getMail(),
+                messageSource.getMessage("mail.subjectCancelTicketUser", null, locale), ticketBooking, locale);
     }
 
     @Async
     @Override
     public void sendBouncerMail(Event event, String password, String eventURL, Locale locale) {
-        sendBouncerEventMail(event.getOrganizer().getMail(), messageSource.getMessage("mail.subjectBookingUser", null, locale), event, password, eventURL);
+        sendBouncerEventMail(event.getOrganizer().getMail(),
+                messageSource.getMessage("mail.subjectBookingUser", null, locale), event, password, eventURL, locale);
     }
 
     @Async

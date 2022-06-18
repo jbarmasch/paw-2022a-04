@@ -10,6 +10,7 @@ import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -66,7 +67,7 @@ public class UserController {
         }
 
         LOGGER.debug("Create new user with username {}", form.getUsername());
-        userService.create(form.getUsername(), form.getPassword(), form.getMail());
+        userService.create(form.getUsername(), form.getPassword(), form.getMail(), LocaleContextHolder.getLocale());
         AuthUtils.requestAuthentication(request, form.getUsername(), form.getPassword());
         return new ModelAndView("redirect:" + AuthUtils.redirectionAuthenticationSuccess(request));
     }
@@ -91,10 +92,11 @@ public class UserController {
         if (user == null) {
             LOGGER.error("User not found");
             throw new UserNotFoundException();
-        } else if (userManager.getUserId() != userId && !userManager.isCreator(user)) {
-            return new ModelAndView("redirect:/403");
         }
-        List<Event> events = eventService.getUserEvents(userId, 1).stream().limit(5).collect(Collectors.toList());
+         if (userManager.isAuthenticated() && userManager.getUserId() != userId && !userManager.isCreator(user)) {
+             return new ModelAndView("redirect:/403");
+         }
+        List<Event> events = eventService.getUserEvents(userId, 1);
 
         final ModelAndView mav = new ModelAndView("profile");
         if (userManager.isAuthenticated() && userId == userManager.getUserId()) {
@@ -103,7 +105,7 @@ public class UserController {
             mav.addObject("stats", stats);
         }
         mav.addObject("user", user);
-        mav.addObject("events", events);
+        mav.addObject("events", events.stream().limit(5).collect(Collectors.toList()));
         mav.addObject("size", events.size());
         return mav;
     }

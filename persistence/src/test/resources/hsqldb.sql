@@ -96,10 +96,10 @@ CREATE VIEW event_complete AS (
     SELECT aux.*,  ARRAY_AGG(t.tagId) AS tagIds, ARRAY_AGG(t.name) AS tagNames
     FROM
         (SELECT events.eventid, events.name, events.description, events.locationid, SUM(COALESCE(ti.booked, 0)) AS attendance,
-                MIN(CASE WHEN ti.maxTickets - ti.booked > 0 THEN ti.price END) AS minPrice,
-                (SUM(COALESCE(ti.maxTickets, 0)) - SUM(COALESCE(ti.booked, 0))) AS ticketsLeft,
+                MIN(CASE WHEN ti.qty - ti.booked > 0 THEN ti.price END) AS minPrice,
+                (SUM(COALESCE(ti.qty, 0)) - SUM(COALESCE(ti.booked, 0))) AS ticketsLeft,
                 events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, types.name AS typeName, users.username,
-                ARRAY_AGG(ti.ticketId) AS ticketIds, ARRAY_AGG(ti.maxTickets) AS ticketQtys, ARRAY_AGG(ti.booked) AS ticketBookeds, ARRAY_AGG(ti.name) AS ticketNames, ARRAY_AGG(ti.price) AS ticketPrices
+                ARRAY_AGG(ti.ticketId) AS ticketIds, ARRAY_AGG(ti.qty) AS ticketQtys, ARRAY_AGG(ti.booked) AS ticketBookeds, ARRAY_AGG(ti.name) AS ticketNames, ARRAY_AGG(ti.price) AS ticketPrices
          FROM events JOIN locations ON events.locationid = locations.locationid
                      LEFT OUTER JOIN tickets ti ON events.eventid = ti.eventid
                      JOIN types ON events.typeid = types.typeid JOIN users ON events.userid = users.userid
@@ -112,10 +112,10 @@ CREATE VIEW event_complete_en AS (
     SELECT aux.*,  ARRAY_AGG(t.tagId) AS tagIds, ARRAY_AGG(t.name) AS tagNames
     FROM
         (SELECT events.eventid, events.name, events.description, events.locationid, SUM(COALESCE(ti.booked, 0)) AS attendance,
-                MIN(CASE WHEN ti.maxTickets - ti.booked > 0 THEN ti.price END) AS minPrice,
-                (SUM(COALESCE(ti.maxTickets, 0)) - SUM(COALESCE(ti.booked, 0))) AS ticketsLeft,
+                MIN(CASE WHEN ti.qty - ti.booked > 0 THEN ti.price END) AS minPrice,
+                (SUM(COALESCE(ti.qty, 0)) - SUM(COALESCE(ti.booked, 0))) AS ticketsLeft,
                 events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, types_en.name AS typeName, users.username,
-                ARRAY_AGG(ti.ticketId) AS ticketIds, ARRAY_AGG(ti.maxTickets) AS ticketQtys, ARRAY_AGG(ti.booked) AS ticketBookeds, ARRAY_AGG(ti.name) AS ticketNames, ARRAY_AGG(ti.price) AS ticketPrices
+                ARRAY_AGG(ti.ticketId) AS ticketIds, ARRAY_AGG(ti.qty) AS ticketQtys, ARRAY_AGG(ti.booked) AS ticketBookeds, ARRAY_AGG(ti.name) AS ticketNames, ARRAY_AGG(ti.price) AS ticketPrices
          FROM events JOIN locations ON events.locationid = locations.locationid
                      LEFT OUTER JOIN tickets ti ON events.eventid = ti.eventid
                      JOIN types_en ON events.typeid = types_en.typeid JOIN users ON events.userid = users.userid

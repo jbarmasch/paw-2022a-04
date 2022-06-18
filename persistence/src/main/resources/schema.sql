@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS events (
     bouncerId INTEGER REFERENCES users(userId),
     imageId INTEGER REFERENCES images,
     state INTEGER NOT NULL,
-    minage INTEGER CHECK(minage >= 14 AND minage <= 27)
+    minage INTEGER CHECK (minage >= 14 AND minage <= 27)
 );
 
 CREATE TABLE IF NOT EXISTS eventTags (
@@ -53,10 +53,12 @@ CREATE TABLE IF NOT EXISTS tickets (
     name VARCHAR(100),
     price DOUBLE PRECISION,
     booked INTEGER,
-    maxTickets INTEGER,
+    qty INTEGER,
+    maxPerUser INTEGER DEFAULT 6,
     starting TIMESTAMP,
     until TIMESTAMP,
-    UNIQUE (eventId, name)
+    UNIQUE (eventId, name),
+    CHECK (maxPerUser >= 1 AND maxPerUser <= 10)
 );
 
 CREATE TABLE IF NOT EXISTS eventbookings (

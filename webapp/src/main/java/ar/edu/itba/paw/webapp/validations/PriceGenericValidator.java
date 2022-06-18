@@ -9,7 +9,6 @@ public class PriceGenericValidator implements ConstraintValidator<Price, Object[
 
     @Override
     public boolean isValid(Object[] objects, ConstraintValidatorContext constraintValidatorContext) {
-        System.out.println(objects[0].toString() + ' ' + objects[1].toString());
         if (objects[0] == null || objects[1] == null)
             return true;
 

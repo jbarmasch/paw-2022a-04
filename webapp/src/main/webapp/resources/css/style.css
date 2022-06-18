@@ -278,7 +278,17 @@ input {
     align-items: flex-start;
     top: 0;
     right: 0;
-    margin-bottom: 10px;
+
+}
+
+.event_actions_left {
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    top: 0;
+    left: 0;
 }
 
 .event_actions > * {
@@ -321,7 +331,15 @@ body::before {
 .icon {
     width: 20px;
     height: 20px;
+    padding: 3px;
     margin: 4px;
+}
+
+.stats_icon {
+    width: 25px;
+    height: 25px;
+    padding: 3px;
+    margin: 2px;
 }
 
 form {
@@ -489,7 +507,7 @@ input[type=submit] {
 }
 
 .event_name {
-    margin-top: 10px;
+    margin-top: 18px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -797,4 +815,137 @@ select:-webkit-autofill:focus {
     max-height: 160px;
     max-width: 160px;
     aspect-ratio: 1;
+}
+
+.neon-text {
+    margin: 0;
+    font-family: 'Teko', sans-serif;
+    color: #000;
+    font-size: 5rem;
+    text-transform: uppercase;
+    animation: glow 2s ease-in-out infinite alternate;
+    text-align: center;
+}
+
+@keyframes glow {
+    from {
+        text-shadow: 0 0 10px #e00000;
+    }
+    to {
+        text-shadow: 0 0 10px #fc2323, 0 0 10px #fc2323;
+    }
+}
+
+@media screen and (max-width: 1000px) and (orientation: portrait) {
+    .event {
+        flex-direction: column;
+        justify-content: space-around;
+        margin: 20px;
+        align-items: center;
+    }
+
+    .uk-button-text {
+        font-size: 2.5em !important;
+        font-weight: 600 !important;
+    }
+
+    .uk-search-input {
+        font-size: 2em !important;
+        font-weight: 600;
+    }
+
+    .appbar-logo {
+        width: 120px;
+        height: 120px;
+    }
+
+    .sep-top {
+        margin-top: 30px;
+    }
+
+    .sep-top-xl {
+        margin-top: 60px;
+    }
+
+    .sep-left {
+        margin-left: 16px;
+    }
+
+    .login-form {
+        width: 70%;
+    }
+
+    .tickets-table {
+        text-align: left;
+        border-collapse: collapse;
+        font-size: 2.3em;
+    }
+
+    input {
+        font-size: 2.85em;
+        line-height: 1.8em;
+    }
+
+    h3 {
+        font-size: 3em;
+    }
+
+    .zoom {
+        zoom: 1.6;
+        transform: scale(1.6);
+        -ms-transform: scale(1.6);
+        -webkit-transform: scale(1.6);
+        -o-transform: scale(1.6);
+        -moz-transform: scale(1.6);
+        transform-origin: 0 0;
+        -ms-transform-origin: 0 0;
+        -webkit-transform-origin: 0 0;
+        -o-transform-origin: 0 0;
+        -moz-transform-origin: 0 0;
+    }
+
+    .card_img_container_zoomed {
+        max-width: 340px;
+        max-height: 340px;
+    }
+
+    .soldout_card_zoomed {
+        position: absolute;
+        object-fit: contain;
+        top: 0;
+        left: 0;
+        width: 100%;
+        max-height: 340px;
+        height: 100%;
+        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
+    }
+
+    .card {
+        max-width: 340px;
+        margin: 24px 16px 16px 16px;
+    }
+
+    .card_info_zoomed {
+        font-size: 1.8em !important;
+    }
+
+    .icon_zoomed {
+        width: 40px;
+        height: 40px;
+        margin: 12px;
+    }
+
+    .uk-card-title_zoomed {
+        font-size: 2.6em;
+    }
+
+    .subtitle_zoomed {
+        margin: 0 0 8px 0;
+        font-weight: 550;
+        font-size: 2.8em;
+    }
+
+    .bigger {
+        font-size: 2em;
+    }
 }

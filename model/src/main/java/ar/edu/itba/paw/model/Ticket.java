@@ -2,6 +2,7 @@ package ar.edu.itba.paw.model;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -18,18 +19,21 @@ public class Ticket {
     @Column(name = "name", length = 100)
     private String ticketName;
     private Double price;
-    @Column(name = "maxTickets")
     private Integer qty;
     private Integer booked;
+    private Integer maxPerUser;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
     @JoinColumn(name = "eventid")
     private Event event;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "ticket")
+    List<TicketBooking> ticketBookings;
 
     private LocalDateTime starting;
     private LocalDateTime until;
 
-    public Ticket(String ticketName, Double price, Integer qty, Event event, LocalDateTime starting, LocalDateTime until) {
+    public Ticket(String ticketName, Double price, Integer qty, Event event, LocalDateTime starting, LocalDateTime until, Integer maxPerUser) {
         this.ticketName = ticketName;
         this.price = price;
         this.qty = qty;
@@ -37,14 +41,16 @@ public class Ticket {
         this.event = event;
         this.starting = starting;
         this.until = until;
+        this.maxPerUser = maxPerUser;
     }
 
-    public Ticket(String ticketName, Double price, Integer qty, Event event) {
+    public Ticket(String ticketName, Double price, Integer qty, Event event, Integer maxPerUser) {
         this.ticketName = ticketName;
         this.price = price;
         this.qty = qty;
         this.booked = 0;
         this.event = event;
+        this.maxPerUser = maxPerUser;
     }
 
     public Ticket() {}
@@ -69,6 +75,10 @@ public class Ticket {
         return qty;
     }
 
+    public Integer getMaxPerUser() {
+        return maxPerUser;
+    }
+
     public void setTicketName(String ticketName) {
         this.ticketName = ticketName;
     }
@@ -79,6 +89,10 @@ public class Ticket {
 
     public void setQty(Integer qty) {
         this.qty = qty;
+    }
+
+    public void setMaxPerUser(Integer maxPerUser) {
+        this.maxPerUser = maxPerUser;
     }
 
     public long getId() {

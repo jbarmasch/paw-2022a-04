@@ -73,7 +73,7 @@ public class TicketController {
 
         try {
             ticketService.addTicket(event, form.getTicketName(), form.getPrice(), form.getQty(),
-                    form.getLocalDate(form.getStarting()), form.getLocalDate(form.getUntil()));
+                    form.getLocalDate(form.getStarting()), form.getLocalDate(form.getUntil()), form.getMaxPerUser());
         } catch (DateRangeException e) {
             if (e.getStarting() != null) {
                 errors.rejectValue("starting", "Min.bookForm.qtyAnother", null, "");
@@ -134,8 +134,9 @@ public class TicketController {
             LOGGER.error("TicketForm has errors: {}", errors.getAllErrors().toArray());
             return modifyTicketForm(form, eventId, ticketId);
         }
+
         try {
-            ticketService.updateTicket(ticket, form.getTicketName(), form.getPrice(), form.getQty(), form.getLocalDate(form.getStarting()), form.getLocalDate(form.getUntil()));
+            ticketService.updateTicket(ticket, form.getTicketName(), form.getPrice(), form.getQty(), form.getLocalDate(form.getStarting()), form.getLocalDate(form.getUntil()), form.getMaxPerUser());
         } catch (TicketUnderflowException e) {
             errors.rejectValue("qty", "Min.bookForm.qtyAnother", new Object[]{ticket.getBooked()}, "");
             LOGGER.error("TicketForm has errors: {}", errors.getAllErrors().toArray());

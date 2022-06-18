@@ -5,7 +5,9 @@ import ar.edu.itba.paw.webapp.validations.DateOrder;
 import ar.edu.itba.paw.webapp.validations.Future;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -22,13 +24,17 @@ public class TicketForm {
     @Min(1)
     private Integer qty;
 
-    @Future
     @Date
     private String starting;
 
     @Future
     @Date
     private String until;
+
+    @Min(1)
+    @Max(10)
+    @NotNull
+    private Integer maxPerUser;
 
     public String getTicketName() {
         return ticketName;
@@ -40,6 +46,10 @@ public class TicketForm {
 
     public Integer getQty() {
         return qty;
+    }
+
+    public Integer getMaxPerUser() {
+        return maxPerUser;
     }
 
     public int getId() {
@@ -60,6 +70,10 @@ public class TicketForm {
 
     public void setQty(Integer qty) {
         this.qty = qty;
+    }
+
+    public void setMaxPerUser(Integer maxPerUser) {
+        this.maxPerUser = maxPerUser;
     }
 
     public String getStarting() {
