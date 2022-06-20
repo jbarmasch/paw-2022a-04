@@ -1,21 +1,24 @@
 package ar.edu.itba.paw.model;
 
+import org.hibernate.annotations.Check;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
-//@Table(name = "tickets", uniqueConstraints = {
-//        @UniqueConstraint(columnNames = {"eventid", "name"})
-//})
-@Table(name = "tickets")
+@Table(name = "tickets", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"eventid", "name"})
+})
+@Check(constraints = "maxperuser >= 1 AND maxperuser <= 10")
 public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tickets_ticketid_seq")
     @SequenceGenerator(sequenceName = "tickets_ticketid_seq", name = "tickets_ticketid_seq", allocationSize = 1)
     @Column(name = "ticketid")
     private long id;
+
     @Column(name = "name", length = 100)
     private String ticketName;
     private Double price;
@@ -28,7 +31,7 @@ public class Ticket {
     private Event event;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "ticket")
-    List<TicketBooking> ticketBookings;
+    private List<TicketBooking> ticketBookings;
 
     private LocalDateTime starting;
     private LocalDateTime until;
@@ -146,27 +149,19 @@ public class Ticket {
     }
 
     public String getStartingDateFormatted() {
-        String dateStr = starting.toString();
-        String year = dateStr.substring(0, 4);
-        String month = dateStr.substring(5, 7);
-        String day = dateStr.substring(8, 10);
-        return day + "/" + month + "/" + year;
+        return DateUtils.getDateFormatted(starting);
     }
 
     public String getStartingTimeFormatted() {
-        return starting.toString().substring(11, 16);
+        return DateUtils.getTimeFormatted(starting);
     }
 
     public String getUntilDateFormatted() {
-        String dateStr = until.toString();
-        String year = dateStr.substring(0, 4);
-        String month = dateStr.substring(5, 7);
-        String day = dateStr.substring(8, 10);
-        return day + "/" + month + "/" + year;
+        return DateUtils.getDateFormatted(until);
     }
 
     public String getUntilTimeFormatted() {
-        return until.toString().substring(11, 16);
+        return DateUtils.getTimeFormatted(until);
     }
 
     @Override

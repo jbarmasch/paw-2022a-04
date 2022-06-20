@@ -6,6 +6,7 @@ import java.util.Locale;
 @Entity
 @Table(name = "types")
 public class Type {
+    @Transient
     private static Locale locale = Locale.ENGLISH;
 
     @Id

@@ -38,7 +38,6 @@
                     <form:input class="uk-input" type="number" path="qty" min="1" step="1" required="true"/>
                     <form:errors path="qty" cssClass="error-message" element="span"/>
                     <spring:message code="NotNull.bookForm.qty" var="qtyNullError"/>
-<%--                    <spring:message code="Max.bookForm.qty" var="maxQtySizeError"/>--%>
                     <spring:message code="Min.bookForm.qty" var="minQtySizeError"/>
                     <span class="formError"></span>
                 </div>

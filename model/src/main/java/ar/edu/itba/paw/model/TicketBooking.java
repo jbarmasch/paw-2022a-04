@@ -27,11 +27,6 @@ public class TicketBooking {
         this.eventBooking = eventBooking;
     }
 
-    public TicketBooking(Ticket ticket, int qty) {
-        this.ticket = ticket;
-        this.qty = qty;
-    }
-
     public TicketBooking() {}
 
     public long getId() {

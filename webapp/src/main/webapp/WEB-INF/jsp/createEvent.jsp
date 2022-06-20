@@ -115,8 +115,6 @@
     (function() {
         var name = document.getElementById('name');
         var description = document.getElementById('description');
-        // var maxCapacity = document.getElementById('maxCapacity');
-        // var price = document.getElementById('price');
         var date = document.getElementById('date');
         var age = document.getElementById('minAgeInput');
         var type = document.getElementById('type');
@@ -125,6 +123,7 @@
         var uploadField = document.getElementById("image");
 
         uploadField.onchange = function() {
+            // TODO: HACER UN SPRING MESSAGE!!!!
             if (this.files[0].size > 1048576) {
                 UIkit.notification("MUY GRANDE", {timeout: 4000}, {status: 'danger'});
                 this.value = "";

@@ -3,9 +3,7 @@ package ar.edu.itba.paw.service;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-// USO: TransactionUtil.executeAfterTransaction(() -> );
 public final class TransactionUtil {
-
     private TransactionUtil() {
         throw new UnsupportedOperationException();
     }

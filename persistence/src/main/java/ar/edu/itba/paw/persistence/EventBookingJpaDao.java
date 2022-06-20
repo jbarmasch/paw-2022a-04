@@ -129,6 +129,7 @@ public class EventBookingJpaDao implements EventBookingDao {
         return true;
     }
 
+    @Override
     public void confirmBooking(EventBooking eventBooking) {
         eventBooking.setConfirmed(true);
         em.persist(eventBooking);

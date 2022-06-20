@@ -1,9 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.Event;
-import ar.edu.itba.paw.model.EventStats;
 import ar.edu.itba.paw.model.Ticket;
-//import ar.edu.itba.paw.model.TicketStats;
 import ar.edu.itba.paw.model.TicketStats;
 import org.springframework.stereotype.Repository;
 

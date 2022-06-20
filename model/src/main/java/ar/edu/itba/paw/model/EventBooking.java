@@ -39,28 +39,12 @@ public class EventBooking {
     @Column(nullable = false)
     private boolean confirmed;
 
-    public EventBooking(User user, Event event, List<TicketBooking> ticketBookings, String code, Integer rating) {
-        this.user = user;
-        this.event = event;
-        this.ticketBookings = ticketBookings;
-        this.code = code;
-        this.rating = rating;
-    }
-
     public EventBooking(User user, Event event, List<TicketBooking> ticketBookings, String code) {
         this.user = user;
         this.event = event;
         this.ticketBookings = ticketBookings;
         this.code = code;
         this.confirmed = false;
-    }
-
-    public EventBooking(User user, Event event, List<TicketBooking> ticketBookings, String code, boolean confirmed) {
-        this.user = user;
-        this.event = event;
-        this.ticketBookings = ticketBookings;
-        this.code = code;
-        this.confirmed = confirmed;
     }
 
     public EventBooking() {}

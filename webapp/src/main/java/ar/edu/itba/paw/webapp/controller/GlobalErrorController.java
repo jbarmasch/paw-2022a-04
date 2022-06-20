@@ -21,9 +21,10 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 @ControllerAdvice
 public class GlobalErrorController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalErrorController.class);
     @Autowired
     private MessageSource messageSource;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalErrorController.class);
 
     @ExceptionHandler({IllegalTicketException.class, TicketNotBookedException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -99,13 +100,4 @@ public class GlobalErrorController {
         String errorMessage = messageSource.getMessage("exception.dataIntegrity", null, LocaleContextHolder.getLocale());
         return ErrorController.createErrorModel(errorCode, errorMessage);
     }
-
-//    @ExceptionHandler({NoHandlerFoundException.class})
-//    @ResponseStatus(HttpStatus.NOT_FOUND)
-//    public ModelAndView noHandler(Exception e) {
-//        LOGGER.error("PAGE NOT FOUND {}", e.getMessage());
-//        String errorCode = "404";
-//        String errorMessage = messageSource.getMessage("exception.noHandler", null, LocaleContextHolder.getLocale());
-//        return ErrorController.createErrorModel(errorCode, errorMessage);
-//    }
 }

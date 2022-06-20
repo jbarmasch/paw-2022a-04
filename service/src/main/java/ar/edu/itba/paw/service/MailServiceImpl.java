@@ -140,10 +140,4 @@ public class MailServiceImpl implements MailService {
         sendBouncerEventMail(event.getOrganizer().getMail(),
                 messageSource.getMessage("mail.subjectBookingUser", null, locale), event, password, eventURL, locale);
     }
-
-    @Async
-    @Override
-    public void sendErrorMail(String userMail) {
-//        sendMail(userMail, "Error reserva", "Ha habido un error al reservar entradas para " + eventName + ".");
-    }
 }

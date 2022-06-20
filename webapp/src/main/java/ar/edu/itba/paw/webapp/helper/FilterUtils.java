@@ -2,7 +2,7 @@ package ar.edu.itba.paw.webapp.helper;
 
 import java.util.Map;
 
-public class FilterUtils {
+public final class FilterUtils {
     private FilterUtils() {
         throw new UnsupportedOperationException();
     }

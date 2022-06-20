@@ -6,6 +6,7 @@ import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -122,20 +123,6 @@ public class Event {
     private State state;
 
     public Event(String name, String description, Location location, Type type, LocalDateTime date, List<Tag> tags, User organizer,
-                    State state, List<Ticket> tickets, Integer minAge) {
-        this.name = name;
-        this.description = description;
-        this.location = location;
-        this.date = date;
-        this.type = type;
-        this.tags = tags;
-        this.organizer = organizer;
-        this.state = state;
-        this.tickets = tickets;
-        this.minAge = minAge;
-    }
-
-    public Event(String name, String description, Location location, Type type, LocalDateTime date, List<Tag> tags, User organizer,
                  State state, List<Ticket> tickets, Image image, Integer minAge, User bouncer) {
         this.name = name;
         this.description = description;
@@ -149,21 +136,6 @@ public class Event {
         this.image = image;
         this.minAge = minAge;
         this.bouncer = bouncer;
-    }
-
-    public Event(String name, String description, Location location, Type type, LocalDateTime date, List<Tag> tags, User organizer,
-                 State state, List<Ticket> tickets, Image image, Integer minAge) {
-        this.name = name;
-        this.description = description;
-        this.location = location;
-        this.date = date;
-        this.type = type;
-        this.tags = tags;
-        this.organizer = organizer;
-        this.state = state;
-        this.tickets = tickets;
-        this.image = image;
-        this.minAge = minAge;
     }
 
     public Event() {}
@@ -205,15 +177,11 @@ public class Event {
     }
 
     public String getDateFormatted() {
-        String dateStr = date.toString();
-        String year = dateStr.substring(0, 4);
-        String month = dateStr.substring(5, 7);
-        String day = dateStr.substring(8, 10);
-        return day + "/" + month + "/" + year;
+        return DateUtils.getDateFormatted(date);
     }
 
     public String getTimeFormatted() {
-        return date.toString().substring(11, 16);
+        return DateUtils.getTimeFormatted(date);
     }
 
     public List<Tag> getTags() {

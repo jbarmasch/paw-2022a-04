@@ -1,14 +1,14 @@
 package ar.edu.itba.paw.model;
 
 public class TicketStats {
-    private String ticketName;
-    private double attendance;
-    private double saleRatio;
-    private double price;
-    private int realQty;
-    private int qty;
-    private double income;
-    private int booked;
+    private final String ticketName;
+    private final double attendance;
+    private final double saleRatio;
+    private final double price;
+    private final int realQty;
+    private final int qty;
+    private final double income;
+    private final int booked;
 
     public TicketStats(String ticketName, double attendance, double saleRatio, double price, int realQty, int qty, double income, int booked) {
         this.ticketName = ticketName;

@@ -7,7 +7,7 @@ public class BookingId implements Serializable {
     private Ticket ticket;
     private EventBooking eventBooking;
 
-    BookingId() {}
+    public BookingId() {}
 
     public BookingId(Ticket ticket, EventBooking eventBooking) {
         this.ticket = ticket;

@@ -90,9 +90,7 @@
                             </c:forEach>
                         </c:if>
                     </table>
-
                 </div>
     </div>
-
 </body>
 </html>

@@ -12,6 +12,7 @@ public class TicketBookingServiceImpl implements TicketBookingService {
     @Autowired
     TicketBookingDao ticketBookingDao;
 
+    @Override
     public List<TicketBooking> getBookingsForTicket(long ticketId) {
         return ticketBookingDao.getBookingsForTicket(ticketId);
     }

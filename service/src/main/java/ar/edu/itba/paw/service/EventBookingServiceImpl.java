@@ -92,10 +92,7 @@ public class EventBookingServiceImpl implements EventBookingService {
         EventBooking eventBooking = eventBookingDao.book(booking);
         if (eventBooking != null) {
             TransactionUtil.executeAfterTransaction(() -> mailService.sendBookMail(baseUrl + "/bookings/" + eventBooking.getCode(), eventBooking, locale));
-            return;
         }
-
-        mailService.sendErrorMail(booking.getUser().getMail());
     }
 
     @Transactional
@@ -124,10 +121,9 @@ public class EventBookingServiceImpl implements EventBookingService {
         if (!ticketsError.isEmpty())
             throw new SurpassedMaxTicketsException(ticketsError);
 
-        if (eventBookingDao.cancelBooking(booking))
-            mailService.sendCancelMail(booking, locale);
-        else
-            mailService.sendErrorMail(booking.getUser().getMail());
+        if (eventBookingDao.cancelBooking(booking)) {
+            TransactionUtil.executeAfterTransaction(() -> mailService.sendCancelMail(booking, locale));
+        }
     }
 
     @Transactional

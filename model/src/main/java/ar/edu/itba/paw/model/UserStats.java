@@ -1,10 +1,10 @@
 package ar.edu.itba.paw.model;
 
 public class UserStats {
-    private int eventsAttended;
-    private int bookingsMade;
-    private Type favType;
-    private Location favLocation;
+    private final int eventsAttended;
+    private final int bookingsMade;
+    private final Type favType;
+    private final Location favLocation;
 
     public UserStats(int eventsAttended, int bookingsMade, Type favType, Location favLocation) {
         this.eventsAttended = eventsAttended;
@@ -12,8 +12,6 @@ public class UserStats {
         this.favType = favType;
         this.favLocation = favLocation;
     }
-
-    public UserStats() {}
 
     public int getEventsAttended() {
         return eventsAttended;

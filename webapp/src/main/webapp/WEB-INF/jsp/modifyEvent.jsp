@@ -34,7 +34,7 @@
             </div>
             <div>
                 <span class="required">* </span>
-                <form:label path="location"><spring:message code="create.location"/>:: </form:label>
+                <form:label path="location"><spring:message code="create.location"/>: </form:label>
                 <form:select class="uk-select" htmlEscape="true" multiple="false" path="location" required="true">
                     <c:forEach var="item" items="${locations}">
                         <c:choose>
@@ -53,7 +53,7 @@
             </div>
             <div>
                 <span class="required">* </span>
-                <form:label path="type" for="type"><spring:message code="create.type"/>:: </form:label>
+                <form:label path="type" for="type"><spring:message code="create.type"/>: </form:label>
                 <form:select id="type" class="uk-select" htmlEscape="true" multiple="false" path="type" required="true">
                     <c:forEach var="item" items="${types}">
                         <c:choose>
@@ -72,7 +72,7 @@
             </div>
             <div>
                 <span class="required">* </span>
-                <form:label path="date"><spring:message code="create.date"/>:: </form:label>
+                <form:label path="date"><spring:message code="create.date"/>: </form:label>
                 <form:input class="uk-input" type="datetime-local" min="${currentDate}" path="date" required="true" value="${event.date}"/>
                 <form:errors path="date" cssClass="error-message" element="span"/>
                 <spring:message code="NotEmpty.eventForm.date" var="dateEmptyError"/>
@@ -83,7 +83,7 @@
             </div>
             <div class="interline">
             <div>
-                <form:label path="tags" for="tags"><spring:message code="create.tags"/>:: </form:label>
+                <form:label path="tags" for="tags"><spring:message code="create.tags"/>: </form:label>
                 <form:select id="type" class="uk-select" htmlEscape="true" multiple="true" path="tags" required="true">
                     <c:forEach var="tag" items="${allTags}">
                         <c:set var="selectedTag" value="${false}"/>
@@ -108,7 +108,7 @@
                 <span class="formError"></span>
             </div>
             <div>
-                <form:label path="image"><spring:message code="create.image"/>:: </form:label>
+                <form:label path="image"><spring:message code="create.image"/>: </form:label>
                 <form:input type="file" path="image" accept="image/png, image/jpeg"/>
                 <form:errors path="image" cssClass="error-message" element="span"/>
                 <span class="formError"></span>
@@ -144,7 +144,6 @@
                 </form:select>
                 <form:errors path="minAge" cssClass="error-message" element="span"/>
                 <spring:message code="Range.eventForm.minAge" var="rangeAgeMinError"/>
-<%--                <spring:message code="Max.eventForm.minAge" var="minAgeMaxError"/>--%>
                 <spring:message code="NotNull.eventForm.minAge" var="minAgeNullError"/>
                 <span class="formError"></span>
             </div>
@@ -184,6 +183,7 @@
 
         uploadField.onchange = function() {
             if (this.files[0].size > 1048576) {
+                // TODO: HACER UN SPRING MESSAGE!!!!
                 UIkit.notification("MUY GRANDE", {timeout: 4000}, {status: 'danger'});
                 this.value = "";
             }
