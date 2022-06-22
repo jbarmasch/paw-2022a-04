@@ -89,24 +89,22 @@ public class EventJpaDao implements EventDao {
                 queryCondition.append(" HAVING");
             else
                 queryCondition.append(" AND");
-            queryCondition.append(" ARRAY_AGG(e.tagid) @> ARRAY[:tagids]");
-            objects.put("tagids", Arrays.asList(tags));
+            queryCondition.append(" ARRAY_AGG(e.tagid) @> ARRAY");
+            queryCondition.append(Arrays.asList(tags));
         }
         objects.put("page", (page - 1) * 10);
-        queryCondition.append(" LIMIT 11 OFFSET :page");
-        StringBuilder query = querySelect.append(queryCondition);
-        Query queryNative = em.createNativeQuery(String.valueOf(query));
-        objects.forEach(queryNative::setParameter);
-        final List<Long> ids = (List<Long>) queryNative.getResultList().stream().map(o -> ((Integer) o).longValue()).collect(Collectors.toList());
-        if (ids.isEmpty())
-            return new ArrayList<>();
-
         StringBuilder orderQuery = new StringBuilder();
         if (order != null)
             orderQuery.append(" ORDER BY ").append(order.getOrder()).append(" ").append(order.getOrderBy());
         else
             orderQuery.append(" ORDER BY date ");
-
+        queryCondition.append(orderQuery).append(" LIMIT 11 OFFSET :page");
+        StringBuilder query = querySelect.append(queryCondition);
+        Query queryNative = em.createNativeQuery(String.valueOf(query));
+        objects.forEach(queryNative::setParameter);
+        final List<Long> ids = (List<Long>) queryNative.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
+        if (ids.isEmpty())
+            return new ArrayList<>();
         final TypedQuery<Event> typedQuery = em.createQuery("from Event where eventid IN :ids " + orderQuery, Event.class);
         typedQuery.setParameter("ids", ids);
         return typedQuery.getResultList();
@@ -170,7 +168,7 @@ public class EventJpaDao implements EventDao {
                 "GROUP BY events.eventId, locations.locationid, types.typeid, users.username) AS aux LEFT OUTER JOIN eventTags eT ON aux.eventId = eT.eventId " +
                 "LEFT OUTER JOIN tags t ON eT.tagId = t.tagId WHERE date > :date AND attendance >= (4 * ticketsLeft) AND state != 1 AND state != 2 AND ticketsLeft > 0 LIMIT 4");
         idQuery.setParameter("date", Timestamp.valueOf(LocalDateTime.now()));
-        final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Integer) o).longValue()).collect(Collectors.toList());
+        final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
             return new ArrayList<>();
         final TypedQuery<Event> query = em.createQuery("from Event where eventid IN :ids", Event.class);
@@ -191,7 +189,7 @@ public class EventJpaDao implements EventDao {
                 "GROUP BY events.eventId, locations.locationid, types.typeid, users.username) AS aux LEFT OUTER JOIN eventTags eT ON aux.eventId = eT.eventId " +
                 "LEFT OUTER JOIN tags t ON eT.tagId = t.tagId WHERE date > :date AND state != 1 AND state != 2 ORDER BY date LIMIT 4");
         idQuery.setParameter("date", Timestamp.valueOf(LocalDateTime.now()));
-        final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Integer) o).longValue()).collect(Collectors.toList());
+        final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
             return new ArrayList<>();
         final TypedQuery<Event> query = em.createQuery("from Event where eventid IN :ids", Event.class);
@@ -211,7 +209,7 @@ public class EventJpaDao implements EventDao {
                 "e.eventid) as eliteTt WHERE state != 1 AND state != 2 AND date > :date ORDER BY similarity DESC LIMIT 5) AS aux");
         idQuery.setParameter("eventid", eventId);
         idQuery.setParameter("date", Timestamp.valueOf(LocalDateTime.now()));
-        final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Integer) o).longValue()).collect(Collectors.toList());
+        final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
             return new ArrayList<>();
         final TypedQuery<Event> query = em.createQuery("from Event where eventid IN :ids", Event.class);
@@ -228,7 +226,7 @@ public class EventJpaDao implements EventDao {
                 "JOIN events e on aux.eventid = e.eventid WHERE state != 1 AND state != 2 AND date > :date LIMIT 5");
         idQuery.setParameter("eventid", eventId);
         idQuery.setParameter("date", Timestamp.valueOf(LocalDateTime.now()));
-        final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Integer) o).longValue()).collect(Collectors.toList());
+        final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
             return new ArrayList<>();
         final TypedQuery<Event> query = em.createQuery("from Event where eventid IN :ids", Event.class);
@@ -242,7 +240,7 @@ public class EventJpaDao implements EventDao {
         Query idQuery = em.createNativeQuery("SELECT eventId FROM events WHERE userid = :userid AND state != 1 AND date > NOW() ORDER BY date LIMIT 10 OFFSET :offset");
         idQuery.setParameter("userid", id);
         idQuery.setParameter("offset", (page - 1) * 10);
-        final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Integer) o).longValue()).collect(Collectors.toList());
+        final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
             return new ArrayList<>();
         final TypedQuery<Event> query = em.createQuery("from Event where eventid IN :ids ORDER BY date", Event.class);
@@ -261,6 +259,8 @@ public class EventJpaDao implements EventDao {
                 "GROUP BY t.ticketid, e.eventid) AS aux GROUP BY eventName) AS general");
         query.setParameter("eventid", id);
         List<Object[]> resultSet = query.getResultList();
+        if (resultSet.isEmpty())
+            return Optional.empty();
         Object[] result = resultSet.get(0);
         if (result == null)
             return Optional.empty();

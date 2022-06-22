@@ -36,6 +36,18 @@ public class Ticket {
     private LocalDateTime starting;
     private LocalDateTime until;
 
+    public Ticket(long id, String ticketName, Double price, Integer qty, Event event, LocalDateTime starting, LocalDateTime until, Integer maxPerUser) {
+        this.id = id;
+        this.ticketName = ticketName;
+        this.price = price;
+        this.qty = qty;
+        this.booked = 0;
+        this.event = event;
+        this.starting = starting;
+        this.until = until;
+        this.maxPerUser = maxPerUser;
+    }
+
     public Ticket(String ticketName, Double price, Integer qty, Event event, LocalDateTime starting, LocalDateTime until, Integer maxPerUser) {
         this.ticketName = ticketName;
         this.price = price;

@@ -19,11 +19,14 @@ public class TicketJpaDao implements TicketDao {
     private EntityManager em;
 
     @Override
-    public void addTicket(Event event, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until, Integer maxPerUser) {
+    public Ticket addTicket(Event event, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until, Integer maxPerUser) {
         Ticket newTicket = new Ticket(ticketName, price, qty, event, starting, until, maxPerUser);
+        if (event.getTickets() == null)
+            event.setTickets(new ArrayList<>());
         event.addTicket(newTicket);
         em.persist(event);
         em.persist(newTicket);
+        return newTicket;
     }
 
     @Override

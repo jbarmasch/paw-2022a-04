@@ -325,10 +325,6 @@ public class EventController {
             throw new StatsNotFoundException();
         }
         final EventStats eventStats = eventService.getEventStats(stats.getPopularEvent().getId()).orElse(null);
-        if (eventStats == null) {
-            LOGGER.error("Stats not found");
-            throw new StatsNotFoundException();
-        }
 
         final ModelAndView mav = new ModelAndView("eventStats");
         mav.addObject("stats", stats);

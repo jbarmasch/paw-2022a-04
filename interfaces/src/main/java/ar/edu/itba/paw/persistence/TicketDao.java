@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TicketDao {
-    void addTicket(Event event, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until, Integer maxPerUser);
+    Ticket addTicket(Event event, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until, Integer maxPerUser);
     Optional<Ticket> getTicketById(long ticketId);
     void updateTicket(Ticket ticket, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until, Integer maxPerUser);
     void deleteTicket(long ticketId);

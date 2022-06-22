@@ -76,9 +76,9 @@ public class TicketController {
                     form.getLocalDate(form.getStarting()), form.getLocalDate(form.getUntil()), form.getMaxPerUser());
         } catch (DateRangeException e) {
             if (e.getStarting() != null) {
-                errors.rejectValue("starting", "Min.bookForm.qtyAnother", null, "");
+                errors.rejectValue("starting", "Event.eventForm.date", null, "");
             } else {
-                errors.rejectValue("until", "Min.bookForm.qtyAnother", null, "");
+                errors.rejectValue("until", "Event.eventForm.date", null, "");
             }
             LOGGER.error("TicketForm has errors: {}", errors.getAllErrors().toArray());
             return createTicketsForm(form, eventId);

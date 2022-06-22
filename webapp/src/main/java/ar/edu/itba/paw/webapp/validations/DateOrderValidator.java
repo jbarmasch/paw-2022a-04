@@ -19,8 +19,9 @@ public class DateOrderValidator implements ConstraintValidator<DateOrder, Ticket
         LocalDateTime starting = form.getLocalDate(form.getStarting());
         LocalDateTime until = form.getLocalDate(form.getUntil());
 
-        if (starting != null && until != null && starting.isAfter(until)) {
-            context.buildConstraintViolationWithTemplate("{Min.bookForm.qtyAnother}").addConstraintViolation();
+        if (starting != null && until != null && (starting.isAfter(until) || starting.isEqual(until))) {
+            System.out.println("hola");
+            context.buildConstraintViolationWithTemplate("{Event.eventForm.order}").addConstraintViolation();
             return false;
         }
 

@@ -60,7 +60,6 @@ import java.util.Properties;
 public class WebConfig extends WebMvcConfigurerAdapter {
     @Value("classpath:schema.sql")
     private Resource schemaSql;
-
     @Autowired
     private Environment env;
     @Autowired
@@ -81,16 +80,6 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     }
 
     @Bean
-    public DataSource dataSource() {
-        final SimpleDriverDataSource ds = new SimpleDriverDataSource();
-        ds.setDriverClass(org.postgresql.Driver.class);
-        ds.setUrl(env.getProperty("dbURL"));
-        ds.setUsername(env.getProperty("dbUsername"));
-        ds.setPassword(env.getProperty("dbPassword"));
-        return ds;
-    }
-
-    @Bean
     public JavaMailSender getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.zoho.com");
@@ -108,6 +97,16 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         props.put("mail.smtp.ssl.trust", "*");
 
         return mailSender;
+    }
+
+    @Bean
+    public DataSource dataSource() {
+        final SimpleDriverDataSource ds = new SimpleDriverDataSource();
+        ds.setDriverClass(org.postgresql.Driver.class);
+        ds.setUrl(env.getProperty("dbURL"));
+        ds.setUsername(env.getProperty("dbUsername"));
+        ds.setPassword(env.getProperty("dbPassword"));
+        return ds;
     }
 
     @Bean
@@ -186,14 +185,16 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         final LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
-        factoryBean.setPackagesToScan("ar.edu.itba.model");
-        factoryBean.setPackagesToScan("ar.edu.itba.paw.persistence", "ar.edu.itba.paw");
+        factoryBean.setPackagesToScan("ar.edu.itba.model", "ar.edu.itba.paw");
+//        factoryBean.setPackagesToScan("ar.edu.itba.model", "ar.edu.itba.paw.persistence", "ar.edu.itba.paw");
         factoryBean.setDataSource(dataSource());
         final JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         factoryBean.setJpaVendorAdapter(vendorAdapter);
         final Properties properties = new Properties();
         properties.setProperty("hibernate.hbm2ddl.auto", "update");
         properties.setProperty("hibernate.dialect", "ar.edu.itba.paw.webapp.config.PostgreSQL94CustomDialect");
+        properties.setProperty("hibernate.show_sql", "true");
+        properties.setProperty("format_sql", "true");
         factoryBean.setJpaProperties(properties);
         return factoryBean;
     }

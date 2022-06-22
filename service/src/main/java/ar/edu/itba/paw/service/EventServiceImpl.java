@@ -30,7 +30,6 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public Event create(String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, long userId, Integer minAge, String baseURL, Locale locale) {
-        // TODO: Move to Utils
         Random random = new SecureRandom();
         IntStream specialChars = random.ints(8, 48, 58);
         Stream<Character> passwordStream = specialChars.mapToObj(data -> (char) data);

@@ -17,6 +17,11 @@ public class Tag {
     private String name;
     private String name_en;
 
+    public Tag(String name, String name_en) {
+        this.name = name;
+        this.name_en = name_en;
+    }
+
     public Tag() {}
 
     public static void setLocale(Locale locale) {

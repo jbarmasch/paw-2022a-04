@@ -64,7 +64,7 @@ public class EventBookingServiceImpl implements EventBookingService {
             if (ticketBooking.getQty() != null && ticketBooking.getQty() != 0) {
                 if (ticketBooking.getTicket().getEvent().getId() != booking.getEvent().getId())
                     throw new IllegalTicketException();
-                if (ticketBooking.getTicket().getTicketsLeft() < Math.min(ticketBooking.getTicket().getMaxPerUser(), ticketBooking.getQty())) {
+                if (ticketBooking.getTicket().getTicketsLeft() < ticketBooking.getQty() || ticketBooking.getQty() > ticketBooking.getTicket().getMaxPerUser()) {
                     surpassedTicketsError.put(i, ticketBooking.getTicket().getTicketsLeft());
                 }
                 if (persistedBooking != null) {

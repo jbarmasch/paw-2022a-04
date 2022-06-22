@@ -46,16 +46,19 @@
                     <form:input class="uk-input" type="datetime-local" max="${event.date}" path="starting"/>
                     <form:errors path="starting" cssClass="error-message" element="span"/>
                     <spring:message code="NotEmpty.eventForm.date" var="dateEmptyError"/>
-                    <spring:message code="Future.eventForm.date" var="dateMinError"/>
+                    <spring:message code="Event.eventForm.date" var="dateMaxError"/>
                     <spring:message code="Pattern.eventForm.date" var="dateTypeError"/>
                     <span class="formError"></span>
                 </div>
                 <div>
                     <form:label path="until"><spring:message code="tickets.until"/>: </form:label>
                     <form:input class="uk-input" type="datetime-local" min="${currentDate}" max="${event.date}" path="until"/>
+<%--                    <form:errors path="ticketForm" cssClass="error-message" element="span"/>--%>
+                    <form:errors path="" cssClass="error-message" element="span"/>
                     <form:errors path="until" cssClass="error-message" element="span"/>
                     <spring:message code="NotEmpty.eventForm.date" var="dateEmptyError"/>
                     <spring:message code="Future.eventForm.date" var="dateMinError"/>
+                    <spring:message code="Event.eventForm.date" var="dateMaxError"/>
                     <spring:message code="Pattern.eventForm.date" var="dateTypeError"/>
                     <span class="formError"></span>
                 </div>
@@ -94,6 +97,8 @@
         var qty = document.getElementById('qty');
         var price = document.getElementById('price');
         var name = document.getElementById('ticketName');
+        var starting = document.getElementById('starting');
+        var until = document.getElementById('until');
 
         if (form === null)
             return;
@@ -137,6 +142,39 @@
             }
         };
 
+        var checkStartingValidity = function() {
+            if (starting.validity.valueMissing) {
+                starting.setCustomValidity('${dateEmptyError}');
+                updateStartingMessage();
+            } else if (starting.validity.typeMismatch) {
+                starting.setCustomValidity('${dateTypeError}');
+                updateStartingMessage();
+            } else if (starting.validity.rangeOverflow) {
+                starting.setCustomValidity('${dateMaxError}');
+                updateStartingMessage();
+            } else {
+                starting.setCustomValidity('');
+            }
+        }
+
+        var checkUntilValidity = function() {
+            if (until.validity.valueMissing) {
+                until.setCustomValidity('${dateEmptyError}');
+                updateUntilMessage();
+            } else if (until.validity.typeMismatch) {
+                until.setCustomValidity('${dateTypeError}');
+                updateUntilMessage();
+            } else if (until.validity.rangeUnderflow) {
+                until.setCustomValidity('${dateMinError}');
+                updateUntilMessage();
+            } else if (until.validity.rangeOverflow) {
+                until.setCustomValidity('${dateMaxError}');
+                updateUntilMessage();
+            } else {
+                until.setCustomValidity('');
+            }
+        }
+
         var updateNameMessage = function() {
             form.getElementsByClassName('formError')[0].innerHTML = name.validationMessage;
         }
@@ -149,23 +187,39 @@
             form.getElementsByClassName('formError')[2].innerHTML = qty.validationMessage;
         }
 
+        var updateStartingMessage = function() {
+            form.getElementsByClassName('formError')[3].innerHTML = starting.validationMessage;
+        }
+
+        var updateUntilMessage = function() {
+            form.getElementsByClassName('formError')[4].innerHTML = until.validationMessage;
+        }
+
         qty.addEventListener('change', checkQtyValidity, false);
         qty.addEventListener('keyup', checkQtyValidity, false);
         price.addEventListener('change', checkPriceValidity, false);
         price.addEventListener('keyup', checkPriceValidity, false);
         name.addEventListener('change', checkNameValidity, false);
         name.addEventListener('keyup', checkNameValidity, false);
+        starting.addEventListener('change', checkStartingValidity, false);
+        starting.addEventListener('keyup', checkStartingValidity, false);
+        until.addEventListener('change', checkUntilValidity, false);
+        until.addEventListener('keyup', checkUntilValidity, false);
 
         form.addEventListener('submit', function (event) {
             if (form.classList) form.classList.add('submitted');
             checkNameValidity();
             checkPriceValidity();
             checkQtyValidity();
+            checkStartingValidity();
+            checkUntilValidity();
             if (!this.checkValidity()) {
                 event.preventDefault();
                 updateNameMessage();
                 updatePriceMessage();
                 updateQtyMessage();
+                checkStartingValidity();
+                checkUntilValidity();
             }
         }, false);
     }());

@@ -67,7 +67,8 @@ public class UserJpaDao implements UserDao {
     @SuppressWarnings("unchecked")
     @Override
     public Optional<OrganizerStats> getOrganizerStats(long id) {
-        Query query = em.createNativeQuery("SELECT events, bookings, bookings / COALESCE(NULLIF(expetedBooked, 0), 1) AS attendance, income, eventid FROM ( " +
+        Query query = em.createNativeQuery("SELECT events, COALESCE(bookings, 0) AS bookings, COALESCE(bookings / COALESCE(NULLIF(expetedBooked, 0), 1), 0) " +
+                "AS attendance, COALESCE(income, 0) AS income, eventid FROM ( " +
                 "SELECT (SELECT COUNT(eventid) FROM events e WHERE e.userid = :userid) AS events, SUM(realqty) AS bookings, SUM(booked) AS expetedBooked, " +
                 "SUM(price * realqty) AS income FROM (SELECT booked, price, SUM(CASE WHEN confirmed THEN tb.qty ELSE 0 END) AS realqty FROM events e LEFT JOIN tickets t " +
                 "ON e.eventId = t.eventId LEFT JOIN ticketbookings tb on t.ticketId = tb.ticketId JOIN eventbookings eb on tb.id = eb.id WHERE e.userid = :userid " +
@@ -76,6 +77,8 @@ public class UserJpaDao implements UserDao {
                 "ON ec.eventid = aux.eventid) AS event");
         query.setParameter("userid", id);
         List<Object[]> resultSet = query.getResultList();
+        if (resultSet.isEmpty())
+            return Optional.empty();
         Object[] result = resultSet.get(0);
         if (result == null)
             return Optional.empty();
@@ -115,7 +118,7 @@ public class UserJpaDao implements UserDao {
         User organizer = em.getReference(User.class, organizerId);
         Rating rate = em.find(Rating.class, new RatingId(user, organizer));
         if (rate == null)
-            rate = new Rating(user, organizer, rating);
+              rate = new Rating(user, organizer, rating);
         else
             rate.setRating(rating);
         em.persist(rate);

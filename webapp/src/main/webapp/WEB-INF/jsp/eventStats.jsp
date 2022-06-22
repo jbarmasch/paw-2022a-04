@@ -38,6 +38,7 @@
                 </tr>
             </table>
         </div>
+        <c:if test="${eventStats != null}">
         <div class="tickets container vertical">
             <table class="stats-table tickets-table">
                 <tr>
@@ -69,6 +70,7 @@
                 </tr>
             </table>
         </div>
+        </c:if>
     </div>
 </body>
 </html>

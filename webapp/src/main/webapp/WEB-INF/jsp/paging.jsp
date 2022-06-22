@@ -22,11 +22,11 @@
     </c:forEach>
     <c:param name="page" value="${page + 1}" />
 </c:url>
-<div class="pagination">
+<div class="pagination vertical">
     <c:if test="${page > 1}">
-        <a href="${prevUrl}"><spring:message code="previousPage"/></a>
+        <button class="sep-top-xl pag-button" onclick="location.href='${prevUrl}'"><spring:message code="previousPage"/></button>
     </c:if>
-    <c:if test="${size == 10}">
-        <a href="${nextUrl}"><spring:message code="nextPage"/></a>
+    <c:if test="${size == 11}">
+        <button class="sep-top-xl pag-button" onclick="location.href='${nextUrl}'"><spring:message code="nextPage"/></button>
     </c:if>
 </div>

@@ -25,7 +25,7 @@
         </div>
         <div class="space-bet sep-top vertical">
             <spring:message code="register.username" var="usernamePlaceholder"/>
-            <form:input placeholder="* ${usernamePlaceholder}" type="text" path="username" pattern="[a-zA-Z0-9]+" minlength="6" maxlength="100" required="true" id="username"/>
+            <form:input placeholder="* ${usernamePlaceholder}" type="text" path="username" pattern="[a-zA-Z0-9]+" minlength="8" maxlength="100" required="true" id="username"/>
             <form:errors path="username" cssClass="error-message" element="span"/>
             <spring:message code="NotEmpty.userForm.username" var="userEmptyError"/>
             <spring:message code="Size.userForm.username" var="userSizeError"/>
@@ -35,7 +35,7 @@
         </div>
         <div class="space-bet sep-top vertical">
             <spring:message code="register.password" var="passwordPlaceholder"/>
-            <form:input placeholder="* ${passwordPlaceholder}" type="password" path="password" minlength="6" maxlength="100" required="true" id="password"/>
+            <form:input placeholder="* ${passwordPlaceholder}" type="password" path="password" minlength="8" maxlength="100" required="true" id="password"/>
             <form:errors path="password" cssClass="error-message" element="span"/>
             <spring:message code="NotEmpty.userForm.password" var="passwordEmptyError"/>
             <spring:message code="Size.userForm.password" var="passwordSizeError"/>
@@ -44,7 +44,7 @@
         </div>
         <div class="space-bet sep-top vertical">
             <spring:message code="register.repeatPassword" var="repeatPasswordPlaceholder"/>
-            <form:input placeholder="* ${repeatPasswordPlaceholder}" type="password" path="repeatPassword" minlength="6" maxlength="100" required="true" id="repeatPassword"/>
+            <form:input placeholder="* ${repeatPasswordPlaceholder}" type="password" path="repeatPassword" minlength="8" maxlength="100" required="true" id="repeatPassword"/>
             <form:errors path="repeatPassword" cssClass="error-message" element="span"/>
             <span class="formError"></span>
         </div>

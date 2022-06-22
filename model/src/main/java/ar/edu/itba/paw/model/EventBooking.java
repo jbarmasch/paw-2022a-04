@@ -18,12 +18,12 @@ public class EventBooking {
     @SequenceGenerator(sequenceName = "eventbookings_id_seq", name = "eventbookings_id_seq", allocationSize = 1)
     private long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "userid")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId", referencedColumnName = "userid")
     private User user;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "eventid")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "eventId", referencedColumnName = "eventid")
     private Event event;
 
     @OneToMany(mappedBy = "eventBooking", fetch = FetchType.EAGER)

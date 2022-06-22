@@ -122,6 +122,23 @@ public class Event {
     @Enumerated(EnumType.ORDINAL)
     private State state;
 
+    public Event(long id, String name, String description, Location location, Type type, LocalDateTime date, List<Tag> tags, User organizer,
+                 State state, List<Ticket> tickets, Image image, Integer minAge, User bouncer) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.location = location;
+        this.date = date;
+        this.type = type;
+        this.tags = tags;
+        this.organizer = organizer;
+        this.state = state;
+        this.tickets = tickets;
+        this.image = image;
+        this.minAge = minAge;
+        this.bouncer = bouncer;
+    }
+
     public Event(String name, String description, Location location, Type type, LocalDateTime date, List<Tag> tags, User organizer,
                  State state, List<Ticket> tickets, Image image, Integer minAge, User bouncer) {
         this.name = name;

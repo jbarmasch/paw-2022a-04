@@ -554,7 +554,7 @@ input[type=number] {
 }
 
 .pagination {
-    display: inline-block;
+    display: flex;
 }
 
 .pagination a {
@@ -794,6 +794,15 @@ select:-webkit-autofill:focus {
 
 .interline > div {
     margin: 15px 0 5px 0;
+}
+
+.pag-button {
+    text-transform: uppercase;
+    padding: 10px 20px;
+    background-color: #DDDDDD;
+    font-weight: 150;
+    border: 0;
+    cursor: pointer;
 }
 
 .min_age {
