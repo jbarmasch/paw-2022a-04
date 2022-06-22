@@ -56,7 +56,7 @@ public class EventJpaDaoTest {
     @Test
     public void testFilterBy() {
         final Event event = TestUtils.createEvent(em);
-        List<Event> events = eventDao.filterBy(new Integer[] {toIntExact(TestUtils.GENERIC_LOCATION.getId())}, new Integer[] {toIntExact(TestUtils.GENERIC_TYPE.getId())}, null, null, null, null, TestUtils.USERNAME, null, true, 1);
+        List<Event> events = eventDao.filterBy(new Integer[] {toIntExact(TestUtils.GENERIC_LOCATION.getId())}, new Integer[] {toIntExact(TestUtils.GENERIC_TYPE.getId())}, null, null, null, null, TestUtils.USERNAME, Order.DATE_ASC, true, 1);
         Assert.assertNotNull(events);
         Assert.assertNotNull(events.get(0));
         Assert.assertEquals(event.getName(), events.get(0).getName());

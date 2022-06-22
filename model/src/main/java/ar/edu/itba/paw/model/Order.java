@@ -1,8 +1,6 @@
 package ar.edu.itba.paw.model;
 
 public enum Order {
-    PRICE_ASC( "minPrice", "ASC"),
-    PRICE_DESC( "minPrice", "DESC"),
     DATE_ASC( "date", "ASC"),
     DATE_DESC( "date", "DESC");
 

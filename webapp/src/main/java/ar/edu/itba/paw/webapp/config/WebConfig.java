@@ -186,15 +186,12 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         final LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
         factoryBean.setPackagesToScan("ar.edu.itba.model", "ar.edu.itba.paw");
-//        factoryBean.setPackagesToScan("ar.edu.itba.model", "ar.edu.itba.paw.persistence", "ar.edu.itba.paw");
         factoryBean.setDataSource(dataSource());
         final JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         factoryBean.setJpaVendorAdapter(vendorAdapter);
         final Properties properties = new Properties();
         properties.setProperty("hibernate.hbm2ddl.auto", "update");
         properties.setProperty("hibernate.dialect", "ar.edu.itba.paw.webapp.config.PostgreSQL94CustomDialect");
-        properties.setProperty("hibernate.show_sql", "true");
-        properties.setProperty("format_sql", "true");
         factoryBean.setJpaProperties(properties);
         return factoryBean;
     }

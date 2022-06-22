@@ -64,9 +64,19 @@ public class EventJpaDao implements EventDao {
             queryCondition.append(" AND username = :username");
             objects.put("username", username);
         }
-        queryCondition.append(" GROUP BY ec.eventid");
+
+        queryCondition.append(" GROUP BY ec.eventid, date ");
+        StringBuilder orderQuery = new StringBuilder();
+        if (order != null) {
+            orderQuery.append(" ORDER BY ").append(order.getOrder()).append(" ").append(order.getOrderBy());
+        }
+        else {
+            orderQuery.append(" ORDER BY date ");
+        }
+
+        querySelect.append(" LEFT JOIN tickets t on ec.eventid = t.eventid");
+
         if (minPrice != null) {
-            querySelect.append(" LEFT JOIN tickets t on ec.eventid = t.eventid");
             condition = true;
             queryCondition.append(" HAVING");
             having = true;
@@ -93,15 +103,11 @@ public class EventJpaDao implements EventDao {
             queryCondition.append(Arrays.asList(tags));
         }
         objects.put("page", (page - 1) * 10);
-        StringBuilder orderQuery = new StringBuilder();
-        if (order != null)
-            orderQuery.append(" ORDER BY ").append(order.getOrder()).append(" ").append(order.getOrderBy());
-        else
-            orderQuery.append(" ORDER BY date ");
         queryCondition.append(orderQuery).append(" LIMIT 11 OFFSET :page");
         StringBuilder query = querySelect.append(queryCondition);
         Query queryNative = em.createNativeQuery(String.valueOf(query));
         objects.forEach(queryNative::setParameter);
+        System.out.println(query);
         final List<Long> ids = (List<Long>) queryNative.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
             return new ArrayList<>();
