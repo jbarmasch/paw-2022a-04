@@ -11,4 +11,8 @@ public enum RoleEnum {
             return null;
         return roles[id];
     }
+
+    public int getValue() {
+        return ordinal() + 1;
+    }
 }

@@ -103,16 +103,21 @@ public class EventJpaDao implements EventDao {
             queryCondition.append(Arrays.asList(tags));
         }
         objects.put("page", (page - 1) * 10);
-        queryCondition.append(orderQuery).append(" LIMIT 11 OFFSET :page");
+        queryCondition.append(orderQuery).append(" LIMIT 10 OFFSET :page");
+//        queryCondition.append(orderQuery).append(" LIMIT 11 OFFSET :page");
         StringBuilder query = querySelect.append(queryCondition);
         Query queryNative = em.createNativeQuery(String.valueOf(query));
         objects.forEach(queryNative::setParameter);
-        System.out.println(query);
         final List<Long> ids = (List<Long>) queryNative.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
             return new ArrayList<>();
         final TypedQuery<Event> typedQuery = em.createQuery("from Event where eventid IN :ids " + orderQuery, Event.class);
         typedQuery.setParameter("ids", ids);
+
+        // Podemos devolver un EventWrapper con un boolean que diga si tiene otra página o no
+//        List<Event> events = typedQuery.getResultList();
+//        return new EventWrapper(events.stream().limit(10).collect(Collectors.toList()), events.size() > 10);
+        
         return typedQuery.getResultList();
     }
 

@@ -65,7 +65,8 @@ public class FilterController {
         mav.addObject("allLocations", locationService.getAll());
         mav.addObject("allTypes", typeService.getAll());
         mav.addObject("allTags", tagService.getAll());
-        mav.addObject("events", events.stream().limit(10).collect(Collectors.toList()));
+//        mav.addObject("events", events.stream().limit(10).collect(Collectors.toList()));
+        mav.addObject("events", events);
         mav.addObject("size", events.size());
         return mav;
     }

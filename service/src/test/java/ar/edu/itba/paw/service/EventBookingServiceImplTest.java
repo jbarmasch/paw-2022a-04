@@ -7,7 +7,9 @@ import ar.edu.itba.paw.persistence.EventBookingDao;
 import ar.edu.itba.paw.persistence.UserDao;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -35,33 +37,36 @@ public class EventBookingServiceImplTest {
     private static final TicketBooking ACCEPTED_TICKET_BOOKING = new TicketBooking(TICKET, 5, EVENT_BOOKING);
     private static final TicketBooking DECLINED_TICKET_BOOKING = new TicketBooking(TICKET, 7, EVENT_BOOKING);
 
+//    @Rule
+//    public ExpectedException thrown = ExpectedException.none();
+
     @Mock
     private EventBookingDao mockDao;
     @Mock
     private CodeService mockCodeService;
 
     @Test
-    public void testBookOk() {
+    public void testBookOk() throws AlreadyMaxTicketsException, SurpassedMaxTicketsException {
         EVENT.setTickets(Arrays.asList(TICKET, DIFFERENT_TICKET));
         Mockito.when(mockCodeService.getCode(Mockito.eq(USER.getId() + ":" + EVENT.getId()))).thenReturn("");
         EVENT_BOOKING.setTicketBookings(Collections.singletonList(ACCEPTED_TICKET_BOOKING));
-        try {
-            eventBookingService.book(EVENT_BOOKING, "", null);
-        } catch (AlreadyMaxTicketsException | SurpassedMaxTicketsException e) {
-            throw new RuntimeException();
-        }
+        eventBookingService.book(EVENT_BOOKING, "", null);
     }
 
-    @Test(expected = RuntimeException.class)
-    public void testBookFails() {
+    @Test(expected = SurpassedMaxTicketsException.class)
+    public void testBookFails() throws AlreadyMaxTicketsException, SurpassedMaxTicketsException {
         EVENT.setTickets(Arrays.asList(TICKET, DIFFERENT_TICKET));
         EVENT_BOOKING.setTicketBookings(Collections.singletonList(DECLINED_TICKET_BOOKING));
-        try {
-            eventBookingService.book(EVENT_BOOKING, "", null);
-        } catch (AlreadyMaxTicketsException | SurpassedMaxTicketsException e) {
-            throw new RuntimeException();
-        }
+        eventBookingService.book(EVENT_BOOKING, "", null);
     }
+
+//    @Test
+//    public void testBookFails() throws AlreadyMaxTicketsException, SurpassedMaxTicketsException {
+//        EVENT.setTickets(Arrays.asList(TICKET, DIFFERENT_TICKET));
+//        EVENT_BOOKING.setTicketBookings(Collections.singletonList(DECLINED_TICKET_BOOKING));
+//        thrown.expect(SurpassedMaxTicketsException.class);
+//        eventBookingService.book(EVENT_BOOKING, "", null);
+//    }
 
     @Test
     public void testCancelBookOk() {
