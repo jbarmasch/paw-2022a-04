@@ -1,0 +1,185 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap')
+
+*
+    box-sizing: border-box
+
+main
+    width: 100%
+    height: 100%
+    display: flex
+    flex-direction: column
+
+body
+    font-family: Arial, Helvetica, sans-serif
+    font-size: 15px
+    color: #666666
+    height: 100%
+    background-color: #fff
+    box-sizing: border-box
+
+.nav_container
+    height: 70px
+    background-color: white
+    width: 100%
+    z-index: 1100
+    left: 0
+    display: flex
+    transition: height 0.3s, background-color 0.3s
+    position: sticky
+    top: 0
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,.2)
+
+.container
+    margin-right: auto
+    margin-left: auto
+    padding-right: 15px
+    padding-left: 15px
+    width: 100%
+
+.container
+    @media (min-width: 576px)
+        max-width: 540px
+    @media (min-width: 768px)
+        max-width: 720px
+    @media (min-width: 992px)
+        max-width: 960px
+    @media (min-width: 1200px)
+        max-width: 1140px
+    @media (min-width: 1600px)
+        max-width: 1200px
+        max-width: 1380px
+
+.icon
+    height: 40px
+    width: 40px
+    border-radius: 100%
+
+.nav_bar
+    width: inherit
+    height: 100%
+    display: flex
+    align-items: center
+    text-transform: capitalize
+
+.nav_bar a
+    font-family: Poppins
+    font-weight: 500
+    font-size: 14px
+    color: #333
+    padding: 5px 0px
+    transition: all 0.4s
+    text-decoration: none
+    -webkit-transition: all 0.4s
+
+.menu_desktop
+    display: flex
+    align-items: center
+    height: 100%
+
+.menu_desktop > *
+    display: block
+    position: relative
+    padding: 20px 10px 20px 0
+    margin: 0 4px 0 14px
+
+.menu_desktop_right
+    display: flex
+    flex-grow: 1
+    justify-content: flex-end
+
+.logo
+    display: flex
+    align-items: center
+    height: 55px
+    margin-right: 55px
+
+.w-full
+    width: 100%
+
+.h-full
+    height: 100%
+
+.flex
+    display: flex
+
+.justify-center
+    justify-content: center
+
+.align-center
+    align-content: center
+
+.block
+    position: relative
+    border: 2px solid #e6e6e6
+    height: 220px
+    width: 320px
+    overflow: hidden
+    cursor: pointer
+
+.block:hover
+    background-color: rgba(purple, 0.5)
+    color: white
+
+.cover_img
+    object-fit: cover
+
+.absolute
+    position: absolute
+
+.block > .padding
+    padding: 10%
+
+.container > .block
+    margin: 2%
+
+.parallax
+    background-image: url("https://www.incimages.com/uploaded_files/image/1920x1080/getty_509107562_2000133320009280346_351827.jpg")
+    min-height: 500px
+    background-attachment: fixed
+    background-position: center
+    background-repeat: no-repeat
+    background-size: cover
+    width: 100%
+    font-weight: 700
+    display: flex
+    align-items: center
+    justify-content: center
+    font-size: 60px
+
+
+.block_card_title
+    font-family: 'Times New Roman', Times, serif
+    font-weight: 700
+    font-size: 30px
+    line-height: 0.5
+
+.block_card_subtitle
+    font-family: 'Times New Roman', Times, serif
+    font-weight: 400
+    font-size: 20px
+
+
+
+// ------------------------------------------------------------------------------------------------------------
+
+
+
+.event_card 
+    overflow: hidden
+    margin-bottom: 20px
+    box-shadow: 1
+    border: 1px solid black
+
+.event_card:hover .event_card_info
+    bottom: 0
+
+.event_card_info
+    background: rgba(6, 12, 34, 0.45)
+    position: absolute
+    left: 0
+    bottom: -75%
+    right: 0
+    text-align: center
+    padding-top: 5px
+    transition: all 300ms cubic-bezier(0.645, 0.045, 0.355, 1)
+
