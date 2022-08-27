@@ -53,31 +53,23 @@ import java.util.Properties;
 
 @EnableAsync
 @EnableTransactionManagement
-@EnableWebMvc
+//@EnableWebMvc
 @PropertySource("classpath:config.properties")
 @ComponentScan({ "ar.edu.itba.paw.webapp.controller", "ar.edu.itba.paw.service", "ar.edu.itba.paw.persistence" })
 @Configuration
-public class WebConfig extends WebMvcConfigurerAdapter {
+//public class WebConfig extends WebMvcConfigurerAdapter {
+public class WebConfig {
     @Value("classpath:schema.sql")
     private Resource schemaSql;
     @Autowired
     private Environment env;
-    @Autowired
-    private RequestMappingHandlerAdapter requestMappingHandlerAdapter;
+//    @Autowired
+//    private RequestMappingHandlerAdapter requestMappingHandlerAdapter;
 
-    @PostConstruct
-    public void ignoreDefaultModel() {
-        requestMappingHandlerAdapter.setIgnoreDefaultModelOnRedirect(true);
-    }
-
-    @Bean
-    public ViewResolver viewResolver() {
-        final InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
-        viewResolver.setViewClass(JstlView.class);
-        viewResolver.setPrefix("/WEB-INF/jsp/");
-        viewResolver.setSuffix(".jsp");
-        return viewResolver;
-    }
+//    @PostConstruct
+//    public void ignoreDefaultModel() {
+//        requestMappingHandlerAdapter.setIgnoreDefaultModelOnRedirect(true);
+//    }
 
     @Bean
     public JavaMailSender getJavaMailSender() {
@@ -132,13 +124,13 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         return messageSource;
     }
 
-    @Bean
-    @Override
-    public LocalValidatorFactoryBean getValidator() {
-        LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
-        bean.setValidationMessageSource(messageSource());
-        return bean;
-    }
+//    @Bean
+//    @Override
+//    public LocalValidatorFactoryBean getValidator() {
+//        LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
+//        bean.setValidationMessageSource(messageSource());
+//        return bean;
+//    }
 
     @Bean(name = "multipartResolver")
     public CommonsMultipartResolver multipartResolver() {
@@ -192,6 +184,8 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         final Properties properties = new Properties();
         properties.setProperty("hibernate.hbm2ddl.auto", "update");
         properties.setProperty("hibernate.dialect", "ar.edu.itba.paw.webapp.config.PostgreSQL94CustomDialect");
+//        properties.setProperty("hibernate.show_sql", "true");
+//        properties.setProperty("format_sql", "true");
         factoryBean.setJpaProperties(properties);
         return factoryBean;
     }
@@ -201,8 +195,8 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         return new JpaTransactionManager(emf);
     }
 
-    @Override
-    public void addFormatters(FormatterRegistry registry) {
-        registry.addConverter(new StringToEnumConverter());
-    }
+//    @Override
+//    public void addFormatters(FormatterRegistry registry) {
+//        registry.addConverter(new StringToEnumConverter());
+//    }
 }

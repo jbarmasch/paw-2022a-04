@@ -10,11 +10,26 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 public class UserJpaDao implements UserDao {
     @PersistenceContext
     private EntityManager em;
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public UserList getAllUsers(int page) {
+        Query query = em.createNativeQuery("SELECT u.userid FROM users u LIMIT 10 OFFSET :page");
+        query.setParameter("page", 10 * (page - 1));
+        final List<Long> ids = (List<Long>) query.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
+        if (ids.isEmpty())
+            return new UserList(new ArrayList(), 0);
+        final TypedQuery<User> typedQuery = em.createQuery("from User where userid IN :ids", User.class);
+        typedQuery.setParameter("ids", ids);
+        Query count = em.createNativeQuery("SELECT COUNT(userid) FROM users");
+        return new UserList(typedQuery.getResultList(), (int) Math.ceil((double) ((Number) count.getSingleResult()).intValue() / 10));
+    }
 
     @Override
     public User createUser(String username, String password, String mail, Locale locale) {

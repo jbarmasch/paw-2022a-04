@@ -38,22 +38,22 @@ public class EventJpaDao implements EventDao {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Event> filterBy(Integer[] locations, Integer[] types, Double minPrice, Double maxPrice, String searchQuery, Integer[] tags, String username, Order order, Boolean showSoldOut, int page) {
+    public EventList filterBy(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, String username, Order order, Boolean showSoldOut, int page) {
         boolean having = false, condition = false;
         Map<String, Object> objects = new HashMap<>();
         objects.put("date", Timestamp.valueOf(LocalDateTime.now()));
-        StringBuilder querySelect = new StringBuilder("SELECT ec.eventid FROM events ec");
+        StringBuilder querySelect = new StringBuilder("FROM events ec");
         StringBuilder queryCondition = new StringBuilder(" WHERE state != 1 AND date > :date");
         if (showSoldOut == null || !showSoldOut) {
             queryCondition.append(" AND state != 2");
         }
-        if (locations != null && locations.length > 0) {
+        if (locations != null && locations.size() > 0) {
             queryCondition.append(" AND locationid IN :locationids");
-            objects.put("locationids", Arrays.asList(locations));
+            objects.put("locationids", locations);
         }
-        if (types != null && types.length > 0) {
+        if (types != null && types.size() > 0) {
             queryCondition.append(" AND typeid IN :typeids");
-            objects.put("typeids", Arrays.asList(types));
+            objects.put("typeids", types);
         }
         if (searchQuery != null) {
             queryCondition.append(" AND ((SELECT to_tsvector('Spanish', ec.name) @@ websearch_to_tsquery(:searchquery)) = 't' OR ec.name ILIKE CONCAT('%', :searchquery, '%'))");
@@ -93,32 +93,32 @@ public class EventJpaDao implements EventDao {
             queryCondition.append(" COALESCE(MIN(t.price), 0) <= :maxPrice");
             objects.put("maxPrice", maxPrice);
         }
-        if (tags != null && tags.length > 0) {
+        if (tags != null && tags.size() > 0) {
             querySelect.append(" LEFT JOIN eventtags e on ec.eventid = e.eventid");
             if (!having)
                 queryCondition.append(" HAVING");
             else
                 queryCondition.append(" AND");
             queryCondition.append(" ARRAY_AGG(e.tagid) @> ARRAY");
-            queryCondition.append(Arrays.asList(tags));
+            queryCondition.append(tags);
         }
         objects.put("page", (page - 1) * 10);
-        queryCondition.append(orderQuery).append(" LIMIT 10 OFFSET :page");
-//        queryCondition.append(orderQuery).append(" LIMIT 11 OFFSET :page");
-        StringBuilder query = querySelect.append(queryCondition);
-        Query queryNative = em.createNativeQuery(String.valueOf(query));
+//        queryCondition.append(orderQuery).append(" LIMIT 10 OFFSET :page");
+        String query = "SELECT DISTINCT ec.eventid " + querySelect.append(queryCondition);
+        Query queryNative = em.createNativeQuery(query + " LIMIT 10 OFFSET :page");
         objects.forEach(queryNative::setParameter);
         final List<Long> ids = (List<Long>) queryNative.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
-            return new ArrayList<>();
+            return new EventList(new ArrayList<>(), 0);
         final TypedQuery<Event> typedQuery = em.createQuery("from Event where eventid IN :ids " + orderQuery, Event.class);
         typedQuery.setParameter("ids", ids);
 
-        // Podemos devolver un EventWrapper con un boolean que diga si tiene otra página o no
-//        List<Event> events = typedQuery.getResultList();
-//        return new EventWrapper(events.stream().limit(10).collect(Collectors.toList()), events.size() > 10);
-        
-        return typedQuery.getResultList();
+        String theQuery = String.valueOf(querySelect);
+        theQuery = theQuery.replace("GROUP BY ec.eventid, date", "");
+        Query count = em.createNativeQuery("SELECT COUNT(DISTINCT ec.eventid) " + theQuery);
+        objects.remove("page");
+        objects.forEach(count::setParameter);
+        return new EventList(typedQuery.getResultList(), (int) Math.ceil((double) ((Number) count.getSingleResult()).intValue() / 10));
     }
 
     @Override

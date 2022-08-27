@@ -12,18 +12,18 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 
 import java.util.Locale;
 
-@ControllerAdvice
-public class GenericController {
-    @Autowired
-    UserManager userManager;
-
-    @ModelAttribute
-    public void addAttributes(Model model, final SearchForm searchForm) {
-        Locale locale = LocaleContextHolder.getLocale();
-        Tag.setLocale(locale);
-        Type.setLocale(locale);
-        model.addAttribute("username", userManager.getUsername());
-        model.addAttribute("isCreator", userManager.isCreator());
-        model.addAttribute("isBouncer", userManager.isBouncer());
-    }
-}
+//@ControllerAdvice
+//public class GenericController {
+//    @Autowired
+//    UserManager userManager;
+//
+//    @ModelAttribute
+//    public void addAttributes(Model model, final SearchForm searchForm) {
+//        Locale locale = LocaleContextHolder.getLocale();
+//        Tag.setLocale(locale);
+//        Type.setLocale(locale);
+//        model.addAttribute("username", userManager.getUsername());
+//        model.addAttribute("isCreator", userManager.isCreator());
+//        model.addAttribute("isBouncer", userManager.isBouncer());
+//    }
+//}

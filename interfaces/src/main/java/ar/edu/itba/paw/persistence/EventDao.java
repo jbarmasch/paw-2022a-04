@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface EventDao {
     Optional<Event> getEventById(long id);
     Event createEvent(String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, User organizer, Integer minAge, User bouncer);
-    List<Event> filterBy(Integer[] locations, Integer[] types, Double minPrice, Double maxPrice, String query, Integer[] tags, String username, Order order, Boolean showSoldOut, int page);
+    EventList filterBy(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String query, List<Integer> tags, String username, Order order, Boolean showSoldOut, int page);
     void updateEvent(long id, String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, Integer minAge);
     void deleteEvent(long id);
     void soldOut(long id) throws EventFinishedException;

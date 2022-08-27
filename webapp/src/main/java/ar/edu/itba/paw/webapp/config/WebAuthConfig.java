@@ -43,6 +43,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
         http.sessionManagement()
                 .and().authorizeRequests()
                     .antMatchers("/login", "/register", "/forgot-pass").permitAll()
+                    .antMatchers("/users/**").anonymous()
                     .antMatchers("/stats").hasRole("CREATOR")
                     .antMatchers("/my-events").hasRole("CREATOR")
                     .antMatchers(HttpMethod.POST, "/events/*").authenticated()
@@ -93,19 +94,19 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
         return new RefererRedirectionAuthentication("/");
     }
 
-    public boolean checkProfile(Authentication authentication, int userId) {
-        User profile = userService.getUserById(userId).orElse(null);
-        if (profile != null) {
-            if (profile.getRoles().stream().anyMatch(a -> a.getRoleName().equals("ROLE_CREATOR"))) {
-                return true;
-            }
-        }
-        if (authentication == null || authentication instanceof AnonymousAuthenticationToken)
-            return false;
-        String username = ((UserDetails) authentication.getPrincipal()).getUsername();
-        User user = userService.findByUsername(username).orElse(null);
-        if (user != null)
-            return user.getId() == userId;
-        return false;
-    }
+//    public boolean checkProfile(Authentication authentication, int userId) {
+//        User profile = userService.getUserById(userId).orElse(null);
+//        if (profile != null) {
+//            if (profile.getRoles().stream().anyMatch(a -> a.getRoleName().equals("ROLE_CREATOR"))) {
+//                return true;
+//            }
+//        }
+//        if (authentication == null || authentication instanceof AnonymousAuthenticationToken)
+//            return false;
+//        String username = ((UserDetails) authentication.getPrincipal()).getUsername();
+//        User user = userService.findByUsername(username).orElse(null);
+//        if (user != null)
+//            return user.getId() == userId;
+//        return false;
+//    }
 }

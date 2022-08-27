@@ -2,10 +2,12 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.*;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
 public interface UserDao {
+    UserList getAllUsers(int page);
     Optional<User> getUserById(long id);
     User createUser(String username, String password, String mail, Locale locale);
     User createBouncer(String password);
