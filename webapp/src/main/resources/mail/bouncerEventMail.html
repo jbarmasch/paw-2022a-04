@@ -2,10 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title th:remove="all" th:text="#{mail.booking}"></title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
 </head>
 <body>
-<p th:text="#{mail.greeting(${event.getOrganizer().getUsername()})}"></p>
+    <p th:text="#{mail.greeting(${event.getOrganizer().getUsername()})}"></p>
 
     <div>
         <span th:text="#{mail.created(${event.getName()})}"></span>
@@ -13,7 +13,7 @@
     <p th:text="#{mail.bouncer}"></p>
     <p th:text="#{mail.bouncerUser(${event.getId()}, ${password})}"></p>
 
-<p th:text="#{mail.farewell}"></p>
-<p>&emsp; <em>BotPass</em></p>
+    <p th:text="#{mail.farewell}"></p>
+    <p>&emsp; <em>BotPass</em></p>
 </body>
 </html>

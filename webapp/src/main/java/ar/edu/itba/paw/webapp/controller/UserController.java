@@ -116,10 +116,8 @@ import ar.edu.itba.paw.model.UserList;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.webapp.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Component;
 
-import javax.management.Query;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.net.URI;
@@ -140,7 +138,7 @@ public class UserController {
     private UriInfo uriInfo;
 
     @GET
-    @Produces(value = { MediaType.APPLICATION_JSON, })
+    @Produces(value = {MediaType.APPLICATION_JSON,})
     public Response listUsers(@QueryParam("page") @DefaultValue("1") final int page) {
         final UserList res = us.getAllUsers(page);
         final List<UserDto> userList = res.getUserList()
@@ -152,7 +150,8 @@ public class UserController {
             return Response.noContent().build();
         }
 
-        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<UserDto>>(userList) {});
+        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<UserDto>>(userList) {
+        });
 
         if (page != 1) {
             response.link(uriInfo.getAbsolutePathBuilder().queryParam("page", page - 1).build(), "prev");
@@ -177,7 +176,7 @@ public class UserController {
 
     @GET
     @Path("/{id}")
-    @Produces(value = { MediaType.APPLICATION_JSON, })
+    @Produces(value = {MediaType.APPLICATION_JSON,})
     public Response getById(@PathParam("id") final long id) {
         Optional<UserDto> userDto = us.getUserById(id).map(u -> UserDto.fromUser(uriInfo, u));
 

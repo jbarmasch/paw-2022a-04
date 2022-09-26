@@ -1,16 +1,17 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt"%>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <html>
 <head>
-    <%@ include file="include.jsp"%>
+    <%@ include file="include.jsp" %>
     <title>BotPass</title>
 </head>
 <body>
-    <%@ include file="appbar.jsp"%>
-    <c:url value="/login" var="loginUrl" />
+    <%@ include file="appbar.jsp" %>
+    <c:url value="/login" var="loginUrl"/>
     <div class="only-element">
-        <form action="${loginUrl}" class="loginForm login-form" method="post" enctype="application/x-www-form-urlencoded">
+        <form action="${loginUrl}" class="loginForm login-form" method="post"
+              enctype="application/x-www-form-urlencoded">
             <h3><spring:message code="login.login"/></h3>
             <div class="space-bet sep-top">
                 <spring:message code="login.username" var="usernamePlaceholder"/>
@@ -24,7 +25,8 @@
                 <span class="formError visible"><spring:message code="login.error"/></span>
             </c:if>
             <div class="sep-top align-center">
-                <label class="small-text align-center zoom"><input name="j_rememberme" type="checkbox"/><spring:message code="login.rememberMe"/></label>
+                <label class="small-text align-center zoom"><input name="j_rememberme" type="checkbox"/><spring:message
+                        code="login.rememberMe"/></label>
             </div>
             <div class="center sep-top-xl">
                 <spring:message code="login.login" var="loginMessage"/>
@@ -33,7 +35,8 @@
             <hr/>
             <div class="center">
                 <spring:message code="login.register" var="registerMessage"/>
-                <input type="button" onclick="location.href='<c:url value="/register"/>'" class="uk-button-submit" value="${registerMessage}"/>
+                <input type="button" onclick="location.href='<c:url value="/register"/>'" class="uk-button-submit"
+                       value="${registerMessage}"/>
             </div>
         </form>
     </div>
@@ -41,7 +44,7 @@
 </html>
 
 <script type="text/javascript">
-    (function() {
+    (function () {
         var username = document.getElementById('username');
         var password = document.getElementById('password');
         var form = document.getElementById('registerForm');
@@ -49,7 +52,7 @@
         if (form == null)
             return;
 
-        var checkUsernameValidity = function() {
+        var checkUsernameValidity = function () {
             if (username.validity.typeMismatch) {
                 username.setCustomValidity('${mailTypeError}');
                 updateUsernameMessage();
@@ -67,7 +70,7 @@
             }
         };
 
-        var checkPasswordValidity = function() {
+        var checkPasswordValidity = function () {
             if (password.validity.typeMismatch) {
                 password.setCustomValidity('${mailTypeError}');
                 updatePasswordMessage();
@@ -82,11 +85,11 @@
             }
         };
 
-        var updateUsernameMessage = function() {
+        var updateUsernameMessage = function () {
             form.getElementsByClassName('formError')[0].innerHTML = username.validationMessage;
         }
 
-        var updatePasswordMessage = function() {
+        var updatePasswordMessage = function () {
             form.getElementsByClassName('formError')[1].innerHTML = password.validationMessage;
         }
 
@@ -95,7 +98,7 @@
         password.addEventListener('change', checkPasswordValidity, false);
         password.addEventListener('keyup', checkPasswordValidity, false);
 
-        form.addEventListener('submit', function(event) {
+        form.addEventListener('submit', function (event) {
             if (form.classList) form.classList.add('submitted');
             checkUsernameValidity();
             checkPasswordValidity();

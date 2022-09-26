@@ -14,7 +14,7 @@ public class UserForm {
     @NotEmpty
     @UniqueUsername
     private String username;
-    
+
     @Size(min = 8, max = 100)
     @NotEmpty
     private String password;

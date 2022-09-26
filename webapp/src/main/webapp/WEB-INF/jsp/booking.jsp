@@ -1,5 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
@@ -7,7 +7,7 @@
 
 <html>
 <head>
-    <%@ include file="include.jsp"%>
+    <%@ include file="include.jsp" %>
     <title>BotPass</title>
 </head>
 <body>
@@ -58,18 +58,20 @@
             <spring:message var="setConfirmed" code="booking.setConfirmed"/>
             <spring:message var="confirmed" code="booking.confirmed"/>
             <div class="sep-top center">
-            <c:choose>
-                <c:when test="${isBouncer && !eventBooking.confirmed}">
-                    <form action="<c:url value="/bookings/${eventBooking.code}/confirm"/>" class="transparent" method="post">
-                        <input class="uk-button uk-button-text" type="submit" name="submit" value="${setConfirmed}"/>
-                    </form>
-                </c:when>
-                <c:when test="${isBouncer && eventBooking.confirmed}">
-                    <form class="transparent">
-                        <input class="upper" type="submit" name="submit" value="${confirmed}" disabled/>
-                    </form>
-                </c:when>
-            </c:choose>
+                <c:choose>
+                    <c:when test="${isBouncer && !eventBooking.confirmed}">
+                        <form action="<c:url value="/bookings/${eventBooking.code}/confirm"/>" class="transparent"
+                              method="post">
+                            <input class="uk-button uk-button-text" type="submit" name="submit"
+                                   value="${setConfirmed}"/>
+                        </form>
+                    </c:when>
+                    <c:when test="${isBouncer && eventBooking.confirmed}">
+                        <form class="transparent">
+                            <input class="upper" type="submit" name="submit" value="${confirmed}" disabled/>
+                        </form>
+                    </c:when>
+                </c:choose>
             </div>
         </div>
         <c:if test="${!isBouncer}">

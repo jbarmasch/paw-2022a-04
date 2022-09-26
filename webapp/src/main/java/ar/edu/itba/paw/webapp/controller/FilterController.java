@@ -1,36 +1,5 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.model.Event;
-import ar.edu.itba.paw.model.Order;
-import ar.edu.itba.paw.model.Tag;
-import ar.edu.itba.paw.model.Type;
-import ar.edu.itba.paw.service.EventService;
-import ar.edu.itba.paw.service.LocationService;
-import ar.edu.itba.paw.service.TagService;
-import ar.edu.itba.paw.service.TypeService;
-import ar.edu.itba.paw.webapp.auth.UserManager;
-import ar.edu.itba.paw.webapp.form.FilterForm;
-import ar.edu.itba.paw.webapp.form.SearchForm;
-import ar.edu.itba.paw.webapp.helper.FilterUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
-
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import java.util.*;
-import java.util.stream.Collectors;
-
 //@Validated
 //@Controller
 //public class FilterController {

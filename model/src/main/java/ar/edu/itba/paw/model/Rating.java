@@ -10,12 +10,12 @@ public class Rating {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "userid")
     private User user;
-    
+
     @Id
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "organizerid")
     private User organizer;
-    
+
     private int rating;
 
     public Rating(User user, User organizer, int rating) {
@@ -24,7 +24,8 @@ public class Rating {
         this.rating = rating;
     }
 
-    public Rating() {}
+    public Rating() {
+    }
 
     public User getUser() {
         return user;

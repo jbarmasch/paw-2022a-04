@@ -1,34 +1,5 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.model.*;
-import ar.edu.itba.paw.service.CodeService;
-import ar.edu.itba.paw.service.EventBookingService;
-import ar.edu.itba.paw.service.EventService;
-import ar.edu.itba.paw.service.TicketService;
-import ar.edu.itba.paw.service.UserService;
-import ar.edu.itba.paw.webapp.auth.UserManager;
-import ar.edu.itba.paw.exceptions.*;
-import ar.edu.itba.paw.webapp.exceptions.BookingNotFoundException;
-import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
-import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
-import ar.edu.itba.paw.webapp.form.BookForm;
-import ar.edu.itba.paw.webapp.form.BookingForm;
-import ar.edu.itba.paw.webapp.form.RateForm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.util.*;
-
 //@Controller
 //public class BookingController {
 //    @Autowired

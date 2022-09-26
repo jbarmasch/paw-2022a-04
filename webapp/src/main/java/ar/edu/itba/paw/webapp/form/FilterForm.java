@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.webapp.form;
 
 import ar.edu.itba.paw.webapp.validations.Price;
+
 import javax.validation.constraints.DecimalMin;
 
 @Price
@@ -48,6 +49,10 @@ public class FilterForm {
         return locations;
     }
 
+    public void setLocations(String locations) {
+        this.locations = locations;
+    }
+
     public Double getMinPrice() {
         return minPrice;
     }
@@ -64,12 +69,12 @@ public class FilterForm {
         this.maxPrice = maxPrice;
     }
 
-    public void setLocations(String locations) {
-        this.locations = locations;
-    }
-
     public String getTypes() {
         return types;
+    }
+
+    public void setTypes(String types) {
+        this.types = types;
     }
 
     public String getTags() {
@@ -78,10 +83,6 @@ public class FilterForm {
 
     public void setTags(String tags) {
         this.tags = tags;
-    }
-
-    public void setTypes(String types) {
-        this.types = types;
     }
 
     public String getUsername() {

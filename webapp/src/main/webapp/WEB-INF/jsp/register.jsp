@@ -1,71 +1,75 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <html>
 <head>
-    <%@ include file="include.jsp"%>
+    <%@ include file="include.jsp" %>
     <title>BotPass</title>
 </head>
 <body>
-    <%@ include file="appbar.jsp"%>
+    <%@ include file="appbar.jsp" %>
     <c:url value="/register" var="postPath"/>
     <div class="only-element">
-    <form:form class="registerForm" novalidate="true" modelAttribute="userForm" action="${postPath}" method="post">
-        <h3><spring:message code="register.register"/></h3>
-        <div class="space-bet sep-top vertical">
-            <spring:message code="register.mail" var="mailPlaceholder"/>
-            <form:input placeholder="* ${mailPlaceholder}" type="email" path="mail" maxlength="100" required="true" id="mail"/>
-            <form:errors path="mail" cssClass="error-message" element="span"/>
-            <spring:message code="NotEmpty.userForm.mail" var="mailEmptyError"/>
-            <spring:message code="Email.userForm.mail" var="mailTypeError"/>
-            <spring:message code="Size.userForm.mail" var="mailSizeError"/>
-            <span class="formError"></span>
-        </div>
-        <div class="space-bet sep-top vertical">
-            <spring:message code="register.username" var="usernamePlaceholder"/>
-            <form:input placeholder="* ${usernamePlaceholder}" type="text" path="username" pattern="[a-zA-Z0-9]+" minlength="8" maxlength="100" required="true" id="username"/>
-            <form:errors path="username" cssClass="error-message" element="span"/>
-            <spring:message code="NotEmpty.userForm.username" var="userEmptyError"/>
-            <spring:message code="Size.userForm.username" var="userSizeError"/>
-            <spring:message code="UniqueUsername.userForm.username" var="userUniqueError"/>
-            <spring:message code="Pattern.userForm.username" var="userPatternError"/>
-            <span class="formError"></span>
-        </div>
-        <div class="space-bet sep-top vertical">
-            <spring:message code="register.password" var="passwordPlaceholder"/>
-            <form:input placeholder="* ${passwordPlaceholder}" type="password" path="password" minlength="8" maxlength="100" required="true" id="password"/>
-            <form:errors path="password" cssClass="error-message" element="span"/>
-            <spring:message code="NotEmpty.userForm.password" var="passwordEmptyError"/>
-            <spring:message code="Size.userForm.password" var="passwordSizeError"/>
-            <spring:message code="userForm.passwordMatch" var="passwordMatchError"/>
-            <span class="formError"></span>
-        </div>
-        <div class="space-bet sep-top vertical">
-            <spring:message code="register.repeatPassword" var="repeatPasswordPlaceholder"/>
-            <form:input placeholder="* ${repeatPasswordPlaceholder}" type="password" path="repeatPassword" minlength="8" maxlength="100" required="true" id="repeatPassword"/>
-            <form:errors path="repeatPassword" cssClass="error-message" element="span"/>
-            <span class="formError"></span>
-        </div>
-        <div class="center">
-            <spring:message code="register.register" var="register"/>
-            <input type="submit" value="${register}"/>
-        </div>
-    </form:form>
+        <form:form class="registerForm" novalidate="true" modelAttribute="userForm" action="${postPath}" method="post">
+            <h3><spring:message code="register.register"/></h3>
+            <div class="space-bet sep-top vertical">
+                <spring:message code="register.mail" var="mailPlaceholder"/>
+                <form:input placeholder="* ${mailPlaceholder}" type="email" path="mail" maxlength="100" required="true"
+                            id="mail"/>
+                <form:errors path="mail" cssClass="error-message" element="span"/>
+                <spring:message code="NotEmpty.userForm.mail" var="mailEmptyError"/>
+                <spring:message code="Email.userForm.mail" var="mailTypeError"/>
+                <spring:message code="Size.userForm.mail" var="mailSizeError"/>
+                <span class="formError"></span>
+            </div>
+            <div class="space-bet sep-top vertical">
+                <spring:message code="register.username" var="usernamePlaceholder"/>
+                <form:input placeholder="* ${usernamePlaceholder}" type="text" path="username" pattern="[a-zA-Z0-9]+"
+                            minlength="8" maxlength="100" required="true" id="username"/>
+                <form:errors path="username" cssClass="error-message" element="span"/>
+                <spring:message code="NotEmpty.userForm.username" var="userEmptyError"/>
+                <spring:message code="Size.userForm.username" var="userSizeError"/>
+                <spring:message code="UniqueUsername.userForm.username" var="userUniqueError"/>
+                <spring:message code="Pattern.userForm.username" var="userPatternError"/>
+                <span class="formError"></span>
+            </div>
+            <div class="space-bet sep-top vertical">
+                <spring:message code="register.password" var="passwordPlaceholder"/>
+                <form:input placeholder="* ${passwordPlaceholder}" type="password" path="password" minlength="8"
+                            maxlength="100" required="true" id="password"/>
+                <form:errors path="password" cssClass="error-message" element="span"/>
+                <spring:message code="NotEmpty.userForm.password" var="passwordEmptyError"/>
+                <spring:message code="Size.userForm.password" var="passwordSizeError"/>
+                <spring:message code="userForm.passwordMatch" var="passwordMatchError"/>
+                <span class="formError"></span>
+            </div>
+            <div class="space-bet sep-top vertical">
+                <spring:message code="register.repeatPassword" var="repeatPasswordPlaceholder"/>
+                <form:input placeholder="* ${repeatPasswordPlaceholder}" type="password" path="repeatPassword"
+                            minlength="8" maxlength="100" required="true" id="repeatPassword"/>
+                <form:errors path="repeatPassword" cssClass="error-message" element="span"/>
+                <span class="formError"></span>
+            </div>
+            <div class="center">
+                <spring:message code="register.register" var="register"/>
+                <input type="submit" value="${register}"/>
+            </div>
+        </form:form>
     </div>
 </body>
 </html>
 
 <script type="text/javascript">
-    (function() {
+    (function () {
         var mail = document.getElementById('mail');
         var username = document.getElementById('username');
         var password = document.getElementById('password');
         var repeatPassword = document.getElementById('repeatPassword');
         var form = document.getElementById('userForm');
 
-        var checkMailValidity = function() {
+        var checkMailValidity = function () {
             if (mail.validity.typeMismatch) {
                 mail.setCustomValidity('${mailTypeError}');
                 updateMailMessage();
@@ -80,7 +84,7 @@
             }
         };
 
-        var checkUsernameValidity = function() {
+        var checkUsernameValidity = function () {
             if (username.validity.typeMismatch) {
                 username.setCustomValidity('${mailTypeError}');
                 updateUsernameMessage();
@@ -98,7 +102,7 @@
             }
         };
 
-        var checkPasswordValidity = function() {
+        var checkPasswordValidity = function () {
             if (password.validity.typeMismatch) {
                 password.setCustomValidity('${mailTypeError}');
                 updatePasswordMessage();
@@ -113,7 +117,7 @@
             }
         };
 
-        var checkRepeatPasswordValidity = function() {
+        var checkRepeatPasswordValidity = function () {
             if (repeatPassword.validity.typeMismatch) {
                 repeatPassword.setCustomValidity('${mailTypeError}');
                 updateRepeatPasswordMessage();
@@ -128,7 +132,7 @@
             }
         };
 
-        var checkPasswordMatchValidity = function() {
+        var checkPasswordMatchValidity = function () {
             if (!password.validity.valid && form.getElementsByClassName('formError')[2].innerHTML !== '${passwordMatchError}')
                 return;
 
@@ -144,19 +148,19 @@
             }
         }
 
-        var updateMailMessage = function() {
+        var updateMailMessage = function () {
             form.getElementsByClassName('formError')[0].innerHTML = mail.validationMessage;
         }
 
-        var updateUsernameMessage = function() {
+        var updateUsernameMessage = function () {
             form.getElementsByClassName('formError')[1].innerHTML = username.validationMessage;
         }
 
-        var updatePasswordMessage = function() {
+        var updatePasswordMessage = function () {
             form.getElementsByClassName('formError')[2].innerHTML = password.validationMessage;
         }
 
-        var updateRepeatPasswordMessage = function() {
+        var updateRepeatPasswordMessage = function () {
             form.getElementsByClassName('formError')[3].innerHTML = repeatPassword.validationMessage;
         }
 
@@ -173,7 +177,7 @@
         repeatPassword.addEventListener('change', checkRepeatPasswordValidity, false);
         repeatPassword.addEventListener('keyup', checkRepeatPasswordValidity, false);
 
-        form.addEventListener('submit', function(event) {
+        form.addEventListener('submit', function (event) {
             if (form.classList) form.classList.add('submitted');
             checkMailValidity();
             checkUsernameValidity();

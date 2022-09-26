@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title th:remove="all" th:text="#{mail.booking}"></title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
     <style th:inline="css">
         .tickets-table {
             text-align: left;
@@ -34,7 +34,7 @@
     </style>
 </head>
 <body>
-<p th:text="#{mail.greeting(${booking.getEvent().getOrganizer().getUsername()})}"></p>
+    <p th:text="#{mail.greeting(${booking.getEvent().getOrganizer().getUsername()})}"></p>
 
     <p th:text="#{mail.ticketsDescOrganizer(${booking.getEvent().getName()}, ${booking.getUser().getUsername()})}"></p>
 
@@ -59,7 +59,7 @@
         </tr>
     </table>
 
-<p th:text="#{mail.farewell}"></p>
-<p>&emsp; <em>BotPass</em></p>
+    <p th:text="#{mail.farewell}"></p>
+    <p>&emsp; <em>BotPass</em></p>
 </body>
 </html>

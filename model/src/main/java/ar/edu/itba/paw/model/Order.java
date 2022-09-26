@@ -1,8 +1,8 @@
 package ar.edu.itba.paw.model;
 
 public enum Order {
-    DATE_ASC( "date", "ASC"),
-    DATE_DESC( "date", "DESC");
+    DATE_ASC("date", "ASC"),
+    DATE_DESC("date", "DESC");
 
     private final String order;
     private final String orderBy;

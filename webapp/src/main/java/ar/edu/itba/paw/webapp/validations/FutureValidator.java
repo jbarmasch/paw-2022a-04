@@ -7,7 +7,8 @@ import java.time.format.DateTimeParseException;
 
 public class FutureValidator implements ConstraintValidator<Future, String> {
     @Override
-    public void initialize(Future contactNumber) {}
+    public void initialize(Future contactNumber) {
+    }
 
     @Override
     public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {

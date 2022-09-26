@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
-import ar.edu.itba.paw.model.*;
+import ar.edu.itba.paw.model.EventBooking;
+import ar.edu.itba.paw.model.TicketBooking;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

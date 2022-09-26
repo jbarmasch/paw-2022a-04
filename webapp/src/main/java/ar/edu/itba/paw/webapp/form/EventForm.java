@@ -51,12 +51,12 @@ public class EventForm {
         this.minAge = minAge;
     }
 
-    public void setImage(MultipartFile image) {
-        this.image = image;
-    }
-
     public MultipartFile getImage() {
         return image;
+    }
+
+    public void setImage(MultipartFile image) {
+        this.image = image;
     }
 
     public String getDate() {
@@ -75,16 +75,24 @@ public class EventForm {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Integer getLocation() {
         return location;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setLocation(Integer location) {
+        this.location = location;
     }
 
     public Integer getType() {
@@ -93,14 +101,6 @@ public class EventForm {
 
     public void setType(Integer type) {
         this.type = type;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setLocation(Integer location) {
-        this.location = location;
     }
 
     public Long[] getTags() {

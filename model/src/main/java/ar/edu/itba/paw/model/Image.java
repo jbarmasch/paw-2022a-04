@@ -16,14 +16,15 @@ public class Image {
         this.image = image;
     }
 
-    public Image() {}
-
-    public void setId(long id) {
-        this.id = id;
+    public Image() {
     }
 
     public long getId() {
         return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public byte[] getImage() {

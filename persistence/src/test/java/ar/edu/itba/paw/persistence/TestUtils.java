@@ -1,22 +1,17 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.*;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.test.jdbc.JdbcTestUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
 public final class TestUtils {
-    private TestUtils() {
-        throw new UnsupportedOperationException();
-    }
-
-    public static final byte[] BYTE_ARRAY = new byte[] {0x00};
+    public static final byte[] BYTE_ARRAY = new byte[]{0x00};
     public final static String GENERIC = "genericName";
     public final static String GENERIC2 = "generic2";
     public final static String GENERIC3 = "generic3";
@@ -49,7 +44,6 @@ public final class TestUtils {
     public final static String ROLE_NAME_CREATOR = "ROLE_CREATOR";
     public final static String ROLE_NAME_BOUNCER = "ROLE_BOUNCER";
     public static int BOOKING_QTY = 5;
-
     public static User USER1;
     public static User USER2;
     public static User ORGANIZER;
@@ -63,6 +57,9 @@ public final class TestUtils {
     public static Type GENERIC_TYPE;
     public static Image IMAGE;
     public static Ticket GENERIC_TICKET;
+    private TestUtils() {
+        throw new UnsupportedOperationException();
+    }
 
     public static void deleteTables(EntityManager em) {
         em.createNativeQuery("DELETE FROM ticketbookings").executeUpdate();
@@ -245,7 +242,7 @@ public final class TestUtils {
 
     public static <T> boolean contains(T elem, List<T> list) {
         boolean ans = false;
-        for (T element: list) {
+        for (T element : list) {
             if (elem.equals(element)) {
                 ans = true;
                 break;

@@ -6,24 +6,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.sql.DataSource;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.util.*;
-
-import static java.lang.Math.toIntExact;
+import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TestConfig.class)
@@ -42,7 +31,7 @@ public class EventJpaDaoTest {
 
     @Test
     public void testCreateEvent() {
-        final Event event = eventDao.createEvent(TestUtils.EVENT_NAME, TestUtils.EVENT_DESC, TestUtils.GENERIC_LOCATION.getId(), TestUtils.GENERIC_TYPE.getId(), TestUtils.EVENT_DATE, TestUtils.BYTE_ARRAY, new Long[] {TestUtils.GENERIC_TAG.getId()}, TestUtils.USER1, 18, TestUtils.USER2);
+        final Event event = eventDao.createEvent(TestUtils.EVENT_NAME, TestUtils.EVENT_DESC, TestUtils.GENERIC_LOCATION.getId(), TestUtils.GENERIC_TYPE.getId(), TestUtils.EVENT_DATE, TestUtils.BYTE_ARRAY, new Long[]{TestUtils.GENERIC_TAG.getId()}, TestUtils.USER1, 18, TestUtils.USER2);
         Assert.assertNotNull(event);
         Assert.assertEquals(TestUtils.EVENT_NAME, event.getName());
         Assert.assertEquals(TestUtils.EVENT_DESC, event.getDescription());
@@ -89,7 +78,7 @@ public class EventJpaDaoTest {
         ticket.setQty(10);
         ticket.setBooked(9);
         em.persist(ticket);
-        
+
         events = eventDao.getFewTicketsEvents();
         Assert.assertNotNull(events);
         Assert.assertEquals(1, events.size());
@@ -114,7 +103,7 @@ public class EventJpaDaoTest {
     @Test
     public void testEventUpdate() {
         final Event event = TestUtils.createEvent(em);
-        eventDao.updateEvent(event.getId(), TestUtils.EVENT_NAME_2, TestUtils.EVENT_DESC, TestUtils.GENERIC_LOCATION.getId(), TestUtils.GENERIC_TYPE.getId(), TestUtils.EVENT_DATE_LATER, TestUtils.BYTE_ARRAY, new Long[] {TestUtils.GENERIC_TAG.getId()}, 18);
+        eventDao.updateEvent(event.getId(), TestUtils.EVENT_NAME_2, TestUtils.EVENT_DESC, TestUtils.GENERIC_LOCATION.getId(), TestUtils.GENERIC_TYPE.getId(), TestUtils.EVENT_DATE_LATER, TestUtils.BYTE_ARRAY, new Long[]{TestUtils.GENERIC_TAG.getId()}, 18);
         Assert.assertNotNull(event);
         Assert.assertNotEquals(TestUtils.EVENT_NAME, event.getName());
         Assert.assertNotEquals(TestUtils.EVENT_DATE, event.getDate());

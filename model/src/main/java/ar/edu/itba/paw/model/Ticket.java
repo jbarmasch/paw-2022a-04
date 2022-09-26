@@ -25,7 +25,7 @@ public class Ticket {
     private Integer qty;
     private Integer booked;
     private Integer maxPerUser;
-    
+
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
     @JoinColumn(name = "eventid")
     private Event event;
@@ -68,7 +68,8 @@ public class Ticket {
         this.maxPerUser = maxPerUser;
     }
 
-    public Ticket() {}
+    public Ticket() {
+    }
 
     public Event getEvent() {
         return event;
@@ -82,28 +83,28 @@ public class Ticket {
         return ticketName;
     }
 
-    public Double getPrice() {
-        return price;
-    }
-
-    public Integer getQty() {
-        return qty;
-    }
-
-    public Integer getMaxPerUser() {
-        return maxPerUser;
-    }
-
     public void setTicketName(String ticketName) {
         this.ticketName = ticketName;
+    }
+
+    public Double getPrice() {
+        return price;
     }
 
     public void setPrice(Double price) {
         this.price = price;
     }
 
+    public Integer getQty() {
+        return qty;
+    }
+
     public void setQty(Integer qty) {
         this.qty = qty;
+    }
+
+    public Integer getMaxPerUser() {
+        return maxPerUser;
     }
 
     public void setMaxPerUser(Integer maxPerUser) {

@@ -8,8 +8,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE })
-@Constraint(validatedBy = { PriceValidator.class })
+@Target({ElementType.TYPE})
+@Constraint(validatedBy = {PriceValidator.class})
 public @interface Price {
     String message() default "{Price.filterForm}";
 

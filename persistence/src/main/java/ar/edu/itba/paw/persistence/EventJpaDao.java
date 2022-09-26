@@ -5,7 +5,10 @@ import ar.edu.itba.paw.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -69,8 +72,7 @@ public class EventJpaDao implements EventDao {
         StringBuilder orderQuery = new StringBuilder();
         if (order != null) {
             orderQuery.append(" ORDER BY ").append(order.getOrder()).append(" ").append(order.getOrderBy());
-        }
-        else {
+        } else {
             orderQuery.append(" ORDER BY date ");
         }
 

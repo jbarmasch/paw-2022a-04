@@ -1,9 +1,7 @@
 import * as React from 'react';
-import Typography from '@mui/material/Typography';
-import Link from 'next/link';
 import Image from "next/image";
 
-export default function Blockcard({ image }) {
+export default function Blockcard({image}) {
 
     return (
         <div className="block">

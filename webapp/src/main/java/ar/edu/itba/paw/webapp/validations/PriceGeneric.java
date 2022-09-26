@@ -8,8 +8,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD, ElementType.CONSTRUCTOR })
-@Constraint(validatedBy = { PriceGenericValidator.class })
+@Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
+@Constraint(validatedBy = {PriceGenericValidator.class})
 public @interface PriceGeneric {
     String message() default "{Price.filterForm}";
 

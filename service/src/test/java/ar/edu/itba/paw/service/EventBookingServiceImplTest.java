@@ -1,45 +1,37 @@
 package ar.edu.itba.paw.service;
+
 import ar.edu.itba.paw.exceptions.AlreadyMaxTicketsException;
 import ar.edu.itba.paw.exceptions.SurpassedMaxTicketsException;
 import ar.edu.itba.paw.exceptions.TicketNotBookedException;
 import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.persistence.EventBookingDao;
-import ar.edu.itba.paw.persistence.UserDao;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventBookingServiceImplTest {
-    @InjectMocks
-    private EventBookingServiceImpl eventBookingService;
-
     private static final User USER = new User(null, null, null, null, null);
     private static final Event EVENT = new Event(1, null, null, null, null, null, null, null, null, null, null, null, null);
     private static final Ticket TICKET = new Ticket(1, null, null, 10, EVENT, null, null, 6);
     private static final Ticket DIFFERENT_TICKET = new Ticket(2, null, null, 10, EVENT, null, null, 6);
     private static final EventBooking EVENT_BOOKING = new EventBooking(USER, EVENT, null, "");
-    private static final EventBooking DIFFERENT_EVENT_BOOKING = new EventBooking(USER, EVENT, null, "");
-    private static final TicketBooking DIFFERENT_TICKET_BOOKING = new TicketBooking(DIFFERENT_TICKET, 5, DIFFERENT_EVENT_BOOKING);
     private static final TicketBooking ACCEPTED_TICKET_BOOKING = new TicketBooking(TICKET, 5, EVENT_BOOKING);
     private static final TicketBooking DECLINED_TICKET_BOOKING = new TicketBooking(TICKET, 7, EVENT_BOOKING);
+    private static final EventBooking DIFFERENT_EVENT_BOOKING = new EventBooking(USER, EVENT, null, "");
+    private static final TicketBooking DIFFERENT_TICKET_BOOKING = new TicketBooking(DIFFERENT_TICKET, 5, DIFFERENT_EVENT_BOOKING);
+    @InjectMocks
+    private EventBookingServiceImpl eventBookingService;
 
 //    @Rule
 //    public ExpectedException thrown = ExpectedException.none();
-
     @Mock
     private EventBookingDao mockDao;
     @Mock

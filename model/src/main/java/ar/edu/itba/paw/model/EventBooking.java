@@ -5,12 +5,11 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Table(name = "eventbookings", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"userid", "eventid"}),
- }
+}
 )
 public class EventBooking {
     @Id
@@ -47,7 +46,8 @@ public class EventBooking {
         this.confirmed = false;
     }
 
-    public EventBooking() {}
+    public EventBooking() {
+    }
 
     public long getId() {
         return id;
@@ -89,12 +89,12 @@ public class EventBooking {
         ticketBookings.add(ticketBooking);
     }
 
-    public void setRating(Integer rating) {
-        this.rating = rating;
-    }
-
     public Integer getRating() {
         return rating;
+    }
+
+    public void setRating(Integer rating) {
+        this.rating = rating;
     }
 
     public boolean isConfirmed() {

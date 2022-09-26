@@ -4,8 +4,8 @@ import ar.edu.itba.paw.model.Ticket;
 
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.time.LocalDateTime;
 import java.net.URI;
+import java.time.LocalDateTime;
 
 public class TicketDto {
     private String ticketName;

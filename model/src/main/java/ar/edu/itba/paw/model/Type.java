@@ -22,7 +22,8 @@ public class Type {
         this.name_en = name_en;
     }
 
-    public Type() {}
+    public Type() {
+    }
 
     public static void setLocale(Locale locale) {
         Type.locale = locale;

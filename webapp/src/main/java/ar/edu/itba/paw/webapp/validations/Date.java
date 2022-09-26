@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 @Constraint(validatedBy = DateValidator.class)
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.FIELD })
+@Target({ElementType.FIELD})
 public @interface Date {
     String message() default "{Date.eventForm}";
 

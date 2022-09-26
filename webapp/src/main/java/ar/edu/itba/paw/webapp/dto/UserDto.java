@@ -19,7 +19,7 @@ public class UserDto {
         final UserDto dto = new UserDto();
 
         dto.username = user.getUsername();
-        dto.votes= user.getVotes();
+        dto.votes = user.getVotes();
         dto.rating = user.getRating();
 
         final UriBuilder userUriBuilder = uriInfo.getAbsolutePathBuilder().

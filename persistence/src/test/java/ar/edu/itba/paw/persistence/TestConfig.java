@@ -20,7 +20,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.Properties;
 
-@ComponentScan({ "ar.edu.itba.paw.persistence" })
+@ComponentScan({"ar.edu.itba.paw.persistence"})
 @Configuration
 public class TestConfig {
     @Value("classpath:hsqldb.sql")

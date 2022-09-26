@@ -59,83 +59,84 @@ public class User {
         roles.add(initialRole);
     }
 
-    public User() {}
+    public User() {
+    }
 
     public String getUsername() {
         return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public String getMail() {
-        return mail;
-    }
-
-    public double getRating() {
-        return rating;
-    }
-
-    public List<Role> getRoles() {
-        return roles;
-    }
-
-    public int getVotes() {
-        return votes;
-    }
-
-    public List<Event> getEvents() {
-        return events;
-    }
-
-    public String getLanguage() {
-        return language;
-    }
-
-    public void setEvents(List<Event> events) {
-        this.events = events;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public void setUsername(String username) {
         this.username = username;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getMail() {
+        return mail;
     }
 
     public void setMail(String mail) {
         this.mail = mail;
     }
 
+    public double getRating() {
+        return rating;
+    }
+
     public void setRating(double rating) {
         this.rating = rating;
     }
 
-    public void setVotes(int votes) {
-        this.votes = votes;
+    public List<Role> getRoles() {
+        return roles;
     }
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
     }
 
-    public void addRole(Role role) {
-        if (!this.roles.contains(role))
-            this.roles.add(role);
+    public int getVotes() {
+        return votes;
+    }
+
+    public void setVotes(int votes) {
+        this.votes = votes;
+    }
+
+    public List<Event> getEvents() {
+        return events;
+    }
+
+    public void setEvents(List<Event> events) {
+        this.events = events;
+    }
+
+    public String getLanguage() {
+        return language;
     }
 
     public void setLanguage(String language) {
         this.language = language;
+    }
+
+    public void addRole(Role role) {
+        if (!this.roles.contains(role))
+            this.roles.add(role);
     }
 
     @Override

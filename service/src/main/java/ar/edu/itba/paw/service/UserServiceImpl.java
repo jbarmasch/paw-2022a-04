@@ -1,14 +1,16 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.exceptions.UserCannotRateException;
-import ar.edu.itba.paw.model.*;
+import ar.edu.itba.paw.model.OrganizerStats;
+import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.model.UserList;
+import ar.edu.itba.paw.model.UserStats;
 import ar.edu.itba.paw.persistence.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 

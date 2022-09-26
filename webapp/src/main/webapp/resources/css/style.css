@@ -97,7 +97,7 @@
 }
 
 .appbar {
-    box-shadow: 0 5px 5px 0 rgba(0,0,0,0.2);
+    box-shadow: 0 5px 5px 0 rgba(0, 0, 0, 0.2);
     justify-content: space-evenly;
     align-items: center;
     padding: 5px 10px 5px 10px;
@@ -191,7 +191,7 @@ input[type="button"] {
 }
 
 a:hover {
-   color: #444444;
+    color: #444444;
 }
 
 .registerForm > * {
@@ -410,7 +410,7 @@ input[type=submit] {
     flex-direction: column;
     justify-content: flex-start;
     border-radius: 0;
-    background-color: rgba(255,255,255,0.8);
+    background-color: rgba(255, 255, 255, 0.8);
     padding: 10px;
     height: 100%;
 }
@@ -546,9 +546,11 @@ input[type=number] {
     color: red;
     font-weight: bold;
 }
+
 .submitted :invalid + .formError {
     display: block;
 }
+
 .submitted :invalid {
     border: 1px solid red;
 }
@@ -709,7 +711,6 @@ select:-webkit-autofill:focus {
 }
 
 
-
 .rate {
     float: left;
     height: 46px;
@@ -718,18 +719,18 @@ select:-webkit-autofill:focus {
 }
 
 .rate:not(:checked) > input {
-    position:absolute;
-    top:-9999px;
+    position: absolute;
+    top: -9999px;
 }
 
 .rate:not(:checked) > label {
-    float:right;
-    width:1em;
-    overflow:hidden;
-    white-space:nowrap;
-    cursor:pointer;
-    font-size:30px;
-    color:#ccc;
+    float: right;
+    width: 1em;
+    overflow: hidden;
+    white-space: nowrap;
+    cursor: pointer;
+    font-size: 30px;
+    color: #ccc;
 }
 
 .rate:not(:checked) > label:before {

@@ -1,6 +1,8 @@
 package ar.edu.itba.paw.persistence;
 
-import ar.edu.itba.paw.exceptions.*;
+import ar.edu.itba.paw.exceptions.BookingFailedException;
+import ar.edu.itba.paw.exceptions.CancelBookingFailedException;
+import ar.edu.itba.paw.exceptions.IllegalTicketException;
 import ar.edu.itba.paw.model.BookingId;
 import ar.edu.itba.paw.model.EventBooking;
 import ar.edu.itba.paw.model.Ticket;
@@ -80,8 +82,7 @@ public class EventBookingJpaDao implements EventBookingDao {
                         ticketAux.setQty(ticketAux.getQty() + ticketBooking.getQty());
                         em.persist(ticketAux);
                     }
-                }
-                else {
+                } else {
                     Ticket ticket = ticketBooking.getTicket();
                     if (!ticket.book(ticketBooking.getQty())) {
                         throw new BookingFailedException();
@@ -109,7 +110,7 @@ public class EventBookingJpaDao implements EventBookingDao {
         EventBooking eventBooking = query.getResultList().stream().findFirst().orElse(null);
 
         if (eventBooking == null) {
-             throw new CancelBookingFailedException();
+            throw new CancelBookingFailedException();
         }
 
         for (TicketBooking ticketBooking : booking.getTicketBookings()) {

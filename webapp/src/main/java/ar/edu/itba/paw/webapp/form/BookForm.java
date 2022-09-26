@@ -2,7 +2,7 @@ package ar.edu.itba.paw.webapp.form;
 
 import ar.edu.itba.paw.webapp.validations.BookingList;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class BookForm {

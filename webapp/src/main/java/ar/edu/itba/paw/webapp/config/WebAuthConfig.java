@@ -1,6 +1,5 @@
 package ar.edu.itba.paw.webapp.config;
 
-import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.webapp.auth.PawUserDetailsService;
 import ar.edu.itba.paw.webapp.auth.RefererRedirectionAuthentication;
@@ -11,14 +10,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -42,35 +38,35 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     protected void configure(final HttpSecurity http) throws Exception {
         http.sessionManagement()
                 .and().authorizeRequests()
-                    .antMatchers("/login", "/register", "/forgot-pass").permitAll()
-                    .antMatchers("/users/**").anonymous()
-                    .antMatchers("/stats").hasRole("CREATOR")
-                    .antMatchers("/my-events").hasRole("CREATOR")
-                    .antMatchers(HttpMethod.POST, "/events/*").authenticated()
-                    .antMatchers(HttpMethod.POST, "/events").permitAll()
-                    .antMatchers(HttpMethod.GET, "/events", "/events/*").permitAll()
-                    .antMatchers(HttpMethod.POST, "/bookings/*/confirm").hasRole("BOUNCER")
-                    .antMatchers(HttpMethod.POST, "/bookings/**").hasRole("USER")
-                    .antMatchers(HttpMethod.GET, "/bookings/**").authenticated()
-                    .antMatchers(HttpMethod.GET, "/profile/**").permitAll()
-                    .antMatchers(HttpMethod.GET, "/", "/search", "/events/*", "/profile/**").not().hasAnyRole("BOUNCER")
-                    .antMatchers("/**").hasAnyRole("CREATOR", "USER")
+                .antMatchers("/login", "/register", "/forgot-pass").permitAll()
+                .antMatchers("/users/**").anonymous()
+                .antMatchers("/stats").hasRole("CREATOR")
+                .antMatchers("/my-events").hasRole("CREATOR")
+                .antMatchers(HttpMethod.POST, "/events/*").authenticated()
+                .antMatchers(HttpMethod.POST, "/events").permitAll()
+                .antMatchers(HttpMethod.GET, "/events", "/events/*").permitAll()
+                .antMatchers(HttpMethod.POST, "/bookings/*/confirm").hasRole("BOUNCER")
+                .antMatchers(HttpMethod.POST, "/bookings/**").hasRole("USER")
+                .antMatchers(HttpMethod.GET, "/bookings/**").authenticated()
+                .antMatchers(HttpMethod.GET, "/profile/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/", "/search", "/events/*", "/profile/**").not().hasAnyRole("BOUNCER")
+                .antMatchers("/**").hasAnyRole("CREATOR", "USER")
                 .and().formLogin()
-                    .usernameParameter("j_username")
-                    .passwordParameter("j_password")
-                    .successHandler(successHandler())
-                    .loginPage("/login")
+                .usernameParameter("j_username")
+                .passwordParameter("j_password")
+                .successHandler(successHandler())
+                .loginPage("/login")
                 .and().rememberMe()
-                    .rememberMeParameter("j_rememberme")
-                    .userDetailsService(userDetailsService)
-                    .key(env.getProperty("remember_key"))
-                    .tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(30))
+                .rememberMeParameter("j_rememberme")
+                .userDetailsService(userDetailsService)
+                .key(env.getProperty("remember_key"))
+                .tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(30))
                 .and().logout()
-                    .logoutUrl("/logout")
-                    .deleteCookies("JSESSIONID")
-                    .logoutSuccessUrl("/")
+                .logoutUrl("/logout")
+                .deleteCookies("JSESSIONID")
+                .logoutSuccessUrl("/")
                 .and().exceptionHandling()
-                    .accessDeniedPage("/403")
+                .accessDeniedPage("/403")
                 .and().csrf().disable();
     }
 

@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 @Constraint(validatedBy = UniqueUsernameValidator.class)
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.FIELD })
+@Target({ElementType.FIELD})
 public @interface UniqueUsername {
     String message() default "{UniqueUsername.userForm.username}";
 

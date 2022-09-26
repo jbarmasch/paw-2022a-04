@@ -1,13 +1,13 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %>
 
 <html>
 <head>
-    <%@ include file="include.jsp"%>
+    <%@ include file="include.jsp" %>
     <title>BotPass</title>
 </head>
 <body>
-    <%@ include file="appbar.jsp"%>
+    <%@ include file="appbar.jsp" %>
     <div class="container only-element vertical">
         <h1><spring:message code="booking.success"/></h1>
 

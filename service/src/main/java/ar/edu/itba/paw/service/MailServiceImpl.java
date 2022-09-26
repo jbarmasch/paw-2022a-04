@@ -3,9 +3,7 @@ package ar.edu.itba.paw.service;
 import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.model.EventBooking;
 import ar.edu.itba.paw.model.TicketBooking;
-import ar.edu.itba.paw.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.context.MessageSource;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamSource;
@@ -50,7 +48,7 @@ public class MailServiceImpl implements MailService {
     public void sendMailWithImage(String templateName, String subject, String recipientEmail, String code, Context ctx) {
         try {
             final MimeMessage mimeMessage = emailSender.createMimeMessage();
-            final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true,"UTF-8");
+            final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
             message.setSubject(subject);
             message.setFrom("botpass@zohomail.com");
             message.setTo(recipientEmail);

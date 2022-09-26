@@ -1,11 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <html>
 <head>
-    <%@ include file="include.jsp"%>
+    <%@ include file="include.jsp" %>
     <link href="https://fonts.googleapis.com/css?family=Teko:700&display=swap" rel="stylesheet">
     <title>BotPass</title>
 </head>
@@ -40,10 +40,10 @@
                         <h2 class="title"><spring:message code="index.popularEvents"/></h2>
                     </div>
                     <div class="container multi-browse">
-                    <c:forEach var="event" items="${fewTicketsEvents}">
-                        <c:set var="event" value="${event}" scope="request"/>
-                        <c:import url="eventCard.jsp"/>
-                    </c:forEach>
+                        <c:forEach var="event" items="${fewTicketsEvents}">
+                            <c:set var="event" value="${event}" scope="request"/>
+                            <c:import url="eventCard.jsp"/>
+                        </c:forEach>
                     </div>
                 </div>
             </div>

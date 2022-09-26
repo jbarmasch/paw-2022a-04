@@ -39,16 +39,19 @@
             </div>
             <div class="card_info">
                 <spring:message code="event.locationAlt" var="locationAlt"/>
-                <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>" alt="${locationAlt}"/><span><c:out value="${event.location.name}"/></span>
+                <img class="icon" src="<c:url value="/resources/svg/location-pin.svg"/>"
+                     alt="${locationAlt}"/><span><c:out value="${event.location.name}"/></span>
             </div>
             <div class="card_info">
                 <div>
                     <spring:message code="event.dateAlt" var="dateAlt"/>
-                    <img class="icon" src="<c:url value="/resources/svg/date.svg"/>" alt="${dateAlt}"/><span><c:out value="${event.dateFormatted}"/></span>
+                    <img class="icon" src="<c:url value="/resources/svg/date.svg"/>" alt="${dateAlt}"/><span><c:out
+                        value="${event.dateFormatted}"/></span>
                 </div>
                 <div>
                     <spring:message code="event.timeAlt" var="timeAlt"/>
-                    <img class="icon" src="<c:url value="/resources/svg/time.svg"/>" alt="${timeAlt}"/><span><c:out value="${event.timeFormatted}"/></span>
+                    <img class="icon" src="<c:url value="/resources/svg/time.svg"/>" alt="${timeAlt}"/><span><c:out
+                        value="${event.timeFormatted}"/></span>
                 </div>
             </div>
         </div>

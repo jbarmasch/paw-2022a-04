@@ -7,7 +7,8 @@ import javax.validation.ConstraintValidatorContext;
 
 public class PriceValidator implements ConstraintValidator<Price, FilterForm> {
     @Override
-    public void initialize(Price price) {}
+    public void initialize(Price price) {
+    }
 
     @Override
     public boolean isValid(FilterForm filterForm, ConstraintValidatorContext constraintValidatorContext) {

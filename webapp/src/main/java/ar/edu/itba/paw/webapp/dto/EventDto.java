@@ -3,10 +3,10 @@ package ar.edu.itba.paw.webapp.dto;
 import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.model.Tag;
 
-import java.time.LocalDateTime;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 

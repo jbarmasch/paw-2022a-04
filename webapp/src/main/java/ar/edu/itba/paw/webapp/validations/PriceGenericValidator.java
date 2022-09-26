@@ -5,7 +5,8 @@ import javax.validation.ConstraintValidatorContext;
 
 public class PriceGenericValidator implements ConstraintValidator<Price, Object[]> {
     @Override
-    public void initialize(Price price) {}
+    public void initialize(Price price) {
+    }
 
     @Override
     public boolean isValid(Object[] objects, ConstraintValidatorContext constraintValidatorContext) {

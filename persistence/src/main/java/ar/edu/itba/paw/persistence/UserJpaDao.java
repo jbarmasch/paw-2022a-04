@@ -9,7 +9,10 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
@@ -133,7 +136,7 @@ public class UserJpaDao implements UserDao {
         User organizer = em.getReference(User.class, organizerId);
         Rating rate = em.find(Rating.class, new RatingId(user, organizer));
         if (rate == null)
-              rate = new Rating(user, organizer, rating);
+            rate = new Rating(user, organizer, rating);
         else
             rate.setRating(rating);
         em.persist(rate);

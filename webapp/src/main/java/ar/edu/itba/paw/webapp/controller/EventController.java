@@ -1,34 +1,16 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.model.*;
-import ar.edu.itba.paw.service.*;
-import ar.edu.itba.paw.webapp.auth.UserManager;
-import ar.edu.itba.paw.exceptions.*;
+import ar.edu.itba.paw.model.EventList;
+import ar.edu.itba.paw.model.Order;
+import ar.edu.itba.paw.service.EventService;
 import ar.edu.itba.paw.webapp.dto.EventDto;
-import ar.edu.itba.paw.webapp.dto.UserDto;
-import ar.edu.itba.paw.webapp.exceptions.*;
-import ar.edu.itba.paw.webapp.form.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.io.IOException;
-import java.net.URI;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 //@Controller
@@ -349,7 +331,7 @@ public class EventController {
     private UriInfo uriInfo;
 
     @GET
-    @Produces(value = { MediaType.APPLICATION_JSON, })
+    @Produces(value = {MediaType.APPLICATION_JSON,})
     public Response listEvents(@QueryParam("locations") final List<Integer> locations,
                                @QueryParam("types") final List<Integer> types,
                                @QueryParam("minPrice") final Double minPrice,
@@ -370,7 +352,8 @@ public class EventController {
             return Response.noContent().build();
         }
 
-        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<EventDto>>(userList) {});
+        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<EventDto>>(userList) {
+        });
 
         if (page != 1) {
             response.link(uriInfo.getAbsolutePathBuilder().queryParam("page", page - 1).build(), "prev");
@@ -395,7 +378,7 @@ public class EventController {
 
     @GET
     @Path("/{id}")
-    @Produces(value = { MediaType.APPLICATION_JSON, })
+    @Produces(value = {MediaType.APPLICATION_JSON,})
     public Response getById(@PathParam("id") final long id) {
         Optional<EventDto> eventDto = es.getEventById(id).map(e -> EventDto.fromEvent(uriInfo, e));
 

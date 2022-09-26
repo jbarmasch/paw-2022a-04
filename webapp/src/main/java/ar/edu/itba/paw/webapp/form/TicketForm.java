@@ -5,7 +5,6 @@ import ar.edu.itba.paw.webapp.validations.DateOrder;
 import ar.edu.itba.paw.webapp.validations.Future;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.persistence.ManyToOne;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -40,16 +39,32 @@ public class TicketForm {
         return ticketName;
     }
 
+    public void setTicketName(String ticketName) {
+        this.ticketName = ticketName;
+    }
+
     public Double getPrice() {
         return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
     }
 
     public Integer getQty() {
         return qty;
     }
 
+    public void setQty(Integer qty) {
+        this.qty = qty;
+    }
+
     public Integer getMaxPerUser() {
         return maxPerUser;
+    }
+
+    public void setMaxPerUser(Integer maxPerUser) {
+        this.maxPerUser = maxPerUser;
     }
 
     public int getId() {
@@ -58,22 +73,6 @@ public class TicketForm {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public void setTicketName(String ticketName) {
-        this.ticketName = ticketName;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
-    public void setQty(Integer qty) {
-        this.qty = qty;
-    }
-
-    public void setMaxPerUser(Integer maxPerUser) {
-        this.maxPerUser = maxPerUser;
     }
 
     public String getStarting() {

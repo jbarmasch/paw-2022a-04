@@ -17,8 +17,7 @@ public final class FilterUtils {
             if (isFirst) {
                 queryBuilder.append(filter.getKey()).append("=").append(filter.getValue());
                 isFirst = false;
-            }
-            else
+            } else
                 queryBuilder.append("&").append(filter.getKey()).append("=").append(filter.getValue());
         }
         return queryBuilder.toString();

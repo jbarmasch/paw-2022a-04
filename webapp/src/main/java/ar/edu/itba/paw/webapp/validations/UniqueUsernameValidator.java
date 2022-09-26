@@ -10,7 +10,8 @@ public class UniqueUsernameValidator implements ConstraintValidator<UniqueUserna
     @Autowired
     private UserService userService;
 
-    public void initialize(UniqueUsername u) {}
+    public void initialize(UniqueUsername u) {
+    }
 
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null || value.isEmpty())

@@ -1,4 +1,4 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
@@ -6,19 +6,20 @@
 
 <html>
 <head>
-    <%@ include file="include.jsp"%>
+    <%@ include file="include.jsp" %>
     <title>BotPass</title>
 </head>
 <body>
     <div>
-        <%@ include file="appbar.jsp"%>
+        <%@ include file="appbar.jsp" %>
         <c:url value="/events/${eventId}/add-ticket" var="postPath"/>
         <div class="only-element vertical center">
             <form:form novalidate="true" modelAttribute="ticketForm" action="${postPath}" method="post" id="ticketForm">
                 <h3 class="title2"><spring:message code="event.addTicketAlt"/></h3>
                 <div>
                     <spring:message code="tickets.ticketName" var="ticketNameMessage"/>
-                    <form:input placeholder="* ${ticketNameMessage}" class="uk-input" type="text" path="ticketName" required="true"/>
+                    <form:input placeholder="* ${ticketNameMessage}" class="uk-input" type="text" path="ticketName"
+                                required="true"/>
                     <form:errors path="ticketName" cssClass="error-message" element="span"/>
                     <spring:message code="NotEmpty.eventForm.name" var="nameEmptyError"/>
                     <spring:message code="Size.eventForm.name" var="nameSizeError"/>
@@ -52,8 +53,9 @@
                 </div>
                 <div>
                     <form:label path="until"><spring:message code="tickets.until"/>: </form:label>
-                    <form:input class="uk-input" type="datetime-local" min="${currentDate}" max="${event.date}" path="until"/>
-<%--                    <form:errors path="ticketForm" cssClass="error-message" element="span"/>--%>
+                    <form:input class="uk-input" type="datetime-local" min="${currentDate}" max="${event.date}"
+                                path="until"/>
+                        <%--                    <form:errors path="ticketForm" cssClass="error-message" element="span"/>--%>
                     <form:errors path="" cssClass="error-message" element="span"/>
                     <form:errors path="until" cssClass="error-message" element="span"/>
                     <spring:message code="NotEmpty.eventForm.date" var="dateEmptyError"/>
@@ -64,7 +66,8 @@
                 </div>
                 <div class="horizontal align-center">
                     <spring:message code="tickets.maxPerUser"/>:
-                    <form:select class="uk-select input_select sep-left-l" htmlEscape="true" multiple="false" path="maxPerUser" id="maxPerUserInput">
+                    <form:select class="uk-select input_select sep-left-l" htmlEscape="true" multiple="false"
+                                 path="maxPerUser" id="maxPerUserInput">
                         <c:forEach var="val" step="1" begin="1" end="10">
                             <c:choose>
                                 <c:when test="${6 == val}">
@@ -92,7 +95,7 @@
 </html>
 
 <script type="text/javascript">
-    (function() {
+    (function () {
         var form = document.getElementById('ticketForm');
         var qty = document.getElementById('qty');
         var price = document.getElementById('price');
@@ -103,7 +106,7 @@
         if (form === null)
             return;
 
-        var checkNameValidity = function() {
+        var checkNameValidity = function () {
             if (name.validity.tooLong) {
                 name.setCustomValidity('${nameSizeError}');
                 updateNameMessage()
@@ -115,7 +118,7 @@
             }
         };
 
-        var checkQtyValidity = function() {
+        var checkQtyValidity = function () {
             if (qty.validity.rangeUnderflow) {
                 qty.setCustomValidity('${minQtySizeError}');
                 updateQtyMessage();
@@ -127,7 +130,7 @@
             }
         };
 
-        var checkPriceValidity = function() {
+        var checkPriceValidity = function () {
             if (price.validity.typeMismatch) {
                 price.setCustomValidity('${priceTypeError}');
                 updatePriceMessage();
@@ -142,7 +145,7 @@
             }
         };
 
-        var checkStartingValidity = function() {
+        var checkStartingValidity = function () {
             if (starting.validity.valueMissing) {
                 starting.setCustomValidity('${dateEmptyError}');
                 updateStartingMessage();
@@ -157,7 +160,7 @@
             }
         }
 
-        var checkUntilValidity = function() {
+        var checkUntilValidity = function () {
             if (until.validity.valueMissing) {
                 until.setCustomValidity('${dateEmptyError}');
                 updateUntilMessage();
@@ -175,23 +178,23 @@
             }
         }
 
-        var updateNameMessage = function() {
+        var updateNameMessage = function () {
             form.getElementsByClassName('formError')[0].innerHTML = name.validationMessage;
         }
 
-        var updatePriceMessage = function() {
+        var updatePriceMessage = function () {
             form.getElementsByClassName('formError')[1].innerHTML = price.validationMessage;
         }
 
-        var updateQtyMessage = function() {
+        var updateQtyMessage = function () {
             form.getElementsByClassName('formError')[2].innerHTML = qty.validationMessage;
         }
 
-        var updateStartingMessage = function() {
+        var updateStartingMessage = function () {
             form.getElementsByClassName('formError')[3].innerHTML = starting.validationMessage;
         }
 
-        var updateUntilMessage = function() {
+        var updateUntilMessage = function () {
             form.getElementsByClassName('formError')[4].innerHTML = until.validationMessage;
         }
 

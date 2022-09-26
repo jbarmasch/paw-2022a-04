@@ -22,10 +22,9 @@ import java.util.List;
 
 @Component
 public class UserManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserManager.class);
     @Autowired
     private UserService userService;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserManager.class);
 
     public boolean isAuthenticated() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

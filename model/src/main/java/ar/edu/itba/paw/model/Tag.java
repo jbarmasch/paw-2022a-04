@@ -7,7 +7,8 @@ import java.util.Locale;
 @Table(name = "tags")
 public class Tag {
     @Transient
-    private static Locale locale = Locale.ENGLISH;;
+    private static Locale locale = Locale.ENGLISH;
+    ;
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tags_tagid_seq")
@@ -22,7 +23,8 @@ public class Tag {
         this.name_en = name_en;
     }
 
-    public Tag() {}
+    public Tag() {
+    }
 
     public static void setLocale(Locale locale) {
         Tag.locale = locale;

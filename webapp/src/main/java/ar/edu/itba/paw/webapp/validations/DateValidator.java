@@ -7,7 +7,8 @@ import java.util.regex.Pattern;
 
 public class DateValidator implements ConstraintValidator<Date, String> {
     @Override
-    public void initialize(Date contactNumber) {}
+    public void initialize(Date contactNumber) {
+    }
 
     @Override
     public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {

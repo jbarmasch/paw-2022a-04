@@ -10,7 +10,8 @@ public class UniqueMailValidator implements ConstraintValidator<UniqueMail, Stri
     @Autowired
     private UserService userService;
 
-    public void initialize(UniqueMail u) {}
+    public void initialize(UniqueMail u) {
+    }
 
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null || value.isEmpty())

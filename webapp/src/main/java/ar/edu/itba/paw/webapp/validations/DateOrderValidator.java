@@ -8,7 +8,8 @@ import java.time.LocalDateTime;
 
 public class DateOrderValidator implements ConstraintValidator<DateOrder, TicketForm> {
     @Override
-    public void initialize(DateOrder contactNumber) {}
+    public void initialize(DateOrder contactNumber) {
+    }
 
     @Override
     public boolean isValid(TicketForm form, ConstraintValidatorContext context) {

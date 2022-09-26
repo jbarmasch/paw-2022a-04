@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 @Constraint(validatedBy = UniqueMailValidator.class)
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.FIELD })
+@Target({ElementType.FIELD})
 public @interface UniqueMail {
     String message() default "{UniqueMail.userForm.mail}";
 

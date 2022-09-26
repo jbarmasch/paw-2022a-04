@@ -2,9 +2,9 @@ package ar.edu.itba.paw.model;
 
 import org.hibernate.annotations.*;
 
-import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -12,56 +12,56 @@ import java.util.Objects;
 @Entity
 @Table(name = "events")
 @FilterDefs({
-      @FilterDef(
-              name = "minPriceFilter",
-              parameters = @ParamDef(name = "minPrice", type = "double")
-      ),
-      @FilterDef(
-              name = "maxPriceFilter",
-              parameters = @ParamDef(name = "minPrice", type = "double")
-      ),
-      @FilterDef(
-              name = "locationFilter",
-              parameters = @ParamDef(name = "locations", type = "int")
-      ),
+        @FilterDef(
+                name = "minPriceFilter",
+                parameters = @ParamDef(name = "minPrice", type = "double")
+        ),
+        @FilterDef(
+                name = "maxPriceFilter",
+                parameters = @ParamDef(name = "minPrice", type = "double")
+        ),
+        @FilterDef(
+                name = "locationFilter",
+                parameters = @ParamDef(name = "locations", type = "int")
+        ),
 
-      @FilterDef(
-              name = "typeFilter",
-              parameters = @ParamDef(name = "types", type = "int")
-      ),
-      @FilterDef(
-              name = "tagFilter",
-              parameters = @ParamDef(name = "tags", type = "int")
-      ),
-      @FilterDef(
-              name = "searchFilter",
-              parameters = @ParamDef(name = "query", type = "string")
-      ),
-      @FilterDef(
-              name = "soldOutFilter"
-      )
+        @FilterDef(
+                name = "typeFilter",
+                parameters = @ParamDef(name = "types", type = "int")
+        ),
+        @FilterDef(
+                name = "tagFilter",
+                parameters = @ParamDef(name = "tags", type = "int")
+        ),
+        @FilterDef(
+                name = "searchFilter",
+                parameters = @ParamDef(name = "query", type = "string")
+        ),
+        @FilterDef(
+                name = "soldOutFilter"
+        )
 })
 @Filters({
-     @Filter(
-             name = "locationFilter",
-             condition = "locationid IN (:locations)"
-     ),
-     @Filter(
-             name = "typeFilter",
-             condition = "typeid IN (:types)"
-     ),
-     @Filter(
-             name = "tagFilter",
-             condition = "tagids @> (:tags)"
-     ),
-     @Filter(
-             name = "searchFilter",
-             condition = "upper(name) LIKE '%' || upper(:query) || '%'"
-     ),
-     @Filter(
-             name = "soldOutFilter",
-             condition = "state <> 2"
-     )
+        @Filter(
+                name = "locationFilter",
+                condition = "locationid IN (:locations)"
+        ),
+        @Filter(
+                name = "typeFilter",
+                condition = "typeid IN (:types)"
+        ),
+        @Filter(
+                name = "tagFilter",
+                condition = "tagids @> (:tags)"
+        ),
+        @Filter(
+                name = "searchFilter",
+                condition = "upper(name) LIKE '%' || upper(:query) || '%'"
+        ),
+        @Filter(
+                name = "soldOutFilter",
+                condition = "state <> 2"
+        )
 })
 @Where(clause = "state != 1")
 @Check(constraints = "minage >= 14 AND minage <= 27")
@@ -154,7 +154,8 @@ public class Event {
         this.bouncer = bouncer;
     }
 
-    public Event() {}
+    public Event() {
+    }
 
     public Integer getMinAge() {
         return minAge;
@@ -168,6 +169,10 @@ public class Event {
         return state;
     }
 
+    public void setState(State state) {
+        this.state = state;
+    }
+
     public long getId() {
         return id;
     }
@@ -176,20 +181,40 @@ public class Event {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Location getLocation() {
         return location;
     }
 
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
     public LocalDateTime getDate() {
         return date;
     }
 
+    public void setDate(LocalDateTime date) {
+        this.date = date;
+    }
+
     public Type getType() {
         return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
     }
 
     public String getDateFormatted() {
@@ -202,6 +227,10 @@ public class Event {
 
     public List<Tag> getTags() {
         return tags;
+    }
+
+    public void setTags(List<Tag> tags) {
+        this.tags = tags;
     }
 
     public boolean getSoldOut() {
@@ -220,6 +249,10 @@ public class Event {
         return tickets;
     }
 
+    public void setTickets(List<Ticket> tickets) {
+        this.tickets = tickets;
+    }
+
     public int getTicketsSize() {
         return tickets.size();
     }
@@ -228,72 +261,40 @@ public class Event {
         return minPrice;
     }
 
-    public int getAttendance() {
-        return attendance;
-    }
-
-    public int getMaxCapacity() {
-        return maxCapacity;
-    }
-
-    public Image getImage() {
-        return image;
-    }
-
-    public User getOrganizer() {
-        return organizer;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setDate(LocalDateTime date) {
-        this.date = date;
-    }
-
     public void setMinPrice(double minPrice) {
         this.minPrice = minPrice;
+    }
+
+    public int getAttendance() {
+        return attendance;
     }
 
     public void setAttendance(int attendance) {
         this.attendance = attendance;
     }
 
+    public int getMaxCapacity() {
+        return maxCapacity;
+    }
+
     public void setMaxCapacity(int maxCapacity) {
         this.maxCapacity = maxCapacity;
     }
 
-    public void setOrganizer(User organizer) {
-        this.organizer = organizer;
+    public Image getImage() {
+        return image;
     }
 
     public void setImage(Image image) {
         this.image = image;
     }
 
-    public void setLocation(Location location) {
-        this.location = location;
+    public User getOrganizer() {
+        return organizer;
     }
 
-    public void setType(Type type) {
-        this.type = type;
-    }
-
-    public void setTags(List<Tag> tags) {
-        this.tags = tags;
-    }
-
-    public void setTickets(List<Ticket> tickets) {
-        this.tickets = tickets;
-    }
-
-    public void setState(State state) {
-        this.state = state;
+    public void setOrganizer(User organizer) {
+        this.organizer = organizer;
     }
 
     public void addTicket(Ticket ticket) {

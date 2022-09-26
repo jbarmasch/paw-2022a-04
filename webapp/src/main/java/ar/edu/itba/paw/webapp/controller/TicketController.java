@@ -1,29 +1,5 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.model.Event;
-import ar.edu.itba.paw.model.Ticket;
-import ar.edu.itba.paw.service.*;
-import ar.edu.itba.paw.webapp.auth.UserManager;
-import ar.edu.itba.paw.exceptions.DateRangeException;
-import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
-import ar.edu.itba.paw.webapp.exceptions.TicketNotFoundException;
-import ar.edu.itba.paw.exceptions.TicketUnderflowException;
-import ar.edu.itba.paw.webapp.form.TicketForm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.ModelAndView;
-
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import java.time.LocalDateTime;
-
 //@Controller
 //public class TicketController {
 //    @Autowired

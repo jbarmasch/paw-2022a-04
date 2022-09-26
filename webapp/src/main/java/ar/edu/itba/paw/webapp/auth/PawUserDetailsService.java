@@ -18,10 +18,9 @@ import java.util.Collection;
 
 @Component
 public class PawUserDetailsService implements UserDetailsService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PawUserDetailsService.class);
     @Autowired
     private UserService us;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PawUserDetailsService.class);
 
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {

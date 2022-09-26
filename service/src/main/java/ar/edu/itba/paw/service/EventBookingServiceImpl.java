@@ -30,7 +30,7 @@ public class EventBookingServiceImpl implements EventBookingService {
 
     @Override
     public Optional<EventBooking> getBookingFromUser(long userId, long eventId) {
-        Optional<EventBooking> eb =  eventBookingDao.getBookingFromUser(userId, eventId);
+        Optional<EventBooking> eb = eventBookingDao.getBookingFromUser(userId, eventId);
         if (!eb.isPresent() || (eb.get().getEvent().getDate().isBefore(LocalDateTime.now()) || eb.get().getTicketBookingsSize() == 0))
             return Optional.empty();
         return eb;

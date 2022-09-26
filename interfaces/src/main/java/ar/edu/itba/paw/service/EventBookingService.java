@@ -10,9 +10,14 @@ import java.util.Optional;
 
 public interface EventBookingService {
     List<EventBooking> getAllBookingsFromUser(long userId, int page);
+
     Optional<EventBooking> getBookingFromUser(long userId, long eventId);
+
     Optional<EventBooking> getBooking(String code);
-    void book(EventBooking booking, String baseUrl,Locale locale) throws AlreadyMaxTicketsException, SurpassedMaxTicketsException;
+
+    void book(EventBooking booking, String baseUrl, Locale locale) throws AlreadyMaxTicketsException, SurpassedMaxTicketsException;
+
     void cancelBooking(EventBooking booking, Locale locale) throws SurpassedMaxTicketsException;
+
     void confirmBooking(EventBooking eventBooking);
 }

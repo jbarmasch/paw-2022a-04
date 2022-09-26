@@ -1,12 +1,12 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <html>
 <head>
-    <%@ include file="include.jsp"%>
+    <%@ include file="include.jsp" %>
     <title>BotPass</title>
 </head>
 <body>
@@ -14,7 +14,8 @@
     <div class="home">
         <div>
             <c:url value="/events" var="postPath"/>
-            <form:form novalidate="true" modelAttribute="filterForm" action="${postPath}" method="post" class="filter" id="filterForm">
+            <form:form novalidate="true" modelAttribute="filterForm" action="${postPath}" method="post" class="filter"
+                       id="filterForm">
                 <b><spring:message code="filter.filters"/>: </b>
                 <c:import url="order.jsp"/>
                 <div>
@@ -31,7 +32,8 @@
                             </c:forEach>
                             <c:choose>
                                 <c:when test="${selectedLocation}">
-                                    <form:option value="${location.id}" selected="selected">${location.name}</form:option>
+                                    <form:option value="${location.id}"
+                                                 selected="selected">${location.name}</form:option>
                                 </c:when>
                                 <c:otherwise>
                                     <form:option value="${location.id}">${location.name}</form:option>
@@ -91,7 +93,8 @@
                 </div>
                 <div>
                     <form:label path="minPrice"><spring:message code="filter.minPrice"/>: </form:label>
-                    <form:input class="uk-input" type="number" path="minPrice" min="0" step="0.01" id="minPrice" value="${param.minPrice}"/>
+                    <form:input class="uk-input" type="number" path="minPrice" min="0" step="0.01" id="minPrice"
+                                value="${param.minPrice}"/>
                     <form:errors path="minPrice" cssClass="error-message" element="span"/>
                     <spring:message code="DecimalMin.filterForm.minPrice" var="minPriceMinError"/>
                     <spring:message code="Pattern.filterForm.minPrice" var="minPriceTypeError"/>
@@ -99,7 +102,8 @@
                 </div>
                 <div>
                     <form:label path="maxPrice"><spring:message code="filter.maxPrice"/>: </form:label>
-                    <form:input class="uk-input" type="number" path="maxPrice" min="0" step="0.01" id="maxPrice" value="${param.maxPrice}"/>
+                    <form:input class="uk-input" type="number" path="maxPrice" min="0" step="0.01" id="maxPrice"
+                                value="${param.maxPrice}"/>
                     <form:errors path="maxPrice" cssClass="error-message" element="span"/>
                     <spring:message code="DecimalMin.filterForm.maxPrice" var="maxPriceMinError"/>
                     <spring:message code="Pattern.filterForm.maxPrice" var="maxPriceTypeError"/>
@@ -107,7 +111,8 @@
                 </div>
                 <div>
                     <form:checkbox path="showSoldOut"/>
-                    <form:label class="sep-left" path="showSoldOut"><spring:message code="filter.showSoldOut"/></form:label>
+                    <form:label class="sep-left" path="showSoldOut"><spring:message
+                            code="filter.showSoldOut"/></form:label>
                 </div>
                 <spring:message code="Price.filterForm" var="minMaxError"/>
                 <form:errors cssClass="error-message" element="span"/>
@@ -152,12 +157,12 @@
 </html>
 
 <script type="text/javascript">
-    (function() {
+    (function () {
         var minPrice = document.getElementById('minPrice');
         var maxPrice = document.getElementById('maxPrice');
         var form = document.getElementById('filterForm');
 
-        var checkMinPriceValidity = function() {
+        var checkMinPriceValidity = function () {
             if (minPrice.validity.typeMismatch) {
                 minPrice.setCustomValidity('${minPriceTypeError}');
                 updateMinPriceMessage();
@@ -169,7 +174,7 @@
             }
         };
 
-        var checkMaxPriceValidity = function() {
+        var checkMaxPriceValidity = function () {
             if (maxPrice.validity.typeMismatch) {
                 maxPrice.setCustomValidity('${maxPriceTypeError}');
                 updateMaxPriceMessage();
@@ -181,30 +186,28 @@
             }
         };
 
-        var checkRangeValidity = function() {
+        var checkRangeValidity = function () {
             if (maxPrice.value.length !== 0 && minPrice.value.length !== 0) {
                 if (parseInt(maxPrice.value) < parseInt(minPrice.value)) {
                     maxPrice.setCustomValidity('${minMaxError}');
                     updateMinMaxMessage();
-                }
-                else {
+                } else {
                     maxPrice.setCustomValidity('');
                 }
-            }
-            else {
+            } else {
                 maxPrice.setCustomValidity('');
             }
         }
 
-        var updateMinPriceMessage = function() {
+        var updateMinPriceMessage = function () {
             form.getElementsByClassName('formError')[0].innerHTML = minPrice.validationMessage;
         }
 
-        var updateMaxPriceMessage = function() {
+        var updateMaxPriceMessage = function () {
             form.getElementsByClassName('formError')[1].innerHTML = maxPrice.validationMessage;
         }
 
-        var updateMinMaxMessage = function() {
+        var updateMinMaxMessage = function () {
             form.getElementsByClassName('formError')[2].innerHTML = maxPrice.validationMessage;
         }
 
@@ -215,7 +218,7 @@
         maxPrice.addEventListener('change', checkRangeValidity, false);
         maxPrice.addEventListener('keyup', checkRangeValidity, false);
 
-        form.addEventListener('submit', function(event) {
+        form.addEventListener('submit', function (event) {
             if (form.classList) form.classList.add('submitted');
             checkMaxPriceValidity();
             checkMinPriceValidity();
