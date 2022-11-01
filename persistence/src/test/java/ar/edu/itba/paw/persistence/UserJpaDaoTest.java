@@ -15,7 +15,6 @@ import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
 
-//@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TestConfig.class)
 @Transactional

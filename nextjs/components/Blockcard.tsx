@@ -6,13 +6,13 @@ export default function Blockcard({image}) {
     return (
         <div className="block">
             <div className="absolute">
-                <Image src={image} className="cover_img"/>
+                {/* <Image src={image} className="cover-img"/> */}
             </div>
             <div className="padding h-full w-full">
-                <div className="block_card_title">
+                <div className="block-card-title">
                     Fiestas
                 </div>
-                <div className="block_card_subtitle">
+                <div className="block-card-subtitle">
                     por la zona
                 </div>
             </div>

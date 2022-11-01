@@ -42,23 +42,6 @@ public class EventJpaDaoTest {
         Assert.assertEquals(1, TestUtils.countEvents(em));
     }
 
-//    @Test
-//    public void testFilterBy() {
-//        final Event event = TestUtils.createEvent(em);
-//        List<Event> events = eventDao.filterBy(new Integer[] {toIntExact(TestUtils.GENERIC_LOCATION.getId())}, new Integer[] {toIntExact(TestUtils.GENERIC_TYPE.getId())}, null, null, null, null, TestUtils.USERNAME, Order.DATE_ASC, true, 1);
-//        Assert.assertNotNull(events);
-//        Assert.assertNotNull(events.get(0));
-//        Assert.assertEquals(event.getName(), events.get(0).getName());
-//    }
-//
-//    @Test
-//    public void testFilterByNoEvents() {
-//        final Event event = TestUtils.createEvent(em);
-//        List<Event> events = eventDao.filterBy(new Integer[] {toIntExact(TestUtils.GENERIC_LOCATION.getId())}, new Integer[] {toIntExact(TestUtils.GENERIC_TYPE.getId())}, null, null, null, null, TestUtils.USERNAME2, null, true, 1);
-//        Assert.assertNotNull(events);
-//        Assert.assertEquals(0, events.size());
-//    }
-
     @Test
     public void testGetEventById() {
         final Event event = TestUtils.createEvent(em);
@@ -171,33 +154,6 @@ public class EventJpaDaoTest {
         Assert.assertEquals(TestUtils.USER1.getUsername(), events.get(0).getOrganizer().getUsername());
         Assert.assertEquals(TestUtils.USER1.getId(), events.get(0).getOrganizer().getId());
     }
-
-    /*
-    @Test
-    public void testGetSimilar() {
-        Event event1 = TestUtils.createEvent(em);
-        List<Event> similarEvents = eventDao.getSimilarEvents(event1.getId());
-        Assert.assertEquals(0, similarEvents.size());
-        Event event2 = TestUtils.createEvent(em);
-        similarEvents = eventDao.getSimilarEvents(event1.getId());
-        Assert.assertEquals(1, similarEvents.size());
-        Assert.assertEquals(event2.getId(), similarEvents.get(0).getId());
-    }
-
-    @Test
-    public void testNotGetSimilar() {
-        Event event1 = TestUtils.createEvent(em);
-        List<Event> similarEvents = eventDao.getSimilarEvents(event1.getId());
-        Assert.assertEquals(0, similarEvents.size());
-        Event event2 = TestUtils.createEvent(em);
-        Location locationAux = new Location(TestUtils.GENERIC);
-        em.persist(locationAux);
-        event2.setLocation(locationAux);
-        em.persist(event2);
-        similarEvents = eventDao.getSimilarEvents(event1.getId());
-        Assert.assertEquals(0, similarEvents.size());
-    }
-    */
 
     @Test
     public void testGetPopular() {

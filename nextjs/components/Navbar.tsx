@@ -5,18 +5,18 @@ import Image from "next/image";
 import Searchbar from "./Searchbar"
 import userIcon from '../public/images/svg/user.svg';
 
-const navigationRoutes = ["eventos", "contacto pa"]
+const navigationRoutes = ["events"]
 
 export default function Navbar() {
     const router = useRouter();
     return (
-        <div className="nav_container">
+        <div className="nav-container">
 
-            <nav className="nav_bar container">
+            <nav className="nav-bar container">
                 <Link href="/" passHref>
                     <a className=""><img className="logo" src="/favicon.ico"/></a>
                 </Link>
-                <div className="menu_desktop">
+                <div className="menu-desktop">
                     {navigationRoutes.map((singleRoute) => {
                         return (
                             <NavigationLink
@@ -29,7 +29,7 @@ export default function Navbar() {
                     })}
                 </div>
                 <Searchbar/>
-                <div className="menu_desktop_right">
+                <div className="menu-desktop-right">
                     {/* <SvgIcon component={userIcon}/> */}
                     <Image src={userIcon} className="icon"/>
                     {/* <img className="icon" src="/images/svg/user.svg"/> */}
@@ -45,7 +45,7 @@ function NavigationLink({href, text, router}) {
         <Link href={href === "/home" ? "/" : href} passHref>
             <a
                 href={href === "/home" ? "/" : href}
-                className={`${isActive && "nav_item_active"} nav_item`}>
+                className={`${isActive && "nav-item-active"} nav-item`}>
                 <span>{text}</span>
             </a>
         </Link>

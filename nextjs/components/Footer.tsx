@@ -1,6 +1,6 @@
 const Footer = () => {
     return (
-        <footer>
+        <footer className="footer">
             Copyright 2022 Bottler
         </footer>
     );

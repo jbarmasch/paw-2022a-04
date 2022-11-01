@@ -37,7 +37,8 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
         http.sessionManagement()
-                .and().authorizeRequests()
+                .and()
+                .authorizeRequests()
                 .antMatchers("/login", "/register", "/forgot-pass").permitAll()
                 .antMatchers("/users/**").anonymous()
                 .antMatchers("/stats").hasRole("CREATOR")
@@ -51,7 +52,8 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/profile/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/", "/search", "/events/*", "/profile/**").not().hasAnyRole("BOUNCER")
                 .antMatchers("/**").hasAnyRole("CREATOR", "USER")
-                .and().formLogin()
+                .and()
+                .formLogin()
                 .usernameParameter("j_username")
                 .passwordParameter("j_password")
                 .successHandler(successHandler())

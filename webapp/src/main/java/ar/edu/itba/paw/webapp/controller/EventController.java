@@ -343,7 +343,10 @@ public class EventController {
                                @QueryParam("soldOut") final Boolean showSoldOut,
                                @QueryParam("page") @DefaultValue("1") final int page) {
         final EventList res = es.filterBy(locations, types, minPrice, maxPrice, search, tags, username, order, showSoldOut, page);
-        final List<EventDto> userList = res.getEventList().stream().map(e -> EventDto.fromEvent(uriInfo, e))
+        final List<EventDto> userList = res
+                .getEventList()
+                .stream()
+                .map(e -> EventDto.fromEvent(uriInfo, e))
                 .collect(Collectors.toList());
 
         int lastPage = res.getPages();
@@ -362,7 +365,8 @@ public class EventController {
             response.link(uriInfo.getAbsolutePathBuilder().queryParam("page", page + 1).build(), "next");
         }
 
-        response.link(uriInfo.getAbsolutePathBuilder().queryParam("page", 1).build(), "first")
+        response
+                .link(uriInfo.getAbsolutePathBuilder().queryParam("page", 1).build(), "first")
                 .link(uriInfo.getAbsolutePathBuilder().queryParam("page", lastPage).build(), "last");
 
         return response.build();

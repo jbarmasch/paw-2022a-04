@@ -57,6 +57,7 @@ public final class TestUtils {
     public static Type GENERIC_TYPE;
     public static Image IMAGE;
     public static Ticket GENERIC_TICKET;
+
     private TestUtils() {
         throw new UnsupportedOperationException();
     }
@@ -230,16 +231,6 @@ public final class TestUtils {
         return location;
     }
 
-//    public static void createRoles(SimpleJdbcInsert simpleJdbcInsert) {
-//        Map<String, Object> roleData = new HashMap<>();
-//        roleData.put("roleid", 1);
-//        roleData.put("name", "ROLE_USER");
-//        simpleJdbcInsert.execute(roleData);
-//        roleData.put("roleid", 2);
-//        roleData.put("name", "ROLE_CREATOR");
-//        simpleJdbcInsert.execute(roleData);
-//    }
-
     public static <T> boolean contains(T elem, List<T> list) {
         boolean ans = false;
         for (T element : list) {
@@ -250,25 +241,4 @@ public final class TestUtils {
         }
         return ans;
     }
-
-//    public static Event addTicketToEvent(long eventId, String ticketName, double ticketPrice, int qty, EventDao eventDao){
-//        eventDao.addTicket(eventId, ticketName, ticketPrice, qty);
-//        return eventDao.getEventById(eventId, new Locale("es")).orElse(null);
-//    }
-//
-//    public static Event generateEventWithTickets(User user, LocalDateTime date, EventDao eventDao, String eventName, String eventDesc, String ticketName, int qty, double ticketPrice) {
-//        Event event = eventDao.create(eventName, eventDesc, 0, 0, date, 0, new Integer[] {0}, user.getId(), new Locale("es"));
-//        return addTicketToEvent(event.getId(), ticketName, ticketPrice, qty, eventDao);
-//    }
-//
-//    public static Event generateEvent(User user, LocalDateTime date, EventDao eventDao, String eventName, String eventDesc) {
-//        return eventDao.create(eventName, eventDesc, 0, 0, date, 0, new Integer[] {0}, user.getId(), new Locale("es"));
-//    }
-//
-//    public static void bookForEvent(Event event, Ticket ticket, User user, EventDao eventDao, int qty) {
-//        Booking booking = new Booking(qty, ticket.getId());
-//        List<Booking> bookings = new ArrayList<>();
-//        bookings.add(booking);
-//        eventDao.book(bookings, user.getId(), event.getId(), new Locale("es"));
-//    }
 }

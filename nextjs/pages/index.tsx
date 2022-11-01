@@ -17,18 +17,11 @@ const Home: NextPage = () => {
                     BotPass
                 </div>
 
-                <div className="container flex justify-center">
-                    <Blockcard image={party}/>
-                    <Blockcard image={party}/>
-                    <Blockcard image={party}/>
-                </div>
+                <div className="container flex justify-center"></div>
 
                 Upcoming events
-                <div className="container flex justify-center">
-                    <Eventcard event={null}/>
-                    <Eventcard event={null}/>
-                    <Eventcard event={null}/>
-                </div>
+
+                <div className="event-discovery"></div>
 
             </main>
         </div>

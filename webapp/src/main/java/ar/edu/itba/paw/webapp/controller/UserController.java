@@ -150,8 +150,7 @@ public class UserController {
             return Response.noContent().build();
         }
 
-        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<UserDto>>(userList) {
-        });
+        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<UserDto>>(userList) {});
 
         if (page != 1) {
             response.link(uriInfo.getAbsolutePathBuilder().queryParam("page", page - 1).build(), "prev");
@@ -160,7 +159,8 @@ public class UserController {
             response.link(uriInfo.getAbsolutePathBuilder().queryParam("page", page + 1).build(), "next");
         }
 
-        response.link(uriInfo.getAbsolutePathBuilder().queryParam("page", 1).build(), "first")
+        response
+                .link(uriInfo.getAbsolutePathBuilder().queryParam("page", 1).build(), "first")
                 .link(uriInfo.getAbsolutePathBuilder().queryParam("page", lastPage).build(), "last");
 
         return response.build();

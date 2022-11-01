@@ -30,7 +30,7 @@ public class EventBookingServiceImplTest {
     @InjectMocks
     private EventBookingServiceImpl eventBookingService;
 
-//    @Rule
+    //    @Rule
 //    public ExpectedException thrown = ExpectedException.none();
     @Mock
     private EventBookingDao mockDao;

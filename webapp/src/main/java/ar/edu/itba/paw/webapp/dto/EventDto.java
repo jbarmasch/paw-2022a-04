@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class EventDto {
+    private long id;
     private String name;
     private String description;
     private LocalDateTime date;
@@ -30,6 +31,7 @@ public class EventDto {
     public static EventDto fromEvent(final UriInfo uriInfo, final Event event) {
         final EventDto dto = new EventDto();
 
+        dto.id = event.getId();
         dto.name = event.getName();
         dto.description = event.getDescription();
         dto.date = event.getDate();
@@ -58,6 +60,14 @@ public class EventDto {
         dto.tickets = ticketsUriBuilder.queryParam("forEvent", event.getId()).build();
 
         return dto;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getName() {
