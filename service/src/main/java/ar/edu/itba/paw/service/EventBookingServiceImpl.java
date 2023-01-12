@@ -5,6 +5,7 @@ import ar.edu.itba.paw.exceptions.IllegalTicketException;
 import ar.edu.itba.paw.exceptions.SurpassedMaxTicketsException;
 import ar.edu.itba.paw.exceptions.TicketNotBookedException;
 import ar.edu.itba.paw.model.EventBooking;
+import ar.edu.itba.paw.model.EventBookingList;
 import ar.edu.itba.paw.model.TicketBooking;
 import ar.edu.itba.paw.persistence.EventBookingDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class EventBookingServiceImpl implements EventBookingService {
     private CodeService codeService;
 
     @Override
-    public List<EventBooking> getAllBookingsFromUser(long userId, int page) {
+    public EventBookingList getAllBookingsFromUser(long userId, int page) {
         return eventBookingDao.getAllBookingsFromUser(userId, page);
     }
 

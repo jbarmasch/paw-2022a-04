@@ -26,6 +26,7 @@ interface MyAppProps extends AppProps {
 export default function MyApp(props: MyAppProps) {
     const {Component, emotionCache = clientSideEmotionCache, pageProps} = props;
     const {locale} = useRouter();
+    const [shortLocale] = locale ? locale.split("-") : ["en"];
 
     return (
         <Layout>
@@ -35,7 +36,7 @@ export default function MyApp(props: MyAppProps) {
                 </Head>
                 <ThemeProvider theme={theme}>
                     <CssBaseline/>
-                    <IntlProvider locale={locale} messages={messages[locale]}>
+                    <IntlProvider locale={shortLocale} messages={messages[shortLocale]}>
                         <Component {...pageProps}/>
                     </IntlProvider>
                 </ThemeProvider>

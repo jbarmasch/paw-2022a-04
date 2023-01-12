@@ -41,7 +41,7 @@ public class EventJpaDao implements EventDao {
 
     @SuppressWarnings("unchecked")
     @Override
-    public EventList filterBy(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, String username, Order order, Boolean showSoldOut, int page) {
+    public EventList filterBy(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, String username, Long userId, Order order, Boolean showSoldOut, int page) {
         boolean having = false, condition = false;
         Map<String, Object> objects = new HashMap<>();
         objects.put("date", Timestamp.valueOf(LocalDateTime.now()));
@@ -66,6 +66,9 @@ public class EventJpaDao implements EventDao {
             querySelect.append(" JOIN users u ON ec.userid = u.userid");
             queryCondition.append(" AND username = :username");
             objects.put("username", username);
+        } else if (userId != null) {
+            queryCondition.append(" AND userId = :userId");
+            objects.put("userId", userId);
         }
 
         queryCondition.append(" GROUP BY ec.eventid, date ");
@@ -104,10 +107,10 @@ public class EventJpaDao implements EventDao {
             queryCondition.append(" ARRAY_AGG(e.tagid) @> ARRAY");
             queryCondition.append(tags);
         }
-        objects.put("page", (page - 1) * 10);
+        objects.put("page", (page - 1) * 8);
 //        queryCondition.append(orderQuery).append(" LIMIT 10 OFFSET :page");
         String query = "SELECT DISTINCT ec.eventid " + querySelect.append(queryCondition);
-        Query queryNative = em.createNativeQuery(query + " LIMIT 10 OFFSET :page");
+        Query queryNative = em.createNativeQuery(query + " LIMIT 8 OFFSET :page");
         objects.forEach(queryNative::setParameter);
         final List<Long> ids = (List<Long>) queryNative.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
@@ -120,7 +123,7 @@ public class EventJpaDao implements EventDao {
         Query count = em.createNativeQuery("SELECT COUNT(DISTINCT ec.eventid) " + theQuery);
         objects.remove("page");
         objects.forEach(count::setParameter);
-        return new EventList(typedQuery.getResultList(), (int) Math.ceil((double) ((Number) count.getSingleResult()).intValue() / 10));
+        return new EventList(typedQuery.getResultList(), (int) Math.ceil((double) ((Number) count.getSingleResult()).intValue() / 8));
     }
 
     @Override

@@ -15,6 +15,8 @@ public interface TicketService {
 
     Optional<Ticket> getTicketById(long ticketId);
 
+    List<Ticket> getTickets(long eventId);
+
     void updateTicket(Ticket ticket, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until, Integer maxPerUser) throws TicketUnderflowException;
 
     void deleteTicket(long ticketId);

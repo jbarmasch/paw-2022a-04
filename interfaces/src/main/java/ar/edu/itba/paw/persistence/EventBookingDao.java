@@ -1,12 +1,13 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.EventBooking;
+import ar.edu.itba.paw.model.EventBookingList;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface EventBookingDao {
-    List<EventBooking> getAllBookingsFromUser(long userId, int page);
+    EventBookingList getAllBookingsFromUser(long userId, int page);
 
     Optional<EventBooking> getBookingFromUser(long userId, long eventId);
 

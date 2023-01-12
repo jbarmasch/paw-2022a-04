@@ -1,11 +1,14 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
+    env: {
+        API_URL: 'http://181.46.186.8:2555',
+    },
     reactStrictMode: true,
     async rewrites() {
         return [
             {
                 source: '/api/:path*',
-                destination: 'http://localhost:8080/:path*',
+                destination: 'http://181.46.186.8:2555/:path*',
             },
         ]
     },

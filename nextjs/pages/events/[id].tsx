@@ -44,7 +44,7 @@ const Event: NextPage<EventProps> = (props) => {
     //
     // const { data : data, error : errorData } = useSWR(query ? `http://localhost:8080/events/${router.query.id}` : null, fetcher)
 
-    const { data : data, error : errorData } = useSWR(`http://localhost:8080/events/${router.query.id}`, fetcher)
+    const { data : data, error : errorData } = useSWR(`${process.env.API_URL}/events/${router.query.id}`, fetcher)
     const { data : image, error : errorImage } = useSWR(data ? `${data.image}` : null, fetcher)
 
     if (errorData || errorImage) return <p>Loading...</p>

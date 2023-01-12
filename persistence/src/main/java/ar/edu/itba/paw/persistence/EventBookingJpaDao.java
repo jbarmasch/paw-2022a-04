@@ -3,14 +3,12 @@ package ar.edu.itba.paw.persistence;
 import ar.edu.itba.paw.exceptions.BookingFailedException;
 import ar.edu.itba.paw.exceptions.CancelBookingFailedException;
 import ar.edu.itba.paw.exceptions.IllegalTicketException;
-import ar.edu.itba.paw.model.BookingId;
-import ar.edu.itba.paw.model.EventBooking;
-import ar.edu.itba.paw.model.Ticket;
-import ar.edu.itba.paw.model.TicketBooking;
+import ar.edu.itba.paw.model.*;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.Optional;
@@ -21,10 +19,13 @@ public class EventBookingJpaDao implements EventBookingDao {
     private EntityManager em;
 
     @Override
-    public List<EventBooking> getAllBookingsFromUser(long userId, int page) {
+    public EventBookingList getAllBookingsFromUser(long userId, int page) {
         final TypedQuery<EventBooking> query = em.createQuery("from EventBooking as eb where eb.user.id = :userid order by eb.event.date DESC", EventBooking.class);
         query.setParameter("userid", userId);
-        return query.getResultList();
+
+        Query count = em.createNativeQuery("SELECT COUNT(DISTINCT eb.id) FROM eventbookings eb WHERE eb.userid = :userid");
+        count.setParameter("userid", userId);
+        return new EventBookingList(query.getResultList(), (int) Math.ceil((double) ((Number) count.getSingleResult()).intValue() / 6));
     }
 
     @Override

@@ -18,7 +18,7 @@ const fetcher = (...args) => fetch(...args).then((res) => res.json())
 // }
 
 function Page ({ index }) {
-    const { data, error } = useSWR(`http://localhost:8080/events?page=${index}`, fetcher);
+    const { data, error } = useSWR(`${process.env.API_URL}/events?page=${index}`, fetcher);
 
     if (error) return <p>Loading...</p>
     if (!data) return <p>No data</p>
@@ -29,7 +29,7 @@ function Page ({ index }) {
 const Events: NextPage = () => {
 
     let imageURLs = []
-    const { data : data, error : errorData } = useSWR('http://localhost:8080/events', fetcher)
+    // const { data : data, error : errorData } = useSWR(`${process.env.API_URL}/events`, fetcher)
     // const { data : images, error : imagesData } = useSWR(() => {
     //     if (data) {
     //         data.forEach(ev => {
@@ -41,8 +41,8 @@ const Events: NextPage = () => {
     // }, arrayFetcher)
     const [pageIndex, setPageIndex] = useState(1);
 
-    if (errorData) return <p>Loading...</p>
-    if (!data) return <p>No data</p>
+    // if (errorData) return <p>Loading...</p>
+    // if (!data) return <p>No data</p>
 
     return (
         <div>

@@ -8,10 +8,12 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class TicketJpaDao implements TicketDao {
@@ -32,6 +34,19 @@ public class TicketJpaDao implements TicketDao {
     @Override
     public Optional<Ticket> getTicketById(long ticketId) {
         return Optional.ofNullable(em.find(Ticket.class, ticketId));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<Ticket> getTickets(long id) {
+        Query idQuery = em.createNativeQuery("SELECT ticketid FROM tickets WHERE eventid = :eventid");
+        idQuery.setParameter("eventid", id);
+        final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
+        if (ids.isEmpty())
+            return new ArrayList<>();
+        final TypedQuery<Ticket> query = em.createQuery("from Ticket where ticketid IN :ids", Ticket.class);
+        query.setParameter("ids", ids);
+        return query.getResultList();
     }
 
     @Override

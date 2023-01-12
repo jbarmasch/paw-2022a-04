@@ -1,84 +1,27 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.model.EventList;
-import ar.edu.itba.paw.model.Order;
+import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.service.EventService;
+import ar.edu.itba.paw.service.TicketService;
 import ar.edu.itba.paw.webapp.dto.EventDto;
+import ar.edu.itba.paw.webapp.form.EventForm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
+import javax.print.attribute.standard.Media;
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.net.URI;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-//@Controller
-//public class EventController {
-//    @Autowired
-//    private EventService eventService;
-//    @Autowired
-//    private EventBookingService eventBookingService;
-//    @Autowired
-//    private LocationService locationService;
-//    @Autowired
-//    private TypeService typeService;
-//    @Autowired
-//    private TicketService ticketService;
-//    @Autowired
-//    private TagService tagService;
-//    @Autowired
-//    private UserService userService;
-//    @Autowired
-//    private UserManager userManager;
-//
-//    private static final Logger LOGGER = LoggerFactory.getLogger(EventController.class);
-//
-//    @RequestMapping(value = "/", method = { RequestMethod.GET })
-//    public ModelAndView home() {
-//        final List<Event> fewTicketsEvents = eventService.getFewTicketsEvents();
-//        final List<Event> upcomingEvents = eventService.getUpcomingEvents();
-//
-//        final ModelAndView mav = new ModelAndView("index");
-//        mav.addObject("fewTicketsEvents", fewTicketsEvents);
-//        mav.addObject("fewTicketsSize", fewTicketsEvents.size());
-//        mav.addObject("upcomingEvents", upcomingEvents);
-//        mav.addObject("upcomingSize", upcomingEvents.size());
-//        return mav;
-//    }
-//
-//    @RequestMapping(value = "/events/{eventId}", method = RequestMethod.GET)
-//    public ModelAndView eventDescription(@ModelAttribute("bookForm") final BookForm form,
-//                                         @PathVariable("eventId") @Min(1) final long eventId) {
-//        final Event event = eventService.getEventById(eventId).orElse(null);
-//        if (event == null) {
-//            LOGGER.error("Event not found");
-//            throw new EventNotFoundException();
-//        }
-//        boolean isLogged = false, isOwner = false;
-//        if (userManager.isAuthenticated()) {
-//            isLogged = true;
-//            isOwner = userManager.isEventOwner(event);
-//        }
-//
-//        final ModelAndView mav = new ModelAndView("event");
-//        mav.addObject("currentDate", LocalDateTime.now().toString().substring(0,16));
-//        mav.addObject("event", event);
-//        mav.addObject("ticketsSize", event.getTickets().size());
-//        mav.addObject("isOwner", isOwner);
-//        mav.addObject("isLogged", isLogged);
-//        addSimilarAndPopularEvents(mav, eventId);
-//        return mav;
-//    }
-//
-//    private void addSimilarAndPopularEvents(ModelAndView mav, long eventId) {
-//        List<Event> similarEvents = eventService.getSimilarEvents(eventId);
-//        List<Event> popularEvents = eventService.getPopularEvents(eventId);
-//        mav.addObject("similarEvents", similarEvents);
-//        mav.addObject("similarEventsSize", similarEvents.size());
-//        mav.addObject("popularEvents", popularEvents);
-//        mav.addObject("popularEventsSize", popularEvents.size());
-//    }
 //
 //    @RequestMapping(value = "/events/{eventId}", method = { RequestMethod.POST }, params = "submit")
 //    public ModelAndView bookEvent(HttpServletRequest request,
@@ -129,206 +72,20 @@ import java.util.stream.Collectors;
 //        return new ModelAndView("redirect:/events/" + e.getId() + "/booking-success");
 //    }
 //
-//    @RequestMapping(value = "/events/{eventId}/booking-success", method = RequestMethod.GET)
-//    public ModelAndView bookSuccess(@PathVariable("eventId") @Min(1) final long eventId) {
-//        if (!userManager.isAuthenticated())
-//            return new ModelAndView("redirect:/");
-//
-//        final EventBooking eventBooking = eventBookingService.getBookingFromUser(userManager.getUserId(), eventId).orElse(null);
-//        if (eventBooking == null) {
-//            LOGGER.error("Booking not found");
-//            throw new BookingNotFoundException();
-//        }
-//
-//        final ModelAndView mav = new ModelAndView("bookingSuccess");
-//        mav.addObject("code", eventBooking.getCode());
-//        addSimilarAndPopularEvents(mav, eventId);
-//        return mav;
-//    }
-//
-//    @RequestMapping(value = "/events/{eventId}/stats", method = RequestMethod.GET)
-//    public ModelAndView eventStats(@PathVariable("eventId") @Min(1) final long eventId) {
-//        if (!userManager.isAuthenticated())
-//            return new ModelAndView("redirect:/");
-//
-//        final Event event = eventService.getEventById(eventId).orElse(null);
-//        if (event == null) {
-//            LOGGER.error("Event not found");
-//            throw new EventNotFoundException();
-//        }
-//        if (!userManager.isEventOwner(event)) {
-//            LOGGER.debug("Logged user is not the owner of event {}", event.getName());
-//            return new ModelAndView("redirect:/events/" + eventId);
-//        }
-//
-//        EventStats eventStats = eventService.getEventStats(eventId).orElse(null);
-//        if (eventStats == null) {
-//            LOGGER.error("Stats not found");
-//            throw new StatsNotFoundException();
-//        }
-//        List<TicketStats> ticketsStats = ticketService.getTicketStats(eventId);
-//
-//        final ModelAndView mav = new ModelAndView("statsForEvent");
-//        mav.addObject("currentDate", LocalDateTime.now().toString().substring(0,16));
-//        mav.addObject("eventStats", eventStats);
-//        mav.addObject("ticketsStats", ticketsStats);
-//        mav.addObject("ticketsStatsSize", ticketsStats.size());
-//        return mav;
-//    }
-//
-//    @RequestMapping(value = "/create-event", method = { RequestMethod.GET })
-//    public ModelAndView createForm(@ModelAttribute("eventForm") final EventForm form) {
-//        final ModelAndView mav = new ModelAndView("createEvent");
-//        mav.addObject("locations", locationService.getAll());
-//        mav.addObject("currentDate", LocalDateTime.now().toString().substring(0,16));
-//        mav.addObject("types", typeService.getAll());
-//        mav.addObject("allTags", tagService.getAll());
-//        return mav;
-//    }
-//
-//    @RequestMapping(value = "/create-event", method = { RequestMethod.POST }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-//    public ModelAndView createEvent(HttpServletRequest request, @Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors,
-//                                    @RequestParam("image") MultipartFile imageFile) throws IOException {
-//        if (errors.hasErrors()) {
-//            LOGGER.error("EventForm has errors: {}", errors.getAllErrors().toArray());
-//            return createForm(form);
-//        }
-//
-//        final long userId = userManager.getUserId();
-//        final Event e = eventService.create(form.getName(), form.getDescription(), form.getLocation(), form.getType(), form.getTimestamp(),
-//                (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags(), userId, form.isHasMinAge() ? form.getMinAge() : null,
-//                request.getRequestURL().toString().replace(request.getRequestURI(), request.getContextPath()), LocaleContextHolder.getLocale());
-//
-//        userManager.refreshAuthorities();
-//        return new ModelAndView("redirect:/events/" + e.getId());
-//    }
-//
-//    @RequestMapping(value = "/events/{eventId}/modify", method = { RequestMethod.GET })
-//    public ModelAndView modifyForm(@ModelAttribute("eventForm") final EventForm form, @PathVariable("eventId") @Min(1) final long eventId) {
-//        final Event event = eventService.getEventById(eventId).orElse(null);
-//        if (event == null) {
-//            LOGGER.error("Event not found");
-//            throw new EventNotFoundException();
-//        }
-//        if (!userManager.isEventOwner(event)) {
-//            LOGGER.debug("Logged user is not the owner of event {}", event.getName());
-//            return new ModelAndView("redirect:/events/" + eventId);
-//        }
-//
-//        final ModelAndView mav = new ModelAndView("modifyEvent");
-//        mav.addObject("locations", locationService.getAll());
-//        mav.addObject("currentDate", LocalDateTime.now().toString().substring(0,16));
-//        mav.addObject("allTags", tagService.getAll());
-//        mav.addObject("types", typeService.getAll());
-//        mav.addObject("event", event);
-//        return mav;
-//    }
-//
-//    @RequestMapping(value = "/events/{eventId}/modify", method = { RequestMethod.POST }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-//    public ModelAndView modifyEvent(@Valid @ModelAttribute("eventForm") final EventForm form, final BindingResult errors,
-//                                    @PathVariable("eventId") @Min(1) final long eventId,
-//                                    @RequestParam("image") CommonsMultipartFile imageFile) {
-//        final Event event = eventService.getEventById(eventId).orElse(null);
-//        if (event == null) {
-//            LOGGER.error("Event not found");
-//            throw new EventNotFoundException();
-//        }
-//        if (!userManager.isEventOwner(event))
-//            return new ModelAndView("redirect:/events/" + eventId);
-//
-//        if (errors.hasErrors())
-//            return modifyForm(form, eventId);
-//
-//        eventService.updateEvent(eventId, form.getName(), form.getDescription(), form.getLocation(), form.getType(), form.getTimestamp(),
-//                (imageFile == null || imageFile.isEmpty()) ? null : imageFile.getBytes(), form.getTags(), form.isHasMinAge() ? form.getMinAge() : null);
-//        return new ModelAndView("redirect:/events/" + eventId);
-//    }
-//
-//    @RequestMapping(value = "/events/{eventId}/delete", method = { RequestMethod.POST })
-//    public ModelAndView deleteEvent(@PathVariable("eventId") final long eventId) {
-//        final Event event = eventService.getEventById(eventId).orElse(null);
-//        if (event == null) {
-//            LOGGER.error("Event not found");
-//            throw new EventNotFoundException();
-//        }
-//        if (!userManager.isEventOwner(event)) {
-//            LOGGER.debug("Logged user is not the owner of event {}", event.getName());
-//            return new ModelAndView("redirect:/events/" + eventId);
-//        }
-//
-//        eventService.deleteEvent(eventId);
-//        return new ModelAndView("redirect:/events");
-//    }
-//
-//    @RequestMapping(value = "/events/{eventId}/soldout", method = { RequestMethod.POST })
-//    public ModelAndView soldOutEvent(@PathVariable("eventId") @Min(1) final long eventId) {
-//        final Event event = eventService.getEventById(eventId).orElse(null);
-//        if (event == null) {
-//            LOGGER.error("Event not found");
-//            throw new EventNotFoundException();
-//        }
-//        if (!userManager.isEventOwner(event)) {
-//            LOGGER.debug("Logged user is not the owner of event {}", event.getName());
-//            return new ModelAndView("redirect:/events/" + eventId);
-//        }
-//
-//        eventService.soldOut(eventId);
-//        return new ModelAndView("redirect:/events/" + eventId);
-//    }
-//
-//    @RequestMapping(value = "/events/{eventId}/active", method = { RequestMethod.POST })
-//    public ModelAndView activeEvent(@PathVariable("eventId") @Min(1) final long eventId) {
-//        final Event event = eventService.getEventById(eventId).orElse(null);
-//        if (event == null) {
-//            LOGGER.error("Event not found");
-//            throw new EventNotFoundException();
-//        }
-//        if (!userManager.isEventOwner(event)) {
-//            LOGGER.debug("Logged user is not the owner of event {}", event.getName());
-//            return new ModelAndView("redirect:/events/" + eventId);
-//        }
-//
-//        eventService.active(eventId);
-//        return new ModelAndView("redirect:/events/" + eventId);
-//    }
-//
-//    @RequestMapping(value = "/my-events", method = { RequestMethod.GET })
-//    public ModelAndView myEvents(@RequestParam(value = "page", required = false, defaultValue = "1") @Min(1) final int page) {
-//        final User user = userManager.getUser();
-//        List<Event> events = eventService.getUserEvents(user.getId(), page);
-//
-//        final ModelAndView mav = new ModelAndView("myEvents");
-//        mav.addObject("page", page);
-//        mav.addObject("myEvents", events);
-//        mav.addObject("size", events.size());
-//        return mav;
-//    }
-//
-//    @RequestMapping(value = "/stats", method = { RequestMethod.GET })
-//    public ModelAndView getStats() {
-//        final long userId = userManager.getUserId();
-//        final OrganizerStats stats = userService.getOrganizerStats(userId).orElse(null);
-//        if (stats == null) {
-//            LOGGER.error("Stats not found");
-//            throw new StatsNotFoundException();
-//        }
-//        final EventStats eventStats = eventService.getEventStats(stats.getPopularEvent().getId()).orElse(null);
-//
-//        final ModelAndView mav = new ModelAndView("eventStats");
-//        mav.addObject("stats", stats);
-//        mav.addObject("eventStats", eventStats);
-//        return mav;
-//    }
-//}
+//       final EventBooking eventBooking = eventBookingService.getBookingFromUser(userManager.getUserId(), eventId).orElse(null);
 
-@Path("events")
+@Path("api/events")
 @Component
 public class EventController {
     @Autowired
     private EventService es;
+    @Autowired
+    private TicketService ts;
 
     @Context
     private UriInfo uriInfo;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EventController.class);
 
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON,})
@@ -339,10 +96,11 @@ public class EventController {
                                @QueryParam("search") final String search,
                                @QueryParam("tags") final List<Integer> tags,
                                @QueryParam("searchUsername") final String username,
+                               @QueryParam("userId") final Long userId,
                                @QueryParam("order") final Order order,
                                @QueryParam("soldOut") final Boolean showSoldOut,
                                @QueryParam("page") @DefaultValue("1") final int page) {
-        final EventList res = es.filterBy(locations, types, minPrice, maxPrice, search, tags, username, order, showSoldOut, page);
+        final EventList res = es.filterBy(locations, types, minPrice, maxPrice, search, tags, username, userId, order, showSoldOut, page);
         final List<EventDto> userList = res
                 .getEventList()
                 .stream()
@@ -372,13 +130,28 @@ public class EventController {
         return response.build();
     }
 
-//    @POST
-//    public Response createEvent(@QueryParam("username") final String username,
-//                               @QueryParam("password") final String password) {
-//        final User user = us.create(username, password, "izuku@gmail.com", Locale.ENGLISH);
-//        final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(user.getId())).build();
-//        return Response.created(uri).build();
-//    }
+    @POST
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
+    public Response createEvent(@Valid final EventForm form) {
+//        final long userId = userManager.getUserId();
+
+        final Event event = es.create(form.getName(), form.getDescription(), form.getLocation(), form.getType(), form.getTimestamp(),
+                null, form.getTags(), 1, form.isHasMinAge() ? form.getMinAge() : null, null, LocaleContextHolder.getLocale());
+
+        final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(event.getId())).build();
+        return Response.created(uri).build();
+    }
+
+    @Path("/{id}")
+    @PUT
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
+    public Response updateEvent(@PathParam("id") final long id, @Valid final EventForm form) {
+
+        es.updateEvent(id, form.getName(), form.getDescription(), form.getLocation(), form.getType(), form.getTimestamp(),
+                null, form.getTags(), form.isHasMinAge() ? form.getMinAge() : null);
+
+        return Response.accepted().build();
+    }
 
     @GET
     @Path("/{id}")
@@ -393,11 +166,67 @@ public class EventController {
         }
     }
 
-//    @DELETE
-//    @Path("/{id}")
-//    @Produces(value = { MediaType.APPLICATION_JSON, })
-//    public Response deleteById(@PathParam("id") final long id) {
-//        us.deleteById(id);
-//        return Response.noContent().build();
-//    }
+    @PUT
+    @Path("/{id}/active")
+    public Response activeEvent(@PathParam("id") final long id) {
+        es.active(id);
+
+        return Response.accepted().build();
+    }
+
+    @PUT
+    @Path("/{id}/soldout")
+    public Response soldOutEvent(@PathParam("id") final long id) {
+        es.soldOut(id);
+
+        return Response.accepted().build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @Produces(value = { MediaType.APPLICATION_JSON, })
+    public Response deleteById(@PathParam("id") final long id) {
+        es.deleteEvent(id);
+
+        return Response.noContent().build();
+    }
+
+    @Path("/upcoming")
+    @GET
+    @Produces(value = {MediaType.APPLICATION_JSON,})
+    public Response listUpcoming() {
+        final List<Event> res = es.getUpcomingEvents();
+        final List<EventDto> eventList = res
+                .stream()
+                .map(e -> EventDto.fromEvent(uriInfo, e))
+                .collect(Collectors.toList());
+
+        if (eventList.isEmpty()) {
+            return Response.noContent().build();
+        }
+
+        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<EventDto>>(eventList) {});
+
+        return response.build();
+    }
+
+    @Path("/few-tickets")
+    @GET
+    @Produces(value = {MediaType.APPLICATION_JSON,})
+    public Response listFewTickets() {
+        final List<Event> res = es.getFewTicketsEvents();
+        final List<EventDto> eventList = res
+                .stream()
+                .map(e -> EventDto.fromEvent(uriInfo, e))
+                .collect(Collectors.toList());
+
+        if (eventList.isEmpty()) {
+            return Response.noContent().build();
+        }
+
+        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<EventDto>>(eventList) {});
+
+        return response.build();
+    }
+
 }

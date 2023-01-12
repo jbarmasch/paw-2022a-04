@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Path("image")
+@Path("api/image")
 @Component
 public class ImageController {
     @Autowired

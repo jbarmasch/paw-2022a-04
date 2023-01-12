@@ -3,13 +3,14 @@ package ar.edu.itba.paw.service;
 import ar.edu.itba.paw.exceptions.AlreadyMaxTicketsException;
 import ar.edu.itba.paw.exceptions.SurpassedMaxTicketsException;
 import ar.edu.itba.paw.model.EventBooking;
+import ar.edu.itba.paw.model.EventBookingList;
 
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
 public interface EventBookingService {
-    List<EventBooking> getAllBookingsFromUser(long userId, int page);
+    EventBookingList getAllBookingsFromUser(long userId, int page);
 
     Optional<EventBooking> getBookingFromUser(long userId, long eventId);
 

@@ -8,7 +8,6 @@ import java.util.Locale;
 public class Tag {
     @Transient
     private static Locale locale = Locale.ENGLISH;
-    ;
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tags_tagid_seq")

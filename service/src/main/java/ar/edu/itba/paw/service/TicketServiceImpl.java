@@ -42,6 +42,11 @@ public class TicketServiceImpl implements TicketService {
         return ticketDao.getTicketById(ticketId);
     }
 
+    @Override
+    public List<Ticket> getTickets(long eventId) {
+        return ticketDao.getTickets(eventId);
+    }
+
     @Transactional
     @Override
     public void updateTicket(Ticket ticket, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until, Integer maxPerUser) throws TicketUnderflowException {

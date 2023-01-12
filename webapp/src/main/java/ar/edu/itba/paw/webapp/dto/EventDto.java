@@ -44,20 +44,20 @@ public class EventDto {
         dto.tags = event.getTags().stream().map(Tag::getName).collect(Collectors.toList());
 
         final UriBuilder eventUriBuilder = uriInfo.getAbsolutePathBuilder().
-                replacePath("events").path(String.valueOf(event.getId()));
+                replacePath("api/events").path(String.valueOf(event.getId()));
         dto.self = eventUriBuilder.build();
 
         final UriBuilder organizerUriBuilder = uriInfo.getAbsolutePathBuilder().
-                replacePath("users").path(String.valueOf(event.getOrganizer().getId()));
+                replacePath("api/users").path(String.valueOf(event.getOrganizer().getId()));
         dto.organizer = organizerUriBuilder.build();
 
         final UriBuilder imageUriBuilder = uriInfo.getAbsolutePathBuilder().
-                replacePath("image").path(String.valueOf(event.getImage().getId()));
+                replacePath("api/image").path(String.valueOf(event.getImage().getId()));
         dto.image = imageUriBuilder.build();
 
         final UriBuilder ticketsUriBuilder = uriInfo.getAbsolutePathBuilder().
-                replacePath("tickets");
-        dto.tickets = ticketsUriBuilder.queryParam("forEvent", event.getId()).build();
+                replacePath("api/tickets").path(String.valueOf(event.getId()));
+        dto.tickets = ticketsUriBuilder.build();
 
         return dto;
     }
