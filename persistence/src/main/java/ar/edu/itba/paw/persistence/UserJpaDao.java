@@ -27,7 +27,7 @@ public class UserJpaDao implements UserDao {
         query.setParameter("page", 10 * (page - 1));
         final List<Long> ids = (List<Long>) query.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
-            return new UserList(new ArrayList(), 0);
+            return new UserList(new ArrayList<>(), 0);
         final TypedQuery<User> typedQuery = em.createQuery("from User where userid IN :ids", User.class);
         typedQuery.setParameter("ids", ids);
         Query count = em.createNativeQuery("SELECT COUNT(userid) FROM users");

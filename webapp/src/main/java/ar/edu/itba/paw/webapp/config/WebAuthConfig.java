@@ -1,9 +1,7 @@
 package ar.edu.itba.paw.webapp.config;
 
 import ar.edu.itba.paw.service.UserService;
-import ar.edu.itba.paw.webapp.auth.JwtFilter;
-import ar.edu.itba.paw.webapp.auth.PawUserDetailsService;
-import ar.edu.itba.paw.webapp.auth.RefererRedirectionAuthentication;
+import ar.edu.itba.paw.webapp.auth.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -29,11 +27,10 @@ import org.springframework.web.cors.CorsConfiguration;
 @Configuration
 @EnableWebSecurity
 //@EnableGlobalMethodSecurity(prePostEnabled = true)
-//@EnableGlobalMethodSecurity(
-//        securedEnabled = true,
-//        jsr250Enabled = true,
-//        prePostEnabled = true
-//)
+@EnableGlobalMethodSecurity(
+        securedEnabled = true,
+        prePostEnabled = true
+)
 @PropertySource("classpath:authentication.properties")
 @ComponentScan("ar.edu.itba.paw.webapp.auth")
 public class WebAuthConfig extends WebSecurityConfigurerAdapter {
@@ -43,6 +40,11 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     private Environment env;
     @Autowired
     private UserService us;
+    @Autowired
+    private JwtAuthenticationProvider jwtAuthenticationProvider;
+
+    @Autowired
+    private JwtAuthenticationEntryPoint authenticationEntryPoint;
 
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
@@ -60,12 +62,14 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/events", "/api/events/*").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/events/few-tickets").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/events/upcoming").permitAll()
+//                .antMatchers(HttpMethod.GET, "/api/users/test").hasRole("USER")
                 .antMatchers(HttpMethod.GET, "/api/users", "/api/users/*").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/users/*/event-stats").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/users/*/stats").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/users/*/ticket-stats").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/locations", "/api/locations/*").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/bookings", "/api/bookings/*").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/token").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/tags", "/api/tags/*").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/types", "/api/types/*").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/image", "/api/image/*").permitAll()
@@ -75,11 +79,13 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/bookings/**").authenticated()
                 .antMatchers(HttpMethod.GET, "/profile/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/", "/search", "/events/*", "/profile/**").not().hasAnyRole("BOUNCER")
+//                .anyRequest().authenticated()
                 .antMatchers("/**").hasAnyRole("CREATOR", "USER")
                 .and().exceptionHandling()
                 .accessDeniedPage("/403")
 //                .and().addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class)
-                .and().csrf().disable();
+                .and().csrf().disable()
+                .addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Override
@@ -95,6 +101,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+        auth.authenticationProvider(jwtAuthenticationProvider);
     }
 
     @Bean
@@ -102,10 +109,21 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
         return new RefererRedirectionAuthentication("/");
     }
 
+    @Bean
+    public JwtAuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
+        return new JwtAuthenticationTokenFilter(authenticationManagerBean(), authenticationEntryPoint);
+    }
+
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+
 //    @Bean
 //    public CorsConfiguration corsConfiguration() {
 //        CorsConfiguration cors = new CorsConfiguration();
-//        cors.addAllowedOrigin("http://localhost:9090");
+//        cors.addAllowedOrigin("*");
 //        return cors;
 //    }
 }

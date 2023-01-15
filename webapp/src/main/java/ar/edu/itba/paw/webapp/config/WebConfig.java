@@ -1,5 +1,9 @@
 package ar.edu.itba.paw.webapp.config;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -185,4 +189,21 @@ public class WebConfig {
 //    public void addFormatters(FormatterRegistry registry) {
 //        registry.addConverter(new StringToEnumConverter());
 //    }
+
+    @Bean
+    public ObjectMapper objectMapper(){
+        ObjectMapper mapper = new ObjectMapper();
+
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, true);
+
+//        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+//        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+//        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+//
+//        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+//        mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+
+        return mapper;
+    }
 }

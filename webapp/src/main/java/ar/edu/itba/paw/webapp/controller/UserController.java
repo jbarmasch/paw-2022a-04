@@ -7,6 +7,8 @@ import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.webapp.dto.EventDto;
 import ar.edu.itba.paw.webapp.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
@@ -121,4 +123,19 @@ public class UserController {
         }
     }
 
+    @GET
+    @Path("/test")
+    @PreAuthorize("hasAuthority('USER')")
+    @Produces(value = {MediaType.APPLICATION_JSON,})
+    public Response testJwt() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        final User user = us.findByUsername(username).orElse(null);
+
+        if (user != null) {
+            return Response.ok(user).build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+    }
 }
