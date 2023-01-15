@@ -50,12 +50,13 @@ public class PawUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException(String.format("No user found with username '%s'.", username));
         }
 
-        return new AuthenticatedUserDetails.Builder()
-                .withUsername(user.getUsername())
-                .withPassword(user.getPassword())
-                .withAuthorities(mapToGrantedAuthorities(user.getRoles()))
-                .withActive(true)
-                .build();
+//        return new AuthenticatedUserDetails.Builder()
+//                .withUsername(user.getUsername())
+//                .withPassword(user.getPassword())
+//                .withAuthorities(mapToGrantedAuthorities(user.getRoles()))
+//                .withActive(true)
+//                .build();
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), mapToGrantedAuthorities(user.getRoles()));
     }
 
     private Set<GrantedAuthority> mapToGrantedAuthorities(List<Role> authorities) {

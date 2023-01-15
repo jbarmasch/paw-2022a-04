@@ -15,8 +15,7 @@ public final class AuthenticationTokenDetails {
     private final Set<RoleEnum> authorities;
     private final ZonedDateTime issuedDate;
     private final ZonedDateTime expirationDate;
-    private final int refreshCount;
-    private final int refreshLimit;
+    private final boolean isRefresh;
 
     public String getId() {
         return id;
@@ -38,26 +37,17 @@ public final class AuthenticationTokenDetails {
         return expirationDate;
     }
 
-    public int getRefreshCount() {
-        return refreshCount;
+    public boolean isRefresh() {
+        return isRefresh;
     }
 
-    public int getRefreshLimit() {
-        return refreshLimit;
-    }
-
-    public boolean isEligibleForRefreshment() {
-        return refreshCount < refreshLimit;
-    }
-
-    private AuthenticationTokenDetails(String id, String username, Set<RoleEnum> authorities, ZonedDateTime issuedDate, ZonedDateTime expirationDate, int refreshCount, int refreshLimit) {
+    private AuthenticationTokenDetails(String id, String username, Set<RoleEnum> authorities, ZonedDateTime issuedDate, ZonedDateTime expirationDate, boolean isRefresh) {
         this.id = id;
         this.username = username;
         this.authorities = authorities;
         this.issuedDate = issuedDate;
         this.expirationDate = expirationDate;
-        this.refreshCount = refreshCount;
-        this.refreshLimit = refreshLimit;
+        this.isRefresh = isRefresh;
     }
 
     public static class Builder {
@@ -66,8 +56,7 @@ public final class AuthenticationTokenDetails {
         private Set<RoleEnum> authorities;
         private ZonedDateTime issuedDate;
         private ZonedDateTime expirationDate;
-        private int refreshCount;
-        private int refreshLimit;
+        private boolean isRefresh;
 
         public Builder withId(String id) {
             this.id = id;
@@ -94,18 +83,14 @@ public final class AuthenticationTokenDetails {
             return this;
         }
 
-        public Builder withRefreshCount(int refreshCount) {
-            this.refreshCount = refreshCount;
+        public Builder withIsRefresh(boolean isRefresh) {
+            this.isRefresh = isRefresh;
             return this;
         }
 
-        public Builder withRefreshLimit(int refreshLimit) {
-            this.refreshLimit = refreshLimit;
-            return this;
-        }
 
         public AuthenticationTokenDetails build() {
-            return new AuthenticationTokenDetails(id, username, authorities, issuedDate, expirationDate, refreshCount, refreshLimit);
+            return new AuthenticationTokenDetails(id, username, authorities, issuedDate, expirationDate, isRefresh);
         }
     }
 }

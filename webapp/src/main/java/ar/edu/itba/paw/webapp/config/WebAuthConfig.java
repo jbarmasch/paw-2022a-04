@@ -19,9 +19,11 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
@@ -39,12 +41,11 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private Environment env;
     @Autowired
-    private UserService us;
-    @Autowired
     private JwtAuthenticationProvider jwtAuthenticationProvider;
-
     @Autowired
-    private JwtAuthenticationEntryPoint authenticationEntryPoint;
+    private AuthenticationTokenService authenticationTokenService;
+//    @Autowired
+//    private CustomAuthenticationEntryPoint authenticationEntryPoint;
 
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
@@ -62,7 +63,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/events", "/api/events/*").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/events/few-tickets").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/events/upcoming").permitAll()
-//                .antMatchers(HttpMethod.GET, "/api/users/test").hasRole("USER")
+                .antMatchers(HttpMethod.GET, "/api/users/test").hasRole("USER")
                 .antMatchers(HttpMethod.GET, "/api/users", "/api/users/*").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/users/*/event-stats").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/users/*/stats").permitAll()
@@ -81,11 +82,12 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/", "/search", "/events/*", "/profile/**").not().hasAnyRole("BOUNCER")
 //                .anyRequest().authenticated()
                 .antMatchers("/**").hasAnyRole("CREATOR", "USER")
-                .and().exceptionHandling()
-                .accessDeniedPage("/403")
+//                .and().exceptionHandling()
+                .and().exceptionHandling().authenticationEntryPoint(new BasicAuthenticationEntryPoint())
+//                .accessDeniedPage("/403")
 //                .and().addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class)
                 .and().csrf().disable()
-                .addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthenticationTokenFilter(authenticationManagerBean(), authenticationTokenService), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Override
@@ -102,16 +104,6 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
         auth.authenticationProvider(jwtAuthenticationProvider);
-    }
-
-    @Bean
-    public AuthenticationSuccessHandler successHandler() {
-        return new RefererRedirectionAuthentication("/");
-    }
-
-    @Bean
-    public JwtAuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
-        return new JwtAuthenticationTokenFilter(authenticationManagerBean(), authenticationEntryPoint);
     }
 
     @Bean

@@ -125,7 +125,6 @@ public class UserController {
 
     @GET
     @Path("/test")
-    @PreAuthorize("hasAuthority('USER')")
     @Produces(value = {MediaType.APPLICATION_JSON,})
     public Response testJwt() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
