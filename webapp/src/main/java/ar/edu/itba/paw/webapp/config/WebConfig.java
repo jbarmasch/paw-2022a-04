@@ -29,6 +29,7 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.thymeleaf.spring4.SpringTemplateEngine;
@@ -38,6 +39,7 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import javax.validation.Validator;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
@@ -190,20 +192,27 @@ public class WebConfig {
 //        registry.addConverter(new StringToEnumConverter());
 //    }
 
-    @Bean
-    public ObjectMapper objectMapper(){
-        ObjectMapper mapper = new ObjectMapper();
-
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, true);
-
-//        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-//        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-//        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+//    @Bean
+//    public ObjectMapper objectMapper(){
+//        ObjectMapper mapper = new ObjectMapper();
 //
-//        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-//        mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+//        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+//        mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, true);
+//
+////        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+////        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+////        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+////
+////        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+////        mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+//
+//        return mapper;
+//    }
 
-        return mapper;
+    @Bean
+    public Validator validator() {
+        final LocalValidatorFactoryBean factory = new LocalValidatorFactoryBean();
+        factory.setValidationMessageSource(messageSource());
+        return factory;
     }
 }

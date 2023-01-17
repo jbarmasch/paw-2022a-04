@@ -17,8 +17,9 @@ public class BookingDto {
     private long id;
     private List<TicketBookingDto> ticketBookings;
     private Integer rating;
-//    private String code;
+    private String code;
     private boolean confirmed;
+    private String image;
 
     private URI self;
     private URI user;
@@ -36,19 +37,19 @@ public class BookingDto {
         dto.ticketBookings = list;
 
         dto.rating = eventBooking.getRating();
-//        dto.code = eventBooking.getCode();
+        dto.code = eventBooking.getCode();
         dto.confirmed = eventBooking.isConfirmed();
 
         final UriBuilder eventUriBuilder = uriInfo.getAbsolutePathBuilder().
-                replacePath("bookings").path(String.valueOf(eventBooking.getCode()));
+                replacePath("api/bookings").path(String.valueOf(eventBooking.getCode()));
         dto.self = eventUriBuilder.build();
 
         final UriBuilder organizerUriBuilder = uriInfo.getAbsolutePathBuilder().
-                replacePath("users").path(String.valueOf(eventBooking.getUser().getId()));
+                replacePath("api/users").path(String.valueOf(eventBooking.getUser().getId()));
         dto.user = organizerUriBuilder.build();
 
         final UriBuilder imageUriBuilder = uriInfo.getAbsolutePathBuilder().
-                replacePath("events").path(String.valueOf(eventBooking.getEvent().getId()));
+                replacePath("api/events").path(String.valueOf(eventBooking.getEvent().getId()));
         dto.event = imageUriBuilder.build();
 
         return dto;
@@ -60,6 +61,14 @@ public class BookingDto {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public List<TicketBookingDto> getTicketBookings() {
@@ -108,5 +117,13 @@ public class BookingDto {
 
     public void setEvent(URI event) {
         this.event = event;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }

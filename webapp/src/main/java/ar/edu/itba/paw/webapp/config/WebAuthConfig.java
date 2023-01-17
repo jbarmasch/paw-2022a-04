@@ -44,6 +44,8 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     private JwtAuthenticationProvider jwtAuthenticationProvider;
     @Autowired
     private AuthenticationTokenService authenticationTokenService;
+    @Autowired
+    private UserService userService;
 //    @Autowired
 //    private CustomAuthenticationEntryPoint authenticationEntryPoint;
 
@@ -56,9 +58,9 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .and().headers().cacheControl().disable()
                 .and().authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS,"/**").permitAll()
-                .antMatchers("/login", "/register", "/forgot-pass").permitAll()
-                .antMatchers("/stats").hasRole("CREATOR")
-                .antMatchers("/my-events").hasRole("CREATOR")
+//                .antMatchers("/login", "/register", "/forgot-pass").permitAll()
+//                .antMatchers("/stats").hasRole("CREATOR")
+//                .antMatchers("/my-events").hasRole("CREATOR")
                 .antMatchers(HttpMethod.POST, "/api/events").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/events", "/api/events/*").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/events/few-tickets").permitAll()
@@ -70,15 +72,14 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/users/*/ticket-stats").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/locations", "/api/locations/*").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/bookings", "/api/bookings/*").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/token").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/tags", "/api/tags/*").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/types", "/api/types/*").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/image", "/api/image/*").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/tickets", "/api/tickets/*").permitAll()
-                .antMatchers(HttpMethod.POST, "/bookings/*/confirm").hasRole("BOUNCER")
-                .antMatchers(HttpMethod.POST, "/bookings/**").hasRole("USER")
-                .antMatchers(HttpMethod.GET, "/bookings/**").authenticated()
-                .antMatchers(HttpMethod.GET, "/profile/**").permitAll()
+//                .antMatchers(HttpMethod.POST, "/bookings/*/confirm").hasRole("BOUNCER")
+//                .antMatchers(HttpMethod.POST, "/bookings/**").hasRole("USER")
+//                .antMatchers(HttpMethod.GET, "/bookings/**").authenticated()
+//                .antMatchers(HttpMethod.GET, "/profile/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/", "/search", "/events/*", "/profile/**").not().hasAnyRole("BOUNCER")
 //                .anyRequest().authenticated()
                 .antMatchers("/**").hasAnyRole("CREATOR", "USER")
@@ -87,7 +88,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 //                .accessDeniedPage("/403")
 //                .and().addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class)
                 .and().csrf().disable()
-                .addFilterBefore(new JwtAuthenticationTokenFilter(authenticationManagerBean(), authenticationTokenService), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthenticationTokenFilter(authenticationManagerBean(), authenticationTokenService, userService), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Override

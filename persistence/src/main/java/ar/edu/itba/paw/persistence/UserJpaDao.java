@@ -36,14 +36,14 @@ public class UserJpaDao implements UserDao {
 
     @Override
     public User createUser(String username, String password, String mail, Locale locale) {
-        final User user = new User(username, password, mail, em.getReference(Role.class, RoleEnum.USER.getValue()), locale.getLanguage());
+        final User user = new User(username, password, mail, em.getReference(Role.class, RoleEnum.ROLE_USER.getValue()), locale.getLanguage());
         em.persist(user);
         return user;
     }
 
     @Override
     public User createBouncer(String password) {
-        final User user = new User("", password, "", em.getReference(Role.class, RoleEnum.BOUNCER.getValue()));
+        final User user = new User("", password, "", em.getReference(Role.class, RoleEnum.ROLE_BOUNCER.getValue()));
         em.persist(user);
         return user;
     }
@@ -60,13 +60,13 @@ public class UserJpaDao implements UserDao {
 
     @Override
     public void makeCreator(User user) {
-        user.addRole(em.getReference(Role.class, RoleEnum.CREATOR.getValue()));
+        user.addRole(em.getReference(Role.class, RoleEnum.ROLE_CREATOR.getValue()));
         em.persist(user);
     }
 
     @Override
     public void makeBouncer(User user) {
-        user.addRole(em.getReference(Role.class, RoleEnum.BOUNCER.getValue()));
+        user.addRole(em.getReference(Role.class, RoleEnum.ROLE_BOUNCER.getValue()));
         em.persist(user);
     }
 

@@ -13,13 +13,16 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.print.attribute.standard.Media;
+import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
+import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.net.URI;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 //
@@ -130,10 +133,16 @@ public class EventController {
         return response.build();
     }
 
+    @Autowired
+    private Validator validator;
+
     @POST
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
     public Response createEvent(@Valid final EventForm form) {
 //        final long userId = userManager.getUserId();
+
+        Set<ConstraintViolation<EventForm>> violations = validator.validate(form);
+        System.out.println(violations);
 
         final Event event = es.create(form.getName(), form.getDescription(), form.getLocation(), form.getType(), form.getTimestamp(),
                 null, form.getTags(), 1, form.isHasMinAge() ? form.getMinAge() : null, null, LocaleContextHolder.getLocale());

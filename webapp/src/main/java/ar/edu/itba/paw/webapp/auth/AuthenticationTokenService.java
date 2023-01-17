@@ -13,16 +13,13 @@ public class AuthenticationTokenService {
     //    @Value("${authentication.jwt.validFor}")
     private Long validFor = 86400L;
 
-//    @Value("${authentication.jwt.refreshLimit}")
-    private Integer refreshLimit = 1;
-
     @Autowired
     private JwtTokenUtils tokenUtils;
 
     public String issueAccessToken(String username, Set<RoleEnum> authorities) {
         String id = generateTokenIdentifier();
         ZonedDateTime issuedDate = ZonedDateTime.now();
-        ZonedDateTime expirationDate = issuedDate.plusSeconds(60L);
+        ZonedDateTime expirationDate = issuedDate.plusSeconds(validFor);
 
         AuthenticationTokenDetails authenticationTokenDetails = new AuthenticationTokenDetails.Builder()
                 .withId(id)

@@ -158,6 +158,7 @@ package ar.edu.itba.paw.webapp.controller;
 //}
 
 import ar.edu.itba.paw.model.*;
+import ar.edu.itba.paw.service.CodeService;
 import ar.edu.itba.paw.service.EventBookingService;
 import ar.edu.itba.paw.service.TicketService;
 import ar.edu.itba.paw.webapp.dto.BookingDto;
@@ -170,6 +171,8 @@ import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -181,6 +184,8 @@ public class BookingController {
     private EventBookingService bs;
     @Autowired
     private TicketService ts;
+    @Autowired
+    private CodeService cs;
 
     @Context
     private UriInfo uriInfo;
@@ -237,8 +242,15 @@ public class BookingController {
     public Response getById(@PathParam("code") final String code) {
         Optional<BookingDto> bookingDto = bs.getBooking(code).map(e -> BookingDto.fromBooking(uriInfo, e));
 
+        String bookUrl = "http://181.46.186.8:2557" + "/bookings/" + code;
+        byte[] encodeBase64 = Base64.getEncoder().encode(cs.createQr(bookUrl));
+        String base64Encoded = new String(encodeBase64, StandardCharsets.UTF_8);
+
+
         if (bookingDto.isPresent()) {
-            return Response.ok(bookingDto.get()).build();
+            BookingDto aux = bookingDto.get();
+            aux.setImage(base64Encoded);
+            return Response.ok(aux).build();
         } else {
             return Response.status(Response.Status.NOT_FOUND).build();
         }

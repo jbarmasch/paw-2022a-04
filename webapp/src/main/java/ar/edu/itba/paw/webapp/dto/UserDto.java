@@ -23,11 +23,11 @@ public class UserDto {
         dto.rating = user.getRating();
 
         final UriBuilder userUriBuilder = uriInfo.getAbsolutePathBuilder().
-                replacePath("users").path(String.valueOf(user.getId()));
+                replacePath("api/users").path(String.valueOf(user.getId()));
         dto.self = userUriBuilder.build();
 
         final UriBuilder eventsUriBuilder = uriInfo.getAbsolutePathBuilder().
-                replacePath("events").path(String.valueOf(user.getId()));
+                replacePath("api/events").path(String.valueOf(user.getId()));
         dto.events = eventsUriBuilder.queryParam("organizedBy", String.valueOf(user.getId())).build();
 
         return dto;

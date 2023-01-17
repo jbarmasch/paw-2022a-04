@@ -20,7 +20,7 @@ public class TagDto {
         dto.name = tag.getName();
 
         final UriBuilder locationUriBuilder = uriInfo.getAbsolutePathBuilder().
-                replacePath("tags").path(String.valueOf(tag.getId()));
+                replacePath("api/tags").path(String.valueOf(tag.getId()));
         dto.self = locationUriBuilder.build();
 
         return dto;

@@ -3,6 +3,8 @@ package ar.edu.itba.paw.webapp.auth;
 import ar.edu.itba.paw.model.RoleEnum;
 import java.util.Base64;
 
+import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.service.UserService;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,10 +25,12 @@ import java.util.stream.Collectors;
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     private final AuthenticationManager authenticationManager;
     private final AuthenticationTokenService authenticationTokenService;
+    private final UserService us;
 
-    public JwtAuthenticationTokenFilter(AuthenticationManager authenticationManager, AuthenticationTokenService authenticationTokenService) {
+    public JwtAuthenticationTokenFilter(AuthenticationManager authenticationManager, AuthenticationTokenService authenticationTokenService, UserService userService) {
         this.authenticationManager = authenticationManager;
         this.authenticationTokenService = authenticationTokenService;
+        this.us = userService;
     }
 
     @Override
@@ -75,6 +79,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                 String refreshToken = authenticationTokenService.issueRefreshToken(credentials[0], authorities);
                 response.setHeader("Access-Token", accessToken);
                 response.setHeader("Refresh-Token", refreshToken);
+                us.findByUsername(credentials[0]).ifPresent(user -> response.setHeader("User-ID", String.valueOf(user.getId())));
             }
         }
 

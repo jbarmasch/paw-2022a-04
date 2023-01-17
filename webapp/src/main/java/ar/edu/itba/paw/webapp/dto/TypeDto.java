@@ -19,9 +19,9 @@ public class TypeDto {
         dto.id = type.getId();
         dto.name = type.getName();
 
-        final UriBuilder locationUriBuilder = uriInfo.getAbsolutePathBuilder().
-                replacePath("locations").path(String.valueOf(type.getId()));
-        dto.self = locationUriBuilder.build();
+        final UriBuilder typeUriBuilder = uriInfo.getAbsolutePathBuilder().
+                replacePath("api/types").path(String.valueOf(type.getId()));
+        dto.self = typeUriBuilder.build();
 
         return dto;
     }
