@@ -6,11 +6,13 @@ import ar.edu.itba.paw.service.TicketService;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.webapp.dto.EventDto;
 import ar.edu.itba.paw.webapp.dto.UserDto;
+import ar.edu.itba.paw.webapp.form.UserForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.net.URI;
@@ -64,9 +66,9 @@ public class UserController {
     }
 
     @POST
-    public Response createUser(@QueryParam("username") final String username,
-                               @QueryParam("password") final String password) {
-        final User user = us.create(username, password, "izuku@gmail.com", Locale.ENGLISH);
+    @Consumes(value = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
+    public Response createUser(@Valid UserForm form) {
+        final User user = us.create(form.getUsername(), form.getPassword(), form.getMail(), Locale.ENGLISH);
         final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(user.getId())).build();
         return Response.created(uri).build();
     }

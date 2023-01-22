@@ -56,7 +56,7 @@ public class EventDto {
         dto.image = imageUriBuilder.build();
 
         final UriBuilder ticketsUriBuilder = uriInfo.getAbsolutePathBuilder().
-                replacePath("api/tickets").path(String.valueOf(event.getId()));
+                replacePath("api/events").path(String.valueOf(event.getId())).path("tickets");
         dto.tickets = ticketsUriBuilder.build();
 
         return dto;

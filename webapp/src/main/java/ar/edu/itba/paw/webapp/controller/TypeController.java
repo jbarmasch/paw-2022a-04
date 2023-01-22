@@ -5,6 +5,8 @@ import ar.edu.itba.paw.model.Type;
 import ar.edu.itba.paw.service.TypeService;
 import ar.edu.itba.paw.webapp.dto.TypeDto;
 import ar.edu.itba.paw.webapp.dto.TypeDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +26,8 @@ public class TypeController {
     @Context
     private UriInfo uriInfo;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TypeController.class);
+
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON,})
     public Response listTypes() {
@@ -34,6 +38,7 @@ public class TypeController {
                 .collect(Collectors.toList());
 
         if (typeList.isEmpty()) {
+            LOGGER.warn("No types");
             return Response.noContent().build();
         }
 

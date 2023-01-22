@@ -17,9 +17,11 @@ public class TicketForm {
     private int id;
     @NotEmpty
     private String ticketName;
+
     @NotNull
     @DecimalMin("0.00")
     private Double price;
+
     @Min(1)
     private Integer qty;
 

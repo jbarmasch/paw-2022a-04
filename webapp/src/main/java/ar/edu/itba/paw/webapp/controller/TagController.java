@@ -6,6 +6,8 @@ import ar.edu.itba.paw.service.TagService;
 import ar.edu.itba.paw.service.TagService;
 import ar.edu.itba.paw.webapp.dto.TagDto;
 import ar.edu.itba.paw.webapp.dto.TagDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +27,8 @@ public class TagController {
     @Context
     private UriInfo uriInfo;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TagController.class);
+
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON,})
     public Response listTags() {
@@ -35,6 +39,7 @@ public class TagController {
                 .collect(Collectors.toList());
 
         if (tagList.isEmpty()) {
+            LOGGER.warn("No tags");
             return Response.noContent().build();
         }
 

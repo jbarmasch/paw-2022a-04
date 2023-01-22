@@ -13,18 +13,22 @@ import ar.edu.itba.paw.webapp.dto.TagDto;
 import ar.edu.itba.paw.webapp.dto.TicketDto;
 import ar.edu.itba.paw.webapp.form.EventForm;
 import ar.edu.itba.paw.webapp.form.TicketForm;
+import ar.edu.itba.paw.webapp.form.TicketsForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
+import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
+import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Path("api/tickets")
@@ -39,45 +43,6 @@ public class TicketController {
     private UriInfo uriInfo;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TicketController.class);
-
-
-    @GET
-    @Path("/{id}")
-    @Produces(value = {MediaType.APPLICATION_JSON,})
-    public Response listTickets(@PathParam("id") final long id) {
-        final List<Ticket> res = ts.getTickets(id);
-        final List<TicketDto> ticketList = res
-                .stream()
-                .map(e -> TicketDto.fromTicket(uriInfo, e))
-                .collect(Collectors.toList());
-
-        if (ticketList.isEmpty()) {
-            return Response.noContent().build();
-        }
-
-        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<TicketDto>>(ticketList) {});
-
-        return response.build();
-    }
-
-    @POST
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
-    public Response addTicket(@QueryParam("eventId") final Long eventId, @Valid final TicketForm form) {
-        Optional<Event> event = es.getEventById(eventId);
-
-        if (!event.isPresent()) {
-            return Response.serverError().build();
-        }
-
-        try {
-            ts.addTicket(event.get(), form.getTicketName(), form.getPrice(), form.getQty(),
-                    form.getLocalDate(form.getStarting()), form.getLocalDate(form.getUntil()), form.getMaxPerUser());
-        } catch (DateRangeException e) {
-            return Response.serverError().build();
-        }
-
-        return Response.accepted().build();
-    }
 
     @Path("/{id}")
     @PUT
