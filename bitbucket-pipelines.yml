@@ -2,25 +2,25 @@ pipelines:
   branches:
     master:
       - step:
-          name: Build, test and minify
+          name: Build and test
           image: maven:3.6.3-jdk-8
           caches:
             - maven
           script:
-            - export webConfigFile="webapp/src/main/java/ar/edu/itba/paw/webapp/config/WebConfig.java"
+            - export webConfigFile="backend/webapp/src/main/java/ar/edu/itba/paw/webapp/config/WebConfig.java"
             - sed -i "s/@PropertySource(\"classpath:config.properties\")//g" "$webConfigFile"
             - sed -i "s/env.getProperty(\"dbUsername\")/\"$PAW_BOTTLER_USER\"/g" "$webConfigFile"
             - sed -i "s/env.getProperty(\"dbPassword\")/\"$PAW_BOTTLER_PASS\"/g" "$webConfigFile"
             - sed -i "s/env.getProperty(\"dbURL\")/\"jdbc:postgresql:\/\/10.16.1.110\/$PAW_BOTTLER_USER\"/g" "$webConfigFile"
             - sed -i "s/env.getProperty(\"mailUsername\")/\"botpass@zohomail.com\"/g" "$webConfigFile"
             - sed -i "s/env.getProperty(\"mailPassword\")/\"$PAW_BOTTLER_MAILPASS\"/g" "$webConfigFile"
-            - export codeServiceFile="service/src/main/java/ar/edu/itba/paw/service/CodeServiceImpl.java"
+            - export codeServiceFile="backend/service/src/main/java/ar/edu/itba/paw/service/CodeServiceImpl.java"
             - sed -i "s/@PropertySource(\"classpath:config.properties\")//g" "$codeServiceFile"
             - sed -i "s/env.getProperty(\"encPassword\")/\"$PAW_BOTTLER_ENCPASS\"/g" "$codeServiceFile"
             - sed -i "s/env.getProperty(\"encSalt\")/\"$PAW_BOTTLER_ENCSALT\"/g" "$codeServiceFile"
             - mvn clean package
           artifacts:
-            - webapp/target/webapp.war
+            - backend/webapp/target/webapp.war
       - step:
           name: Copy files
           deployment: staging
@@ -28,7 +28,7 @@ pipelines:
             - apt-get update && apt-get install -y sshpass
             - ssh-keyscan pampero.itba.edu.ar >> ~/.ssh/known_hosts
             - export SSHPASS="$PAW_BOTTLER_SERPASS"
-            - sshpass -e scp webapp/target/webapp.war slococo@pampero.itba.edu.ar:/home/slococo/app.war
+            - sshpass -e scp backend/webapp/target/webapp.war slococo@pampero.itba.edu.ar:/home/slococo/app.war
       - step:
           name: Deploy
           deployment: production
