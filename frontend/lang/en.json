@@ -1,0 +1,38 @@
+{
+  "nav.events" : "Events",
+  "nav.createEvent" : "Create event",
+  "nav.bookings" : "Bookings",
+  "nav.myEvents" : "My events",
+  "nav.account" : "Account",
+
+  "home.phrase" : "Come have fun with us!",
+
+  "home.page" : "Home",
+  "home.events" : "Events",
+  "home.next" : "Next",
+  "home.previous" : "Previous",
+
+  "home.recommended" : "Recommended events just for you",
+  "home.trending" : "Trending concerts right now",
+  "home.featured" : "See featured events",
+
+  "create.name" : "Event name",
+  "create.description" : "Description",
+  "create.location" : "Select location",
+  "create.type" : "Select event type",
+  "create.tags" : "Select tags",
+  "create.hasMin" : "Min. age",
+  "create.minAge" : "Select min. age",
+
+  "event.ticket" : "Ticket name",
+  "event.price" : "Price",
+  "event.quantity" : "Quantity",
+  "event.maxpuser" : "Max. per user",
+  "event.starting" : "Starting",
+  "event.until" : "Until",
+  "event.free" : "Free",
+  "event.noTickets" : "No tickets",
+  "event.selectQty" : "Select quantity",
+
+  "submit" : "Submit"
+}

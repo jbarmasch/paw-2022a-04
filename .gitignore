@@ -26,7 +26,13 @@ target/
 config.properties
 
 ## NPM
-node_modules
-package-lock.json
-package.json
-
+*/node_modules/
+node_modules/
+*/package-lock.json
+*/package.json
+*/.next/
+.next/
+*/out/
+out/
+*/node/
+node/

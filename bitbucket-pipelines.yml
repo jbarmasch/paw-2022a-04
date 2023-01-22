@@ -18,19 +18,6 @@ pipelines:
             - sed -i "s/@PropertySource(\"classpath:config.properties\")//g" "$codeServiceFile"
             - sed -i "s/env.getProperty(\"encPassword\")/\"$PAW_BOTTLER_ENCPASS\"/g" "$codeServiceFile"
             - sed -i "s/env.getProperty(\"encSalt\")/\"$PAW_BOTTLER_ENCSALT\"/g" "$codeServiceFile"
-            - apt-get update && apt-get install -y npm
-            - npm install html-minifier -g
-            - tmpFilePath="$(mktemp)"
-            - for file in $(ls webapp/src/main/webapp/WEB-INF/jsp); do
-            - filePath="webapp/src/main/webapp/WEB-INF/jsp/$file"
-            - sed -n '/<script/,/<\/script>/p' "$filePath" > "$tmpFilePath"
-            - sed -i 's/<script.*<\/script>//g;/<script/,/<\/script>/{/<script/!{/<\/script>/!d}};s/<script.*//g;s/.*<\/script>//g' "$filePath"
-            - lines=$(cat "$tmpFilePath" | wc -l)
-            - if [ "$lines" -gt 0 ]; then
-            - html-minifier --continue-on-parse-error --remove-comments --case-sensitive --keep-closing-slash --minify-css true --minify-js true "$tmpFilePath" >> "$filePath"
-            - fi
-            - cat "$filePath"
-            - done
             - mvn clean package
           artifacts:
             - webapp/target/webapp.war
