@@ -83,7 +83,7 @@ export type TicketBookingType = {
 }
 
 export type BookingType = {
-    code: string
+    code: string;
     id: string;
     event: string;
     rating: string;
@@ -92,3 +92,22 @@ export type BookingType = {
     userId: string;
 }
 
+export type UserType = {
+    id: string;
+    events: string;
+    rating: string;
+    username: string;
+    votes: string;
+}
+
+export type GenericElement = {
+    id: string;
+    name: string;
+}
+
+export type UserStats = {
+    bookingsMade: string;
+    eventsAttended: string;
+    favLocation: GenericElement;
+    favType: GenericElement;
+}

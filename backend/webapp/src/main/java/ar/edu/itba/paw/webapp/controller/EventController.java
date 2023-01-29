@@ -10,6 +10,7 @@ import ar.edu.itba.paw.service.TicketService;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.webapp.auth.UserManager;
 import ar.edu.itba.paw.webapp.dto.EventDto;
+import ar.edu.itba.paw.webapp.dto.EventStatsDto;
 import ar.edu.itba.paw.webapp.dto.TicketDto;
 import ar.edu.itba.paw.webapp.form.*;
 import org.slf4j.Logger;
@@ -97,8 +98,7 @@ public class EventController {
     @Consumes({MediaType.APPLICATION_JSON, MediaType.MULTIPART_FORM_DATA})
     public Response createEvent(@Valid final EventForm form) throws IOException {
         final long userId = um.getUserId();
-        System.out.println("HOLA" + Arrays.toString(form.getImage().getBytes()));
-
+        
 //        String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), request.getContextPath());
         final Event event = es.create(form.getName(), form.getDescription(), form.getLocation(), form.getType(), form.getTimestamp(),
                 form.getImage().getBytes(), form.getTags(), userId, form.isHasMinAge() ? form.getMinAge() : null,
@@ -112,7 +112,6 @@ public class EventController {
     @PUT
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
     public Response updateEvent(@PathParam("id") final long id, @Valid final EventForm form) {
-
         es.updateEvent(id, form.getName(), form.getDescription(), form.getLocation(), form.getType(), form.getTimestamp(),
                 null, form.getTags(), form.isHasMinAge() ? form.getMinAge() : null);
 
@@ -332,5 +331,18 @@ public class EventController {
         }
 
         return Response.noContent().build();
+    }
+
+    @Path("/{id}/stats")
+    @GET
+    @Produces(value = {MediaType.APPLICATION_JSON,})
+    public Response getEventStats(@PathParam("id") final long id) {
+        Optional<EventStatsDto> eventStatsDto = es.getEventStats(id).map(u -> EventStatsDto.fromEventStats(uriInfo, u));
+
+        if (eventStatsDto.isPresent()) {
+            return Response.ok(eventStatsDto.get()).build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
     }
 }

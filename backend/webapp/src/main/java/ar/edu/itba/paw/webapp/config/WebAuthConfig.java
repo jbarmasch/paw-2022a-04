@@ -28,7 +28,6 @@ import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @EnableWebSecurity
-//@EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableGlobalMethodSecurity(
         securedEnabled = true,
         prePostEnabled = true
@@ -46,8 +45,6 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     private AuthenticationTokenService authenticationTokenService;
     @Autowired
     private UserService userService;
-//    @Autowired
-//    private CustomAuthenticationEntryPoint authenticationEntryPoint;
 
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
@@ -59,8 +56,6 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .and().authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS,"/**").permitAll()
 //                .antMatchers("/login", "/register", "/forgot-pass").permitAll()
-//                .antMatchers("/stats").hasRole("CREATOR")
-//                .antMatchers("/my-events").hasRole("CREATOR")
                 .antMatchers(HttpMethod.POST, "/api/events").hasAnyRole("CREATOR", "USER")
                 .antMatchers(HttpMethod.GET, "/api/events", "/api/events/*").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/events/few-tickets").permitAll()
@@ -82,9 +77,6 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/api/tickets").hasRole("CREATOR")
 //                .antMatchers(HttpMethod.PUT, "/api/tickets/*").hasRole("CREATOR")
 //                .antMatchers(HttpMethod.POST, "/bookings/*/confirm").hasRole("BOUNCER")
-//                .antMatchers(HttpMethod.POST, "/bookings/**").hasRole("USER")
-//                .antMatchers(HttpMethod.GET, "/bookings/**").authenticated()
-//                .antMatchers(HttpMethod.GET, "/profile/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/", "/search", "/events/*", "/profile/**").not().hasAnyRole("BOUNCER")
 //                .anyRequest().authenticated()
                 .antMatchers("/**").permitAll()
@@ -117,11 +109,4 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
-
-//    @Bean
-//    public CorsConfiguration corsConfiguration() {
-//        CorsConfiguration cors = new CorsConfiguration();
-//        cors.addAllowedOrigin("*");
-//        return cors;
-//    }
 }

@@ -10,6 +10,8 @@ import Select from "react-select";
 import * as React from "react";
 import {Controller, useForm} from "react-hook-form";
 import {useIntl} from "react-intl";
+import i18n from "../../utils/i18n"
+
 
 const {createSliderWithTooltip} = Slider;
 const Range = createSliderWithTooltip(Slider.Range);
@@ -18,7 +20,7 @@ const Range = createSliderWithTooltip(Slider.Range);
 const fetcher = (...args) => fetch(...args).then((res) => res.json())
 
 const ProductsFilter = () => {
-    const intl = useIntl();
+    
     const [filtersOpen, setFiltersOpen] = useState(false);
 
     const { data : locations, error : errorLocation } = useSWRImmutable(`${server}/api/locations`, fetcher)
@@ -99,7 +101,7 @@ const ProductsFilter = () => {
                                         name={name}
                                         options={typeList}
                                         onChange={handleSelectChange}
-                                        placeholder={intl.formatMessage({id: "create.type"})}
+                                        placeholder={i18n.t("create.type")}
                                         styles={style}
                                     />
                                 </>
@@ -146,7 +148,7 @@ const ProductsFilter = () => {
                                         name={name}
                                         options={locationList}
                                         onChange={handleSelectChange}
-                                        placeholder={intl.formatMessage({id: "create.location"})}
+                                        placeholder={i18n.t("create.location")}
                                         styles={style}
                                     />
                                 </>
@@ -188,7 +190,7 @@ const ProductsFilter = () => {
                                         name={name}
                                         options={tagList}
                                         onChange={handleSelectChange}
-                                        placeholder={intl.formatMessage({id: "create.tags"})}
+                                        placeholder={i18n.t("create.tags")}
                                         styles={style}
                                     />
                                 </>

@@ -5,10 +5,9 @@ import {ProductTypeList} from 'types';
 import ProductItemLoading from './../product-item/loading';
 import {getPrice} from "../../utils/price";
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const MyEventItem = ({discount, image, id, name, minPrice, currentPrice}: ProductTypeList) => {
-    const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
     const { data : aux, error : error } = useSwr(image, fetcher)
 
     if (error) return <p>No data</p>
@@ -18,8 +17,8 @@ const MyEventItem = ({discount, image, id, name, minPrice, currentPrice}: Produc
         <div className="product-item">
             <div className="product__image">
                 <Link href={`/my-events/${id}`} >
-                        {/*<img className={"pointer"} src={`data:image/png;base64,${aux.image}`} alt="My event image"/>*/}
-                        <Image src={`data:image/png;base64,${aux.image}`} width={"100%"} height={"100%"} className="pointer" alt="My event image"/>
+                        <img className={"pointer"} src={`data:image/png;base64,${aux.image}`} alt="My event image"/>
+                        {/*<Image src={`data:image/png;base64,${aux.image}`} width={"100%"} height={"100%"} className="pointer" alt="My event image"/>*/}
                 </Link>
             </div>
 

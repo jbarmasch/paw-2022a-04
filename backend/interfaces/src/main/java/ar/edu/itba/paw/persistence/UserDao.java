@@ -1,9 +1,6 @@
 package ar.edu.itba.paw.persistence;
 
-import ar.edu.itba.paw.model.OrganizerStats;
-import ar.edu.itba.paw.model.User;
-import ar.edu.itba.paw.model.UserList;
-import ar.edu.itba.paw.model.UserStats;
+import ar.edu.itba.paw.model.*;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -34,4 +31,6 @@ public interface UserDao {
     void makeBouncer(User user);
 
     boolean canRate(long organizerId, long userId);
+
+    UserList filterBy(String searchQuery, Order order, int page);
 }

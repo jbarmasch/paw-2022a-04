@@ -16,11 +16,11 @@ import Select from "react-select";
 import {postData} from "../../utils/services";
 import { useForm, Controller } from "react-hook-form";
 import * as React from "react";
-import {FormattedMessage, useIntl} from "react-intl";
+import i18n from '../../utils/i18n'
 
 
 const Product = () => {
-    const intl = useIntl();
+    
     const [showBlock, setShowBlock] = useState('description');
 
     const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -104,9 +104,9 @@ const Product = () => {
                             <table className="ticket-table">
                                 <thead>
                                 <tr>
-                                    <th><FormattedMessage id={"event.ticket"}/></th>
-                                    <th><FormattedMessage id={"event.price"}/></th>
-                                    <th><FormattedMessage id={"event.quantity"}/></th>
+                                    <th>{i18n.t("event.ticket")}</th>
+                                    <th>{i18n.t("event.price")}</th>
+                                    <th>{i18n.t("event.quantity")}</th>
                                 </tr>
                                 </thead>
                                 {tickets.map((item: TicketType) => (
@@ -143,7 +143,7 @@ const Product = () => {
 
                                                     return (
                                                         <>
-                                                            <label hidden htmlFor="location-input"><FormattedMessage id={"event.selectQty"}/></label>
+                                                            <label hidden htmlFor="location-input">{i18n.t("event.selectQty")}</label>
                                                             <Select
                                                                 className="form__input"
                                                                 id={"qty-input-" + item.id}
@@ -151,7 +151,7 @@ const Product = () => {
                                                                 name={name}
                                                                 options={list}
                                                                 onChange={handleSelectChange}
-                                                                placeholder={intl.formatMessage({id: "event.selectQty"})}
+                                                                placeholder={i18n.t("event.selectQty")}
                                                                 styles={style}
                                                             />
                                                         </>

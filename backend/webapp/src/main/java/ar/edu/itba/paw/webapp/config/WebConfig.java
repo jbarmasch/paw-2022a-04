@@ -187,28 +187,6 @@ public class WebConfig {
         return new JpaTransactionManager(emf);
     }
 
-//    @Override
-//    public void addFormatters(FormatterRegistry registry) {
-//        registry.addConverter(new StringToEnumConverter());
-//    }
-
-//    @Bean
-//    public ObjectMapper objectMapper(){
-//        ObjectMapper mapper = new ObjectMapper();
-//
-//        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-//        mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, true);
-//
-////        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-////        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-////        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-////
-////        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-////        mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
-//
-//        return mapper;
-//    }
-
     @Bean
     public Validator validator() {
         final LocalValidatorFactoryBean factory = new LocalValidatorFactoryBean();

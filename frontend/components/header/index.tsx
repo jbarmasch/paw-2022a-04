@@ -5,7 +5,8 @@ import Link from 'next/link';
 import {useRouter} from 'next/router';
 import {postData} from "../../utils/services";
 import {server} from "../../utils/server";
-import {FormattedMessage} from "react-intl";
+// import {FormattedMessage} from "react-intl";
+import i18n from "../../utils/i18n";
 
 type HeaderType = {
     isErrorPage?: Boolean;
@@ -75,18 +76,22 @@ const Header = ({isErrorPage}: HeaderType) => {
                 </Link>
                 <nav ref={navRef} className={`site-nav ${menuOpen ? 'site-nav--open' : ''}`}>
                     <Link className="header-link" href="/events">
-                        <FormattedMessage id={"nav.events"}/>
+                        {i18n.t("nav.events")}
                     </Link>
                     <Link className="header-link" href="/create-event">
-                        <FormattedMessage id={"nav.createEvent"}/>
+                        {i18n.t("nav.createEvent")}
                     </Link>
                     <Link className="header-link" href="/bookings">
-                        <FormattedMessage id={"nav.bookings"}/>
+                        {i18n.t("nav.bookings")}
                     </Link>
                     <Link className="header-link" href="/my-events">
-                        <FormattedMessage id={"nav.myEvents"}/>
+                        {i18n.t("nav.myEvents")}
                     </Link>
-                    <button className="site-nav__btn"><FormattedMessage id={"nav.account"}/></button>
+                    <Link className="header-link" href="/users">
+                        {/*<FormattedMessage id={"nav.organizers"}/>*/}
+                        {i18n.t("nav.organizers")}
+                    </Link>
+                    <button className="site-nav__btn">{i18n.t("nav.account")}</button>
                 </nav>
 
                 <div className="site-header__actions">

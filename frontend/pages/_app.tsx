@@ -16,12 +16,12 @@ if (isProduction) {
 
 }
 
-import { IntlProvider } from "react-intl";
+// import { IntlProvider } from "react-intl";
 
-import es from "../lang/es.json";
-import en from "../lang/en.json";
+// import es from "../lang/es.json";
+// import en from "../lang/en.json";
 
-const messages = { en, es };
+// const messages = { en, es };
 
 import { Quicksand } from '@next/font/google'
 
@@ -33,17 +33,17 @@ export const quicksand = Quicksand({
 // import { headers } from 'next/headers';
 
 const MyApp = ({Component, pageProps}: AppProps) => {
-    const {locale} = useRouter();
+    // const {locale} = useRouter();
     // const headersList = headers();
     // const lang = headersList.get('Accept-Language');
-    const [shortLocale] = locale ? locale.split("-") : ["en"];
+    // const [shortLocale] = locale ? locale.split("-") : ["en"];
 
     return (
         <main className={quicksand.className}>
             <Fragment>
-                <IntlProvider locale={shortLocale} messages={messages[shortLocale]}>
+                {/* <IntlProvider locale={shortLocale} messages={messages[shortLocale]}> */}
                     <Component {...pageProps}/>
-                </IntlProvider>
+                {/* </IntlProvider> */}
             </Fragment>
         </main>
     );

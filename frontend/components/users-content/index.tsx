@@ -1,8 +1,8 @@
 import {useState} from 'react';
 import List from './list';
-import { useForm, Controller } from "react-hook-form";
 
-const ProductsContent = () => {
+const UsersContent = () => {
+
     return (
         <section className="products-content">
             <List/>
@@ -10,5 +10,5 @@ const ProductsContent = () => {
     );
 };
 
-export default ProductsContent
+export default UsersContent
   

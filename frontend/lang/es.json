@@ -4,6 +4,7 @@
   "nav.bookings" : "Reservas",
   "nav.myEvents" : "Mis eventos",
   "nav.account" : "Cuenta",
+  "nav.organizers" : "Organizadores",
 
   "home.phrase" : "Vení a divertirte con nosotros!",
 
@@ -34,5 +35,28 @@
   "event.noTickets" : "Sin tickets",
   "event.selectQty" : "Seleccione cantidad",
 
- "submit" : "Enviar"
+  "login.login" : "Inicio de sesión",
+  "login.username" : "Nombre de usuario",
+  "login.password" : "Contraseña",
+  "login.keepMe" : "Mantener sesión inicada",
+  "login.forgot" : "Olvidaste tu contraseña?",
+  "login.signIn" : "Iniciar sesión",
+  "login.notAMember" : "No sos miembro?",
+  "login.signUp" : "Registrarse",
+
+  "filter.sortBy" : "Ordenar por",
+  "filter.order" : "Orden",
+  "filter.username" : "Nombre de usuario",
+  "filter.rating" : "Puntuación",
+  "filter.ascending" : "Ascendente",
+  "filter.descending" : "Descendente",
+
+  "caca" : {
+    "culo" : "yummy"
+  },
+
+ "submit" : "Enviar",
+
+ "fieldRequired" : "Este campo es obligatorio",
+ "fieldInvalid" : "Este campo es inválido"
 }

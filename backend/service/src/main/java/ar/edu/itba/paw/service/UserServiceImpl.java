@@ -1,10 +1,7 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.exceptions.UserCannotRateException;
-import ar.edu.itba.paw.model.OrganizerStats;
-import ar.edu.itba.paw.model.User;
-import ar.edu.itba.paw.model.UserList;
-import ar.edu.itba.paw.model.UserStats;
+import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.persistence.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -83,5 +80,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public void makeCreator(User user) {
         userDao.makeCreator(user);
+    }
+
+    @Override
+    public UserList filterBy(String searchQuery, Order order, int page) {
+        return userDao.filterBy(searchQuery, order, page);
     }
 }

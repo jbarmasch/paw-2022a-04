@@ -1,10 +1,7 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.exceptions.UserCannotRateException;
-import ar.edu.itba.paw.model.OrganizerStats;
-import ar.edu.itba.paw.model.User;
-import ar.edu.itba.paw.model.UserList;
-import ar.edu.itba.paw.model.UserStats;
+import ar.edu.itba.paw.model.*;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -33,4 +30,6 @@ public interface UserService {
     void rateUser(long userId, long organizerId, int rating) throws UserCannotRateException;
 
     void makeCreator(User user);
+
+    UserList filterBy(String searchQuery, Order order, int page);
 }

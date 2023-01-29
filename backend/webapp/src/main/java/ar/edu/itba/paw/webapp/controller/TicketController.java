@@ -4,11 +4,13 @@ import ar.edu.itba.paw.exceptions.DateRangeException;
 import ar.edu.itba.paw.exceptions.TicketUnderflowException;
 import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.model.Tag;
+import ar.edu.itba.paw.model.TicketStats;
 import ar.edu.itba.paw.model.Ticket;
 import ar.edu.itba.paw.service.EventService;
 import ar.edu.itba.paw.service.TagService;
 import ar.edu.itba.paw.service.TicketService;
 import ar.edu.itba.paw.webapp.dto.EventDto;
+import ar.edu.itba.paw.webapp.dto.TicketStatsDto;
 import ar.edu.itba.paw.webapp.dto.TagDto;
 import ar.edu.itba.paw.webapp.dto.TicketDto;
 import ar.edu.itba.paw.webapp.form.EventForm;
@@ -69,5 +71,22 @@ public class TicketController {
         ts.deleteTicket(ticketId);
 
         return Response.noContent().build();
+    }
+
+    @Path("/{id}/stats")
+    @GET
+    @Produces(value = {MediaType.APPLICATION_JSON,})
+    public Response getTicketStats(@PathParam("id") final long id) {
+        List<TicketStats> ticketsStats = ts.getTicketStats(id);
+        final List<TicketStatsDto> ticketList = ticketsStats
+                .stream()
+                .map(e -> TicketStatsDto.fromTicketStats(uriInfo, e))
+                .collect(Collectors.toList());
+
+        if (ticketList != null) {
+            return Response.ok(ticketList).build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
     }
 }

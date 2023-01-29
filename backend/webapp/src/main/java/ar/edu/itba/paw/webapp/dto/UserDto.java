@@ -14,10 +14,12 @@ public class UserDto {
 
     private double rating;
     private int votes;
+    private long id;
 
     public static UserDto fromUser(final UriInfo uriInfo, final User user) {
         final UserDto dto = new UserDto();
 
+        dto.id = user.getId();
         dto.username = user.getUsername();
         dto.votes = user.getVotes();
         dto.rating = user.getRating();
@@ -26,11 +28,18 @@ public class UserDto {
                 replacePath("api/users").path(String.valueOf(user.getId()));
         dto.self = userUriBuilder.build();
 
-        final UriBuilder eventsUriBuilder = uriInfo.getAbsolutePathBuilder().
-                replacePath("api/events").path(String.valueOf(user.getId()));
-        dto.events = eventsUriBuilder.queryParam("organizedBy", String.valueOf(user.getId())).build();
+        final UriBuilder eventsUriBuilder = uriInfo.getAbsolutePathBuilder().replacePath("api/events");
+        dto.events = eventsUriBuilder.queryParam("userId", String.valueOf(user.getId())).build();
 
         return dto;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getUsername() {

@@ -17,15 +17,16 @@ module.exports = {
     typescript: {
         ignoreBuildErrors: true,
     },
-    exportPathMap: async function (
-        defaultPathMap,
-        { dev, dir, outDir, distDir, buildId }
-    ) {
-        return {
-            '/': { page: '/' },
-            '/events': { page: '/events' },
-        }
-    },
+    // exportPathMap: async function (
+    //     defaultPathMap,
+    //     { dev, dir, outDir, distDir, buildId }
+    // ) {
+    //     return {
+    //         '/': { page: '/' },
+    //         '/events': { page: '/events' },
+    //     }
+    // },
+
     // i18n: {
     //     locales: ['en', 'es'],
     //     defaultLocale: 'en',

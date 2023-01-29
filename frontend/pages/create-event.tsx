@@ -5,7 +5,8 @@ import {server} from '../utils/server';
 import * as React from 'react';
 import Select from "react-select";
 import { useForm, Controller } from "react-hook-form";
-import {FormattedMessage, useIntl} from "react-intl";
+// import {FormattedMessage, useIntl} from "react-intl";
+import i18n from "../utils/i18n"
 
 interface Event {
     name: string,
@@ -35,7 +36,6 @@ import Breadcrumb from "../components/breadcrumb";
 // import Checkbox from "../components/products-filter/form-builder/checkbox";
 
 const CreateEvent = () => {
-    const intl = useIntl()
     const router = useRouter()
 
     let accessToken: string | null
@@ -111,7 +111,7 @@ const CreateEvent = () => {
         start++;
     }
     // console.log(ages)
-    // const placeholder = intl.formatMessage({id: 'home.page'});
+    // const placeholder = i18n.t({id: 'home.page'});
     // console.log(placeholder)
 
     const onSubmit = async (data) => {
@@ -196,7 +196,7 @@ const CreateEvent = () => {
 
     return (
         <Layout>
-            <Breadcrumb text={"Create Event"}/>
+            <Breadcrumb text={i18n.t("nav.createEvent")}/>
 
             <section className="form-page">
                 <div className="container">
@@ -207,16 +207,16 @@ const CreateEvent = () => {
                     {/*</div>*/}
 
                     <div className="form-block">
-                        <h2 className="form-block__title">Create event</h2>
+                        <h2 className="form-block__title">{i18n.t("nav.createEvent")}</h2>
                         <form className="form" onSubmit={handleSubmit(onSubmit)}>
-                            <label htmlFor="name-input"><FormattedMessage id="create.name"/>: </label>
-                            <input className="form__input input__text" id="name-input" {...register("name", { required: true, maxLength: 10})} type="text" placeholder={intl.formatMessage({id: "create.name"})}/>
-                            {errors.name?.type === 'required' && <span>This field is required</span>}
-                            {errors.name?.type === 'maxLength' && <span>This field is invalid</span>}
+                            <label htmlFor="name-input">{i18n.t("create.name")}: </label>
+                            <input className="form__input input__text" id="name-input" {...register("name", { required: true, maxLength: 10})} type="text" placeholder={i18n.t("create.name")}/>
+                            {errors.name?.type === 'required' && <span>{i18n.t("fieldRequired")}</span>}
+                            {errors.name?.type === 'maxLength' && <span>{i18n.t("fieldInvalid")}</span>}
 
                             <label htmlFor="description-input">Description: </label>
-                            <input className="form__input input__text" id="description-input" {...register("description", {required: false, maxLength: 100})} type="text" placeholder={intl.formatMessage({id: "create.description"})}/>
-                            {errors.description?.type === 'maxLength' && <span>This field is invalid</span>}
+                            <input className="form__input input__text" id="description-input" {...register("description", {required: false, maxLength: 100})} type="text" placeholder={i18n.t("create.description")}/>
+                            {errors.description?.type === 'maxLength' && <span>{i18n.t("fieldInvalid")}</span>}
 
                             <Controller
                                 control={control}
@@ -242,7 +242,7 @@ const CreateEvent = () => {
                                                 name={name}
                                                 options={locationList}
                                                 onChange={handleSelectChange}
-                                                placeholder={intl.formatMessage({id: "create.location"})}
+                                                placeholder={i18n.t("create.location")}
                                                 styles={style}
                                             />
                                         </>
@@ -252,7 +252,7 @@ const CreateEvent = () => {
                                     required: true
                                 }}
                             />
-                            {errors.location?.type && <span>This field is required</span>}
+                            {errors.location?.type && <span>{i18n.t("fieldRequired")}</span>}
 
                             {/*<Select*/}
                             {/*    id="type-input"*/}
@@ -289,7 +289,7 @@ const CreateEvent = () => {
                                                 name={name}
                                                 options={typeList}
                                                 onChange={handleSelectChange}
-                                                placeholder={intl.formatMessage({id: "create.type"})}
+                                                placeholder={i18n.t("create.type")}
                                                 styles={style}
                                             />
                                         </>
@@ -299,7 +299,7 @@ const CreateEvent = () => {
                                     required: true
                                 }}
                             />
-                            {errors.type?.type && <span>This field is required</span>}
+                            {errors.type?.type && <span>{i18n.t("fieldRequired")}</span>}
 
                             {/*<Select*/}
                             {/*    id="tags-input"*/}
@@ -338,7 +338,7 @@ const CreateEvent = () => {
                                                 name={name}
                                                 options={tagList}
                                                 onChange={handleSelectChange}
-                                                placeholder={intl.formatMessage({id: "create.tags"})}
+                                                placeholder={i18n.t("create.tags")}
                                                 styles={style}
                                             />
                                         </>
@@ -348,12 +348,12 @@ const CreateEvent = () => {
                                     required: true
                                 }}
                             />
-                            {errors.tags?.type && <span>This field is required</span>}
+                            {errors.tags?.type && <span>{i18n.t("fieldRequired")}</span>}
 
                             <br/>
 
                             <input {...register("attendance", { required: true })} />
-                            {errors.attendance && <span>This field is required</span>}
+                            {errors.attendance && <span>{i18n.t("fieldRequired")}</span>}
 
                             <input
                                 type="datetime-local"
@@ -365,7 +365,7 @@ const CreateEvent = () => {
                             />
 
                             <div className="horizontal align-center">
-                                <label><FormattedMessage id={"create.hasMin"}/></label>
+                                <label>{i18n.t("create.hasMin")}</label>
                                 {/*<input style={{appearance: "revert"}} type="checkbox" onClick={() => setActive(!active)}*/}
                                 {/*       {...register("hasMinAge", { required: true })}/>*/}
                                 <input style={{appearance: "revert"}} type="checkbox" onClick={() => setActive(!active)}/>
@@ -385,13 +385,13 @@ const CreateEvent = () => {
                                     classNamePrefix="select"
                                     options={ages}
                                     onChange={handleLocationChange}
-                                    placeholder={intl.formatMessage({id: "create.minAge"})}
+                                    placeholder={i18n.t("create.minAge")}
                                     isDisabled={!active}
                                     styles={style}/>
                             </div>
 
                             {/*<input type="file" name="image-input"/>*/}
-                            <button className="btn-submit" type="submit"><FormattedMessage id={"submit"}/></button>
+                            <button className="btn-submit" type="submit">{i18n.t("submit")}</button>
                             {/*<input className={"btn-submit"} type="submit"/>*/}
                         </form>
                     </div>

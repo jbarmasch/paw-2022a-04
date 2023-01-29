@@ -8,11 +8,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -39,6 +37,44 @@ public class UserJpaDao implements UserDao {
         final User user = new User(username, password, mail, em.getReference(Role.class, RoleEnum.ROLE_USER.getValue()), locale.getLanguage());
         em.persist(user);
         return user;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public UserList filterBy(String searchQuery, Order order, int page) {
+        Map<String, Object> objects = new HashMap<>();
+        StringBuilder querySelect = new StringBuilder("FROM users u JOIN userroles ur ON u.userid = ur.userid LEFT JOIN events e ON u.userid = e.userid");
+        StringBuilder queryCondition = new StringBuilder(" WHERE ur.roleid = 2");
+        if (searchQuery != null) {
+            queryCondition.append(" AND ((SELECT to_tsvector('Spanish', u.username) @@ websearch_to_tsquery(:searchquery)) = 't' OR u.username ILIKE CONCAT('%', :searchquery, '%'))");
+            objects.put("searchquery", searchQuery);
+        }
+        StringBuilder orderQuery = new StringBuilder();
+        if (order != null) {
+            orderQuery.append(" ORDER BY ").append(order.getOrder()).append(" ").append(order.getOrderBy());
+        } else {
+            orderQuery.append(" ORDER BY username ");
+        }
+
+        objects.put("page", (page - 1) * 8);
+        String query = "SELECT aux.userid FROM (SELECT u.userid " + querySelect.append(queryCondition) + " GROUP BY u.userid" + orderQuery + ") as aux ";
+        Query queryNative = em.createNativeQuery(query + " LIMIT 8 OFFSET :page");
+        objects.forEach(queryNative::setParameter);
+        final List<Long> ids = (List<Long>) queryNative.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
+        if (ids.isEmpty())
+            return new UserList(new ArrayList<>(), 0);
+        System.out.println("IDS" + ids);
+        final TypedQuery<User> typedQuery = em.createQuery("FROM User WHERE userid IN :ids " + orderQuery, User.class);
+        typedQuery.setParameter("ids", ids);
+
+        System.out.println("CACA" + typedQuery.getResultList());
+
+        String theQuery = String.valueOf(querySelect);
+//        theQuery = theQuery.replace("GROUP BY u.userid", "");
+        Query count = em.createNativeQuery("SELECT COUNT(u.userid) " + theQuery);
+        objects.remove("page");
+        objects.forEach(count::setParameter);
+        return new UserList(typedQuery.getResultList(), (int) Math.ceil((double) ((Number) count.getSingleResult()).intValue() / 8));
     }
 
     @Override

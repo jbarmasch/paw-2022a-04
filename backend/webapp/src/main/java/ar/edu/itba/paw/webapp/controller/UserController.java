@@ -4,8 +4,7 @@ import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.service.EventService;
 import ar.edu.itba.paw.service.TicketService;
 import ar.edu.itba.paw.service.UserService;
-import ar.edu.itba.paw.webapp.dto.EventDto;
-import ar.edu.itba.paw.webapp.dto.UserDto;
+import ar.edu.itba.paw.webapp.dto.*;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,10 +37,15 @@ public class UserController {
 
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON,})
-    public Response listUsers(@QueryParam("page") @DefaultValue("1") final int page) {
-        final UserList res = us.getAllUsers(page);
-        final List<UserDto> userList = res.getUserList()
-                .stream().map(u -> UserDto.fromUser(uriInfo, u)).collect(Collectors.toList());
+    public Response filterBy(@QueryParam("search") final String username,
+                             @QueryParam("order") final Order order,
+                             @QueryParam("page") @DefaultValue("1") final int page) {
+        final UserList res = us.filterBy(username, order, page);
+        final List<UserDto> userList = res
+                .getUserList()
+                .stream()
+                .map(e -> UserDto.fromUser(uriInfo, e))
+                .collect(Collectors.toList());
 
         int lastPage = res.getPages();
 
@@ -69,6 +73,7 @@ public class UserController {
     @Consumes(value = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
     public Response createUser(@Valid UserForm form) {
         final User user = us.create(form.getUsername(), form.getPassword(), form.getMail(), Locale.ENGLISH);
+        
         final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(user.getId())).build();
         return Response.created(uri).build();
     }
@@ -86,40 +91,28 @@ public class UserController {
         }
     }
 
-    @Path("/{id}/event-stats")
+    @Path("/{id}/organizer-stats")
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON,})
-    public Response getEventStats(@PathParam("id") final long id) {
-        EventStats eventStats = es.getEventStats(id).orElse(null);
+    public Response getOrganizerStats(@PathParam("id") final long id) {
+        Optional<OrganizerStatsDto> organizerStatsDto = us.getOrganizerStats(id).map(u -> OrganizerStatsDto.fromOrganizerStats(uriInfo, u));
 
-        if (eventStats != null) {
-            return Response.ok(eventStats).build();
+        if (organizerStatsDto.isPresent()) {
+            return Response.ok(organizerStatsDto.get()).build();
         } else {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
 
-    @Path("/{id}/ticket-stats")
-    @GET
-    @Produces(value = {MediaType.APPLICATION_JSON,})
-    public Response getTicketStats(@PathParam("id") final long id) {
-        List<TicketStats> ticketsStats = ts.getTicketStats(id);
-
-        if (ticketsStats != null) {
-            return Response.ok(ticketsStats).build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-    }
 
     @Path("/{id}/stats")
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON,})
     public Response getUserStats(@PathParam("id") final long id) {
-        final OrganizerStats stats = us.getOrganizerStats(id).orElse(null);
+        Optional<UserStatsDto> userStatsDto = us.getUserStats(id).map(u -> UserStatsDto.fromUserStats(uriInfo, u));
 
-        if (stats != null) {
-            return Response.ok(stats).build();
+        if (userStatsDto.isPresent()) {
+            return Response.ok(userStatsDto.get()).build();
         } else {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
