@@ -18,9 +18,7 @@ target/
 *.jar
 *.war
 *.ear
-
-## SQL
-*.sql
+.java-version
 
 ## Spring
 config.properties
