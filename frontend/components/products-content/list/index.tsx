@@ -5,11 +5,11 @@ import {ProductTypeList} from 'types';
 import {server} from '../../../utils/server';
 import {useEffect, useState} from "react";
 import {useRouter} from "next/router";
-import i18n from "../../../utils/i18n"
+import Link from '../../../components/Link'
 
 const fetcher = (...args) => fetch(...args).then((res) => res.json())
 
-function Page({index}) {
+function Page({index, t}) {
     const router = useRouter();
 
     // useEffect(() => {
@@ -51,6 +51,7 @@ function Page({index}) {
                             currentPrice={item.minPrice}
                             key={item.id}
                             image={item.image}
+                            t={t}
                         />
                     ))}
                 </section>
@@ -59,7 +60,7 @@ function Page({index}) {
     );
 }
 
-const ProductsContent = () => {
+const ProductsContent = ({t}) => {
     const [pageIndex, setPageIndex] = useState(1);
     const [orderProductsOpen, setOrderProductsOpen] = useState(false);
     // const { register, handleSubmit, control, watch, formState: { errors } } = useForm();
@@ -75,8 +76,8 @@ const ProductsContent = () => {
                         <h4>Sort by: </h4>
                         <div className="select-wrapper">
                             <select>
-                                <option>{i18n.t("filter.username")}</option>
-                                <option>{i18n.t("filter.rating")}</option>
+                                <option>{t("filter.username")}</option>
+                                <option>{t("filter.rating")}</option>
                             </select>
                         </div>
                     </div>
@@ -84,8 +85,8 @@ const ProductsContent = () => {
                         <h4>Order: </h4>
                         <div className="select-wrapper">
                             <select>
-                                <option>{i18n.t("filter.ascending")}</option>
-                                <option>{i18n.t("filter.descending")}</option>
+                                <option>{t("filter.ascending")}</option>
+                                <option>{t("filter.descending")}</option>
                             </select>
                         </div>
                     </div>
@@ -93,8 +94,8 @@ const ProductsContent = () => {
             </div>
         <div>
             <div className="event-discovery flex w-full flex-1 flex-col items-center justify-center px-20 text-center">
-                <Page index={pageIndex}/>
-                <div style={{ display: 'none' }}><Page index={pageIndex + 1}/></div>
+                <Page index={pageIndex} t={t}/>
+                <div style={{ display: 'none' }}><Page index={pageIndex + 1} t={t}/></div>
             </div>
             <button className="pag-button" onClick={() => setPageIndex(pageIndex <= 1 ? pageIndex : pageIndex - 1)}>&laquo;</button>
             <button className="pag-button" onClick={() => setPageIndex(pageIndex + 1)}>&raquo;</button>

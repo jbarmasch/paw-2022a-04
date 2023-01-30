@@ -2,10 +2,10 @@ import {useState} from 'react';
 import List from './list';
 import { useForm, Controller } from "react-hook-form";
 
-const ProductsContent = () => {
+const ProductsContent = ({t}) => {
     return (
         <section className="products-content">
-            <List/>
+            <List t={t}/>
         </section>
     );
 };

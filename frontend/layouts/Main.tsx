@@ -5,9 +5,10 @@ import {useRouter} from 'next/router';
 type LayoutType = {
     title?: string;
     children?: React.ReactNode;
+    t
 }
 
-export default ({children}: LayoutType) => {
+export default ({children, t}: LayoutType) => {
     const router = useRouter();
     const pathname = router.pathname;
 
@@ -16,7 +17,7 @@ export default ({children}: LayoutType) => {
             <Head>
             </Head>
 
-            <Header/>
+            <Header t={t}/>
 
             <main className={(pathname !== '/' ? 'main-page' : '')}>
                 {children}

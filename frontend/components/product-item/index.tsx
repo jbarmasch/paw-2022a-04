@@ -7,7 +7,7 @@ import {getPrice} from "../../utils/price";
 import {useEffect, useState} from "react";
 
 
-const ProductItem = ({discount, image, id, name, minPrice, currentPrice}: ProductTypeList) => {
+const ProductItem = ({discount, image, id, name, minPrice, currentPrice, t}: ProductTypeList) => {
     const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
     const { data : aux, error : error } = useSwr(image, fetcher)
@@ -24,6 +24,8 @@ const ProductItem = ({discount, image, id, name, minPrice, currentPrice}: Produc
     if (error) return <p>No data</p>
     if (!aux) return <ProductItemLoading/>
 
+    // console.log(t("event.free"))
+
     return (
         <div className="product-item">
             <div className="product__image">
@@ -37,7 +39,7 @@ const ProductItem = ({discount, image, id, name, minPrice, currentPrice}: Produc
             <div className="product__description">
                 <h3>{name}</h3>
                 <div className={"product__price " + (discount ? 'product__price--discount' : '')}>
-                    <h4>{getPrice(currentPrice)}</h4>
+                    <h4>{getPrice(currentPrice, t("event.free"), t("event.noTickets"))}</h4>
                 </div>
             </div>
         </div>

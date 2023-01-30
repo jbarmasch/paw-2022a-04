@@ -16,7 +16,7 @@ export default ({children}: LayoutType) => {
             <Head>
             </Head>
 
-            <Header isErrorPage/>
+            {/* <Header isErrorPage/> */}
 
             <main className={(pathname !== '/' ? 'main-page' : '')}>
                 {children}

@@ -30,6 +30,8 @@ export const quicksand = Quicksand({
     variable: '--main-font'
 })
 
+import { appWithTranslation } from 'next-i18next'
+
 // import { headers } from 'next/headers';
 
 const MyApp = ({Component, pageProps}: AppProps) => {
@@ -49,4 +51,5 @@ const MyApp = ({Component, pageProps}: AppProps) => {
     );
 }
 
-export default MyApp;
+// export default MyApp;
+export default appWithTranslation(MyApp);

@@ -1,12 +1,12 @@
-import Layout from '../layouts/Main';
-import Link from 'next/link';
-import {server} from '../utils/server';
-
+import Layout from '../../layouts/Main';
+import {server} from '../../utils/server';
 import * as React from 'react';
 import Select from "react-select";
 import { useForm, Controller } from "react-hook-form";
 // import {FormattedMessage, useIntl} from "react-intl";
-import i18n from '../utils/i18n'
+import { useTranslation } from 'next-i18next'
+import { getStaticPaths, makeStaticProps } from '../../utils/get-static'
+import Link from '../../components/Link'
 
 interface Event {
     name: string,
@@ -32,11 +32,12 @@ import useSWRImmutable from 'swr/immutable'
 
 import {useEffect, useState} from "react";
 import {useRouter} from "next/router";
-import Breadcrumb from "../components/breadcrumb";
+import Breadcrumb from "../../components/breadcrumb";
 // import Checkbox from "../components/products-filter/form-builder/checkbox";
 
 const CreateEvent = () => {
-    
+    const { t } = useTranslation(['common'])
+
     const router = useRouter()
 
     let accessToken: string | null
@@ -112,67 +113,73 @@ const CreateEvent = () => {
         start++;
     }
 
-    // const placeholder = i18n.t({id: 'home.page'});
-    // console.log(placeholder)
-
     const onSubmit = async (data) => {
         console.log(data)
 
-        let tag_aux: any[] = []
-        data.tags.forEach(x => tag_aux.push(x.value))
+        let aux: any[] = []
+        data.tags.forEach(x => aux.push(x.value))
 
-        let date_aux = new Date(data.date).toISOString().slice(0, -3)
-
-        const formData = new FormData();
-        formData.append("name", data.name)
-        formData.append("description", data.description)
-        // formData.append("location", data.location)
-        // formData.append("type", data.type)
-        // for (const tag in tag_aux) {
-        //     formData.append("tags[]", tag)
-        // }
-        formData.append("date", date_aux)
-        // formData.append("hasMinAge", data.hasMinAge)
-        // formData.append("image", data.image)
-        // formData.append("image", new Blob([data.image], { type: 'image/png' }))
-        // formData.append("minAge", data.minAge)
-
-        console.log(formData)
+        let auxi = new Date(data.date).toISOString().slice(0, -8)
+        console.log(auxi)
 
         let obj = {
             name: data.name,
             description: data.description,
             location: data.location.value,
             type: data.type.value,
-            tags: tag_aux,
-            date: date_aux,
+            tags: aux,
+            date: auxi,
             hasMinAge: data.hasMinAge,
             minAge: data.minAge
         }
 
         console.log(obj)
 
-        // const JSONdata = JSON.stringify(data)
+        // const res = await fetch(`${server}/api/events`, {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         'Authorization': `Bearer ${accessToken}`
+        //     },
+        //     body: JSON.stringify(obj)
+        // })
 
-        const res = await fetch(`${server}/api/events`, {
+        // let json = await res;
+
+        // if (json.status != 201) {
+        //     return;
+        // }
+
+        // let eventId = json.headers.get("Location")?.split("/").slice(-1)[0]
+        let eventId = 105
+
+        console.log(data.image)
+        console.log(data.image[0])
+
+        const formData = new FormData();
+
+        // const file = data.image[0];
+        // let blob = file.slice(0, file.size, file.type);
+        // let newFile = new File([blob], file.name, {
+        //     type: file.type,
+        // });
+
+        formData.append("image", data.image[0])
+
+        const resImage = await fetch(`${server}/api/events/${eventId}/image`, {
             method: 'POST',
             headers: {
-                // 'Content-Type': 'application/json',
                 'Content-Type': 'multipart/form-data',
                 'Authorization': `Bearer ${accessToken}`
             },
-            // body: JSON.stringify(obj)
             body: formData
         })
-        // const res = await postData(`${server}/api/events`, obj);
 
+        let jsonImage = await resImage;
 
-        let json = await res;
-
-        if (json.status == 201) {
-            router.push("/my-events/" + json.headers.get("Location")?.split("/").slice(-1)[0])
+        if (jsonImage.status == 201) {
+            router.push("/my-events/" + eventId)
         }
-        // console.log(json.headers.get("Location"))
     }
 
     if (errorData || errorlocation || errorType) return <p>Loading...</p>
@@ -211,9 +218,14 @@ const CreateEvent = () => {
         setLocation(event);
     };
 
+    const handleChange = (e) => {
+        console.log(e.target.files[0])
+        console.log(e.target.files[0].path)
+    }
+
     return (
-        <Layout>
-            <Breadcrumb text={"Create Event"}/>
+        <Layout t={t}>
+            <Breadcrumb text={t("nav.createEvent")}/>
 
             <section className="form-page">
                 <div className="container">
@@ -224,16 +236,16 @@ const CreateEvent = () => {
                     {/*</div>*/}
 
                     <div className="form-block">
-                        <h2 className="form-block__title">Create event</h2>
-                        <form className="form" onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
-                            <label htmlFor="name-input">{i18n.t("create.name")}: </label>
-                            <input className="form__input input__text" id="name-input" {...register("name", { required: true, maxLength: 10})} type="text" placeholder={i18n.t("create.name")}/>
-                            {errors.name?.type === 'required' && <span>This field is required</span>}
-                            {errors.name?.type === 'maxLength' && <span>This field is invalid</span>}
+                        <h2 className="form-block__title">{t("nav.createEvent")}</h2>
+                        <form className="form" onSubmit={handleSubmit(onSubmit)}>
+                            <label htmlFor="name-input">{t("create.name")}: </label>
+                            <input className="form__input input__text" id="name-input" {...register("name", { required: true, maxLength: 10})} type="text" placeholder={t("create.name")}/>
+                            {errors.name?.type === 'required' && <span>{t("fieldRequired")}</span>}
+                            {errors.name?.type === 'maxLength' && <span>{t("fieldInvalid")}</span>}
 
                             <label htmlFor="description-input">Description: </label>
-                            <input className="form__input input__text" id="description-input" {...register("description", {required: false, maxLength: 100})} type="text" placeholder={i18n.t("create.description")}/>
-                            {errors.description?.type === 'maxLength' && <span>This field is invalid</span>}
+                            <input className="form__input input__text" id="description-input" {...register("description", {required: false, maxLength: 100})} type="text" placeholder={t("create.description")}/>
+                            {errors.description?.type === 'maxLength' && <span>{t("fieldInvalid")}</span>}
 
                             <Controller
                                 control={control}
@@ -259,7 +271,7 @@ const CreateEvent = () => {
                                                 name={name}
                                                 options={locationList}
                                                 onChange={handleSelectChange}
-                                                placeholder={i18n.t("create.location")}
+                                                placeholder={t("create.location")}
                                                 styles={style}
                                             />
                                         </>
@@ -269,7 +281,7 @@ const CreateEvent = () => {
                                     required: true
                                 }}
                             />
-                            {errors.location?.type && <span>This field is required</span>}
+                            {errors.location?.type && <span>{t("fieldRequired")}</span>}
 
                             {/*<Select*/}
                             {/*    id="type-input"*/}
@@ -306,7 +318,7 @@ const CreateEvent = () => {
                                                 name={name}
                                                 options={typeList}
                                                 onChange={handleSelectChange}
-                                                placeholder={i18n.t("create.type")}
+                                                placeholder={t("create.type")}
                                                 styles={style}
                                             />
                                         </>
@@ -316,7 +328,7 @@ const CreateEvent = () => {
                                     required: true
                                 }}
                             />
-                            {errors.type?.type && <span>This field is required</span>}
+                            {errors.type?.type && <span>{t("fieldRequired")}</span>}
 
                             {/*<Select*/}
                             {/*    id="tags-input"*/}
@@ -355,7 +367,7 @@ const CreateEvent = () => {
                                                 name={name}
                                                 options={tagList}
                                                 onChange={handleSelectChange}
-                                                placeholder={i18n.t("create.tags")}
+                                                placeholder={t("create.tags")}
                                                 styles={style}
                                             />
                                         </>
@@ -365,12 +377,12 @@ const CreateEvent = () => {
                                     required: true
                                 }}
                             />
-                            {errors.tags?.type && <span>This field is required</span>}
+                            {errors.tags?.type && <span>{t("fieldRequired")}</span>}
 
                             <br/>
 
                             <input {...register("attendance", { required: true })} />
-                            {errors.attendance && <span>This field is required</span>}
+                            {errors.attendance && <span>{t("fieldRequired")}</span>}
 
                             <input
                                 type="datetime-local"
@@ -382,7 +394,7 @@ const CreateEvent = () => {
                             />
 
                             <div className="horizontal align-center">
-                                <label>{i18n.t("create.hasMin")}</label>
+                                <label>{t("create.hasMin")}</label>
                                 {/*<input style={{appearance: "revert"}} type="checkbox" onClick={() => setActive(!active)}*/}
                                 {/*       {...register("hasMinAge", { required: true })}/>*/}
                                 <input style={{appearance: "revert"}} type="checkbox" onClick={() => setActive(!active)}/>
@@ -402,14 +414,15 @@ const CreateEvent = () => {
                                     classNamePrefix="select"
                                     options={ages}
                                     onChange={handleLocationChange}
-                                    placeholder={i18n.t("create.minAge")}
+                                    placeholder={t("create.minAge")}
                                     isDisabled={!active}
                                     styles={style}/>
                             </div>
 
-                            <input type="file" {...register("image", { required: true })}/>
+                            {/*<input type="file" name="image-input"/>*/}
+                            <input type="file" {...register("image", { required: true })} onChange={handleChange}/>
 
-                            <button className="btn-submit" type="submit">{i18n.t("submit")}</button>
+                            <button className="btn-submit" type="submit">{t("submit")}</button>
                             {/*<input className={"btn-submit"} type="submit"/>*/}
                         </form>
                     </div>
@@ -421,3 +434,7 @@ const CreateEvent = () => {
 }
 
 export default CreateEvent
+
+const getStaticProps = makeStaticProps(['common'])
+export { getStaticPaths, getStaticProps }
+  

@@ -1,13 +1,12 @@
 import {OrganizerStats} from "../../types";
-import Link from 'next/link';
 import useSwr from "swr";
 import {server} from "../../utils/server";
 import {getPrice} from "../../utils/price";
-import i18n from "../../utils/i18n"
+import Link from '../../components/Link'
 
 // const fetcher = (...args) => fetch(...args).then((res) => res.json())
 
-const OrganizerStatsItem = ({attendance, bookingsGotten, eventsCreated, income, popularEvent}: OrganizerStats) => {
+const OrganizerStatsItem = ({attendance, bookingsGotten, eventsCreated, income, popularEvent}: OrganizerStats, t) => {
     // const {data, error} = useSwr(`${event}`, fetcher);
 
     // if (error) return <p>Loading...</p>
@@ -21,29 +20,29 @@ const OrganizerStatsItem = ({attendance, bookingsGotten, eventsCreated, income, 
                     <table className="ticket-table">
                         <thead>
                         <tr>
-                            <th>{i18n.t("stats.stats")}</th>
+                            <th>{t("stats.stats")}</th>
                             <th/>
                         </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>{i18n.t("stats.eventsAttended")}</td>
+                                <td>{t("stats.eventsAttended")}</td>
                                 <td>{attendance}</td>
                             </tr>
                             <tr>
-                                <td>{i18n.t("stats.ticketsBooked")}</td>
+                                <td>{t("stats.ticketsBooked")}</td>
                                 <td>{bookingsGotten}</td>
                             </tr>
                             <tr>
-                                <td>{i18n.t("stats.favType")}</td>
+                                <td>{t("stats.favType")}</td>
                                 <td>{eventsCreated}</td>
                             </tr>
                             <tr>
-                                <td>{i18n.t("stats.favType")}</td>
+                                <td>{t("stats.favType")}</td>
                                 <td>{income}</td>
                             </tr>
                             <tr>
-                                <td>{i18n.t("stats.favLocation")}</td>
+                                <td>{t("stats.favLocation")}</td>
                                 <td>{popularEvent.name}</td>
                             </tr>
                         </tbody>

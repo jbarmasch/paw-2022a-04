@@ -1,11 +1,8 @@
-import i18n from './i18n'
 
-
-export const getPrice = (price) => {
-    
+export const getPrice = (price, freeMsg, noTicketsMsg) => {
     if (price > 0)
         return "$" + price;
     if (price == 0)
-        return i18n.t("event.price")
-    return i18n.t("event.noTickets")
+        return freeMsg
+    return noTicketsMsg
 }

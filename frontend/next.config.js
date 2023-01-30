@@ -17,6 +17,7 @@ module.exports = {
     typescript: {
         ignoreBuildErrors: true,
     },
+    trailingSlash: true,
     // exportPathMap: async function (
     //     defaultPathMap,
     //     { dev, dir, outDir, distDir, buildId }
@@ -31,4 +32,15 @@ module.exports = {
     //     locales: ['en', 'es'],
     //     defaultLocale: 'en',
     // },
+    webpack: (config) => {
+        config.resolve = {
+          ...config.resolve,
+          fallback: {
+            "fs": false,
+            "path": false,
+            "os": false,
+          }
+        }
+        return config
+      },
 }
