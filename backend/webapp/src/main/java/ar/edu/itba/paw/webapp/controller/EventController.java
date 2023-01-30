@@ -13,6 +13,9 @@ import ar.edu.itba.paw.webapp.dto.EventDto;
 import ar.edu.itba.paw.webapp.dto.EventStatsDto;
 import ar.edu.itba.paw.webapp.dto.TicketDto;
 import ar.edu.itba.paw.webapp.form.*;
+import org.apache.commons.io.IOUtils;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +32,7 @@ import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -95,13 +99,13 @@ public class EventController {
     }
 
     @POST
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.MULTIPART_FORM_DATA})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
     public Response createEvent(@Valid final EventForm form) throws IOException {
         final long userId = um.getUserId();
         
 //        String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), request.getContextPath());
         final Event event = es.create(form.getName(), form.getDescription(), form.getLocation(), form.getType(), form.getTimestamp(),
-                form.getImage().getBytes(), form.getTags(), userId, form.isHasMinAge() ? form.getMinAge() : null,
+                null, form.getTags(), userId, form.isHasMinAge() ? form.getMinAge() : null,
                 "http://181.46.186.8:2557", LocaleContextHolder.getLocale());
 
         final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(event.getId())).build();
@@ -114,6 +118,19 @@ public class EventController {
     public Response updateEvent(@PathParam("id") final long id, @Valid final EventForm form) {
         es.updateEvent(id, form.getName(), form.getDescription(), form.getLocation(), form.getType(), form.getTimestamp(),
                 null, form.getTags(), form.isHasMinAge() ? form.getMinAge() : null);
+
+        return Response.accepted().build();
+    }
+
+    @Path("/{id}/image")
+    @POST
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response addImage(@PathParam("id") final long id, 
+                             @FormDataParam("image") InputStream inputStream,
+                             @FormDataParam("image") FormDataContentDisposition contentDisposition) throws IOException {
+        System.out.println("hola");
+        byte[] data = IOUtils.toByteArray(inputStream);
+        es.updateEventImage(id, data);
 
         return Response.accepted().build();
     }

@@ -10,13 +10,6 @@ import {useRouter} from "next/router";
 const MyEvents = () => {
     const router = useRouter();
 
-    // let userId
-    // if (typeof window !== 'undefined') {
-    //     userId = localStorage.getItem("User-ID")
-    //     if (!userId || userId === "undefined" || userId === null) {
-    //         router.push("/login")
-    //     }
-    // }
     const [isLoading, setIsLoading] = useState(true);
     const [userId, setUserId] = useState(true);
 

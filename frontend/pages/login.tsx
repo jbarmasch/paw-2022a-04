@@ -16,11 +16,6 @@ const LoginPage = () => {
 
     const {register, handleSubmit, control, watch, formState: {errors}} = useForm();
 
-    // useEffect(() => {
-    //     if (!router.isReady) return;
-    //     console.log(router.query)
-    // }, [router.isReady]);
-
     const onSubmit = async (data: LoginMail) => {
         let authorization = data.username + ":" + data.password
         console.log(authorization)

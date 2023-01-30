@@ -58,5 +58,11 @@
   "submit" : "Submit",
 
   "fieldRequired" : "This field is required",
-  "fieldInvalid" : "This field is invalid"
+  "fieldInvalid" : "This field is invalid",
+
+  "stats.stats" : "Stats",
+  "stats.eventsAttended" : "Booked events",
+  "stats.ticketsBooked" : "Tickets booked",
+  "stats.favType" : "Favorite event type",
+  "stats.favLocation" : "Favorite location"
 }

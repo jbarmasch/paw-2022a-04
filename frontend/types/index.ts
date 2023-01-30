@@ -111,3 +111,11 @@ export type UserStats = {
     favLocation: GenericElement;
     favType: GenericElement;
 }
+
+export type OrganizerStats = {
+    attendance: string;
+    bookingsGotten: string;
+    eventsCreated: string;
+    income: string;
+    popularEvent: ProductTypeList;
+}

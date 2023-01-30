@@ -16,6 +16,8 @@ public interface EventDao {
 
     void updateEvent(long id, String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, Integer minAge);
 
+    void updateEventImage(long id, byte[] imageArray);
+
     void deleteEvent(long id);
 
     void soldOut(long id) throws EventFinishedException;

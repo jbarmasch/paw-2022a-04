@@ -64,6 +64,12 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
+    public void updateEventImage(long id, byte[] imageArray) {
+        eventDao.updateEventImage(id, imageArray);
+    }
+
+    @Transactional
+    @Override
     public void deleteEvent(long id) {
         eventDao.deleteEvent(id);
     }

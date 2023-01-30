@@ -110,19 +110,15 @@ const CreateEvent = () => {
         })
         start++;
     }
-    // console.log(ages)
-    // const placeholder = i18n.t({id: 'home.page'});
-    // console.log(placeholder)
 
     const onSubmit = async (data) => {
-
         console.log(data)
 
         let aux: any[] = []
         data.tags.forEach(x => aux.push(x.value))
 
-        // [0-9]{1,4}-[0-9]{1,2}-[0-9]{1,2}T[0-9]{1,2}:[0-9]{1,2}
-        let auxi = new Date(data.date).toISOString().slice(0, -3)
+        let auxi = new Date(data.date).toISOString().slice(0, -8)
+        console.log(auxi)
 
         let obj = {
             name: data.name,
@@ -137,25 +133,51 @@ const CreateEvent = () => {
 
         console.log(obj)
 
-        // const JSONdata = JSON.stringify(data)
+        // const res = await fetch(`${server}/api/events`, {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         'Authorization': `Bearer ${accessToken}`
+        //     },
+        //     body: JSON.stringify(obj)
+        // })
 
-        const res = await fetch(`${server}/api/events`, {
+        // let json = await res;
+
+        // if (json.status != 201) {
+        //     return;
+        // }
+
+        // let eventId = json.headers.get("Location")?.split("/").slice(-1)[0]
+        let eventId = 105
+
+        console.log(data.image)
+        console.log(data.image[0])
+
+        const formData = new FormData();
+
+        const file = data.image[0];
+        let blob = file.slice(0, file.size, file.type);
+        let newFile = new File([blob], file.name, {
+            type: file.type,
+        });
+
+        formData.append("image", newFile)
+
+        const resImage = await fetch(`${server}/api/events/${eventId}/image`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'multipart/form-data',
                 'Authorization': `Bearer ${accessToken}`
             },
-            body: JSON.stringify(obj)
+            body: formData
         })
-        // const res = await postData(`${server}/api/events`, obj);
 
+        let jsonImage = await resImage;
 
-        let json = await res;
-
-        if (json.status == 201) {
-            router.push("/my-events/" + json.headers.get("Location")?.split("/").slice(-1)[0])
+        if (jsonImage.status == 201) {
+            router.push("/my-events/" + eventId)
         }
-        // console.log(json.headers.get("Location"))
     }
 
     if (errorData || errorlocation || errorType) return <p>Loading...</p>
@@ -193,6 +215,11 @@ const CreateEvent = () => {
         // console.log(location)
         setLocation(event);
     };
+
+    const handleChange = (e) => {
+        console.log(e.target.files[0])
+        console.log(e.target.files[0].path)
+    }
 
     return (
         <Layout>
@@ -391,6 +418,8 @@ const CreateEvent = () => {
                             </div>
 
                             {/*<input type="file" name="image-input"/>*/}
+                            <input type="file" {...register("image", { required: true })} onChange={handleChange}/>
+
                             <button className="btn-submit" type="submit">{i18n.t("submit")}</button>
                             {/*<input className={"btn-submit"} type="submit"/>*/}
                         </form>

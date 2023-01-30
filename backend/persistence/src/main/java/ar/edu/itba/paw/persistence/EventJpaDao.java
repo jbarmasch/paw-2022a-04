@@ -35,6 +35,14 @@ public class EventJpaDao implements EventDao {
     }
 
     @Override
+    public void updateEventImage(long id, byte[] imageArray) {
+        Image image = imageDao.createImage(imageArray);
+        final Event event = em.find(Event.class, id);
+        event.setImage(image);
+        em.persist(event);
+    }
+
+    @Override
     public Optional<Event> getEventById(long id) {
         return Optional.ofNullable(em.find(Event.class, id));
     }

@@ -58,5 +58,11 @@
  "submit" : "Enviar",
 
  "fieldRequired" : "Este campo es obligatorio",
- "fieldInvalid" : "Este campo es inválido"
+ "fieldInvalid" : "Este campo es inválido",
+
+ "stats.stats" : "Estadísticas",
+ "stats.eventsAttended" : "Eventos reservados",
+ "stats.ticketsBooked" : "Entradas reservadas",
+ "stats.favType" : "Tipo de evento favorito",
+ "stats.favLocation" : "Ubicación favorita"
 }
