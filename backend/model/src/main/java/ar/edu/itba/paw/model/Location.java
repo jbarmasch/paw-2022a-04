@@ -12,6 +12,11 @@ public class Location {
     private long id;
     private String name;
 
+    public Location(long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     public Location(String name) {
         this.name = name;
     }
@@ -33,5 +38,10 @@ public class Location {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public int hashCode() {
+        return  (int) id;
     }
 }

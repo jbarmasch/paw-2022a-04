@@ -22,6 +22,12 @@ public class Type {
         this.name_en = name_en;
     }
 
+    public Type(long id, String name, String name_en) {
+        this.id = id;
+        this.name = name;
+        this.name_en = name_en;
+    }
+
     public Type() {
     }
 
@@ -37,5 +43,10 @@ public class Type {
         if (locale != null && locale.getLanguage().equals("es"))
             return name;
         return name_en;
+    }
+
+    @Override
+    public int hashCode() {
+        return  (int) id;
     }
 }

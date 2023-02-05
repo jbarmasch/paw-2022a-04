@@ -16,7 +16,7 @@ const Events = () => {
         <Breadcrumb text={"All Events"}/>
         <section className="products-page">
             <div className="container">
-                <ProductsFilter t={t}/>
+                {/* <ProductsFilter t={t}/> */}
                 <ProductsContent t={t}/>
             </div>
         </section>

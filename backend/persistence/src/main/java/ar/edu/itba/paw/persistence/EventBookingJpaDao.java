@@ -11,6 +11,8 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 import java.util.Optional;
 
 @Repository
@@ -18,14 +20,21 @@ public class EventBookingJpaDao implements EventBookingDao {
     @PersistenceContext
     private EntityManager em;
 
+    @SuppressWarnings("unchecked")
     @Override
     public EventBookingList getAllBookingsFromUser(long userId, int page) {
-        final TypedQuery<EventBooking> query = em.createQuery("from EventBooking as eb where eb.user.id = :userid order by eb.event.date DESC", EventBooking.class);
-        query.setParameter("userid", userId);
+        Query queryNative = em.createNativeQuery("SELECT id FROM eventbookings eb WHERE eb.userid = :userid LIMIT 8 OFFSET :page");
+        queryNative.setParameter("page", (page - 1) * 8);
+        queryNative.setParameter("userid", userId);
+        final List<Long> ids = (List<Long>) queryNative.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
+        if (ids.isEmpty())
+            return new EventBookingList(new ArrayList<>(), 0);
+        final TypedQuery<EventBooking> typedQuery = em.createQuery("from EventBooking where id IN :ids ", EventBooking.class);
+        typedQuery.setParameter("ids", ids);
 
-        Query count = em.createNativeQuery("SELECT COUNT(DISTINCT eb.id) FROM eventbookings eb WHERE eb.userid = :userid");
+        Query count = em.createNativeQuery("SELECT COUNT(id) FROM eventbookings eb WHERE eb.userid = :userid");
         count.setParameter("userid", userId);
-        return new EventBookingList(query.getResultList(), (int) Math.ceil((double) ((Number) count.getSingleResult()).intValue() / 6));
+        return new EventBookingList(typedQuery.getResultList(), (int) Math.ceil((double) ((Number) count.getSingleResult()).intValue() / 8));
     }
 
     @Override
@@ -102,8 +111,6 @@ public class EventBookingJpaDao implements EventBookingDao {
 
     @Override
     public boolean cancelBooking(EventBooking booking) {
-        // EventBooking booking = getBooking(code).orElse(null);
-
         if (booking == null) {
             // TODO: Change
             throw new CancelBookingFailedException();

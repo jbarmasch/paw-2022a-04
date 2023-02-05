@@ -13,8 +13,8 @@ import {useIntl} from "react-intl";
 import { useTranslation } from 'next-i18next'
 import Link from '../../components/Link'
 
-const {createSliderWithTooltip} = Slider;
-const Range = createSliderWithTooltip(Slider.Range);
+// const {createSliderWithTooltip} = Slider;
+// const Range = createSliderWithTooltip(Slider.Range);
 
 // @ts-ignore
 const fetcher = (...args) => fetch(...args).then((res) => res.json())
@@ -125,7 +125,7 @@ const ProductsFilter = ({t}) => {
                 <div className="products-filter__block">
                     <Controller
                         control={control}
-                        name="type"
+                        name="location"
                         render={({ field: { onChange, value, name, ref } }) => {
                             const currentSelection = locationList.find(
                                 (c) => c.value === value
@@ -166,7 +166,7 @@ const ProductsFilter = ({t}) => {
                 <div className="products-filter__block">
                     <Controller
                         control={control}
-                        name="type"
+                        name="tag"
                         render={({ field: { onChange, value, name, ref } }) => {
                             const currentSelection = tagList.find(
                                 (c) => c.value === value

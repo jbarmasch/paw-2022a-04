@@ -53,6 +53,24 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventList filterBy(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String query, List<Integer> tags, String username, Long userId, Order order, Boolean showSoldOut, int page) {
+        for (Integer loc : locations) {
+            if (loc == null) {
+                // TODO: Change
+                throw new RuntimeException();
+            }
+        }
+        for (Integer typ : types) {
+            if (typ == null) {
+                // TODO: Change
+                throw new RuntimeException();
+            }
+        }
+        for (Integer tag : tags) {
+            if (tag == null) {
+                // TODO: Change
+                throw new RuntimeException();
+            }
+        }
         return eventDao.filterBy(locations, types, minPrice, maxPrice, query, tags, username, userId, order, showSoldOut, page);
     }
 

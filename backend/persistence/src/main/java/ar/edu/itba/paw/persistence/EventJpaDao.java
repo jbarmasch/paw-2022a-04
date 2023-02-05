@@ -62,6 +62,7 @@ public class EventJpaDao implements EventDao {
             queryCondition.append(" AND locationid IN :locationids");
             objects.put("locationids", locations);
         }
+        System.out.println(types != null ? types.size() : "0");
         if (types != null && types.size() > 0) {
             queryCondition.append(" AND typeid IN :typeids");
             objects.put("typeids", types);
@@ -118,6 +119,7 @@ public class EventJpaDao implements EventDao {
         objects.put("page", (page - 1) * 8);
 //        queryCondition.append(orderQuery).append(" LIMIT 10 OFFSET :page");
         String query = "SELECT DISTINCT ec.eventid " + querySelect.append(queryCondition);
+        System.out.println(query);
         Query queryNative = em.createNativeQuery(query + " LIMIT 8 OFFSET :page");
         objects.forEach(queryNative::setParameter);
         final List<Long> ids = (List<Long>) queryNative.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());

@@ -53,4 +53,9 @@ public class LocationDto {
     public void setSelf(URI self) {
         this.self = self;
     }
+
+    @Override
+    public int hashCode() {
+        return ((int) id);
+    }
 }
