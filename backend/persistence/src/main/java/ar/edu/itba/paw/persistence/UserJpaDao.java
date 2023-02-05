@@ -21,13 +21,14 @@ public class UserJpaDao implements UserDao {
     @SuppressWarnings("unchecked")
     @Override
     public UserList getAllUsers(int page) {
-        Query query = em.createNativeQuery("SELECT u.userid FROM users u LIMIT 10 OFFSET :page");
-        query.setParameter("page", 10 * (page - 1));
-        final List<Long> ids = (List<Long>) query.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
+        Query queryNative = em.createNativeQuery("SELECT userid FROM users LIMIT 10 OFFSET :page");
+        queryNative.setParameter("page", (page - 1) * 10);
+        final List<Long> ids = (List<Long>) queryNative.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
             return new UserList(new ArrayList<>(), 0);
-        final TypedQuery<User> typedQuery = em.createQuery("from User where userid IN :ids", User.class);
+        final TypedQuery<User> typedQuery = em.createQuery("from User where userid IN :ids ", User.class);
         typedQuery.setParameter("ids", ids);
+
         Query count = em.createNativeQuery("SELECT COUNT(userid) FROM users");
         return new UserList(typedQuery.getResultList(), (int) Math.ceil((double) ((Number) count.getSingleResult()).intValue() / 10));
     }
@@ -63,15 +64,11 @@ public class UserJpaDao implements UserDao {
         final List<Long> ids = (List<Long>) queryNative.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
             return new UserList(new ArrayList<>(), 0);
-        System.out.println("IDS" + ids);
         final TypedQuery<User> typedQuery = em.createQuery("FROM User WHERE userid IN :ids " + orderQuery, User.class);
         typedQuery.setParameter("ids", ids);
 
-        System.out.println("CACA" + typedQuery.getResultList());
-
         String theQuery = String.valueOf(querySelect);
-//        theQuery = theQuery.replace("GROUP BY u.userid", "");
-        Query count = em.createNativeQuery("SELECT COUNT(u.userid) " + theQuery);
+        Query count = em.createNativeQuery("SELECT COUNT(DISTINCT u.userid) " + theQuery);
         objects.remove("page");
         objects.forEach(count::setParameter);
         return new UserList(typedQuery.getResultList(), (int) Math.ceil((double) ((Number) count.getSingleResult()).intValue() / 8));
@@ -117,6 +114,13 @@ public class UserJpaDao implements UserDao {
     public Optional<User> getUserById(long id) {
         return Optional.ofNullable(em.find(User.class, id));
     }
+
+    // @Override
+    // public Optional<User> getOrganizerById(String username) {
+    //     final TypedQuery<User> query = em.createQuery("from User as u where u.userid = :userid and u.roleid = 2", User.class);
+    //     query.setParameter("userid", userid);
+    //     return query.getResultList().stream().findFirst();
+    // }
 
     @SuppressWarnings("unchecked")
     @Override

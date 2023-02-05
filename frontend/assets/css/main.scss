@@ -2,6 +2,14 @@ html, body {
   //overflow-x: hidden !important
 }
 
+body {
+  overflow: overlay;
+}
+
+.react-confirm-alert-body-element {
+  overflow: hidden;
+}
+
 // imports styles
 @import './partials/variables.scss';
 @import './partials/breakpoints.scss';
@@ -721,77 +729,47 @@ h1, h2, h3, h4, h5 {
     }
   }
 
-  .page-intro__slide {
-    height: 450px;
+  .page-intro__container {
     position: relative;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
-    background-color: #FAFAFA;
+    width: 100%;
+    height: object-fit;
+  }
+
+  .page-intro__content {
+    position: absolute;
+    z-index: 12;
+    top: 30%;
+    left: 15%;
+    font-size: 40px;
+    color: #FFF;
+    font-weight: 600;
+    line-height: 120%;
+    margin-bottom: 45px;
     @include breakpoint(phone) {
-      height: 90vh;
-    }
-
-    &:before {
-      content: '';
-      left: 0;
-      z-index: 5;
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      background-color: rgba(0, 0, 0, 0.2);
-    }
-
-    .container {
-      z-index: 10;
-      display: flex;
-      position: relative;
-      align-items: center;
-      height: 100%;
-    }
-
-    .page-intro__slide__content {
-      margin-top: auto;
-      margin-bottom: 40px;
-      @include breakpoint(phone) {
-        margin-bottom: 80px;
-        margin-top: 0;
-      }
-
-      h2 {
-        font-size: 36px;
-        color: #FFF;
-        font-weight: 600;
-        line-height: 120%;
-        margin-bottom: 45px;
-        @include breakpoint(phone) {
-          font-size: 64px;
-          width: 600px;
-        }
-      }
-
-      .btn-shop {
-        display: flex;
-        color: #FFF;
-        align-items: center;
-        width: fit-content;
-
-        i {
-          justify-content: center;
-          align-items: center;
-          display: flex;
-          width: 40px;
-          height: 40px;
-          color: #FFF;
-          font-size: 15px;
-          margin-right: 10px;
-          background-color: var(--color-orange);
-          border-radius: 100%;
-        }
-      }
+      font-size: 64px;
+      width: 600px;
     }
   }
 }
+
+  .page-intro__slide {
+    height: 450px;
+    width: 100%;
+    position: relative;
+    z-index: 11;
+    filter: brightness(85%);
+    // background-repeat: no-repeat;
+    // background-position: center;
+    // background-size: cover;
+    // background-color: #FAFAFA;
+    object-position: center;
+    object-fit: cover;
+    
+    @include breakpoint(phone) {
+      height: 85vh;
+    }
+  }
+
 
 .featured {
   padding: 35px 0 62px 0;
@@ -884,6 +862,39 @@ h1, h2, h3, h4, h5 {
         }
       }
     }
+  }
+}
+
+.booking-item {
+  padding: 10px;
+  margin: 40px 0;
+  width: 100%;
+  display: grid;
+  // grid-template-columns: 4fr 12fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  grid-gap: 10px;
+  grid-row-gap: 10px;
+
+  .booking-content {
+    margin: 15px 0;
+    grid-column: span 2;
+    // display: flex;
+    // align-items: center;
+  }
+
+  .booking-tickets {
+    grid-column: span 6;
+  }
+
+  .booking-rating {
+
+  }
+
+  .booking-action {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    // margin: 42px 0;
   }
 }
 
@@ -2785,6 +2796,7 @@ h1, h2, h3, h4, h5 {
 }
 
 .form-page {
+  padding-top: 140px;
   padding-bottom: 100px;
 }
 
@@ -3236,16 +3248,16 @@ h1, h2, h3, h4, h5 {
   display: flex;
   align-items: center;
   margin-top: 10px;
-  margin-left: 20px;
+  margin-left: 4px;
 
-  &:before {
-    content: '';
-    height: 4px;
-    width: 4px;
-    border-radius: 100%;
-    display: block;
-    margin-right: 5px;
-  }
+//   &:before {
+//     content: '';
+//     height: 4px;
+//     width: 4px;
+//     border-radius: 100%;
+//     display: block;
+//     margin-right: 5px;
+//   }
 
   &.message--error {
     color: red;
@@ -3352,6 +3364,32 @@ h1, h2, h3, h4, h5 {
   background-color: #f3f3f3;
 }
 
+.booking-table {
+  margin: revert;
+
+  thead, tbody {
+    tr {
+      td, th {
+        width: 60%;
+      }
+
+      td + td,
+      th + th {
+        width: 20%;
+      }
+    }
+  }
+}
+
+.booking-total {
+  span {
+    font-weight: 700;
+  }
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 10px 0;
+}
+
 .right-text {
   text-align: end;
 }
@@ -3362,4 +3400,16 @@ h1, h2, h3, h4, h5 {
 
 .border {
   border: #393a34 solid 1px;
+}
+
+.react-confirm-alert-overlay {
+  background: rgba(255, 255, 255, 0.6) !important;
+}
+
+.react-confirm-alert-blur {
+  all: revert;
+}
+
+#react-confirm-alert-firm-svg {
+  display: none;
 }

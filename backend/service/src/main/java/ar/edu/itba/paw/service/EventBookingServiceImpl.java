@@ -99,29 +99,13 @@ public class EventBookingServiceImpl implements EventBookingService {
 
     @Transactional
     @Override
-    public void cancelBooking(EventBooking booking, Locale locale) throws SurpassedMaxTicketsException {
-        EventBooking persistedBooking = eventBookingDao.getBookingFromUser(booking.getUser().getId(), booking.getEvent().getId()).orElse(null);
-        Map<Long, TicketBooking> ticketMap = new HashMap<>();
-        if (persistedBooking != null) {
-            List<TicketBooking> ticketBookings = persistedBooking.getTicketBookings();
-            for (TicketBooking ticketBooking : ticketBookings) {
-                ticketMap.put(ticketBooking.getTicket().getId(), ticketBooking);
-            }
+    public void cancelBooking(String code, Locale locale) {
+        EventBooking booking = eventBookingDao.getBooking(code).orElse(null);
+        
+        if (booking == null) {
+            // TODO: Change
+            throw new RuntimeException();
         }
-
-        Map<Integer, Integer> ticketsError = new HashMap<>();
-        int i = 0;
-        for (TicketBooking ticketBooking : booking.getTicketBookings()) {
-            if (ticketMap.get(ticketBooking.getTicket().getId()) == null) {
-                throw new TicketNotBookedException();
-            }
-            if (ticketBooking.getQty() != null && ticketBooking.getQty() > ticketMap.get(ticketBooking.getTicket().getId()).getQty())
-                ticketsError.put(i, ticketMap.get(ticketBooking.getTicket().getId()).getQty());
-            i++;
-        }
-
-        if (!ticketsError.isEmpty())
-            throw new SurpassedMaxTicketsException(ticketsError);
 
         if (eventBookingDao.cancelBooking(booking)) {
             TransactionUtil.executeAfterTransaction(() -> mailService.sendCancelMail(booking, locale));

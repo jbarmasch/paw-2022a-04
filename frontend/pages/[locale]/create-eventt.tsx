@@ -219,12 +219,6 @@ const CreateEvent = () => {
 
             <section className="form-page">
                 <div className="container">
-                    {/*<div className="back-button-section">*/}
-                    {/*    <Link href="/events">*/}
-                    {/*        <a><i className="icon-left"></i> Back to store</a>*/}
-                    {/*    </Link>*/}
-                    {/*</div>*/}
-
                     <div className="form-block">
                         <h2 className="form-block__title">Create event</h2>
                         <form className="form" onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
@@ -247,7 +241,6 @@ const CreateEvent = () => {
 
                                     const handleSelectChange = (selectedOption) => {
                                         onChange(selectedOption);
-                                        // console.log(selectedOption)
                                         setLocation(selectedOption);
                                     };
 
@@ -342,7 +335,6 @@ const CreateEvent = () => {
 
                                     const handleSelectChange = (selectedOption) => {
                                         onChange(selectedOption);
-                                        // console.log(selectedOption)
                                         setLocation(selectedOption);
                                     };
 
@@ -412,7 +404,6 @@ const CreateEvent = () => {
                             <input type="file" {...register("image", { required: true })}/>
 
                             <button className="btn-submit" type="submit">{t("submit")}</button>
-                            {/*<input className={"btn-submit"} type="submit"/>*/}
                         </form>
                     </div>
 

@@ -18,7 +18,7 @@ import { useTranslation } from 'next-i18next'
 import { getStaticPaths, makeStaticProps } from '../../../utils/get-static'
 import Link from '../../../components/Link'
 
-const Product = () => {
+const Booking = () => {
     const { t } = useTranslation(['common'])
 
     const [showBlock, setShowBlock] = useState('description');
@@ -41,7 +41,7 @@ const Product = () => {
 
     return (
         <Layout t={t}>
-            <Breadcrumb text={"My Events"}/>
+            <Breadcrumb text={t("bookings.booking")}/>
 
             <section className="product-single">
                 <div className="container">
@@ -97,7 +97,7 @@ const Product = () => {
     );
 }
 
-export default Product
+export default Booking
 
 const getStaticProps = makeStaticProps(['common'])
 export { getStaticPaths, getStaticProps }

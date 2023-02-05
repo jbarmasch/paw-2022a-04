@@ -51,18 +51,24 @@
   "filter.ascending" : "Ascendente",
   "filter.descending" : "Descendente",
 
-  "caca" : {
-    "culo" : "yummy"
-  },
+  "bookings.booking" : "Reserva",
+  "bookings.all" : "Todas las reservas",
 
  "submit" : "Enviar",
 
  "fieldRequired" : "Este campo es obligatorio",
  "fieldInvalid" : "Este campo es inválido",
+ "passwordMatch" : "Las contraseñas no coinciden",
+ "passwordInvalid" : "La contraseña es inválida",
 
  "stats.stats" : "Estadísticas",
  "stats.eventsAttended" : "Eventos reservados",
  "stats.ticketsBooked" : "Entradas reservadas",
  "stats.favType" : "Tipo de evento favorito",
- "stats.favLocation" : "Ubicación favorita"
+ "stats.favLocation" : "Ubicación favorita",
+
+ "register.create" : "Registrate para crear eventos y reservar entradas",
+ "register.name" : "Nombre de usuario",
+ "register.pass" : "Contraseña",
+ "register.repeat" : "Repetir contraseña"
 }

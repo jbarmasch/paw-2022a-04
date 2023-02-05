@@ -9,7 +9,7 @@ import {useEffect, useState} from "react";
 const fetcher = (...args) => fetch(...args).then((res) => res.json())
 
 function Page({index, filters}) {
-    let {data, error} = useSwr(`${server}/api/users?page=${index}&order=${filters}`, fetcher);
+    let {data, error} = useSwr(`${server}/api/organizers?page=${index}&order=${filters}`, fetcher);
 
     if (error) return <p>No data</p>
     if (!data) return <ProductsLoading/>

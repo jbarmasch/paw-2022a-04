@@ -44,7 +44,7 @@ const getMinValue = (ticket) => {
     return ticket.hasOwnProperty("booked") && ticket.booked > 0 ? ticket.booked : 1
 }
 
-const Product = () => {
+const MyEvent = () => {
     const { t } = useTranslation(['common'])
 
     const [showBlock, setShowBlock] = useState('description');
@@ -59,7 +59,31 @@ const Product = () => {
     // const { register, handleSubmit, control, watch, formState: { errors } } = useForm();
 
     const { data : event, error : errorData } = useSwr(router.query.id ? `${server}/api/events/${router.query.id}` : null, fetcher)
-    const { data : tickets, error : errorTickets } = useSwr(event ? `${event.tickets}` : null, fetcher)
+
+    // const { data : tickets, error : errorTickets } = useSwr(event ? `${event.tickets}` : null, fetcher)
+    
+    // let tickets
+    // let errorTickets
+    const [tickets, setTickets] = useState([]);
+
+    useEffect(() => {
+        if (event) {
+            fetch(event.tickets)
+                .then(r => {
+                    if (r.status == 200) {
+                        return r.json()
+                    } else {
+                        return
+                    }
+                })
+                .then(d => {
+                    console.log(d)
+                    setTickets(d) 
+                    setValue("tickets", tickets);
+                })
+        }
+    }, [event])
+
     const { data : aux, error : error } = useSwr(event ? `${event.image}` : null, fetcher)
 
     const { register, control, handleSubmit, reset, watch, setValue, getValues, formState: {errors} } = useForm({
@@ -142,7 +166,8 @@ const Product = () => {
     }, [accessToken, refreshToken]);
 
     if (error || errorData) return <p>No data</p>
-    if (!aux || !event || (!errorTickets && !tickets)) return <ProductItemLoading/>
+    // if (!aux || !event || (!errorTickets && !tickets)) return <ProductItemLoading/>
+    if (!aux || !event) return <ProductItemLoading/>
 
     const onSubmit = async (data) => {
         console.log(data)
@@ -213,6 +238,7 @@ const Product = () => {
         }
 
         let aux = JSON.parse(JSON.stringify(auxi));
+        console.log(aux)
 
         res = await fetch(`${server}/api/events/${router.query.id}/tickets`, {
             method: 'POST',
@@ -274,6 +300,8 @@ const Product = () => {
                             </thead>
                             <tbody>
                                 {fields.map((item, index) => {
+                                    console.log("cargando ticket desde la api")
+                                    console.log(tickets)
                                     return (
                                         <tr key={item.id}>
                                             <td>
@@ -387,7 +415,7 @@ const Product = () => {
     );
 }
 
-export default Product
+export default MyEvent
 
 const getStaticProps = makeStaticProps(['common'])
 export { getStaticPaths, getStaticProps }

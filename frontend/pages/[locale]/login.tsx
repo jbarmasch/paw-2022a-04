@@ -26,7 +26,6 @@ const LoginPage = () => {
         const res = await fetch(`${server}/api/users/test`, {
             method: "GET",
             headers: {
-                // 'Content-Type': 'application/json',
                 'Authorization': `Basic ${btoa(authorization)}`
             }
         })
@@ -51,12 +50,6 @@ const LoginPage = () => {
         <Layout t={t}>
             <section className="form-page">
                 <div className="container">
-                    <div className="back-button-section">
-                        <Link href="/events">
-                            <i className="icon-left"></i> Back to store
-                        </Link>
-                    </div>
-
                     <div className="form-block">
                         <h2 className="form-block__title">{t("login.login")}</h2>
                         <form className="form" onSubmit={handleSubmit(onSubmit)}>
@@ -70,19 +63,13 @@ const LoginPage = () => {
                                         "username",
                                         {
                                             required: true,
-                                            // pattern: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
                                         }
                                     )}
                                 />
 
-
                                 {errors.username?.type === 'required' &&
                                     <p className="message message--error">This field is required</p>
                                 }
-
-                                {/*{errors.email?.type === 'pattern' &&*/}
-                                {/*<p className="message message--error">Please write a valid email</p>*/}
-                                {/*}*/}
                             </div>
 
                             <div className="form__input-row">
@@ -114,14 +101,6 @@ const LoginPage = () => {
                                     </label>
                                 </div>
                                 <a href="/forgot-password" className="form__info__forgot-password">Forgot password?</a>
-                            </div>
-
-                            <div className="form__btns">
-                                <button type="button" className="btn-social fb-btn"><i className="icon-facebook"></i>Facebook
-                                </button>
-                                <button type="button" className="btn-social google-btn"><img
-                                    src="/images/icons/gmail.svg" alt="gmail"/> Gmail
-                                </button>
                             </div>
 
                             <button type="submit" className="btn btn--rounded btn--yellow btn-submit">{t("login.signIn")}</button>

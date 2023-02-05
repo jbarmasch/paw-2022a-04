@@ -7,7 +7,7 @@ import {getPrice} from "../../utils/price";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-const MyEventItem = ({discount, image, id, name, minPrice, currentPrice}: ProductTypeList) => {
+const MyEventItem = ({discount, image, id, name, minPrice, currentPrice, t}: ProductTypeList) => {
     const { data : aux, error : error } = useSwr(image, fetcher)
 
     if (error) return <p>No data</p>
@@ -25,7 +25,7 @@ const MyEventItem = ({discount, image, id, name, minPrice, currentPrice}: Produc
             <div className="product__description">
                 <h3>{name}</h3>
                 <div className={"product__price"}>
-                    <h4>{getPrice(currentPrice)}</h4>
+                    <h4>{getPrice(currentPrice, t("event.free"), t("event.noTickets"))}</h4>
                 </div>
             </div>
         </div>

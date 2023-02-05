@@ -93,12 +93,25 @@ const CreateEvent = () => {
         }
     }, [accessToken, refreshToken]);
 
-    const { data : locations, error : errorData } = useSWRImmutable(`${server}/api/locations`, fetcher)
+    const { 
+        data : locations, 
+        isLoading : locationsLoading, 
+        isValidating : locationsValidating 
+    } = useSWRImmutable(`${server}/api/locations`, fetcher)
     const [location, setLocation] = useState<string[]>([]);
-    const { data : tags, error : errorlocation } = useSWRImmutable(`${server}/api/tags`, fetcher)
+    const { 
+        data : tags, 
+        isLoading : tagsLoading, 
+        isValidating : tagsValidating 
+    } = useSWRImmutable(`${server}/api/tags`, fetcher)
     const [tag, setTag] = useState([]);
-    const { data : types, error : errorType } = useSWRImmutable(`${server}/api/types`, fetcher)
+    const { 
+        data : types, 
+        isLoading : typesLoading, 
+        isValidating : typesValidating 
+    } = useSWRImmutable(`${server}/api/types`, fetcher)
     const [type, setType] = useState([]);
+
 
     const { register, handleSubmit, control, watch, formState: { errors } } = useForm();
     const [active, setActive] = useState(false)
@@ -182,8 +195,14 @@ const CreateEvent = () => {
         }
     }
 
-    if (errorData || errorlocation || errorType) return <p>Loading...</p>
-    if (!locations || !tags || !types) return <p>No data</p>
+    // if (errorData || errorlocation || errorType) return <p>Loading...</p>
+    // if (!locations || !tags || !types) return <p>No data</p>
+    if (locationsLoading || tagsLoading || typesLoading) return <p>Loading...</p>
+
+    // console.log("HOLA?")
+    // console.log(locations)
+    // console.log(tags)
+    // console.log(types)
 
     let locationList: any[] = []
     locations.forEach(x => locationList.push({
@@ -225,16 +244,10 @@ const CreateEvent = () => {
 
     return (
         <Layout t={t}>
-            <Breadcrumb text={t("nav.createEvent")}/>
+{/*             <Breadcrumb text={t("nav.createEvent")}/> */}
 
             <section className="form-page">
                 <div className="container">
-                    {/*<div className="back-button-section">*/}
-                    {/*    <Link href="/events">*/}
-                    {/*        <a><i className="icon-left"></i> Back to store</a>*/}
-                    {/*    </Link>*/}
-                    {/*</div>*/}
-
                     <div className="form-block">
                         <h2 className="form-block__title">{t("nav.createEvent")}</h2>
                         <form className="form" onSubmit={handleSubmit(onSubmit)}>
@@ -257,7 +270,6 @@ const CreateEvent = () => {
 
                                     const handleSelectChange = (selectedOption) => {
                                         onChange(selectedOption);
-                                        // console.log(selectedOption)
                                         setLocation(selectedOption);
                                     };
 
@@ -304,7 +316,6 @@ const CreateEvent = () => {
 
                                     const handleSelectChange = (selectedOption) => {
                                         onChange(selectedOption);
-                                        // console.log(selectedOption)
                                         setLocation(selectedOption);
                                     };
 
@@ -352,7 +363,6 @@ const CreateEvent = () => {
 
                                     const handleSelectChange = (selectedOption) => {
                                         onChange(selectedOption);
-                                        // console.log(selectedOption)
                                         setLocation(selectedOption);
                                     };
 
@@ -418,12 +428,10 @@ const CreateEvent = () => {
                                     isDisabled={!active}
                                     styles={style}/>
                             </div>
-
-                            {/*<input type="file" name="image-input"/>*/}
+                            
                             <input type="file" {...register("image", { required: true })} onChange={handleChange}/>
 
                             <button className="btn-submit" type="submit">{t("submit")}</button>
-                            {/*<input className={"btn-submit"} type="submit"/>*/}
                         </form>
                     </div>
 

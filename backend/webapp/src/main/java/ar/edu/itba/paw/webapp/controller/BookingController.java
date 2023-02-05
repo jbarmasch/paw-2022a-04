@@ -51,8 +51,7 @@ public class BookingController {
             return Response.noContent().build();
         }
 
-        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<BookingDto>>(userList) {
-        });
+        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<BookingDto>>(userList) {});
 
         if (page != 1) {
             response.link(uriInfo.getAbsolutePathBuilder().queryParam("page", page - 1).build(), "prev");
@@ -103,4 +102,12 @@ public class BookingController {
         return Response.accepted().build();
     }
 
+    @Path("/{code}")
+    @DELETE
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
+    public Response cancelBooking(@PathParam("code") final String code) {
+        bs.cancelBooking(code, LocaleContextHolder.getLocale());
+
+        return Response.noContent().build();
+    }
 }

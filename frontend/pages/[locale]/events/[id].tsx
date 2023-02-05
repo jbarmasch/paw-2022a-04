@@ -20,8 +20,9 @@ import * as React from "react";
 import { useTranslation } from 'next-i18next'
 import { getStaticPaths, makeStaticProps } from '../../../utils/get-static'
 import Link from '../../../components/Link'
+import {useEffect} from "react";
 
-const Product = () => {
+const Event = () => {
     const { t } = useTranslation(['common'])
 
     const [showBlock, setShowBlock] = useState('description');
@@ -32,11 +33,63 @@ const Product = () => {
 
     const { register, handleSubmit, control, watch, formState: { errors } } = useForm();
 
+    let accessToken: string | null
+    let refreshToken: string | null
+    if (typeof window !== 'undefined') {
+        accessToken = localStorage.getItem("Access-Token");
+        refreshToken = localStorage.getItem("Refresh-Token");
+    }
+
+    useEffect(() => {
+        const fetchData = async (accessToken, refreshToken, pathname) => {
+            let res = fetch(`${server}/api/users/test`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                },
+            })
+
+            let aux = await res;
+            if (aux.status == 200) {
+                return;
+            }
+
+            res = fetch(`${server}/api/users/test`, {
+                headers: {
+                    'Authorization': `Bearer ${refreshToken}`
+                },
+            })
+
+            aux = await res;
+            if (aux.status == 200) {
+                localStorage.setItem("Access-Token", aux.headers.get("Access-Token"))
+                return;
+            }
+
+            if (router.pathname !== "/login") {
+                router.push({
+                    pathname: '/login',
+                    query: {pathname: pathname},
+                }, '/login');
+            }
+        }
+
+        if (accessToken && refreshToken) {
+            fetchData(accessToken, refreshToken, router.pathname)
+        } else {
+            const pathname = router.pathname
+            if (router.pathname !== "/login") {
+                router.push({
+                    pathname: '/login',
+                    query: {pathname: pathname},
+                }, '/login');
+            }
+        }
+    }, [accessToken, refreshToken]);
+
     const { data : event, error : errorData } = useSwr(router.query.id ? `${server}/api/events/${router.query.id}` : null, fetcher)
     const { data : tickets, error : errorTickets } = useSwr(event ? `${event.tickets}` : null, fetcher)
     const { data : aux, error : error } = useSwr(event ? `${event.image}` : null, fetcher)
     const [location, setLocation] = useState<string[]>(tickets ? new Array<string>(tickets.length) : []);
-
 
     if (error || errorData) return <p>No data</p>
     if (!aux || !event) return <ProductItemLoading/>
@@ -66,22 +119,33 @@ const Product = () => {
     }
 
     const onSubmit = async (data) => {
+        console.log(data)
         delete data.location
         let i = 0
-        let tickets = []
+        let auxi = {
+            bookings: []
+        }
 
         for (let x in data) {
-            tickets.push({
-                id: data[x],
+            auxi.bookings.push({
+                ticketId: data[x],
                 qty: location[i++]
             })
         }
 
-        console.log(tickets)
+        console.log(auxi)
+        console.log(auxi.bookings)
 
-        const res = await postData(`${server}/api/tickets`, tickets);
+        const response = await fetch(`${server}/api/events/${router.query.id}/bookings`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: JSON.stringify(auxi)
+        });
 
-        let json = await res.json();
+        let json = await response;
     }
 
     return (
@@ -108,12 +172,12 @@ const Product = () => {
                                 </tr>
                                 </thead>
                                 {tickets.map((item: TicketType) => (
-                                    <tbody key={item.id}>
+                                    <tbody key={item.ticketId}>
                                     <tr>
                                         <td>{item.ticketName}</td>
                                         <td>{getPrice(item.price, t("event.free"), t("event.noTickets"))}</td>
                                         <td>
-                                            <input {...register("ticketId" + item.id, { required: true })} className={"casper"} value={item.id}/>
+                                            <input {...register("ticketId" + item.ticketId, { required: true })} className={"casper"} value={item.ticketId}/>
                                             <Controller
                                                 control={control}
                                                 name="location"
@@ -127,7 +191,7 @@ const Product = () => {
                                                         onChange(selectedOption);
                                                         let value = -1
                                                         for (let i = 0; i < tickets.length; i++) {
-                                                            if (tickets[i].id === item.id) {
+                                                            if (tickets[i].ticketId === item.ticketId) {
                                                                 value = i;
                                                                 break;
                                                             }
@@ -144,7 +208,7 @@ const Product = () => {
                                                             <label hidden htmlFor="location-input">{t("event.selectQty")}</label>
                                                             <Select
                                                                 className="form__input"
-                                                                id={"qty-input-" + item.id}
+                                                                id={"qty-input-" + item.ticketIdid}
                                                                 value={currentSelection}
                                                                 name={name}
                                                                 options={list}
@@ -168,7 +232,7 @@ const Product = () => {
                         </div>
                         )}
 
-                        <input type="submit" />
+                        <button type="submit" className="btn btn--rounded btn--yellow btn-submit">{t("login.signIn")}</button>
                     </form>
 
                     <div className="product-single__info">
@@ -196,7 +260,7 @@ const Product = () => {
     );
 }
 
-export default Product
+export default Event
 
 const getStaticProps = makeStaticProps(['common'])
 export { getStaticPaths, getStaticProps }

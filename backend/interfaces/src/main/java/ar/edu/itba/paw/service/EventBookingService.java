@@ -18,7 +18,7 @@ public interface EventBookingService {
 
     void book(EventBooking booking, String baseUrl, Locale locale) throws AlreadyMaxTicketsException, SurpassedMaxTicketsException;
 
-    void cancelBooking(EventBooking booking, Locale locale) throws SurpassedMaxTicketsException;
+    void cancelBooking(String code, Locale locale);
 
     void confirmBooking(EventBooking eventBooking);
 }

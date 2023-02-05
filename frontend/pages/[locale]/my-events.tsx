@@ -2,7 +2,7 @@ import Layout from '../../layouts/Main';
 import Footer from '../../components/footer';
 import Breadcrumb from '../../components/breadcrumb';
 import MyEventsContent from "../../components/my-events-content";
-import ProductsFilter from "../components/products-filter";
+// import ProductsFilter from "../components/products-filter";
 import {useEffect, useState} from "react";
 import {useRouter} from "next/router";
 import { useTranslation } from 'next-i18next'
@@ -43,7 +43,7 @@ const MyEvents = () => {
             <section className="products-page">
                 <div className="container">
                     {/*<ProductsFilter/>*/}
-                    <MyEventsContent userId={userId}/>
+                    <MyEventsContent userId={userId} t={t}/>
                 </div>
             </section>
             <Footer/>

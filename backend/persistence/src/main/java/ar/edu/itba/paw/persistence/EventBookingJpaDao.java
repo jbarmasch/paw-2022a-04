@@ -102,32 +102,21 @@ public class EventBookingJpaDao implements EventBookingDao {
 
     @Override
     public boolean cancelBooking(EventBooking booking) {
-        if (booking.getEvent().isFinished())
-            return false;
+        // EventBooking booking = getBooking(code).orElse(null);
 
-        final TypedQuery<EventBooking> query = em.createQuery("from EventBooking as eb where eb.user.id = :userid and eb.event.id = :eventid", EventBooking.class);
-        query.setParameter("userid", booking.getUser().getId());
-        query.setParameter("eventid", booking.getEvent().getId());
-        EventBooking eventBooking = query.getResultList().stream().findFirst().orElse(null);
-
-        if (eventBooking == null) {
+        if (booking == null) {
+            // TODO: Change
             throw new CancelBookingFailedException();
         }
 
+        if (booking.getEvent().isFinished())
+            return false;
+
         for (TicketBooking ticketBooking : booking.getTicketBookings()) {
-            TicketBooking tb = em.find(TicketBooking.class, new BookingId(ticketBooking.getTicket(), eventBooking));
-            if (tb == null) {
-                throw new CancelBookingFailedException();
-            }
-            Ticket ticket = ticketBooking.getTicket();
-            if (!ticket.cancelBooking(ticketBooking.getQty())) {
-                throw new CancelBookingFailedException();
-            }
-            em.persist(ticket);
-            tb.setQty(tb.getQty() - ticketBooking.getQty());
-            em.persist(tb);
+            ticketBooking.setQty(0);
+            em.persist(ticketBooking);
         }
-        em.persist(eventBooking);
+        em.persist(booking);
         return true;
     }
 

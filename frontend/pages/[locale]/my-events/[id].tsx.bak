@@ -96,7 +96,7 @@ const Product = () => {
             until: ''
         }
 
-        let culi = '{' +
+        let auxVar = '{' +
             '"ticketName' + index + '": "",' +
             '"price' + index + '": "",' +
             '"qty' + index + '": "",' +
@@ -105,10 +105,10 @@ const Product = () => {
             '"starting' + index + '": "",' +
             '"until' + index + '": ""' +
             '}'
-        console.log(culi)
-        console.log(JSON.parse(culi))
+        console.log(auxVar)
+        console.log(JSON.parse(auxVar))
 
-        setRowsData([...rowsData, JSON.parse(culi)])
+        setRowsData([...rowsData, JSON.parse(auxVar)])
         console.log(rowsData)
     }
 

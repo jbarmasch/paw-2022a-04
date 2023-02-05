@@ -91,6 +91,8 @@ export type BookingType = {
     confirmed: string;
     ticketBookings: TicketBookingType[];
     userId: string;
+    t?: any
+    mutate?: any
 }
 
 export type UserType = {

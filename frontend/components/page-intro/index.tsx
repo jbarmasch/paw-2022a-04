@@ -2,35 +2,19 @@ import {Swiper, SwiperSlide} from 'swiper/react';
 import SwiperCore, {EffectFade, Navigation} from 'swiper';
 // import {FormattedMessage} from "react-intl";
 import Link from '../../components/Link'
+import Image from 'next/image';
+import landingImage from '../../public/images/intro.jpg'
 
-SwiperCore.use([EffectFade, Navigation]);
+// SwiperCore.use([EffectFade, Navigation]);
 
 const PageIntro = ({t}) => {
     return (
         <section className="page-intro">
-            {/* <Swiper navigation effect="fade" className="swiper-wrapper"> */}
-                <SwiperSlide>
-                    <div className="page-intro__slide" style={{backgroundImage: "url('https://static.vecteezy.com/system/resources/previews/000/692/604/original/party-crowd-banner-design-vector.jpg')"}}>
-                        <div className="container">
-                            <div className="page-intro__slide__content">
-                                <h2>{t("home.phrase")}</h2>
-                                <a href="#" className="btn-shop"><i className="icon-right"></i>Shop now</a>
-                            </div>
-                        </div>
-                    </div>
-                </SwiperSlide>
-
-                {/* <SwiperSlide>
-                    <div className="page-intro__slide" style={{backgroundImage: "url('/images/slide-2.jpg')"}}>
-                        <div className="container">
-                            <div className="page-intro__slide__content">
-                                <h2>Make your house into a home</h2>
-                                <a href="#" className="btn-shop"><i className="icon-right"></i>Shop now</a>
-                            </div>
-                        </div>
-                    </div>
-                </SwiperSlide> */}
-            {/* </Swiper> */}
+            
+            <div className="page-intro__container">
+                <Image className="page-intro__slide" alt="Landing image" src={landingImage}/>
+                <h2 className="page-intro__content">{t("home.phrase")}</h2>
+            </div>
 
             <div className="shop-data">
                 <div className="container">

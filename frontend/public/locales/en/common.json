@@ -51,18 +51,25 @@
   "filter.username" : "Username",
   "filter.rating" : "Rating",
 
-  "caca": {
-    "culo": "rich"
-  },
+  "bookings.booking" : "Booking",
+  "bookings.all" : "All bookings",
 
   "submit" : "Submit",
 
   "fieldRequired" : "This field is required",
   "fieldInvalid" : "This field is invalid",
+  "passwordMatch" : "Passwords do not match",
+  "passwordInvalid" : "Password is invalid",
 
   "stats.stats" : "Stats",
   "stats.eventsAttended" : "Booked events",
   "stats.ticketsBooked" : "Tickets booked",
   "stats.favType" : "Favorite event type",
-  "stats.favLocation" : "Favorite location"
+  "stats.favLocation" : "Favorite location",
+
+  "register.create" : "Create an account to create events and book tickets",
+  "register.name" : "Username",
+  "register.pass" : "Password",
+  "register.repeat" : "Repeat password"
+
 }

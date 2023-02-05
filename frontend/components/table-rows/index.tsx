@@ -5,10 +5,10 @@ function TableRows({rowsData, deleteTableRows, handleChange, register}) {
 
     return (
             rowsData.map((data, index) => {
-                console.log(data)
-                console.log(index)
+                // console.log(data)
+                // console.log(index)
             const {ticketName, price, qty, booked, maxPerUser, starting, until} = data;
-                console.log("vamos por" + data["ticketName" + index])
+                // console.log("vamos por" + data["ticketName" + index])
             // let ticketName = data["ticketName" + index]
             //     let price = data["price" + index]
             //     let qty = data["price" + index]

@@ -1,6 +1,9 @@
 package ar.edu.itba.paw.webapp.dto;
 
 import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.model.Role;
+import ar.edu.itba.paw.model.RoleEnum;
+import java.util.List;
 
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -8,6 +11,7 @@ import java.net.URI;
 
 public class UserDto {
     private String username;
+    private String role;
 
     private URI self;
     private URI events;
@@ -23,6 +27,9 @@ public class UserDto {
         dto.username = user.getUsername();
         dto.votes = user.getVotes();
         dto.rating = user.getRating();
+
+        List<Role> role = user.getRoles();
+        dto.role = role.size() > 1 ? RoleEnum.ROLE_CREATOR.toString() : role.isEmpty() ? "ROLE_USER" : role.get(0).getRoleName();
 
         final UriBuilder userUriBuilder = uriInfo.getAbsolutePathBuilder().
                 replacePath("api/users").path(String.valueOf(user.getId()));
@@ -80,5 +87,13 @@ public class UserDto {
 
     public void setVotes(int votes) {
         this.votes = votes;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

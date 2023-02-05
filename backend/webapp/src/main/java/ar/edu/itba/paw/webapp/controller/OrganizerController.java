@@ -22,9 +22,9 @@ import java.util.stream.Collectors;
 
 //import static javax.ws.rs.core.Response.ResponseBuilder;
 
-@Path("api/users")
+@Path("api/organizers")
 @Component
-public class UserController {
+public class OrganizerController {
     @Autowired
     private UserService us;
     @Autowired
@@ -37,8 +37,10 @@ public class UserController {
 
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON,})
-    public Response getUsers(@QueryParam("page") @DefaultValue("1") final int page) {
-        final UserList res = us.getAllUsers(page);
+    public Response filterBy(@QueryParam("search") final String username,
+                             @QueryParam("order") final Order order,
+                             @QueryParam("page") @DefaultValue("1") final int page) {
+        final UserList res = us.filterBy(username, order, page);
         final List<UserDto> userList = res
                 .getUserList()
                 .stream()
@@ -67,15 +69,6 @@ public class UserController {
         return response.build();
     }
 
-    @POST
-    @Consumes(value = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
-    public Response createUser(@Valid UserForm form) {
-        final User user = us.create(form.getUsername(), form.getPassword(), form.getMail(), Locale.ENGLISH);
-        
-        final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(user.getId())).build();
-        return Response.created(uri).build();
-    }
-
     @GET
     @Path("/{id}")
     @Produces(value = {MediaType.APPLICATION_JSON,})
@@ -92,26 +85,11 @@ public class UserController {
     @Path("/{id}/stats")
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON,})
-    public Response getUserStats(@PathParam("id") final long id) {
-        Optional<UserStatsDto> userStatsDto = us.getUserStats(id).map(u -> UserStatsDto.fromUserStats(uriInfo, u));
+    public Response getOrganizerStats(@PathParam("id") final long id) {
+        Optional<OrganizerStatsDto> organizerStatsDto = us.getOrganizerStats(id).map(u -> OrganizerStatsDto.fromOrganizerStats(uriInfo, u));
 
-        if (userStatsDto.isPresent()) {
-            return Response.ok(userStatsDto.get()).build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-    }
-
-    @GET
-    @Path("/test")
-    @Produces(value = {MediaType.APPLICATION_JSON,})
-    public Response testJwt() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        final User user = us.findByUsername(username).orElse(null);
-
-        if (user != null) {
-            return Response.ok(user).build();
+        if (organizerStatsDto.isPresent()) {
+            return Response.ok(organizerStatsDto.get()).build();
         } else {
             return Response.status(Response.Status.NOT_FOUND).build();
         }

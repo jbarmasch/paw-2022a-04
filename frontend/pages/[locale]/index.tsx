@@ -3,11 +3,9 @@ import PageIntro from '../../components/page-intro';
 import ProductsFeatured from '../../components/products-featured';
 import Footer from '../../components/footer';
 import Subscribe from '../../components/subscribe';
-// import {FormattedMessage, useIntl} from "react-intl";
 import { useTranslation } from 'next-i18next'
 import { getStaticPaths, makeStaticProps } from '../../utils/get-static'
 import Link from '../../components/Link'
-
 
 const IndexPage = () => {
     const { t } = useTranslation(['common']);
@@ -87,9 +85,6 @@ const IndexPage = () => {
                     </ul>
                 </div>
             </section>
-
-            {/* <ProductsFeatured/> */}
-            {/* <Subscribe/> */}
             <Footer/>
         </Layout>
     )

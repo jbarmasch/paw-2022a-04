@@ -273,9 +273,7 @@ public class EventController {
     @Path("/{id}/bookings")
     @POST
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
-    public Response bookEvent(@PathParam("id") final long id,
-                              @Valid final BookForm form) {
-//        , final BindingResult errors
+    public Response bookEvent(@PathParam("id") final long id, final BookForm form) {
         final User user = um.getUser();
         Optional<Event> event = es.getEventById(id);
 
@@ -310,44 +308,6 @@ public class EventController {
         }
 
         return Response.accepted().build();
-    }
-
-    @Path("/{id}/bookings")
-    @DELETE
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
-    public Response cancelBooking(@PathParam("id") final long id,
-                                  @Valid final BookForm form) {
-        final User user = um.getUser();
-        Optional<Event> event = es.getEventById(id);
-
-        if (!event.isPresent()) {
-            return Response.serverError().build();
-        }
-
-        final EventBooking eventBooking = bs.getBookingFromUser(user.getId(), id).orElse(null);
-        if (eventBooking == null) {
-            LOGGER.error("Booking not found");
-            return Response.serverError().build();
-        }
-
-        EventBooking booking = new EventBooking(user, event.get(), new ArrayList<>(), null);
-        for (BookingForm bookingForm : form.getBookings()) {
-            TicketBooking ticketBooking = new TicketBooking(ts.getTicketById(bookingForm.getTicketId()).orElse(null), bookingForm.getQty(), booking);
-            booking.addBooking(ticketBooking);
-        }
-
-        try {
-            bs.cancelBooking(booking, LocaleContextHolder.getLocale());
-        } catch (SurpassedMaxTicketsException ex) {
-//            for (Map.Entry<Integer, Integer> error : ex.getErrorMap().entrySet()) {
-//                errors.rejectValue("bookings[" + error.getKey() + "].qty", "Max.bookForm.qty", new Object[]{error.getValue()}, "");
-            LOGGER.error("BookForm has errors");
-            return Response.serverError().build();
-//            }
-//            return cancelBooking(form, rateForm, eventId);
-        }
-
-        return Response.noContent().build();
     }
 
     @Path("/{id}/stats")
