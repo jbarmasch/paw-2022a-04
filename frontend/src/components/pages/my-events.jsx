@@ -1,15 +1,17 @@
 import Layout from '../layout';
-import BookingsContent from "../bookings-content/bookings-content";
+import MyEventsContent from "../my-events-content/my-events-content";
+import ContentLoading from "../my-events-content/content-loading";
+// import ProductsFilter from "../components/products-filter";
 import {useEffect, useState} from "react";
-import {server} from '../../utils/server';
 import i18n from '../../i18n'
-import {Link, useHistory, useLocation} from 'react-router-dom'
-import { useFindPath } from '../header';
+import {Link, useHistory} from 'react-router-dom'
+import useFindPath from '../header'
+import {server} from '../../utils/server'
 
-const Bookings = () => {
-    let path = useFindPath();
+
+const MyEvents = () => {
     const history = useHistory();
-    const prevLocation = useLocation();
+    let path = useFindPath();
 
     const [isLoading, setIsLoading] = useState(true);
     const [userId, setUserId] = useState(true);
@@ -47,36 +49,44 @@ const Bookings = () => {
             }
 
             if (path !== "/login") {
-                history.push(`/login?redirectTo=${prevLocation.pathname}`);
+                history.push({
+                    pathname: '/login',
+                    query: {pathname: pathname},
+                }, '/login');
             }
         }
 
         if (accessToken && refreshToken) {
             fetchData(accessToken, refreshToken, path)
             const userId = localStorage.getItem("User-ID");
+            console.log(userId)
             setUserId(userId)
             setIsLoading(false)
         } else {
             const pathname = path
             if (path !== "/login") {
-                history.push(`/login?redirectTo=${prevLocation.pathname}`);
+                history.push({
+                    pathname: '/login',
+                    query: {pathname: pathname},
+                }, '/login');
             }
         }
-    }, [accessToken, refreshToken, prevLocation]);
-
+    }, [accessToken, refreshToken]);
+    
     if (isLoading) {
-        return <></>
+        return <ContentLoading/>
     }
 
     return (
         <Layout>
             <section className="products-page">
                 <div className="container">
-                    <BookingsContent userId={userId}/>
+                    {/*<ProductsFilter/>*/}
+                    <MyEventsContent userId={userId}/>
                 </div>
             </section>
         </Layout>
     )
 }
 
-export default Bookings
+export default MyEvents;

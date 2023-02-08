@@ -81,4 +81,3 @@ const Content = ({product}: ProductContent) => {
 };
 
 export default Content;
-    

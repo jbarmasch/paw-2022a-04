@@ -239,7 +239,7 @@
                         </goals>
                         <phase>generate-resources</phase>
                         <configuration>
-                            <arguments>run export</arguments>
+                            <arguments>run build</arguments>
                         </configuration>
                     </execution>
                 </executions>
@@ -250,11 +250,11 @@
                 <version>3.2.2</version>
                 <configuration>
                     <packagingExcludes>**/logback-test.xml</packagingExcludes>
-<!--                    <webResources>-->
-<!--                        <resource>-->
-<!--                            <directory>${project.basedir}/../../frontend/out</directory>-->
-<!--                        </resource>-->
-<!--                    </webResources>-->
+                    <webResources>
+                        <resource>
+                            <directory>${project.basedir}/../../frontend/build</directory>
+                        </resource>
+                    </webResources>
                 </configuration>
             </plugin>
         </plugins>

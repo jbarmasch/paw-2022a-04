@@ -1,25 +1,12 @@
 import React from 'react'
-import {Link} from 'react-router-dom'
 import i18n from "../../i18n";
 import PageIntro from "../page-intro"
 import Layout from "../layout"
-// import Footer from "../footer"
-
-// export default function Home() {
-//     return (
-//         <div className="container">
-//             <h1>{i18n.t("app")}</h1>
-//             <p>
-//                 <Link to="/users/3">santilococo</Link>
-//             </p>
-//         </div>
-//     )
-// }
+import {Link} from "react-router-dom"
 
 export default function Home() {
     return (
-        <>
-            <Layout>
+        <Layout>
             <PageIntro/>
 
             <section className="featured">
@@ -28,7 +15,7 @@ export default function Home() {
                              className="featured-item featured-item-large">
                         <div className="featured-item__content">
                             <h3>{i18n.t("home.recommended")}</h3>
-                            <a href="#" className="btn btn--rounded">Show Collection</a>
+                            <Link to="/recommended" className="btn btn--rounded">Show Collection</Link>
                         </div>
                     </article>
 
@@ -36,7 +23,7 @@ export default function Home() {
                              className="featured-item featured-item-small-first">
                         <div className="featured-item__content">
                             <h3>{i18n.t("home.trending")}</h3>
-                            <a href="#" className="btn btn--rounded">More details</a>
+                            <Link to="/few-tickets" className="btn btn--rounded">More details</Link>
                         </div>
                     </article>
 
@@ -44,7 +31,7 @@ export default function Home() {
                              className="featured-item featured-item-small">
                         <div className="featured-item__content">
                             <h3>{i18n.t("home.featured")}</h3>
-                            <a href="#" className="btn btn--rounded">VIEW ALL</a>
+                            <a href="https://www.youtube.com/watch?v=eBGIQ7ZuuiU" className="btn btn--rounded">VIEW ALL</a>
                         </div>
                     </article>
                 </div>
@@ -93,7 +80,6 @@ export default function Home() {
                     </ul>
                 </div>
             </section>
-            </Layout>
-        </>
+        </Layout>
     )
 }

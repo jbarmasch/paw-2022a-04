@@ -1,16 +1,16 @@
-import ProductItemLoading from './item-loading';
+import EventItemLoading from './item-loading';
 
-const ProductsLoading = () => {
+const ContentLoading = () => {
     return (
         <section className="products-list">
-            <ProductItemLoading/>
-            <ProductItemLoading/>
-            <ProductItemLoading/>
-            <ProductItemLoading/>
-            <ProductItemLoading/>
-            <ProductItemLoading/>
+            <EventItemLoading/>
+            <EventItemLoading/>
+            <EventItemLoading/>
+            <EventItemLoading/>
+            <EventItemLoading/>
+            <EventItemLoading/>
         </section>
     );
 };
 
-export default ProductsLoading
+export default ContentLoading

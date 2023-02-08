@@ -5,6 +5,7 @@ const i18n_es = {
     fieldInvalid : "Este campo es inválido",
     passwordMatch : "Las contraseñas no coinciden",
     passwordInvalid : "La contraseña es inválida",
+    loading : "Cargando...",
 
     nav: {
         events : "Eventos",
@@ -34,6 +35,9 @@ const i18n_es = {
         tags : "Seleccionar tags",
         hasMin : "Edad mínima",
         minAge : "Seleccionar edad mínima",
+        minAge : "Edad mín.",
+        uploadFile : 'Subir archivo',
+        date : 'Fecha del evento'
     },
   
     event : {
@@ -46,6 +50,7 @@ const i18n_es = {
         free : "Gratis",
         noTickets : "Sin tickets",
         selectQty : "Seleccione cantidad",
+        starting : "Desde",
     },
     
     login: {

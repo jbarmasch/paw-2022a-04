@@ -5,6 +5,7 @@ const i18n_en = {
     fieldInvalid : "This field is invalid",
     passwordMatch : "Passwords do not match",
     passwordInvalid : "Password is invalid",
+    loading : "Loading...",
     
     nav: {
         events : "Events",
@@ -33,7 +34,10 @@ const i18n_en = {
         type : "Select event type",
         tags: "Select tags",
         hasMin : "Min. age",
-        minAge : "Select min. age"
+        selectMinAge : "Select min. age",
+        minAge : "Min. age",
+        uploadFile : 'Upload file',
+        date : 'Event date'
     },
 
     event: {
@@ -45,7 +49,8 @@ const i18n_en = {
         until : "Until",
         free : "Free",
         noTickets : "No tickets",
-        selectQty : "Select quantity"
+        selectQty : "Select quantity",
+        starting : "Starting at ",
     },
 
     login: {

@@ -6,7 +6,7 @@ export default function PageIntro() {
         <section className="page-intro">
             
             <div className="page-intro__container">
-                <img className="page-intro__slide" alt="Landing image" src={landingImage}/>
+                <img className="page-intro__slide" alt="Landing" src={landingImage}/>
                 <h2 className="page-intro__content">{i18n.t("home.phrase")}</h2>
             </div>
 

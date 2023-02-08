@@ -1,19 +1,19 @@
 import Layout from "../layout"
-import ProductsContent from '../products-content/products-content';
+import RecommendedContent from '../products-content/recommended-content';
 import i18n from '../../i18n'
 import {Link, useLocation} from 'react-router-dom'
 import queryString from 'query-string'
 
-const Events = () => {
+const RecommendedEvents = () => {
     return (
     <Layout>
         <section className="products-page">
             <div className="container">
-                <ProductsContent/>
+                <RecommendedContent/>
             </div>
         </section>
     </Layout>
 )
 }
 
-export default Events;
+export default RecommendedEvents;

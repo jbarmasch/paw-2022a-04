@@ -113,11 +113,10 @@ public class EventJpaDao implements EventDao {
                 queryCondition.append(" HAVING");
             else
                 queryCondition.append(" AND");
-            queryCondition.append(" ARRAY_AGG(e.tagid) @> ARRAY");
+            queryCondition.append(" ARRAY_AGG(e.tagid) && ARRAY");
             queryCondition.append(tags);
         }
         objects.put("page", (page - 1) * 8);
-//        queryCondition.append(orderQuery).append(" LIMIT 10 OFFSET :page");
         String query = "SELECT DISTINCT ec.eventid " + querySelect.append(queryCondition);
         System.out.println(query);
         Query queryNative = em.createNativeQuery(query + " LIMIT 8 OFFSET :page");

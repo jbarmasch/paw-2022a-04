@@ -76,7 +76,7 @@ public class FilterJpaDao implements FilterDao {
                 queryCondition.append(" HAVING");
             else
                 queryCondition.append(" AND");
-            queryCondition.append(" ARRAY_AGG(et.tagid) @> ARRAY");
+            queryCondition.append(" ARRAY_AGG(et.tagid) && ARRAY");
             queryCondition.append(tags);
         }
 
@@ -142,7 +142,7 @@ public class FilterJpaDao implements FilterDao {
                 queryCondition.append(" HAVING");
             else
                 queryCondition.append(" AND");
-            queryCondition.append(" ARRAY_AGG(et.tagid) @> ARRAY");
+            queryCondition.append(" ARRAY_AGG(et.tagid) && ARRAY");
             queryCondition.append(tags);
         }
 
