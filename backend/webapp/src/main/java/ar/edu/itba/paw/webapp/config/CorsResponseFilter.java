@@ -25,7 +25,7 @@ public class CorsResponseFilter extends GenericFilterBean {
         res.setHeader("Access-Control-Allow-Origin", "*");
         res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE, HEAD");
         res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
-        res.setHeader("Access-Control-Expose-Headers", "Access-Token, Refresh-Token, User-ID, Location");
+        res.setHeader("Access-Control-Expose-Headers", "Access-Token, Refresh-Token, User-ID, Location, Link");
 
         if (req.getMethod().equalsIgnoreCase("OPTIONS")) {
             res.setStatus(HttpServletResponse.SC_OK);

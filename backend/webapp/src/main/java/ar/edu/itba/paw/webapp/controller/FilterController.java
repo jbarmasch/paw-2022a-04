@@ -61,8 +61,9 @@ public class FilterController {
                                   @QueryParam("maxPrice") final Double maxPrice,
                                   @QueryParam("search") final String search,
                                   @QueryParam("tags") final List<Integer> tags,
-                                  @QueryParam("soldOut") final Boolean showSoldOut) {
-        final FilterType res = fs.getFilterType(locations, types, minPrice, maxPrice, search, tags, showSoldOut);
+                                  @QueryParam("soldOut") final Boolean showSoldOut,
+                                  @QueryParam("noTickets") final Boolean showNoTickets) {
+        final FilterType res = fs.getFilterType(locations, types, minPrice, maxPrice, search, tags, showSoldOut, showNoTickets);
         final FilterDto filterDto = FilterDto.fromFilter(uriInfo, res);
 
         if (filterDto != null) {

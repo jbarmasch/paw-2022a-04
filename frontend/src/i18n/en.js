@@ -6,6 +6,9 @@ const i18n_en = {
     passwordMatch : "Passwords do not match",
     passwordInvalid : "Password is invalid",
     loading : "Loading...",
+    autocompleteNoOptions: "No options",
+    filters: "Filters",
+    noData : "No data",
     
     nav: {
         events : "Events",
@@ -13,7 +16,9 @@ const i18n_en = {
         bookings : "Bookings",
         myEvents : "My events",
         account : "Account",
-        organizers : "Organizers"
+        organizers : "Organizers",
+        profile : "Profile",
+        logout : "Logout"
     },
 
     home : {
@@ -36,12 +41,18 @@ const i18n_en = {
         hasMin : "Min. age",
         selectMinAge : "Select min. age",
         minAge : "Min. age",
-        uploadFile : 'Upload file',
-        date : 'Event date'
+        uploadFile : 'Upload event picture',
+        date : 'Event date',
+        dateError : "The event must not have ended"
     },
 
     event: {
-        ticket : "Ticket name",
+        name : "Event name",
+        description : "Event description",
+        minPrice : "Starting price",
+        type : "Event type",
+        location : "Location",
+        tags : "Tags",
         price : "Price",
         quantity : "Quantity",
         maxpuser : "Max. per user",
@@ -51,6 +62,15 @@ const i18n_en = {
         noTickets : "No tickets",
         selectQty : "Select quantity",
         starting : "Starting at ",
+        similarPl : "Similar events",
+        similarSi : "Here's a similar event",
+        recommendedPl : "Recommended events",
+        recommendedSi : "Here's a recommended event",
+        book : "Book",
+        soldOut: "Sold out",
+        minAge: "Min. age",
+        minAgeText : "From ",
+        organizer : "Organizer"
     },
 
     login: {
@@ -65,17 +85,32 @@ const i18n_en = {
     },
 
     filter: {
+        title : "Events",
+        locations : "Select locations",
+        types : "Select types",
+        tags : "Select tags",
         sortBy : "Sort by",
         order : "Order",
         ascending : "Ascending",
         descending : "Descending",
         username : "Username",
         rating : "Rating",
+        soldOut : "Sold out",
+        noTickets : "Ticketless",
+        advancedOptions: "Advanced options"
     },   
 
     bookings: {
+        title : "Bookings",
         booking : "Booking",
-        all : "All bookings"
+        all : "All bookings",
+        cancel : "Cancel",
+        ticket : "Ticket",
+        qty : "Quantity",
+        price : "Price",
+        rate : "Rate",
+        cancelMessage : "Are you sure you want to cancel your booking?",
+        accept : "Accept"
     },
 
     stats: {
@@ -86,11 +121,36 @@ const i18n_en = {
         favLocation : "Favorite location"
     },
 
+    myEvents: {
+        title : "My events",
+        ticketDateError : "STARTING > UNTIL GILASTRUM",
+        ticketPriceError : "Ticket price should be at least 0",
+        ticketQtyError : "There should be at least 1 ticket",
+        ticketsPerUserError : "The amount of tickets per user should be between 1 & 10",
+        ticketsLeftError : "Te quedaste sin tickets hermano"
+    },
+
     register: {
         create : "Create an account to create events and book tickets",
         name : "Username",
         pass : "Password",
         repeat : "Repeat password"
+    },
+
+    footer: {
+        text: "BotPass connects event organizers with people, giving visibility to less known events as well as providing a platform for organizers to sell tickets and visualize stats.",
+        events: "Events",
+        recommended: "Recommended",
+        popular: "Popular",
+        contact: "Contact",
+    },
+
+    organizer: {
+        organizers : "Organizers"
+    },
+
+    thankYou: {
+        phrase : "Thank you for booking with BotPass"
     }
 };
 

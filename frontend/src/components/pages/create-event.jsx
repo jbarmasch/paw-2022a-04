@@ -22,13 +22,13 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Autocomplete from '@mui/material/Autocomplete';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs'
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import ClearRoundedIcon from '@mui/icons-material/ClearRounded';
-
-// import * as mdb from 'mdb-ui-kit';
+import dayjs from 'dayjs'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import 'dayjs/locale/es';
+import 'dayjs/locale/en';
 
 const fetcher = (...args) => fetch(...args).then((res) => res.json())
 
@@ -104,7 +104,6 @@ const CreateEvent = () => {
     const [type, setType] = useState([]);
     const [minAge, setMinAge] = useState();
     const [date, setDate] = useState(null);
-
 
     const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm();
     const [active, setActive] = useState(false)
@@ -196,6 +195,7 @@ const CreateEvent = () => {
         }
     }
 
+    // TODO: hacer loading
     if (locationsLoading || tagsLoading || typesLoading) return <p>{i18n.t("loading")}</p>
 
     let locationList = []
@@ -258,7 +258,7 @@ const CreateEvent = () => {
                                 name="name"
                                 rules={{ required: i18n.t('fieldRequired') }}
                                 control={control}
-                                defaultValue={''} // <---------- HERE
+                                defaultValue={''}
                                 render={({ field, fieldState }) => {
                                     return (
                                         <FormControl sx={{ width: 120 }}>
@@ -278,7 +278,7 @@ const CreateEvent = () => {
                             <Controller
                                 name="description"
                                 control={control}
-                                defaultValue={''} // <---------- HERE
+                                defaultValue={''}
                                 render={({ field, fieldState }) => {
                                     return (
                                         <FormControl sx={{ width: 120 }}>
@@ -293,7 +293,7 @@ const CreateEvent = () => {
                                 name="location"
                                 rules={{ required: i18n.t('fieldRequired') }}
                                 control={control}
-                                defaultValue={location} // <---------- HERE
+                                defaultValue={location}
                                 render={({ field: { onChange }, fieldState }) => {
                                     return (
                                         <FormControl sx={{ width: 120 }}>
@@ -301,6 +301,7 @@ const CreateEvent = () => {
                                                 disablePortal
                                                 id="location-autocomplete"
                                                 options={locationList}
+                                                noOptionsText={i18n.t("autocompleteNoOptions")}
                                                 onChange={(event, item) => {
                                                     console.log(item)
                                                     onChange(item);
@@ -374,7 +375,7 @@ const CreateEvent = () => {
 
                                     return (
                                         <>
-                                            <FormControl sx={{ width: 120 }}>
+                                            <FormControl>
                                                 <InputLabel id="tags-select-label">{i18n.t("create.tags")}</InputLabel>
                                                 <Select
                                                     labelId="tags-select-label"
@@ -437,13 +438,13 @@ const CreateEvent = () => {
                                 rules={{
                                     required: i18n.t('fieldRequired'),
                                     validate: {
-                                        min: (date) => { return (new Date(date) > Date.now()) || "FUTURO!" }
+                                        min: (date) => { return (new Date(date) > Date.now()) || i18n.t("create.dateError") }
                                     }
                                 }}
                                 defaultValue={date} // <---------- HERE
                                 render={({ field: { ref, onBlur, name, onChange, ...field }, fieldState }) => (
                                     <FormControl sx={{ width: 120 }}>
-                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={i18n.language != 'en' && i18n.language != 'es' ? 'en' : i18n.language}>
                                             <DateTimePicker
                                                 renderInput={(inputProps) => (
                                                     <TextField
@@ -489,7 +490,7 @@ const CreateEvent = () => {
                                     defaultValue={''} // <---------- HERE
                                     render={({ field, fieldState }) => {
                                         return (
-                                            <FormControl sx={{ width: 120 }} disabled={!active}>
+                                            <FormControl disabled={!active} className={"min-age-select " + (!active ? "select-disabled" : "")}>
                                                 <InputLabel id="stackoverflow-label" error={!!fieldState.error}>{i18n.t("create.minAge")}</InputLabel>
                                                 <Select
                                                     id="age-select"
@@ -568,7 +569,9 @@ const CreateEvent = () => {
                                     )}
                                 />
                             </div>
+                            <div className="form-actions">
                             <Button variant="contained" type="submit">{i18n.t("submit")}</Button>
+                            </div>
                             {/* <button className="btn-submit" type="submit">{i18n.t("submit")}</button> */}
                         </form>
                     </div>

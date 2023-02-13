@@ -9,10 +9,13 @@ import Avatar from '@mui/material/Avatar';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Divider from '@mui/material/Divider';
+import Button from '@mui/material/Button';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import Logout from '@mui/icons-material/Logout';
-import {amber} from '@mui/material/colors';
+import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
+import { useContext } from 'react';
+import { Context } from '../utils/context';
 
 export const useFindPath = () => {
     const location = useLocation();
@@ -100,6 +103,13 @@ const Header = () => {
       setAnchorEl(null);
     };
 
+    const logout = () => {
+        localStorage.removeItem("Access-Token")
+        localStorage.removeItem("Refresh-Token")
+        localStorage.removeItem("User-ID")
+        history.go(0)
+    }
+
     return (
         <header className={`site-header ${!onTop ? 'site-header--fixed' : ''}`}>
             <div className="container">
@@ -116,7 +126,18 @@ const Header = () => {
                     <Link className={"header-link " + ((path && path == "/create-event") ? "header-link-active" : "")} to="/create-event">
                         {i18n.t("nav.createEvent")}
                     </Link>
-                    <button className="site-nav__btn">{i18n.t("nav.account")}</button>
+                    <Link className="site-nav__btn" to="/profile">
+                        {i18n.t("nav.profile")}
+                    </Link>
+                    <Link className="site-nav__btn" to="/my-events">
+                        {i18n.t("nav.myEvents")}
+                    </Link>
+                    <Link className="site-nav__btn" to="/bookings">
+                        {i18n.t("nav.bookings")}
+                    </Link>
+                    <Button className="site-nav__btn" onClick={logout}>
+                        {i18n.t("nav.logout")}
+                    </Button>
                 </nav>
 
                 <div className="site-header__actions">
@@ -148,7 +169,7 @@ const Header = () => {
                                 aria-haspopup="true"
                                 aria-expanded={open ? 'true' : undefined}
                             >
-                                <Avatar  sx={{ width: 32, height: 32, color: 'black'}}>M</Avatar>
+                                <Avatar sx={{ width: 32, height: 32, color: 'black', bgcolor: "secondary"}}>{user ? user.username[0].toUpperCase() : ""}</Avatar>
                             </IconButton>
                             <Menu
                                 anchorEl={anchorEl}
@@ -187,46 +208,37 @@ const Header = () => {
                             >
                                 <Link to="/profile">
                                     <MenuItem className={"nav-link"} onClick={handleClose}>
-                                        <Avatar /> Profile
+                                        <Avatar />{i18n.t("nav.profile")}
                                     </MenuItem>
                                 </Link>
                                 <Link to="/my-events">
                                     <MenuItem className={"nav-link"} onClick={handleClose}>
-                                        <Avatar /> My events
+                                        <Avatar />{i18n.t("nav.myEvents")}
                                     </MenuItem>
                                 </Link>
                                 <Link to="/bookings">
                                     <MenuItem className={"nav-link"} onClick={handleClose}>
-                                        <Avatar /> Bookings
+                                        <Avatar />{i18n.t("nav.bookings")}
                                     </MenuItem>
                                 </Link>
                                 <Divider />
-{/*                                <MenuItem onClick={handleClose}>
+                                <MenuItem className={"nav-link"} onClick={handleClose}>
                                     <ListItemIcon>
-                                        <PersonAdd fontSize="small" />
+                                        <Button className="icon-button" onClick={logout} startIcon={<Logout fontSize="small" />}>
+                                            {i18n.t("nav.logout")}
+                                        </Button>
                                     </ListItemIcon>
-                                    Add another account
-                                </MenuItem>
-                                <MenuItem onClick={handleClose}>
-                                    <ListItemIcon>
-                                        <Settings fontSize="small" />
-                                    </ListItemIcon>
-                                    Settings
-                            </MenuItem> */}
-                                <MenuItem onClick={handleClose}>
-                                    <ListItemIcon>
-                                        <Logout fontSize="small" />
-                                    </ListItemIcon>
-                                    Logout
+                                    {/* {i18n.t("nav.logout")} */}
                                 </MenuItem>
                             </Menu>
                         </>
                     }
-                    <button
+                    <IconButton
                         onClick={() => setMenuOpen(true)}
-                        className="site-header__btn-menu">
-                        <i className="btn-hamburger"><span></span></i>
-                    </button>
+                        className="site-header__btn-menu"
+                        style={{ color: onTop ? 'white' : 'black' }}>
+                        <MenuRoundedIcon/>
+                    </IconButton>
                 </div>
             </div>
         </header>

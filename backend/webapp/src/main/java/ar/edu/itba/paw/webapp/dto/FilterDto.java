@@ -19,6 +19,8 @@ public class FilterDto {
     private Map<LocationDto, Integer> locations;
     private Map<TypeDto, Integer> types;
     private Map<TagDto, Integer> tags;
+    private Integer soldOut;
+    private Integer noTickets;
 
     public static FilterDto fromFilter(final UriInfo uriInfo, final FilterType filter) {
         final FilterDto dto = new FilterDto();
@@ -39,7 +41,9 @@ public class FilterDto {
         for (Map.Entry<Tag, Integer> entry : filter.getTags().entrySet()) {
             tags.put(TagDto.fromTag(uriInfo, entry.getKey()), entry.getValue());
         }
-        dto.tags = tags; 
+        dto.tags = tags;
+        dto.soldOut = filter.getSoldOut();
+        dto.noTickets = filter.getNoTickets();
 
         return dto;
     }
@@ -67,4 +71,21 @@ public class FilterDto {
     public void setTags(Map<TagDto,Integer> tags) {
         this.tags = tags;
     }
+
+    public Integer getSoldOut() {
+        return soldOut;
+    }
+
+    public void setSoldOut(Integer soldOut) {
+        this.soldOut = soldOut;
+    }
+
+    public Integer getNoTickets() {
+        return noTickets;
+    }
+
+    public void setNoTickets(Integer noTickets) {
+        this.noTickets = noTickets;
+    }
+
 }

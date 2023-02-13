@@ -8,9 +8,26 @@ import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
+import CardHeader from '@mui/material/CardHeader';
 import Button from '@mui/material/Button';
+import LocalOfferRoundedIcon from '@mui/icons-material/LocalOfferRounded';
+import LocationOnRoundedIcon from '@mui/icons-material/LocationOnRounded';
+import LocalActivityRoundedIcon from '@mui/icons-material/LocalActivityRounded';
+import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
 
-const EventItem = ({discount, image, id, name, minPrice, currentPrice}) => {
+export const ParseDateTime = (datetime) => {
+    const date = new Date(datetime);
+    const dateTimeFormat = new Intl.DateTimeFormat(i18n.language, {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+    });
+    return dateTimeFormat.format(date);
+}
+
+const EventItem = ({id, name, minPrice, location, type, date, image, soldOut, organizer}) => {
     const fetcher = (url) => fetch(url).then((res) => res.json());
 
     const { data : aux, error : error } = useSwr(image, fetcher)
@@ -29,17 +46,21 @@ const EventItem = ({discount, image, id, name, minPrice, currentPrice}) => {
         <Link to={`/events/${id}`}>
         <Card className="event-card">
       <CardActionArea className="event-card-action">
+        <div className="event-card-container">
         <CardMedia
             className="event-card-image"
             component="img"
-            // height="140"
-            // height={getHeight()}
             image={`data:image/png;base64,${aux.image}`}
             alt="green iguana"
         />
-        <CardContent>
-            <h3>{name}</h3>
-            {getPrice(minPrice)}
+        {!!soldOut && <span className="event-card-image-sold-out">{i18n.t("event.soldOut")}</span>}
+        </div>
+        <CardHeader className="event-card-header" title={name}/>
+        <CardContent className="event-card-content">
+            <span><LocalOfferRoundedIcon className="event-info-icons"/>{getPrice(minPrice)}</span>
+            <span><LocationOnRoundedIcon className="event-info-icons"/>{location.name}</span>
+            <span><LocalActivityRoundedIcon className="event-info-icons"/>{type.name}</span>
+            <span><CalendarMonthRoundedIcon className="event-info-icons"/>{ParseDateTime(date)}</span>
         </CardContent>
       </CardActionArea>
     </Card>
@@ -47,22 +68,5 @@ const EventItem = ({discount, image, id, name, minPrice, currentPrice}) => {
 
     )
 };
-
-        {/* <div className="product-item">
-             <div className="product__image">
-                 <Link to={`/events/${id}`} >
-                     {/* {eventImage && <img className={"pointer"} src={`data:image/png;base64,${eventImage}`} alt="Event image"/>} 
-                     <img className={"pointer"} src={`data:image/png;base64,${aux.image}`} alt="Event"/>
-                     {/*<Image src={`data:image/png;base64,${aux.image}`} layout="raw" width={"100%"} height={"100%"} className="pointer"/>
-                 </Link>
-             </div>
-             <div className="product__description">
-                 <h3>{name}</h3>
-                 <div className={"product__price " + (discount ? 'product__price--discount' : '')}>
-                     <h4>{getPrice(currentPrice)}</h4>
-                 </div>
-             </div>
-         </div> */}
-
 
 export default EventItem

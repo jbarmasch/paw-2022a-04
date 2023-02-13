@@ -11,6 +11,7 @@ import java.net.URI;
 
 public class UserDto {
     private String username;
+    private String mail;
     private String role;
 
     private URI self;
@@ -25,6 +26,7 @@ public class UserDto {
 
         dto.id = user.getId();
         dto.username = user.getUsername();
+        dto.mail = user.getMail();
         dto.votes = user.getVotes();
         dto.rating = user.getRating();
 
@@ -55,6 +57,15 @@ public class UserDto {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+
+    public String getMail() {
+        return mail;
+    }
+
+    public void setMail(String mail) {
+        this.mail = mail;
     }
 
     public URI getSelf() {

@@ -23,7 +23,7 @@ public class EventBookingJpaDao implements EventBookingDao {
     @SuppressWarnings("unchecked")
     @Override
     public EventBookingList getAllBookingsFromUser(long userId, int page) {
-        Query queryNative = em.createNativeQuery("SELECT id FROM eventbookings eb WHERE eb.userid = :userid LIMIT 8 OFFSET :page");
+        Query queryNative = em.createNativeQuery("SELECT eb.id FROM eventbookings eb JOIN ticketbookings tb ON eb.id = tb.id JOIN events e ON eb.eventid = e.eventid WHERE tb.qty > 0 AND eb.userid = :userid GROUP BY eb.id, e.eventid ORDER BY date DESC LIMIT 8 OFFSET :page");
         queryNative.setParameter("page", (page - 1) * 8);
         queryNative.setParameter("userid", userId);
         final List<Long> ids = (List<Long>) queryNative.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
@@ -32,17 +32,27 @@ public class EventBookingJpaDao implements EventBookingDao {
         final TypedQuery<EventBooking> typedQuery = em.createQuery("from EventBooking where id IN :ids ", EventBooking.class);
         typedQuery.setParameter("ids", ids);
 
-        Query count = em.createNativeQuery("SELECT COUNT(id) FROM eventbookings eb WHERE eb.userid = :userid");
+        Query count = em.createNativeQuery("SELECT COUNT(DISTINCT eb.id) FROM eventbookings eb JOIN ticketbookings tb ON eb.id = tb.id WHERE tb.qty > 0 AND eb.userid = :userid");
         count.setParameter("userid", userId);
         return new EventBookingList(typedQuery.getResultList(), (int) Math.ceil((double) ((Number) count.getSingleResult()).intValue() / 8));
     }
-
+    
+    @SuppressWarnings("unchecked")
     @Override
     public Optional<EventBooking> getBookingFromUser(long userId, long eventId) {
-        final TypedQuery<EventBooking> query = em.createQuery("from EventBooking as eb where eb.user.id = :userid AND eb.event.id = :eventid", EventBooking.class);
-        query.setParameter("userid", userId);
-        query.setParameter("eventid", eventId);
-        return query.getResultList().stream().findFirst();
+        // final TypedQuery<EventBooking> query = em.createQuery("from EventBooking as eb where eb.user.id = :userid AND eb.event.id = :eventid", EventBooking.class);
+        // query.setParameter("userid", userId);
+        // query.setParameter("eventid", eventId);
+        // return query.getResultList().stream().findFirst();
+        Query queryNative = em.createNativeQuery("SELECT eb.id FROM eventbookings eb JOIN ticketbookings tb ON eb.id = tb.id WHERE tb.qty > 0 AND eb.userid = :userid AND eb.eventid = :eventid GROUP BY eb.id");
+        queryNative.setParameter("userid", userId);
+        queryNative.setParameter("eventid", eventId);
+        final List<Long> ids = (List<Long>) queryNative.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
+        if (ids.isEmpty())
+            return Optional.empty();
+        final TypedQuery<EventBooking> typedQuery = em.createQuery("from EventBooking where id IN :ids ", EventBooking.class);
+        typedQuery.setParameter("ids", ids);
+        return typedQuery.getResultList().stream().findFirst();
     }
 
     @Override

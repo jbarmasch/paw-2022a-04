@@ -38,10 +38,6 @@ public class User {
     )
     private List<Role> roles;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "organizer")
-    @Where(clause = "state != 2")
-    private List<Event> events;
-
     public User(String username, String password, String mail, Role initialRole, String language) {
         this.username = username;
         this.password = password;
@@ -116,14 +112,6 @@ public class User {
 
     public void setVotes(int votes) {
         this.votes = votes;
-    }
-
-    public List<Event> getEvents() {
-        return events;
-    }
-
-    public void setEvents(List<Event> events) {
-        this.events = events;
     }
 
     public String getLanguage() {

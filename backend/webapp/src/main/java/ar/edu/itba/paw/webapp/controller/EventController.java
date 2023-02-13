@@ -68,8 +68,9 @@ public class EventController {
                                @QueryParam("userId") final Long userId,
                                @QueryParam("order") final Order order,
                                @QueryParam("soldOut") final Boolean showSoldOut,
+                               @QueryParam("noTickets") final Boolean showNoTickets,
                                @QueryParam("page") @DefaultValue("1") final int page) {
-        final EventList res = es.filterBy(locations, types, minPrice, maxPrice, search, tags, username, userId, order, showSoldOut, page);
+        final EventList res = es.filterBy(locations, types, minPrice, maxPrice, search, tags, username, userId, order, showSoldOut, showNoTickets, page);
         final List<EventDto> userList = res
                 .getEventList()
                 .stream()
@@ -230,6 +231,44 @@ public class EventController {
     }
 
     @GET
+    @Path("/{id}/similar")
+    @Produces(value = {MediaType.APPLICATION_JSON,})
+    public Response listSimilarEvents(@PathParam("id") final long id) {
+        final List<Event> res = es.getSimilarEvents(id);
+        final List<EventDto> eventList = res
+                .stream()
+                .map(e -> EventDto.fromEvent(uriInfo, e))
+                .collect(Collectors.toList());
+
+        if (eventList.isEmpty()) {
+            return Response.noContent().build();
+        }
+
+        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<EventDto>>(eventList) {});
+
+        return response.build();
+    }
+
+    @GET
+    @Path("/{id}/recommended")
+    @Produces(value = {MediaType.APPLICATION_JSON,})
+    public Response listRecommendedEvents(@PathParam("id") final long id) {
+        final List<Event> res = es.getPopularEvents(id);
+        final List<EventDto> eventList = res
+                .stream()
+                .map(e -> EventDto.fromEvent(uriInfo, e))
+                .collect(Collectors.toList());
+
+        if (eventList.isEmpty()) {
+            return Response.noContent().build();
+        }
+
+        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<EventDto>>(eventList) {});
+
+        return response.build();
+    } 
+
+    @GET
     @Path("/{id}/tickets")
     @Produces(value = {MediaType.APPLICATION_JSON,})
     public Response listTickets(@PathParam("id") final long id) {
@@ -292,8 +331,9 @@ public class EventController {
             booking.addBooking(ticketBooking);
         }
 
+        EventBooking eventBooking;
         try {
-            bs.book(booking, "http://181.46.186.8:2557", LocaleContextHolder.getLocale());
+            eventBooking = bs.book(booking, "http://181.46.186.8:2557", LocaleContextHolder.getLocale());
         } catch (AlreadyMaxTicketsException | SurpassedMaxTicketsException ex) {
             return Response.serverError().build();
 //            for (Map.Entry<Integer, Integer> error : ex.getErrorMap().entrySet()) {
@@ -307,7 +347,9 @@ public class EventController {
 //                LOGGER.error("BookForm has errors: {}", errors.getAllErrors().toArray());
         }
 
-        return Response.accepted().build();
+        final URI uri = uriInfo.getAbsolutePathBuilder()
+            .replacePath("api/bookings").path(String.valueOf(eventBooking.getCode())).build();
+        return Response.created(uri).build();
     }
 
     @Path("/{id}/stats")

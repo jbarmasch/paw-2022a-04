@@ -11,58 +11,6 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "events")
-@FilterDefs({
-        @FilterDef(
-                name = "minPriceFilter",
-                parameters = @ParamDef(name = "minPrice", type = "double")
-        ),
-        @FilterDef(
-                name = "maxPriceFilter",
-                parameters = @ParamDef(name = "minPrice", type = "double")
-        ),
-        @FilterDef(
-                name = "locationFilter",
-                parameters = @ParamDef(name = "locations", type = "int")
-        ),
-
-        @FilterDef(
-                name = "typeFilter",
-                parameters = @ParamDef(name = "types", type = "int")
-        ),
-        @FilterDef(
-                name = "tagFilter",
-                parameters = @ParamDef(name = "tags", type = "int")
-        ),
-        @FilterDef(
-                name = "searchFilter",
-                parameters = @ParamDef(name = "query", type = "string")
-        ),
-        @FilterDef(
-                name = "soldOutFilter"
-        )
-})
-@Filters({
-        @Filter(
-                name = "locationFilter",
-                condition = "locationid IN (:locations)"
-        ),
-        @Filter(
-                name = "typeFilter",
-                condition = "typeid IN (:types)"
-        ),
-        @Filter(
-                name = "tagFilter",
-                condition = "tagids @> (:tags)"
-        ),
-        @Filter(
-                name = "searchFilter",
-                condition = "upper(name) LIKE '%' || upper(:query) || '%'"
-        ),
-        @Filter(
-                name = "soldOutFilter",
-                condition = "state <> 2"
-        )
-})
 @Where(clause = "state != 1")
 @Check(constraints = "minage >= 14 AND minage <= 27")
 public class Event {

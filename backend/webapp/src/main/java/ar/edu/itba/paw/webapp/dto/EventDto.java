@@ -1,12 +1,12 @@
 package ar.edu.itba.paw.webapp.dto;
 
-import ar.edu.itba.paw.model.Event;
-import ar.edu.itba.paw.model.Tag;
+import ar.edu.itba.paw.model.*;
 
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,9 +19,10 @@ public class EventDto {
     private int attendance;
     private int maxCapacity;
     private Integer minAge;
-    private String location;
-    private String type;
-    private List<String> tags;
+    private LocationDto location;
+    private TypeDto type;
+    private List<TagDto> tags;
+    private Boolean soldOut;
 
     private URI self;
     private URI image;
@@ -39,9 +40,15 @@ public class EventDto {
         dto.attendance = event.getAttendance();
         dto.maxCapacity = event.getMaxCapacity();
         dto.minAge = event.getMinAge();
-        dto.location = event.getLocation().getName();
-        dto.type = event.getType().getName();
-        dto.tags = event.getTags().stream().map(Tag::getName).collect(Collectors.toList());
+        dto.location = LocationDto.fromLocation(uriInfo, event.getLocation());
+        dto.type = TypeDto.fromType(uriInfo, event.getType());
+//        dto.tags = event.getTags().stream().map(Tag::getName).collect(Collectors.toList());
+        List<TagDto> list = new ArrayList<>();
+        for (Tag tag : event.getTags()) {
+            list.add(TagDto.fromTag(uriInfo, tag));
+        }
+        dto.tags = list;
+        dto.soldOut = event.getState() == State.SOLDOUT;
 
         final UriBuilder eventUriBuilder = uriInfo.getAbsolutePathBuilder().
                 replacePath("api/events").path(String.valueOf(event.getId()));
@@ -126,27 +133,27 @@ public class EventDto {
         this.minAge = minAge;
     }
 
-    public String getLocation() {
+    public LocationDto getLocation() {
         return location;
     }
 
-    public void setLocation(String location) {
+    public void setLocation(LocationDto location) {
         this.location = location;
     }
 
-    public String getType() {
+    public TypeDto getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(TypeDto type) {
         this.type = type;
     }
 
-    public List<String> getTags() {
+    public List<TagDto> getTags() {
         return tags;
     }
 
-    public void setTags(List<String> tags) {
+    public void setTags(List<TagDto> tags) {
         this.tags = tags;
     }
 
@@ -180,5 +187,13 @@ public class EventDto {
 
     public void setOrganizer(URI organizer) {
         this.organizer = organizer;
+    }
+
+    public Boolean getSoldOut() {
+        return soldOut;
+    }
+
+    public void setSoldOut(Boolean soldOut) {
+        this.soldOut = soldOut;
     }
 }

@@ -48,7 +48,7 @@ public class EventBookingServiceImpl implements EventBookingService {
 
     @Transactional
     @Override
-    public void book(EventBooking booking, String baseUrl, Locale locale) throws AlreadyMaxTicketsException, SurpassedMaxTicketsException {
+    public EventBooking book(EventBooking booking, String baseUrl, Locale locale) throws AlreadyMaxTicketsException, SurpassedMaxTicketsException {
         EventBooking persistedBooking = eventBookingDao.getBookingFromUser(booking.getUser().getId(), booking.getEvent().getId()).orElse(null);
 
         Map<Long, TicketBooking> ticketMap = new HashMap<>();
@@ -95,6 +95,7 @@ public class EventBookingServiceImpl implements EventBookingService {
         if (eventBooking != null) {
             TransactionUtil.executeAfterTransaction(() -> mailService.sendBookMail(baseUrl + "/bookings/" + eventBooking.getCode(), eventBooking, locale));
         }
+        return eventBooking;
     }
 
     @Transactional

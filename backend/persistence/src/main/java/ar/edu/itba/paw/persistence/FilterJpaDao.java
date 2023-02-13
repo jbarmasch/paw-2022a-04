@@ -20,21 +20,22 @@ public class FilterJpaDao implements FilterDao {
     private EntityManager em;
 
     @Override
-    public FilterType getFilterType(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, Boolean showSoldOut) {
+    public FilterType getFilterType(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, Boolean showSoldOut, Boolean showNoTickets) {
         return new FilterType(
-            getLocationFilterCount(types, minPrice, maxPrice, searchQuery, tags, showSoldOut),
-            getTypeFilterCount(locations, minPrice, maxPrice, searchQuery, tags, showSoldOut),
-            getTagFilterCount(locations, types, minPrice, maxPrice, searchQuery, showSoldOut)
+            getLocationFilterCount(types, minPrice, maxPrice, searchQuery, tags, showSoldOut, showNoTickets),
+            getTypeFilterCount(locations, minPrice, maxPrice, searchQuery, tags, showSoldOut, showNoTickets),
+            getTagFilterCount(locations, types, minPrice, maxPrice, searchQuery, showSoldOut, showNoTickets),
+            getSoldOutFilterCount(locations, types, minPrice, maxPrice, searchQuery, tags, showNoTickets),
+            getNoTicketsFilterCount(locations, types, minPrice, maxPrice, searchQuery, tags, showSoldOut)
         );
     }
 
     @SuppressWarnings("unchecked")
-    private Map<Location, Integer> getLocationFilterCount(List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, Boolean showSoldOut) {
-        boolean having = false, condition = false;
+    private Map<Location, Integer> getLocationFilterCount(List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, Boolean showSoldOut, Boolean showNoTickets) {
+        boolean having = false;
         Map<String, Object> objects = new HashMap<>();
-        objects.put("date", Timestamp.valueOf(LocalDateTime.now()));
-        StringBuilder querySelect = new StringBuilder("FROM locations l JOIN events e ON l.locationid = e.locationid");
-        StringBuilder queryCondition = new StringBuilder(" WHERE state != 1 AND date > :date");
+        StringBuilder querySelect = new StringBuilder("SELECT l.locationid, l.name, e.eventid FROM locations l JOIN events e ON l.locationid = e.locationid");
+        StringBuilder queryCondition = new StringBuilder(" WHERE state != 1 AND date > NOW()");
         if (showSoldOut == null || !showSoldOut) {
             queryCondition.append(" AND state != 2");
         }
@@ -47,29 +48,48 @@ public class FilterJpaDao implements FilterDao {
             objects.put("searchquery", searchQuery);
         }
 
-        queryCondition.append(" GROUP BY l.locationid ");
+        queryCondition.append(" GROUP BY l.locationid, e.eventid ");
 
-        if (minPrice != null || maxPrice != null) {
-            querySelect.append(" LEFT JOIN tickets t on e.eventid = t.eventid");
-            
-            if (minPrice != null) {
-                condition = true;
+        if (showNoTickets == null || !showNoTickets) {
+            querySelect.append(" LEFT JOIN (SELECT * FROM tickets t WHERE (t.starting IS NULL OR t.starting <= NOW()) AND (t.until IS NULL OR t.until >= NOW())) AS t ON e.eventid = t.eventid");
+            having = true;
+            queryCondition.append(" HAVING");
+            queryCondition.append(" COUNT(t.ticketid) > 0");
+        }
+
+
+        if ((minPrice != null || maxPrice != null) && showNoTickets != null && showNoTickets) {
+            querySelect.append(" LEFT JOIN (SELECT * FROM tickets t WHERE (t.starting IS NULL OR t.starting <= NOW()) AND (t.until IS NULL OR t.until >= NOW())) AS t ON e.eventid = t.eventid");
+        }
+
+        if (minPrice != null) {
+            if (!having) {
                 queryCondition.append(" HAVING");
                 having = true;
-                queryCondition.append(" COALESCE(MIN(t.price), 0) >= :minPrice");
-                objects.put("minPrice", minPrice);
-            }
-            if (maxPrice != null) {
-                if (!condition)
-                    querySelect.append(" LEFT JOIN tickets t on e.eventid = t.eventid");
-                if (!having) {
-                    queryCondition.append(" HAVING");
-                    having = true;
-                } else queryCondition.append(" AND");
-                queryCondition.append(" COALESCE(MIN(t.price), 0) <= :maxPrice");
-                objects.put("maxPrice", maxPrice);
-            }
+            } else queryCondition.append(" AND");
+            queryCondition.append(" COALESCE(MIN(t.price), 0) >= :minPrice");
+            objects.put("minPrice", minPrice);
         }
+        if (maxPrice != null) {
+            if (!having) {
+                queryCondition.append(" HAVING");
+                having = true;
+            } else queryCondition.append(" AND");
+            queryCondition.append(" COALESCE(MIN(t.price), 0) <= :maxPrice");
+            objects.put("maxPrice", maxPrice);
+        }
+
+            // if (showNoTickets) {
+            //     if (!condition)
+            //         querySelect.append(" LEFT JOIN tickets t on e.eventid = t.eventid");
+            //     if (!having) {
+            //         queryCondition.append(" HAVING");
+            //         having = true;
+            //     } else queryCondition.append(" AND");
+            //     queryCondition.append(" COUNT(t.ticketid) >= 0");
+            //     objects.put("maxPrice", maxPrice);
+            // }
+            
         if (tags != null && tags.size() > 0) {
             querySelect.append(" LEFT JOIN eventtags et on e.eventid = et.eventid");
             if (!having)
@@ -80,7 +100,7 @@ public class FilterJpaDao implements FilterDao {
             queryCondition.append(tags);
         }
 
-        String query = "SELECT l.locationid, l.name, COUNT(e.eventid) " + querySelect.append(queryCondition) + " ORDER BY l.name";
+        String query = "SELECT aux.locationid, aux.name, COUNT(aux.eventid) FROM(" + querySelect.append(queryCondition) + ") AS aux GROUP BY aux.locationid, aux.name ORDER BY aux.name";
         Query queryNative = em.createNativeQuery(query);
         objects.forEach(queryNative::setParameter);
         List<Object[]> resultSet = queryNative.getResultList();
@@ -95,12 +115,12 @@ public class FilterJpaDao implements FilterDao {
     }
 
     @SuppressWarnings("unchecked")
-    private Map<Type, Integer> getTypeFilterCount(List<Integer> locations, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, Boolean showSoldOut) {
+    private Map<Type, Integer> getTypeFilterCount(List<Integer> locations, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, Boolean showSoldOut, Boolean showNoTickets) {
         boolean having = false, condition = false;
         Map<String, Object> objects = new HashMap<>();
-        objects.put("date", Timestamp.valueOf(LocalDateTime.now()));
-        StringBuilder querySelect = new StringBuilder("FROM types t JOIN events e ON t.typeid = e.typeid");
-        StringBuilder queryCondition = new StringBuilder(" WHERE state != 1 AND date > :date");
+        
+        StringBuilder querySelect = new StringBuilder("SELECT t.typeid, t.name, t.name_en, e.eventid FROM types t JOIN events e ON t.typeid = e.typeid");
+        StringBuilder queryCondition = new StringBuilder(" WHERE state != 1 AND date > NOW()");
         if (showSoldOut == null || !showSoldOut) {
             queryCondition.append(" AND state != 2");
         }
@@ -113,29 +133,37 @@ public class FilterJpaDao implements FilterDao {
             objects.put("searchquery", searchQuery);
         }
 
-        queryCondition.append(" GROUP BY t.typeid ");
+        queryCondition.append(" GROUP BY t.typeid, e.eventid ");
 
-        if (minPrice != null || maxPrice != null) {
-            querySelect.append(" LEFT JOIN tickets ti on e.eventid = ti.eventid");
+        if (showNoTickets == null || !showNoTickets) {
+            querySelect.append(" LEFT JOIN (SELECT * FROM tickets ti WHERE (ti.starting IS NULL OR ti.starting <= NOW()) AND (ti.until IS NULL OR ti.until >= NOW())) AS ti ON e.eventid = ti.eventid");
+            having = true;
+            queryCondition.append(" HAVING");
+            queryCondition.append(" COUNT(ti.ticketid) > 0");
+        }
+
+        if ((minPrice != null || maxPrice != null) && showNoTickets != null && showNoTickets) {
+            querySelect.append(" LEFT JOIN (SELECT * FROM tickets ti WHERE (ti.starting IS NULL OR ti.starting <= NOW()) AND (ti.until IS NULL OR ti.until >= NOW())) AS ti ON e.eventid = ti.eventid");
+        }
             
-            if (minPrice != null) {
-                condition = true;
+        if (minPrice != null) {
+            if (!having) {
                 queryCondition.append(" HAVING");
                 having = true;
-                queryCondition.append(" COALESCE(MIN(t.price), 0) >= :minPrice");
-                objects.put("minPrice", minPrice);
             }
-            if (maxPrice != null) {
-                if (!condition)
-                    querySelect.append(" LEFT JOIN tickets ti on e.eventid = ti.eventid");
-                if (!having) {
-                    queryCondition.append(" HAVING");
-                    having = true;
-                } else queryCondition.append(" AND");
-                queryCondition.append(" COALESCE(MIN(t.price), 0) <= :maxPrice");
-                objects.put("maxPrice", maxPrice);
-            }
+            else queryCondition.append(" AND");
+            queryCondition.append(" COALESCE(MIN(ti.price), 0) >= :minPrice");
+            objects.put("minPrice", minPrice);
         }
+        if (maxPrice != null) {
+            if (!having) {
+                queryCondition.append(" HAVING");
+                having = true;
+            } else queryCondition.append(" AND");
+            queryCondition.append(" COALESCE(MIN(ti.price), 0) <= :maxPrice");
+            objects.put("maxPrice", maxPrice);
+        }
+
         if (tags != null && tags.size() > 0) {
             querySelect.append(" LEFT JOIN eventtags et on e.eventid = et.eventid");
             if (!having)
@@ -146,7 +174,7 @@ public class FilterJpaDao implements FilterDao {
             queryCondition.append(tags);
         }
 
-        String query = "SELECT t.typeid, t.name, t.name_en, COUNT(e.eventid) " + querySelect.append(queryCondition) + "ORDER BY t.typeid";
+        String query = "SELECT aux.typeid, aux.name, aux.name_en, COUNT(aux.eventid) FROM (" + querySelect.append(queryCondition) + ") AS aux GROUP BY aux.typeid, aux.name, aux.name_en ORDER BY aux.typeid";
         Query queryNative = em.createNativeQuery(query);
         objects.forEach(queryNative::setParameter);
         List<Object[]> resultSet = queryNative.getResultList();
@@ -161,12 +189,12 @@ public class FilterJpaDao implements FilterDao {
     }
 
     @SuppressWarnings("unchecked")
-    private Map<Tag, Integer> getTagFilterCount(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, Boolean showSoldOut) {
-        boolean having = false, condition = false;
+    private Map<Tag, Integer> getTagFilterCount(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, Boolean showSoldOut, Boolean showNoTickets) {
+        boolean having = false;
         Map<String, Object> objects = new HashMap<>();
-        objects.put("date", Timestamp.valueOf(LocalDateTime.now()));
-        StringBuilder querySelect = new StringBuilder("FROM tags ta JOIN eventtags et ON ta.tagid = et.tagid JOIN events e ON et.eventid = e.eventid");
-        StringBuilder queryCondition = new StringBuilder(" WHERE state != 1 AND date > :date");
+        
+        StringBuilder querySelect = new StringBuilder("SELECT ta.tagid, ta.name, ta.name_en, e.eventid FROM tags ta JOIN eventtags et ON ta.tagid = et.tagid JOIN events e ON et.eventid = e.eventid");
+        StringBuilder queryCondition = new StringBuilder(" WHERE state != 1 AND date > NOW()");
         if (showSoldOut == null || !showSoldOut) {
             queryCondition.append(" AND state != 2");
         }
@@ -183,31 +211,36 @@ public class FilterJpaDao implements FilterDao {
             objects.put("searchquery", searchQuery);
         }
 
-        queryCondition.append(" GROUP BY ta.tagid ");
+        queryCondition.append(" GROUP BY ta.tagid, e.eventid");
 
-        if (minPrice != null || maxPrice != null) {
-            querySelect.append(" LEFT JOIN tickets ti on e.eventid = ti.eventid");
-            
-            if (minPrice != null) {
-                condition = true;
-                queryCondition.append(" HAVING");
-                having = true;
-                queryCondition.append(" COALESCE(MIN(t.price), 0) >= :minPrice");
-                objects.put("minPrice", minPrice);
-            }
-            if (maxPrice != null) {
-                if (!condition)
-                    querySelect.append(" LEFT JOIN tickets ti on e.eventid = ti.eventid");
-                if (!having) {
-                    queryCondition.append(" HAVING");
-                    having = true;
-                } else queryCondition.append(" AND");
-                queryCondition.append(" COALESCE(MIN(t.price), 0) <= :maxPrice");
-                objects.put("maxPrice", maxPrice);
-            }
+        if (showNoTickets == null || !showNoTickets) {
+            querySelect.append(" LEFT JOIN (SELECT * FROM tickets ti WHERE (ti.starting IS NULL OR ti.starting <= NOW()) AND (ti.until IS NULL OR ti.until >= NOW())) AS ti ON e.eventid = ti.eventid");
+            having = true;
+            queryCondition.append(" HAVING");
+            queryCondition.append(" COUNT(ti.ticketid) > 0");
         }
 
-        String query = "SELECT ta.tagid, ta.name, ta.name_en, COUNT(e.eventid) " + querySelect.append(queryCondition) + "ORDER BY ta.tagid";
+        if ((minPrice != null || maxPrice != null) && showNoTickets != null && showNoTickets) {
+            querySelect.append(" LEFT JOIN (SELECT * FROM tickets ti WHERE (ti.starting IS NULL OR ti.starting <= NOW()) AND (ti.until IS NULL OR ti.until >= NOW())) AS ti ON e.eventid = ti.eventid");
+        }
+            
+        if (minPrice != null) {
+            if (!having) {
+                queryCondition.append(" HAVING");
+                having = true;
+            } else queryCondition.append(" AND");
+            queryCondition.append(" COALESCE(MIN(ti.price), 0) >= :minPrice");
+            objects.put("minPrice", minPrice);
+        }
+        if (maxPrice != null) {
+            if (!having) {
+                queryCondition.append(" HAVING");
+                having = true;
+            } else queryCondition.append(" AND");
+            queryCondition.append(" COALESCE(MIN(ti.price), 0) <= :maxPrice");
+            objects.put("maxPrice", maxPrice);
+        }
+        String query = "SELECT aux.tagid, aux.name, aux.name_en, COUNT(aux.eventid) FROM (" + querySelect.append(queryCondition) + ") AS aux GROUP BY aux.tagid, aux.name, aux.name_en ORDER BY aux.tagid";
         Query queryNative = em.createNativeQuery(query);
         objects.forEach(queryNative::setParameter);
         List<Object[]> resultSet = queryNative.getResultList();
@@ -219,5 +252,137 @@ public class FilterJpaDao implements FilterDao {
             map.put(tag, ((Number) res[3]).intValue());
         }
         return map;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Integer getSoldOutFilterCount(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, Boolean showNoTickets) {
+        boolean having = false;
+        Map<String, Object> objects = new HashMap<>();
+        
+        StringBuilder querySelect = new StringBuilder("SELECT e.eventid FROM events e ");
+        StringBuilder queryCondition = new StringBuilder(" WHERE state != 1 AND date > NOW()");
+        queryCondition.append(" AND state = 2");
+        if (locations != null && locations.size() > 0) {
+            queryCondition.append(" AND locationid IN :locationids");
+            objects.put("locationids", locations);
+        }
+        if (types != null && types.size() > 0) {
+            queryCondition.append(" AND typeid IN :typeids");
+            objects.put("typeids", types);
+        }
+        if (searchQuery != null && searchQuery.length() > 0) {
+            queryCondition.append(" AND ((SELECT to_tsvector('Spanish', e.name) @@ websearch_to_tsquery(:searchquery)) = 't' OR e.name ILIKE CONCAT('%', :searchquery, '%'))");
+            objects.put("searchquery", searchQuery);
+        }
+
+        queryCondition.append(" GROUP BY e.eventid");
+
+        if (showNoTickets == null || !showNoTickets) {
+            querySelect.append(" LEFT JOIN (SELECT * FROM tickets ti WHERE (ti.starting IS NULL OR ti.starting <= NOW()) AND (ti.until IS NULL OR ti.until >= NOW())) AS ti ON e.eventid = ti.eventid");
+            having = true;
+            queryCondition.append(" HAVING");
+            queryCondition.append(" COUNT(ti.ticketid) > 0");
+        }
+
+        if ((minPrice != null || maxPrice != null) && showNoTickets != null && showNoTickets) {
+            querySelect.append(" LEFT JOIN (SELECT * FROM tickets ti WHERE (ti.starting IS NULL OR ti.starting <= NOW()) AND (ti.until IS NULL OR ti.until >= NOW())) AS ti ON e.eventid = ti.eventid");
+        }
+            
+        if (minPrice != null) {
+            if (!having) {
+                queryCondition.append(" HAVING");
+                having = true;
+            }
+            else
+                queryCondition.append(" AND");
+            queryCondition.append(" COALESCE(MIN(ti.price), 0) >= :minPrice");
+            objects.put("minPrice", minPrice);
+        }
+        if (maxPrice != null) {
+            if (!having) {
+                queryCondition.append(" HAVING");
+                having = true;
+            } else queryCondition.append(" AND");
+            queryCondition.append(" COALESCE(MIN(ti.price), 0) <= :maxPrice");
+            objects.put("maxPrice", maxPrice);
+        }
+
+        if (tags != null && tags.size() > 0) {
+            querySelect.append(" LEFT JOIN eventtags et on e.eventid = et.eventid");
+            if (!having)
+                queryCondition.append(" HAVING");
+            else
+                queryCondition.append(" AND");
+            queryCondition.append(" ARRAY_AGG(et.tagid) && ARRAY");
+            queryCondition.append(tags);
+        }
+
+        String query = "SELECT COUNT(aux.eventid) FROM (" + querySelect.append(queryCondition) + ") AS aux";
+        Query queryNative = em.createNativeQuery(query);
+        objects.forEach(queryNative::setParameter);
+        List<Object[]> resultSet = queryNative.getResultList();
+        if (resultSet.isEmpty())
+            return 0;
+        
+        return ((Number) queryNative.getSingleResult()).intValue();
+    }
+
+ @SuppressWarnings("unchecked")
+    private Integer getNoTicketsFilterCount(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, Boolean showSoldOut) {
+        boolean having = false;
+        Map<String, Object> objects = new HashMap<>();
+        
+        StringBuilder querySelect = new StringBuilder("SELECT e.eventid FROM events e ");
+        StringBuilder queryCondition = new StringBuilder(" WHERE state != 1 AND date > NOW()");
+        if (showSoldOut == null || !showSoldOut) {
+            queryCondition.append(" AND state != 2");
+        }
+        if (types != null && types.size() > 0) {
+            queryCondition.append(" AND typeid IN :typeids");
+            objects.put("typeids", types);
+        }
+        if (locations != null && locations.size() > 0) {
+            queryCondition.append(" AND locationid IN :locationids");
+            objects.put("locationids", locations);
+        }
+        if (searchQuery != null && searchQuery.length() > 0) {
+            queryCondition.append(" AND ((SELECT to_tsvector('Spanish', e.name) @@ websearch_to_tsquery(:searchquery)) = 't' OR e.name ILIKE CONCAT('%', :searchquery, '%'))");
+            objects.put("searchquery", searchQuery);
+        }
+
+        queryCondition.append(" GROUP BY e.eventid");
+
+        querySelect.append(" LEFT JOIN (SELECT * FROM tickets ti WHERE (ti.starting IS NULL OR ti.starting <= NOW()) AND (ti.until IS NULL OR ti.until >= NOW())) AS ti ON e.eventid = ti.eventid");
+        queryCondition.append(" HAVING");
+        queryCondition.append(" COUNT(ti.ticketid) = 0");
+
+        if (minPrice != null) {
+            queryCondition.append(" AND");
+            queryCondition.append(" COALESCE(MIN(ti.price), 0) >= :minPrice");
+            objects.put("minPrice", minPrice);
+        }
+        if (maxPrice != null) {
+            queryCondition.append(" AND");
+            queryCondition.append(" COALESCE(MIN(ti.price), 0) <= :maxPrice");
+            objects.put("maxPrice", maxPrice);
+        }
+
+        if (tags != null && tags.size() > 0) {
+            querySelect.append(" LEFT JOIN eventtags et on e.eventid = et.eventid");
+            queryCondition.append(" AND");
+            queryCondition.append(" ARRAY_AGG(et.tagid) && ARRAY");
+            queryCondition.append(tags);
+        }
+
+        String query = "SELECT COUNT(aux.eventid) FROM (" + querySelect.append(queryCondition) + ") AS aux";
+        Query queryNative = em.createNativeQuery(query);
+        System.out.println(query);
+        System.out.println("holo");
+        objects.forEach(queryNative::setParameter);
+        List<Object[]> resultSet = queryNative.getResultList();
+        if (resultSet.isEmpty())
+            return 0;
+        
+        return ((Number) queryNative.getSingleResult()).intValue();
     }
 }

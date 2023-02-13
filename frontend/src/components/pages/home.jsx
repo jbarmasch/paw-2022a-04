@@ -36,7 +36,7 @@ export default function Home() {
                     </article>
                 </div>
             </section>
-
+            {/*
             <section className="section">
                 <div className="container">
                     <header className="section__intro">
@@ -80,6 +80,7 @@ export default function Home() {
                     </ul>
                 </div>
             </section>
+            */}
         </Layout>
     )
 }

@@ -20,7 +20,7 @@ const UserItem = ({id, username, rating, votes}) => {
                 {rating} ({votes})
             </CardContent>
             <CardActions>
-                <Button size="small">Learn More</Button>
+                <Link to={"/organizers/" + id}><Button size="small">Learn More</Button></Link>
             </CardActions>
         </Card>
     )

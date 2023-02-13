@@ -49,12 +49,11 @@ public class EventJpaDao implements EventDao {
 
     @SuppressWarnings("unchecked")
     @Override
-    public EventList filterBy(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, String username, Long userId, Order order, Boolean showSoldOut, int page) {
-        boolean having = false, condition = false;
+    public EventList filterBy(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, String username, Long userId, Order order, Boolean showSoldOut, Boolean showNoTickets, int page) {
+        boolean having = false;
         Map<String, Object> objects = new HashMap<>();
-        objects.put("date", Timestamp.valueOf(LocalDateTime.now()));
         StringBuilder querySelect = new StringBuilder("FROM events ec");
-        StringBuilder queryCondition = new StringBuilder(" WHERE state != 1 AND date > :date");
+        StringBuilder queryCondition = new StringBuilder(" WHERE state != 1 AND date > NOW()");
         if (showSoldOut == null || !showSoldOut) {
             queryCondition.append(" AND state != 2");
         }
@@ -88,18 +87,24 @@ public class EventJpaDao implements EventDao {
             orderQuery.append(" ORDER BY date ");
         }
 
-        querySelect.append(" LEFT JOIN tickets t on ec.eventid = t.eventid");
+        querySelect.append(" LEFT JOIN (SELECT * FROM tickets t WHERE (t.starting IS NULL OR t.starting <= NOW()) AND (t.until IS NULL OR t.until >= NOW())) AS t ON ec.eventid = t.eventid");
+
+        if (showNoTickets == null || !showNoTickets) {
+            queryCondition.append(" HAVING");
+            having = true;
+            queryCondition.append(" COUNT(t.ticketid) > 0");
+        }
 
         if (minPrice != null) {
-            condition = true;
-            queryCondition.append(" HAVING");
+            if (!having) {
+                queryCondition.append(" HAVING");
+                having = true;
+            } else queryCondition.append(" AND");
             having = true;
             queryCondition.append(" COALESCE(MIN(t.price), 0) >= :minPrice");
             objects.put("minPrice", minPrice);
         }
         if (maxPrice != null) {
-            if (!condition)
-                querySelect.append(" LEFT JOIN tickets t on ec.eventid = t.eventid");
             if (!having) {
                 queryCondition.append(" HAVING");
                 having = true;
@@ -116,23 +121,29 @@ public class EventJpaDao implements EventDao {
             queryCondition.append(" ARRAY_AGG(e.tagid) && ARRAY");
             queryCondition.append(tags);
         }
-        objects.put("page", (page - 1) * 8);
-        String query = "SELECT DISTINCT ec.eventid " + querySelect.append(queryCondition);
+        int pageSize = 12;
+        objects.put("page", (page - 1) * pageSize);
+        String query = "SELECT aux.eventid FROM (SELECT ec.eventid " + querySelect.append(queryCondition) + orderQuery + ") as aux ";
         System.out.println(query);
-        Query queryNative = em.createNativeQuery(query + " LIMIT 8 OFFSET :page");
+        Query queryNative = em.createNativeQuery(query + " LIMIT " + pageSize + " OFFSET :page");
         objects.forEach(queryNative::setParameter);
         final List<Long> ids = (List<Long>) queryNative.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
+        System.out.println("sout " + ids.size());
         if (ids.isEmpty())
             return new EventList(new ArrayList<>(), 0);
         final TypedQuery<Event> typedQuery = em.createQuery("from Event where eventid IN :ids " + orderQuery, Event.class);
         typedQuery.setParameter("ids", ids);
 
+        System.out.println(typedQuery.getResultList());
+
         String theQuery = String.valueOf(querySelect);
-        theQuery = theQuery.replace("GROUP BY ec.eventid, date", "");
-        Query count = em.createNativeQuery("SELECT COUNT(DISTINCT ec.eventid) " + theQuery);
+        // theQuery = theQuery.replace("GROUP BY ec.eventid, date", "");
+        Query count = em.createNativeQuery("SELECT COUNT(aux.eventid) FROM (SELECT ec.eventid " + theQuery + ") as aux ");
+        System.out.println(theQuery);
         objects.remove("page");
         objects.forEach(count::setParameter);
-        return new EventList(typedQuery.getResultList(), (int) Math.ceil((double) ((Number) count.getSingleResult()).intValue() / 8));
+        System.out.println(((Number) count.getSingleResult()).intValue());
+        return new EventList(typedQuery.getResultList(), (int) Math.ceil((double) ((Number) count.getSingleResult()).intValue() / pageSize));
     }
 
     @Override
@@ -190,8 +201,10 @@ public class EventJpaDao implements EventDao {
                 "users.username, ARRAY_AGG(ti.ticketId) AS ticketIds, ARRAY_AGG(ti.qty) AS ticketQtys, ARRAY_AGG(ti.booked) AS ticketBookeds, " +
                 "ARRAY_AGG(ti.name) AS ticketNames, ARRAY_AGG(ti.price) AS ticketPrices FROM events JOIN locations ON events.locationid = locations.locationid " +
                 "LEFT OUTER JOIN tickets ti ON events.eventid = ti.eventid JOIN types ON events.typeid = types.typeid JOIN users ON events.userid = users.userid " +
-                "GROUP BY events.eventId, locations.locationid, types.typeid, users.username) AS aux LEFT OUTER JOIN eventTags eT ON aux.eventId = eT.eventId " +
-                "LEFT OUTER JOIN tags t ON eT.tagId = t.tagId WHERE date > :date AND attendance >= (4 * ticketsLeft) AND state != 1 AND state != 2 AND ticketsLeft > 0 LIMIT 4");
+                "WHERE (ti.starting IS NULL OR ti.starting <= NOW()) AND (ti.until IS NULL OR ti.until >= NOW()) GROUP BY events.eventId, " +
+                "locations.locationid, types.typeid, users.username HAVING COUNT(ti.ticketid) > 0) AS aux LEFT OUTER JOIN eventTags eT ON aux.eventId = eT.eventId " +
+                "LEFT OUTER JOIN tags t ON eT.tagId = t.tagId WHERE date > :date AND attendance >= (4 * ticketsLeft) AND state != 1 AND state != 2 AND " + 
+                "ticketsLeft > 0 GROUP BY aux.eventid LIMIT 4");
         idQuery.setParameter("date", Timestamp.valueOf(LocalDateTime.now()));
         final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
@@ -204,16 +217,20 @@ public class EventJpaDao implements EventDao {
     @SuppressWarnings("unchecked")
     @Override
     public List<Event> getUpcomingEvents() {
-        Query idQuery = em.createNativeQuery("SELECT aux.eventid FROM " +
-                "(SELECT events.eventid, events.name, events.description, events.locationid, SUM(COALESCE(ti.booked, 0)) AS attendance, " +
-                "MIN(CASE WHEN ti.qty - ti.booked > 0 THEN ti.price END) AS minPrice, (SUM(COALESCE(ti.qty, 0)) - SUM(COALESCE(ti.booked, 0))) " +
-                "AS ticketsLeft, events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, types.name AS typeName, " +
-                "users.username, ARRAY_AGG(ti.ticketId) AS ticketIds, ARRAY_AGG(ti.qty) AS ticketQtys, ARRAY_AGG(ti.booked) AS ticketBookeds, " +
-                "ARRAY_AGG(ti.name) AS ticketNames, ARRAY_AGG(ti.price) AS ticketPrices FROM events JOIN locations ON events.locationid = locations.locationid " +
-                "LEFT OUTER JOIN tickets ti ON events.eventid = ti.eventid JOIN types ON events.typeid = types.typeid JOIN users ON events.userid = users.userid " +
-                "GROUP BY events.eventId, locations.locationid, types.typeid, users.username) AS aux LEFT OUTER JOIN eventTags eT ON aux.eventId = eT.eventId " +
-                "LEFT OUTER JOIN tags t ON eT.tagId = t.tagId WHERE date > :date AND state != 1 AND state != 2 ORDER BY date LIMIT 4");
-        idQuery.setParameter("date", Timestamp.valueOf(LocalDateTime.now()));
+        // Query idQuery = em.createNativeQuery("SELECT aux.eventid FROM " +
+        //         "(SELECT events.eventid, events.name, events.description, events.locationid, SUM(COALESCE(ti.booked, 0)) AS attendance, " +
+        //         "MIN(CASE WHEN ti.qty - ti.booked > 0 THEN ti.price END) AS minPrice, (SUM(COALESCE(ti.qty, 0)) - SUM(COALESCE(ti.booked, 0))) " +
+        //         "AS ticketsLeft, events.typeid, events.date, events.imageid, events.userid, events.state, locations.name AS locName, types.name AS typeName, " +
+        //         "users.username, ARRAY_AGG(ti.ticketId) AS ticketIds, ARRAY_AGG(ti.qty) AS ticketQtys, ARRAY_AGG(ti.booked) AS ticketBookeds, " +
+        //         "ARRAY_AGG(ti.name) AS ticketNames, ARRAY_AGG(ti.price) AS ticketPrices FROM events JOIN locations ON events.locationid = locations.locationid " +
+        //         "LEFT OUTER JOIN tickets ti ON events.eventid = ti.eventid JOIN types ON events.typeid = types.typeid JOIN users ON events.userid = users.userid " +
+        //         "WHERE (ti.starting IS NULL OR ti.starting <= NOW()) AND (ti.until IS NULL OR ti.until >= NOW()) GROUP BY events.eventId, " + 
+        //         "locations.locationid, types.typeid, users.username HAVING COUNT(ti.ticketid) > 0) AS aux LEFT OUTER JOIN eventTags eT ON aux.eventId = eT.eventId " +
+        //         "LEFT OUTER JOIN tags t ON eT.tagId = t.tagId WHERE date > :date AND state != 1 AND state != 2 GROUP BY aux.eventid ORDER BY date LIMIT 4");
+        Query idQuery = em.createNativeQuery("SELECT e.eventid FROM events e LEFT JOIN (SELECT * FROM tickets t WHERE (t.starting IS NULL OR t.starting <= NOW()) AND " +
+        "(t.until IS NULL OR t.until >= NOW())) AS t ON e.eventid = t.eventid WHERE date > NOW() AND state <> 1 AND state <> 2 GROUP BY e.eventid HAVING COUNT(t.ticketid)" +
+        "> 0 ORDER BY date ASC LIMIT 4");
+        // idQuery.setParameter("date", Timestamp.valueOf(LocalDateTime.now()));
         final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
             return new ArrayList<>();
@@ -225,15 +242,24 @@ public class EventJpaDao implements EventDao {
     @SuppressWarnings("unchecked")
     @Override
     public List<Event> getSimilarEvents(long eventId) {
-        Query idQuery = em.createNativeQuery("WITH event_cte AS (SELECT e.eventid, name, description, locationid, date, typeid, userid, " +
-                "imageid, state, ARRAY_AGG(tagId) AS tagIds FROM events e LEFT OUTER JOIN eventTags eT ON e.eventId = eT.eventId WHERE e.eventId = :eventid " +
-                "GROUP BY e.eventid, name, description, locationid, date, typeid, userid, imageid, state) SELECT eventid FROM (SELECT *, (SELECT COUNT(*) " +
-                "FROM (SELECT unnest((SELECT tagIds FROM event_cte)) INTERSECT SELECT unnest(tagIds)) AS aux) AS similarity FROM (SELECT e.eventid, " +
-                "e.state, ARRAY_AGG(tagId) AS tagIds, date FROM events e LEFT OUTER JOIN eventTags eT ON e.eventId = eT.eventId WHERE e.typeId = (SELECT " +
-                "typeid FROM event_cte) AND e.locationId = (SELECT locationid FROM event_cte) AND e.eventid <> (SELECT eventid FROM event_cte) GROUP BY " +
-                "e.eventid) as eliteTt WHERE state != 1 AND state != 2 AND date > :date ORDER BY similarity DESC LIMIT 5) AS aux");
+        // Query idQuery = em.createNativeQuery("WITH event_cte AS (SELECT e.eventid, name, description, locationid, date, typeid, userid, " +
+        //         "imageid, state, ARRAY_AGG(tagId) AS tagIds FROM events e LEFT OUTER JOIN tickets ti ON e.eventid = ti.eventid LEFT OUTER JOIN eventTags eT" +
+        //         "ON e.eventId = eT.eventId WHERE e.eventId = :eventid AND (ti.starting IS NULL OR ti.starting <= NOW()) AND (ti.until IS NULL OR ti.until >= NOW())" +
+        //         "GROUP BY e.eventid, name, description, locationid, date, typeid, userid, imageid, state HAVING COUNT(ti.ticketid) > 0) SELECT eventid FROM (SELECT *, (SELECT COUNT(*) " +
+        //         "FROM (SELECT unnest((SELECT tagIds FROM event_cte)) INTERSECT SELECT unnest(tagIds)) AS aux) AS similarity FROM (SELECT e.eventid, " +
+        //         "e.state, ARRAY_AGG(tagId) AS tagIds, date FROM events e LEFT OUTER JOIN eventTags eT ON e.eventId = eT.eventId WHERE e.typeId = (SELECT " +
+        //         "typeid FROM event_cte) AND e.locationId = (SELECT locationid FROM event_cte) AND e.eventid <> (SELECT eventid FROM event_cte) GROUP BY " +
+        //         "e.eventid) as eliteTt WHERE state != 1 AND state != 2 AND date > :dat ORDER BY similarity DESC LIMIT 4) AS aux");
+        Query idQuery = em.createNativeQuery("WITH event_cte AS (SELECT e.eventid, e.name, e.description, e.locationid, e.date, e.typeid, e.userid, e.imageid," +
+        "e.state, ARRAY_AGG(tagId) AS tagIds FROM events e LEFT OUTER JOIN tickets ti ON e.eventid = ti.eventid LEFT OUTER JOIN eventTags eT ON e.eventId = " + 
+        "eT.eventId WHERE e.eventId = :eventid AND (ti.starting IS NULL OR ti.starting <= NOW()) AND (ti.until IS NULL OR ti.until >= NOW())GROUP BY e.eventid, " +
+        "e.name, e.description, e.locationid, e.date, e.typeid, e.userid, e.imageid, e.state HAVING COUNT(ti.ticketid) > 0) SELECT eventid FROM (SELECT *, " + 
+        "(SELECT COUNT(*) FROM (SELECT unnest((SELECT tagIds FROM event_cte)) INTERSECT SELECT unnest(tagIds)) AS aux) AS similarity FROM (SELECT e.eventid, " +
+        "e.state, ARRAY_AGG(tagId) AS tagIds, date FROM events e LEFT OUTER JOIN tickets ti ON e.eventid = ti.eventid LEFT OUTER JOIN eventTags eT ON e.eventId " + 
+        "= eT.eventId WHERE e.typeId = (SELECT typeid FROM event_cte) AND (ti.starting IS NULL OR ti.starting <= NOW()) AND (ti.until IS NULL OR ti.until >= NOW()) " +
+        "AND e.locationId = (SELECT locationid FROM event_cte) AND e.eventid <> (SELECT eventid FROM event_cte) GROUP BY e.eventid HAVING COUNT(ti.ticketid) > 0 " +
+        ") as eliteTt WHERE state != 1 AND state != 2 AND date > NOW() ORDER BY similarity DESC LIMIT 4) AS aux");
         idQuery.setParameter("eventid", eventId);
-        idQuery.setParameter("date", Timestamp.valueOf(LocalDateTime.now()));
         final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
             return new ArrayList<>();
@@ -248,7 +274,8 @@ public class EventJpaDao implements EventDao {
         Query idQuery = em.createNativeQuery("SELECT e.eventid FROM (SELECT b.eventId, COUNT(b.userId) AS popularity " +
                 "FROM eventbookings b JOIN (SELECT userId FROM eventbookings eb WHERE eb.eventId = :eventid) AS aux ON b.userId = aux.userId " +
                 "WHERE b.eventid <> :eventid GROUP BY b.eventId ORDER BY popularity DESC) AS aux " +
-                "JOIN events e on aux.eventid = e.eventid WHERE state != 1 AND state != 2 AND date > :date LIMIT 5");
+                "JOIN events e on aux.eventid = e.eventid LEFT JOIN tickets ti ON e.eventid = ti.eventid WHERE state != 1 AND state != 2 AND date > :date AND" + 
+                "(ti.starting IS NULL OR ti.starting <= NOW()) AND (ti.until IS NULL OR ti.until >= NOW()) GROUP BY e.eventid HAVING COUNT(ti.ticketid) > 0 LIMIT 4");
         idQuery.setParameter("eventid", eventId);
         idQuery.setParameter("date", Timestamp.valueOf(LocalDateTime.now()));
         final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());

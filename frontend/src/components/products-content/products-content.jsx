@@ -1,66 +1,67 @@
 import useSwr from 'swr';
 import EventItem from './event-item';
 import ContentLoading from './content-loading';
-import {useEffect, useState} from "react";
-import Select from "react-select";
-import {Controller, useForm} from "react-hook-form";
-import {Link, useLocation, useHistory} from 'react-router-dom'
+import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { Link, useLocation, useHistory } from 'react-router-dom'
 import queryString from 'query-string'
-import {server} from "../../utils/server";
+import { server } from "../../utils/server";
+import { parseLink } from "../../utils/pages";
 import i18n from '../../i18n'
+import Pagination from '@mui/material/Pagination';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import MenuItem from '@mui/material/MenuItem';
+import FormGroup from '@mui/material/FormGroup';
+import Checkbox from '@mui/material/Checkbox';
+import Autocomplete from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
+import FormHelperText from '@mui/material/FormHelperText';
+import { useFindPath } from '../header'
 
 const fetcher = (...args) => fetch(...args).then((res) => res.json())
 
-function Page(index) {
-    const { search } = useLocation()
-    const values = queryString.parse(search)
-
-    let data
-    let error
-
-    let filters = ""
-    if (values.search || values.types || values.locations || values.tags) {
-        if (values.search) {
-            filters = `&search=${values.search}`
+const fetcherHeaders = (...args) => fetch(...args).then((res) => {
+    if (res.status == 200) {
+        return {
+            headers: res.headers,
+            data: res.json()
         }
-        if (values.types) {
-            values.types.split(",").forEach((x) => {
-                filters = `${filters}&types=${x}`
-            })
-        }
-        if (values.locations) {
-            values.locations.split(",").forEach((x) => {
-                filters = `${filters}&locations=${x}`
-            })
-        }
-        if (values.tags) {
-            values.tags.split(",").forEach((x) => {
-                filters = `${filters}&tags=${x}`
-            })
+    } else {
+        return {
+            headers: res.headers,
+            data: []
         }
     }
+})
 
-    console.log(index.index)
-    const { data: dataAux, error: errorAux } = useSwr(`${server}/api/events?page=${index.index}${filters}`, fetcher)
-    data = dataAux
-    error = errorAux
+function Page({ data, aux, setAux }) {
+    if (!data) return <ContentLoading />
+    data = data.data
 
-    if (error) return <p>No data</p>
-    if (!data) return <ContentLoading/>
+    Promise.resolve(data).then((x) => {
+        setAux(x)
+        console.log(x)
+    })
 
     return (
         <>
-            {data &&
+            {aux &&
                 <section className="event-list">
-                    {data.map((item) => (
+                    {aux.map((item) => (
                         <EventItem
                             id={item.id}
                             name={item.name}
                             minPrice={item.minPrice}
-                            color={item.color}
-                            currentPrice={item.minPrice}
+                            location={item.location}
+                            type={item.type}
+                            date={item.date}
                             key={item.id}
                             image={item.image}
+                            soldOut={item.soldOut}
                         />
                     ))}
                 </section>
@@ -71,6 +72,7 @@ function Page(index) {
 
 const EventsContent = () => {
     const history = useHistory()
+    const path = useFindPath();
 
     const { search } = useLocation()
     const values = queryString.parse(search)
@@ -80,15 +82,20 @@ const EventsContent = () => {
     const [filtersOpen, setFiltersOpen] = useState(true);
     const [location, setLocation] = useState([]);
     const [tag, setTag] = useState([]);
+    const [type, setType] = useState([]);
     const [firstLoad, setFirstLoad] = useState(true)
     const [typesArr, setTypesArr] = useState();
     const [locationsArr, setLocationsArr] = useState();
     const [tagsArr, setTagsArr] = useState();
+    const [child, setChild] = useState();
+    const [order, setOrder] = useState();
+    const [soldOut, setSoldOut] = useState();
+    const [noTickets, setNoTickets] = useState();
 
     const getFilters = () => {
         let filters = ""
-        console.log(tagsArr)
-        if (tagsArr) {
+        // console.log(tagsArr)
+        if (tagsArr?.length > 0) {
             let aux = '?'
             let auxi = tagsArr
             if (!(auxi.constructor === Array)) {
@@ -108,13 +115,13 @@ const EventsContent = () => {
                 })
             }
         }
-        console.log(locationsArr)
-        if (locationsArr) {
+        // console.log(locationsArr)
+        if (locationsArr?.length > 0) {
             let aux = '?'
             if (filters.length > 0) {
                 aux = '&'
             }
-            console.log(locationsArr)
+            // console.log(locationsArr)
             let auxi = locationsArr
             if (!(auxi.constructor === Array)) {
                 if (auxi.includes(",")) {
@@ -131,10 +138,10 @@ const EventsContent = () => {
                     filters = `${filters}${aux}locations=${x}`
                     aux = '&'
                 })
-            } 
+            }
         }
-        console.log(typesArr)
-        if (typesArr) {
+        // console.log(typesArr)
+        if (typesArr?.length > 0) {
             let aux = '?'
             if (filters.length > 0) {
                 aux = '&'
@@ -152,10 +159,10 @@ const EventsContent = () => {
                 }
             } else {
                 auxi.forEach((x) => {
-                    filters = `${filters}${aux}types=${x}` 
+                    filters = `${filters}${aux}types=${x}`
                     aux = '&'
                 })
-            } 
+            }
         }
         if (values.search) {
             let aux = '?'
@@ -178,26 +185,64 @@ const EventsContent = () => {
             }
             filters = `${filters}${aux}maxPrice=${values.maxPrice}`
         }
+        if (values.order) {
+            let aux = '?'
+            if (filters.length > 0) {
+                aux = '&'
+            }
+            filters = `${filters}${aux}order=${values.order}`
+        }
+        if (values.soldOut) {
+            let aux = '?'
+            if (filters.length > 0) {
+                aux = '&'
+            }
+            filters = `${filters}${aux}soldOut=${values.soldOut}`
+        }
+        if (values.noTickets) {
+            let aux = '?'
+            if (filters.length > 0) {
+                aux = '&'
+            }
+            filters = `${filters}${aux}noTickets=${values.noTickets}`
+        }
         return filters
     }
 
-    const { data : filters, mutate, error : errorFilters } = useSwr(
-         `${server}/api/filters${getFilters()}`
+    const { data: filters, mutate, error: errorFilters } = useSwr(
+        `${server}/api/filters${getFilters()}`
         , fetcher)
 
     const [initialTypes, setInitialTypes] = useState([]);
 
     useEffect(() => {
-        if (firstLoad && (values.tags || values.types || values.locations)) {
-            setTagsArr(values?.tags)
-            setLocationsArr(values?.locations)
-            setTypesArr(values?.types)
+        if (firstLoad && (values.tags || values.types || values.locations || values.soldOut || values.order || values.noTickets)) {
+            if (values.tags && values.tags.constructor !== Array) {
+                setTagsArr(values?.tags.split(","))
+            } else {
+                setTagsArr(values?.tags)
+            }
+            if (values.locations && values.locations.constructor !== Array) {
+                setLocationsArr(values?.locations.split(","))
+            } else {
+                setLocationsArr(values?.locations)
+            }
+            if (values.types && values.types.constructor !== Array) {
+                setTypesArr(values?.types.split(","))
+            } else {
+                setTypesArr(values?.types)
+            }
+            setOrder(values?.order)
+            setSoldOut(values?.soldOut)
+            setNoTickets(values?.noTickets)
             setFirstLoad(false)
         }
-    }, [values.tags, values.locations, values.types, firstLoad])
+    }, [values.tags, values.locations, values.types, values.order, values.soldOut, values.noTickets, firstLoad])
 
     useEffect(() => {
-        if (!firstLoad && (typesArr || locationsArr || tagsArr)) {
+        if (!firstLoad && (typesArr || locationsArr || tagsArr || order || soldOut || noTickets)) {
+            console.log("ENTRO")
+            setPageIndex(1)
             let query = ""
             if (typesArr?.length > 0) {
                 query = `${query}&types=`
@@ -206,7 +251,7 @@ const EventsContent = () => {
                 } else if (typesArr) {
                     query = query + [typesArr]
                 }
-            } 
+            }
             if (locationsArr?.length > 0) {
                 query = `${query}&locations=`
                 if (locationsArr.constructor === Array) {
@@ -214,7 +259,7 @@ const EventsContent = () => {
                 } else {
                     query = query + [locationsArr]
                 }
-            } 
+            }
             if (tagsArr?.length > 0) {
                 query = `${query}&tags=`
                 if (tagsArr.constructor === Array) {
@@ -222,37 +267,119 @@ const EventsContent = () => {
                 } else {
                     query = query + [tagsArr]
                 }
-            } 
-            console.log(query)
+            }
+            if (order?.length > 0) {
+                query = `${query}&order=${order}`
+            }
+            if (soldOut) {
+                query = `${query}&soldOut=${soldOut}`
+            }
+            if (noTickets) {
+                query = `${query}&noTickets=${noTickets}`
+            }
+            if (values?.search) {
+                query = `${query}&search=${values.search}`
+            }
             let url = `/events?page=1${query}`
+            console.log("PATH" + path + search)
+            let oldPath = path + search
+            if (oldPath == url) {
+                return
+            }
             history.push(url)
         }
-    }, [typesArr, locationsArr, tagsArr, firstLoad])
+    }, [typesArr, locationsArr, tagsArr, order, soldOut, noTickets, firstLoad])
 
     const { register, handleSubmit, control, watch, formState: { errors } } = useForm();
 
-    if (errorFilters) return <p>No data</p>
-    if (!filters) return <p>Loading...</p>
+    let filtersStr = ""
+    if (values.page || values.search || values.types || values.locations || values.tags || values.order || values.soldOut || values.noTickets) {
+        if (values.page) {
+            filtersStr = `?page=${values.page}`
+        } else {
+            filtersStr = `?page=1`
+        }
+        if (values.search) {
+            filtersStr = `${filtersStr}&search=${values.search}`
+        }
+        if (values.types) {
+            values.types.split(",").forEach((x) => {
+                filtersStr = `${filtersStr}&types=${x}`
+            })
+        }
+        if (values.locations) {
+            values.locations.split(",").forEach((x) => {
+                filtersStr = `${filtersStr}&locations=${x}`
+            })
+        }
+        if (values.tags) {
+            values.tags.split(",").forEach((x) => {
+                filtersStr = `${filtersStr}&tags=${x}`
+            })
+        }
+        if (values.order) {
+            filtersStr = `${filtersStr}&order=${values.order}`
+        }
+        if (values.soldOut) {
+            filtersStr = `${filtersStr}&soldOut=${values.soldOut}`
+        }
+        if (values.noTickets) {
+            filtersStr = `${filtersStr}&noTickets=${values.noTickets}`
+        }
+    }
+
+    let links
+
+    const { data: dataEvents, error: errorEvents } = useSwr(`${server}/api/events${filtersStr}`, fetcherHeaders)
+
+    if (errorFilters || errorEvents) return <p>No data</p>
+    if (!filters || !dataEvents) return <ContentLoading />
+
+    links = parseLink(dataEvents.headers.get("Link"))
 
     let locationList = []
     filters.locations.entry.forEach(x => locationList.push({
         value: x.key.id,
-        label: x.key.name + " (" + x.value + ")"
+        label: x.key.name + " (" + x.value + ")",
     }))
 
     let tagList = []
-    filters.tags.entry.forEach(x => tagList.push({
-        value: x.key.id,
-        label: x.key.name + " (" + x.value + ")"
-    }))
+    let tagListAux = []
+    filters.tags.entry.forEach(x => {
+        tagList.push({
+            value: x.key.id,
+            label: x.key.name,
+            amount: x.value
+        })
+        tagListAux.push(x.key.id)
+    })
 
     let typeList = []
-    filters.types.entry.forEach(x => typeList.push({
-        value: x.key.id,
-        label: x.key.name + " (" + x.value + ")"
-    }))
+    let typeListAux = []
+    filters.types.entry.forEach(x => {
+        typeList.push({
+            value: x.key.id,
+            label: x.key.name,
+            amount: x.value
+        })
+        typeListAux.push(x.key.id)
+    })
+    let soldOutCount = filters.soldOut;
+    let noTicketsCount = filters.noTickets;
 
-    const addQueryParams = () => {}
+    const addQueryParams = () => { }
+
+    const handlePageChange = (e, page) => {
+        setPageIndex(page)
+        console.log(search)
+        let str
+        if (search.includes("page")) {
+            str = search.replace(new RegExp("[0-9]"), page)
+        } else {
+            str = `/events?page=${page}`
+        }
+        history.replace(str)
+    }
 
     const style = {
         control: base => ({
@@ -263,245 +390,306 @@ const EventsContent = () => {
             height: "42px",
         })
     }
+
+    let orderList = []
+    orderList.push({
+        value: "DATE_ASC",
+        label: "Fecha ascendente"
+    })
+    orderList.push({
+        value: "DATE_DESC",
+        label: "Fecha descendente"
+    })
+
     return (
         <section className="products-content">
-            <form className="products-filter" onChange={addQueryParams}>
-                <button type="button"
-                        onClick={() => setFiltersOpen(!filtersOpen)}
-                        className={`products-filter__menu-btn ${filtersOpen ? 'products-filter__menu-btn--active' : ''}`}>
-                    Add Filter <i className="icon-down-open"></i>
-                </button>
+            <div className="event-page">
+                <form className="event-filter">
+                    {/* <div className="products-content__intro">
+                         <h2>{i18n.t("filters")}</h2> 
+    </div>*/}
+                    <Controller
+                        name="location"
+                        rules={{ required: i18n.t('fieldRequired') }}
+                        control={control}
+                        defaultValue={location}
+                        render={({ field: { onChange }, fieldState }) => {
+                            let arry = []
+                            values?.locations?.split(",").map((x) => {
+                                let cto = locationList.find((c) => {
+                                    return c.value == x
+                                })
+                                if (cto) {
+                                    arry.push(cto)
+                                }
+                            });
+                            const currentSelection = arry
 
-                <div className={`products-filter__wrapper ${filtersOpen ? 'products-filter__wrapper--open' : ''}`}>
-                    <div className="products-filter__block">
-                        <Controller
-                            control={control}
-                            name="type"
-                            render={({ field: { onChange, value, name, ref } }) => {
-                                let arry = []
-                                values?.types?.split(",").map((x) => {
-                                    let cto = typeList.find((c) => {
-                                        console.log(x)
-                                        console.log(c)
-                                        return c.value == x
+                            const handleSelectChange = (event, selectedOption) => {
+                                setFirstLoad(false)
+                                onChange(selectedOption);
+                                setLocation(selectedOption);
+                                let aux = []
+                                selectedOption.forEach((x) => {
+                                    aux.push(x.value)
+                                })
+                                setLocationsArr(aux);
+                            };
+
+                            return (
+                                <FormControl className="filter-input">
+                                    <Autocomplete
+                                        multiple
+                                        disablePortal
+                                        id="location-autocomplete"
+                                        options={locationList}
+                                        value={currentSelection}
+                                        onChange={handleSelectChange}
+                                        noOptionsText={i18n.t("autocompleteNoOptions")}
+                                        isOptionEqualToValue={(option, value) => { return option.value === value.value }}
+                                        renderInput={(params) => <TextField {...params} label={i18n.t("create.location")} error={!!fieldState.error} />}
+                                    />
+
+                                    {fieldState.error ? (
+                                        <FormHelperText error>
+                                            {fieldState.error?.message}
+                                        </FormHelperText>
+                                    ) : null}
+                                </FormControl>
+                            );
+                        }}
+                    />
+
+                    <Controller
+                        control={control}
+                        defaultValue={''}
+                        name="types"
+                        render={({ field: { onChange, value, name, ref } }) => {
+                            const currentSelection = (value) => {
+                                let arr = values?.types?.split(",")
+                                if (arr) {
+                                    return !!arr.find((c) => {
+                                        return c == value
                                     })
-                                    if (cto) {
-                                        arry.push(cto)
+                                } else {
+                                    return false
+                                }
+                            }
+
+                            const handleSelectChange = (e, selectedOption) => {
+                                setFirstLoad(false)
+                                onChange(selectedOption);
+                                setType(e.target.value);
+                                console.log(typesArr)
+                                if (selectedOption) {
+                                    if (typesArr) {
+                                        setTypesArr((array) => [...array, e.target.value]);
+                                    } else {
+                                        setTypesArr([e.target.value])
                                     }
-                                });
-                                const currentSelection = arry
-                                // setTypesArr(router?.query?.types)
-
-                                const handleSelectChange = (selectedOption) => {
-                                    setFirstLoad(false)
-                                    console.log("TENGOOO" + selectedOption)
-                                    onChange(selectedOption);
-                                    setLocation(selectedOption);
-                                    let aux = []
-                                    selectedOption.forEach((x) => {
-                                        aux.push(x.value)
-                                    })
-                                    setTypesArr(aux);
-                                };
-
-                                return (
-                                    <>
-                                        <label hidden htmlFor="type-input">Select type: </label>
-                                        <Select
-                                            className="form__input"
-                                            id="type-input"
-                                            value={currentSelection}
-                                            name={name}
-                                            isMulti
-                                            options={typeList}
-                                            onChange={handleSelectChange}
-                                            placeholder={i18n.t("create.type")}
-                                            styles={style}
-                                        />
-                                    </>
-                                );
-                            }}
-                            rules={{
-                                required: true
-                            }}
-                        />
-                        {/*<button type="button">Product type</button>*/}
-                        {/*<div className="products-filter__block__content">*/}
-                        {/*    {productsTypes.map(type => (*/}
-                        {/*        <Checkbox*/}
-                        {/*            key={type.id}*/}
-                        {/*            name="product-type"*/}
-                        {/*            label={type.name}*/}
-                        {/*        />*/}
-                        {/*    ))}*/}
-                        {/*</div>*/}
-                    </div>
-
-                    <div className="products-filter__block">
-                        <Controller
-                            control={control}
-                            name="location"
-                            render={({ field: { onChange, value, name, ref } }) => {
-                                let arrx = []
-                                values?.locations?.split(",").map((x) => {
-                                    let cto = locationList.find((c) => {
-                                        return c.value == x
-                                    })
-                                    if (cto) {
-                                        arrx.push(cto)
+                                } else {
+                                    if (typesArr) {
+                                        if (typesArr.constructor === Array) {
+                                            setTypesArr(typesArr.filter(item => {
+                                                return item !== e.target.value && typeListAux.includes(Number(item))
+                                            }));
+                                        } else {
+                                            setTypesArr([])
+                                        }
                                     }
-                                });
-                                const currentSelection = arrx
-                                // setLocationsArr(router?.query?.locations)
+                                }
+                            };
 
-                                const handleSelectChange = (selectedOption) => {
-                                    setFirstLoad(false)
-                                    onChange(selectedOption);
-                                    setLocation(selectedOption);
-                                    let aux = []
-                                    selectedOption.forEach((x) => {
-                                        aux.push(x.value)
+                            return (
+                                <>
+                                    <FormGroup>
+                                        {typeList && typeList.length > 0 && <h3 className="filter-subtitle">{i18n.t("filter.types")}</h3>}
+                                        {typeList &&
+                                            typeList.map(
+                                                (x) => (
+                                                    <div className="filter-checkbox" key={x.value}>
+                                                        <FormControlLabel sx={{ margin: 0 }} control={<Checkbox sx={{ padding: "3px" }} value={x.value} checked={currentSelection(x.value)} />} label={x.label + " (" + x.amount + ")"} onChange={handleSelectChange} />
+                                                    </div>
+                                                ))}
+                                    </FormGroup>
+                                </>
+                            );
+                        }}
+                    />
+
+
+                    <Controller
+                        control={control}
+                        defaultValue={''}
+                        name="tags"
+                        render={({ field: { onChange, value, name, ref } }) => {
+                            const currentSelection = (value) => {
+                                let arr = values?.tags?.split(",")
+                                if (arr) {
+                                    return !!arr.find((c) => {
+                                        return c == value
                                     })
-                                    setLocationsArr(aux);
-                                };
+                                } else {
+                                    return false
+                                }
+                            }
 
-                                return (
-                                    <>
-                                        <label hidden htmlFor="location-input">Select location: </label>
-                                        <Select
-                                            className="form__input"
-                                            id="location-input"
-                                            value={currentSelection}
-                                            name={name}
-                                            isMulti
-                                            options={locationList}
-                                            onChange={handleSelectChange}
-                                            placeholder={i18n.t("create.location")}
-                                            styles={style}
-                                        />
-                                    </>
-                                );
-                            }}
-                            rules={{
-                                required: true
-                            }}
-                        />
-                        {/*<button type="button">Price</button>*/}
-                        {/*<div className="products-filter__block__content">*/}
-                        {/*    <Range min={0} max={20} defaultValue={[3, 10]} tipFormatter={value => `${value}%`}/>*/}
-                        {/*</div>*/}
-                    </div>
-
-                    <div className="products-filter__block">
-                        <Controller
-                            control={control}
-                            name="tags"
-                            render={({ field: { onChange, value, name, ref } }) => {
-                                let arr = []
-                                values?.tags?.split(",").map((x) => {
-                                    let cto = tagList.find((c) => {
-                                        return c.value == x
-                                    })
-                                    if (cto) {
-                                        arr.push(cto)
+                            const handleSelectChange = (e, selectedOption) => {
+                                setFirstLoad(false)
+                                onChange(selectedOption);
+                                console.log(e.target.value)
+                                console.log(selectedOption)
+                                setTag(e.target.value);
+                                if (selectedOption) {
+                                    if (tagsArr) {
+                                        setTagsArr((array) => [...array, e.target.value]);
+                                    } else {
+                                        setTagsArr([e.target.value])
                                     }
-                                });
-                                const currentSelection = arr
-                                // setTagsArr(router?.query?.tags)
+                                } else {
+                                    if (tagsArr) {
+                                        if (tagsArr.constructor === Array) {
+                                            setTagsArr(tagsArr.filter(item => {
+                                                return item !== e.target.value && tagListAux.includes(Number(item))
+                                            }));
+                                        } else {
+                                            setTagsArr([])
+                                        }
+                                    }
+                                }
+                            };
 
-                                const handleSelectChange = (selectedOption) => {
-                                    setFirstLoad(false)
-                                    onChange(selectedOption);
-                                    setTag(selectedOption);
-                                    let aux = []
-                                    selectedOption.forEach((x) => {
-                                        aux.push(x.value)
-                                    })
-                                    setTagsArr(aux);
-                                };
+                            return (
+                                <>
+                                    <FormGroup>
+                                        {tagList && tagList.length > 0 && <h3 className="filter-subtitle">{i18n.t("filter.tags")}</h3>}
+                                        {tagList &&
+                                            tagList.map(
+                                                (x) => (
+                                                    <div className="filter-checkbox" key={x.value}>
+                                                        <FormControlLabel sx={{ margin: 0 }} control={<Checkbox sx={{ padding: "3px" }} value={x.value} checked={currentSelection(x.value)} />} label={x.label + " (" + x.amount + ")"} onChange={handleSelectChange} />
+                                                    </div>
+                                                ))}
+                                    </FormGroup>
+                                </>
+                            );
+                        }}
+                    />
+                    {(noTicketsCount > 0 || soldOutCount > 0) &&
+                        <FormGroup>
+                            <h3 className="filter-subtitle">{i18n.t("filter.advancedOptions")}</h3>
 
-                                return (
-                                    <>
-                                        <label hidden htmlFor="tag-input">Select tags: </label>
-                                        <Select
-                                            className="form__input"
-                                            id="tag-input"
-                                            isMulti
-                                            value={currentSelection}
-                                            name={name}
-                                            options={tagList}
-                                            onChange={handleSelectChange}
-                                            placeholder={i18n.t("create.tags")}
-                                            styles={style}
-                                        />
-                                    </>
-                                );
-                            }}
-                            rules={{
-                                required: true
-                            }}
-                        />
-                        {/*<button type="button">Size</button>*/}
-                        {/*<div className="products-filter__block__content checkbox-square-wrapper">*/}
-                        {/*    {productsSizes.map(type => (*/}
-                        {/*        <Checkbox*/}
-                        {/*            type="square"*/}
-                        {/*            key={type.id}*/}
-                        {/*            name="product-size"*/}
-                        {/*            label={type.label}/>*/}
-                        {/*    ))}*/}
-                        {/*</div>*/}
-                    </div>
+                            {soldOutCount > 0 &&
+                                <Controller
+                                    control={control}
+                                    defaultValue={''}
+                                    name="soldout"
+                                    render={({ field: { onChange, value, name, ref } }) => {
+                                        console.log(soldOut)
+                                        const currentSelection = soldOut ? soldOut === "true" : false
+                                        console.log(currentSelection)
 
-                    <div className="products-filter__block">
-                        {/*<button type="button">Color</button>*/}
-                        {/*<div className="products-filter__block__content">*/}
-                        {/*    <div className="checkbox-color-wrapper">*/}
-                        {/*        {productsColors.map(type => (*/}
-                        {/*            <CheckboxColor key={type.id} valueName={type.color} name="product-color"*/}
-                        {/*                           color={type.color}/>*/}
-                        {/*        ))}*/}
-                        {/*    </div>*/}
-                        {/*</div>*/}
-                    </div>
+                                        const handleSelectChange = (e, selectedOption) => {
+                                            setFirstLoad(false)
+                                            onChange(selectedOption);
+                                            setSoldOut(String(selectedOption));
+                                        };
 
-                    {/* <button type="submit" className="btn btn-submit btn--rounded btn--yellow">Apply</button> */}
-                    {/* <button type="submit" className="">Apply</button> */}
-                </div>
-            </form>
+                                        return (
+                                            <div className="filter-checkbox">
+                                                <FormControlLabel sx={{ margin: 0 }} control={<Checkbox sx={{ padding: "3px" }} value={soldOut} checked={currentSelection} />} label={i18n.t("filter.soldOut") + " (" + soldOutCount + ")"} onChange={handleSelectChange} />
+                                            </div>
+                                        );
+                                    }}
+                                />
+                            }
+                            {noTicketsCount > 0 &&
+                                <Controller
+                                    control={control}
+                                    defaultValue={''}
+                                    name="ticketless"
+                                    render={({ field: { onChange, value, name, ref } }) => {
+                                        // const currentSelection = noTickets ? noTickets === value : false
+                                        const currentSelection = noTickets ? noTickets === "true" : false
 
-            <div className="products-content__intro">
-                <h2>Men's Tops <span>(133)</span></h2>
-                <button type="button" onClick={() => setOrderProductsOpen(!orderProductsOpen)}
-                        className="products-filter-btn"><i className="icon-filters"></i></button>
-                <form className={`products-content__filter ${orderProductsOpen ? 'products-order-open' : ''}`}>
-                    <div className="products__filter__select">
-                        <h4>Sort by: </h4>
-                        <div className="select-wrapper">
-                            <select>
-                                <option>{i18n.t("filter.username")}</option>
-                                <option>{i18n.t("filter.rating")}</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div className="products__filter__select">
-                        <h4>Order: </h4>
-                        <div className="select-wrapper">
-                            <select>
-                                <option>{i18n.t("filter.ascending")}</option>
-                                <option>{i18n.t("filter.descending")}</option>
-                            </select>
-                        </div>
-                    </div>
+                                        const handleTicketChange = (e, selectedOption) => {
+                                            setFirstLoad(false)
+                                            onChange(selectedOption);
+                                            setNoTickets(String(selectedOption));
+                                        };
+
+                                        return (
+                                            <div className="filter-checkbox">
+                                                <FormControlLabel sx={{ margin: 0 }} control={<Checkbox sx={{ padding: "3px" }} value={noTickets} checked={currentSelection} />} label={i18n.t("filter.noTickets") + " (" + noTicketsCount + ")"} onChange={handleTicketChange} />
+                                            </div>
+                                        );
+                                    }}
+                                />
+                            }
+
+
+                        </FormGroup>
+                        }
                 </form>
-            </div>
-            <div>
-                <div className="event-discovery flex w-full flex-1 flex-col items-center justify-center px-20 text-center">
-                    <Page index={pageIndex}/>
-                    <div style={{ display: 'none' }}><Page index={pageIndex + 1}/></div>
+
+                <div>
+                    <div className="products-content__intro">
+                        <h2>{i18n.t("filter.title")}</h2>
+                        <button type="button" onClick={() => setOrderProductsOpen(!orderProductsOpen)}
+                            className="products-filter-btn"><i className="icon-filters"></i></button>
+                        <form className={`products-content__filter ${orderProductsOpen ? 'products-order-open' : ''}`}>
+                            <div className="products__filter__select">
+                                <Controller
+                                    control={control}
+                                    defaultValue={'DATE_ASC'}
+                                    name="order"
+                                    render={({ field: { onChange, value, name, ref } }) => {
+                                        const currentSelection = orderList.find(
+                                            (c) => c.value === value
+                                        );
+
+                                        const handleSelectChange = (selectedOption) => {
+                                            setFirstLoad(false)
+                                            onChange(selectedOption.target.value);
+                                            setOrder(selectedOption.target.value);
+                                        };
+
+                                        return (
+                                            <FormControl>
+                                                <InputLabel className="order-label" id="order-select-label">{i18n.t("filter.sortBy")}</InputLabel>
+                                                <Select
+                                                    className="order-select"
+                                                    labelId="order-select-label"
+                                                    id="order-select"
+                                                    value={order ? order : "DATE_ASC"}
+                                                    onChange={handleSelectChange}
+                                                    input={<OutlinedInput className="order-label" label={i18n.t("filter.sortBy")} />}
+                                                >
+                                                    {orderList.map((x) => (
+                                                        <MenuItem
+                                                            key={x.value}
+                                                            value={x.value}
+                                                        >
+                                                            {x.label}
+                                                        </MenuItem>
+                                                    ))}
+                                                </Select>
+                                            </FormControl>
+                                        );
+                                    }}
+                                />
+                            </div>
+                        </form>
+                    </div>
+                    <div>
+                        <div className="event-discovery flex w-full flex-1 flex-col items-center justify-center px-20 text-center">
+                            {dataEvents && <Page data={dataEvents} aux={child} setAux={setChild} />}
+                        </div>
+                        <div className="pagination">
+                            <Pagination count={Number(links && links.last ? links.last?.page : 0)} showFirstButton showLastButton page={values?.page ? Number(values?.page) : pageIndex} onChange={handlePageChange} />
+                        </div>
+                    </div>
                 </div>
-                <button className="pag-button" onClick={() => setPageIndex(pageIndex <= 1 ? pageIndex : pageIndex - 1)}>&laquo;</button>
-                <button className="pag-button" onClick={() => setPageIndex(pageIndex + 1)}>&raquo;</button>
             </div>
         </section>
     );

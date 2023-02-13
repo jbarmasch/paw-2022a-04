@@ -44,34 +44,42 @@ public class UserJpaDao implements UserDao {
     @Override
     public UserList filterBy(String searchQuery, Order order, int page) {
         Map<String, Object> objects = new HashMap<>();
-        StringBuilder querySelect = new StringBuilder("FROM users u JOIN userroles ur ON u.userid = ur.userid LEFT JOIN events e ON u.userid = e.userid");
+        StringBuilder querySelect = new StringBuilder("FROM users u JOIN userroles ur ON u.userid = ur.userid LEFT JOIN events e ON u.userid = e.userid LEFT JOIN ratings r ON u.userid = r.userid");
         StringBuilder queryCondition = new StringBuilder(" WHERE ur.roleid = 2");
         if (searchQuery != null) {
             queryCondition.append(" AND ((SELECT to_tsvector('Spanish', u.username) @@ websearch_to_tsquery(:searchquery)) = 't' OR u.username ILIKE CONCAT('%', :searchquery, '%'))");
             objects.put("searchquery", searchQuery);
         }
         StringBuilder orderQuery = new StringBuilder();
+        StringBuilder typedOrder = new StringBuilder();
         if (order != null) {
-            orderQuery.append(" ORDER BY ").append(order.getOrder()).append(" ").append(order.getOrderBy());
+            if (order == Order.RATING_ASC || order == Order.RATING_DESC) {
+                orderQuery.append(" ORDER BY AVG(").append(order.getOrder()).append(") ").append(order.getOrderBy());
+            }
+            else {
+                orderQuery.append(" ORDER BY ").append(order.getOrder()).append(" ").append(order.getOrderBy());
+            }
+            typedOrder.append(" ORDER BY ").append(order.getOrder()).append(" ").append(order.getOrderBy());
         } else {
             orderQuery.append(" ORDER BY username ");
+            typedOrder.append(" ORDER BY username ");
         }
-
-        objects.put("page", (page - 1) * 8);
+        int pageSize = 12;
+        objects.put("page", (page - 1) * pageSize);
         String query = "SELECT aux.userid FROM (SELECT u.userid " + querySelect.append(queryCondition) + " GROUP BY u.userid" + orderQuery + ") as aux ";
-        Query queryNative = em.createNativeQuery(query + " LIMIT 8 OFFSET :page");
+        Query queryNative = em.createNativeQuery(query + " LIMIT " + pageSize + " OFFSET :page");
         objects.forEach(queryNative::setParameter);
         final List<Long> ids = (List<Long>) queryNative.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
             return new UserList(new ArrayList<>(), 0);
-        final TypedQuery<User> typedQuery = em.createQuery("FROM User WHERE userid IN :ids " + orderQuery, User.class);
+        final TypedQuery<User> typedQuery = em.createQuery("FROM User WHERE userid IN :ids " + typedOrder, User.class);
         typedQuery.setParameter("ids", ids);
 
         String theQuery = String.valueOf(querySelect);
         Query count = em.createNativeQuery("SELECT COUNT(DISTINCT u.userid) " + theQuery);
         objects.remove("page");
         objects.forEach(count::setParameter);
-        return new UserList(typedQuery.getResultList(), (int) Math.ceil((double) ((Number) count.getSingleResult()).intValue() / 8));
+        return new UserList(typedQuery.getResultList(), (int) Math.ceil((double) ((Number) count.getSingleResult()).intValue() / pageSize));
     }
 
     @Override
