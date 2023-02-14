@@ -13,6 +13,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.Collections;
 
 @Repository
 public class EventJpaDao implements EventDao {
@@ -130,7 +131,7 @@ public class EventJpaDao implements EventDao {
         final List<Long> ids = (List<Long>) queryNative.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         System.out.println("sout " + ids.size());
         if (ids.isEmpty())
-            return new EventList(new ArrayList<>(), 0);
+            return new EventList(Collections.emptyList(), 0);
         final TypedQuery<Event> typedQuery = em.createQuery("from Event where eventid IN :ids " + orderQuery, Event.class);
         typedQuery.setParameter("ids", ids);
 
@@ -208,7 +209,7 @@ public class EventJpaDao implements EventDao {
         idQuery.setParameter("date", Timestamp.valueOf(LocalDateTime.now()));
         final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
-            return new ArrayList<>();
+            return Collections.emptyList();
         final TypedQuery<Event> query = em.createQuery("from Event where eventid IN :ids", Event.class);
         query.setParameter("ids", ids);
         return query.getResultList();
@@ -233,7 +234,7 @@ public class EventJpaDao implements EventDao {
         // idQuery.setParameter("date", Timestamp.valueOf(LocalDateTime.now()));
         final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
-            return new ArrayList<>();
+            return Collections.emptyList();
         final TypedQuery<Event> query = em.createQuery("from Event where eventid IN :ids", Event.class);
         query.setParameter("ids", ids);
         return query.getResultList();
@@ -262,7 +263,7 @@ public class EventJpaDao implements EventDao {
         idQuery.setParameter("eventid", eventId);
         final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
-            return new ArrayList<>();
+            return Collections.emptyList();
         final TypedQuery<Event> query = em.createQuery("from Event where eventid IN :ids", Event.class);
         query.setParameter("ids", ids);
         return query.getResultList();
@@ -280,7 +281,7 @@ public class EventJpaDao implements EventDao {
         idQuery.setParameter("date", Timestamp.valueOf(LocalDateTime.now()));
         final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
-            return new ArrayList<>();
+            return Collections.emptyList();
         final TypedQuery<Event> query = em.createQuery("from Event where eventid IN :ids", Event.class);
         query.setParameter("ids", ids);
         return query.getResultList();
@@ -294,7 +295,7 @@ public class EventJpaDao implements EventDao {
         idQuery.setParameter("offset", (page - 1) * 10);
         final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
-            return new ArrayList<>();
+            return Collections.emptyList();
         final TypedQuery<Event> query = em.createQuery("from Event where eventid IN :ids ORDER BY date", Event.class);
         query.setParameter("ids", ids);
         return query.getResultList();
@@ -319,4 +320,21 @@ public class EventJpaDao implements EventDao {
         return Optional.of(new EventStats((String) result[0], ((Number) result[1]).intValue(), ((Number) result[2]).intValue(), ((Number) result[3]).doubleValue(),
                 ((Number) result[4]).doubleValue(), ((Number) result[5]).doubleValue(), ((Number) result[6]).doubleValue()));
     }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void checkSoldOut(long id) {
+        Query query = em.createNativeQuery(
+            "SELECT aux.eventid FROM (SELECT e.eventid, COUNT(ti.ticketid) AS count, state FROM events e LEFT JOIN tickets ti ON e.eventid = ti.eventid" + 
+            " WHERE ((((((ti.qty is NULL AND ti.booked is NULL) OR ti.qty = ti.booked) AND (ti.starting IS NULL OR ti.starting <= NOW()) AND (ti.until IS NULL OR ti.until >= NOW())))" + 
+            " ) OR state = 2) AND e.eventid = :eventid GROUP BY e.eventid) AS aux WHERE aux.count > 0 OR aux.state = 2");
+        query.setParameter("eventid", id);
+        List<Object[]> resultSet = query.getResultList();
+        if (resultSet.isEmpty()) {
+            return;
+        }
+
+        soldOut(id);
+    }
+    
 }

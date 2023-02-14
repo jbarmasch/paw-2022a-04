@@ -6,7 +6,7 @@ import UserItem from "./user-item";
 import {useEffect, useState} from "react";
 import Pagination from '@mui/material/Pagination';
 import ContentLoading from './content-loading';
-import { useHistory } from 'react-router-dom'
+import { useHistory, useLocation } from 'react-router-dom'
 import { Controller, useForm } from "react-hook-form";
 import i18n from '../../i18n'
 import Select, { SelectChangeEvent } from '@mui/material/Select';
@@ -17,10 +17,12 @@ import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
 import FormGroup from '@mui/material/FormGroup';
 import Checkbox from '@mui/material/Checkbox';
+import Input from '@mui/material/Input';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import FormHelperText from '@mui/material/FormHelperText';
 import { useFindPath } from '../header'
+import queryString from 'query-string'
 
 const fetcherHeaders = (...args) => fetch(...args).then((res) => {
     return {
@@ -48,6 +50,7 @@ function Page({ data, aux, setAux }) {
                             username={item.username}
                             rating={item.rating}
                             votes={item.votes}
+                            events={item.events}
                         />
                     ))}
                 </section>
@@ -58,16 +61,24 @@ function Page({ data, aux, setAux }) {
 
 const UsersContent = () => {
     const history = useHistory()
-    const [pageIndex, setPageIndex] = useState(1)
+    const { search } = useLocation()
+    const values = queryString.parse(search)
+
+    const [pageIndex, setPageIndex] = useState(values.page ? Number(values.page) : 1)
     const [orderProductsOpen, setOrderProductsOpen] = useState(false);
-    const [order, setOrder] = useState("USERNAME_ASC")
+    const [order, setOrder] = useState(values.order ? values.order : "USERNAME_ASC")
+    const [searchQuery, setSearchQuery] = useState(values.search ? values.search : undefined)
+    const [query, setQuery] = useState()
     const [child, setChild] = useState();
 
     let links
 
     const { register, handleSubmit, control, watch, formState: { errors } } = useForm();
 
-    let {data, error} = useSwr(`${server}/api/organizers?page=${pageIndex}&order=${order}`, fetcherHeaders);
+    let {data, error} = useSwr(searchQuery ?
+        `${server}/api/organizers?page=${pageIndex}&order=${order}&search=${searchQuery}` 
+        : `${server}/api/organizers?page=${pageIndex}&order=${order}`
+        , fetcherHeaders);
 
     if (error) return <p>No data</p>
     // TODO: hacer loading bien
@@ -109,14 +120,54 @@ const UsersContent = () => {
         label: "Usuario descendente"
     })
 
+    const preventDefault = f => e => {
+        e.preventDefault()
+        f(e)
+    }
+
+    const handleParam = setValue => e => setValue(e.target.value)
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            history.replace(`/organizers?page=1&search=${query}`);
+            setSearchQuery(query)
+        }
+    }
+
     return (
         <section className="users-content products-content">
             <div className="products-content__intro">
-                <h2>{i18n.t("filter.title")}</h2>
-                <button type="button" onClick={() => setOrderProductsOpen(!orderProductsOpen)}
-                        className="products-filter-btn"><i className="icon-filters"></i></button>
+                <h2>{i18n.t("organizer.organizers")}</h2>
+                {/* <button type="button" onClick={() => setOrderProductsOpen(!orderProductsOpen)}
+                        className="products-filter-btn"><i className="icon-filters"></i></button> */}
+                            <Input
+                                type='text'
+                                name='search'
+                                onChange={handleParam(setQuery)}
+                                onKeyDown={handleKeyDown}
+                                placeholder='Search organizer'
+                                aria-label='Search organizer'
+                            />
                     <form className={`products-content__filter ${orderProductsOpen ? 'products-order-open' : ''}`}>
                             <div className="products__filter__select">
+                            {/* <Controller
+                                    control={control}
+                                    defaultValue={''}
+                                    name="search"
+                                    render={({ field: { onChange, value, name, ref } }) => {
+                                        const handleSelectChange = (selectedOption) => {
+                                            setSearch(selectedOption.target.value);
+                                        };
+
+                                        return (
+                                            <FormControl>
+                                                <InputLabel className="order-label" id="order-select-label">{i18n.t("filter.sortBy")}</InputLabel>
+                                                <Input/>
+                                            </FormControl>
+                                        );
+                                    }}
+                                /> */}
+
                                 <Controller
                                     control={control}
                                     defaultValue={'USERNAME_ASC'}
@@ -163,7 +214,7 @@ const UsersContent = () => {
                     {data && <Page data={data} aux={child} setAux={setChild} />}
                 </div>
                 <div className="pagination">
-                    <Pagination count={Number(links.last.page)} showFirstButton showLastButton page={pageIndex} onChange={handlePageChange} />
+                    <Pagination count={Number(links.last ? links.last.page : 1)} showFirstButton showLastButton page={pageIndex} onChange={handlePageChange} />
                 </div>
             </div>
         </section>

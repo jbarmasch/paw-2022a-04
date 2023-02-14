@@ -6,6 +6,7 @@ import { HashRouter, BrowserRouter } from 'react-router-dom'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import WebFont from 'webfontloader';
 import { Context } from './utils/context';
+
 // import getUser from './utils/context';
 
 WebFont.load({
@@ -25,14 +26,18 @@ const theme = createTheme({
     },
 });
 
+
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <ThemeProvider theme={theme}>
         <BrowserRouter>
-            <Context.Provider value={Context}>
+
+            {/* <Context.Provider value={Context}> */}
             {/* <Context.Provider value={getUser()}> */}
                 <App />
-            </Context.Provider>
+            {/* </Context.Provider> */}
+
         </BrowserRouter>
     </ThemeProvider>
 );

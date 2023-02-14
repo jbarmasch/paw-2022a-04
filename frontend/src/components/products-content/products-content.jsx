@@ -19,7 +19,10 @@ import FormGroup from '@mui/material/FormGroup';
 import Checkbox from '@mui/material/Checkbox';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
 import FormHelperText from '@mui/material/FormHelperText';
+import Button from '@mui/material/Button';
+import Slider from '@mui/material/Slider';
 import { useFindPath } from '../header'
 
 const fetcher = (...args) => fetch(...args).then((res) => res.json())
@@ -91,6 +94,9 @@ const EventsContent = () => {
     const [order, setOrder] = useState();
     const [soldOut, setSoldOut] = useState();
     const [noTickets, setNoTickets] = useState();
+    const [userId, setUserId] = useState();
+    const [minPrice, setMinPrice] = useState();
+    const [maxPrice, setMaxPrice] = useState();
 
     const getFilters = () => {
         let filters = ""
@@ -206,6 +212,13 @@ const EventsContent = () => {
             }
             filters = `${filters}${aux}noTickets=${values.noTickets}`
         }
+        if (values.userId) {
+            let aux = '?'
+            if (filters.length > 0) {
+                aux = '&'
+            }
+            filters = `${filters}${aux}userId=${values.userId}`
+        }
         return filters
     }
 
@@ -216,7 +229,7 @@ const EventsContent = () => {
     const [initialTypes, setInitialTypes] = useState([]);
 
     useEffect(() => {
-        if (firstLoad && (values.tags || values.types || values.locations || values.soldOut || values.order || values.noTickets)) {
+        if (firstLoad && (values.tags || values.types || values.locations || values.soldOut || values.order || values.noTickets || values.userId || values.minPrice || values.maxPrice)) {
             if (values.tags && values.tags.constructor !== Array) {
                 setTagsArr(values?.tags.split(","))
             } else {
@@ -235,12 +248,15 @@ const EventsContent = () => {
             setOrder(values?.order)
             setSoldOut(values?.soldOut)
             setNoTickets(values?.noTickets)
+            setUserId(values?.userId)
+            setMinPrice(values?.minPrice)
+            setMaxPrice(values?.maxPrice)
             setFirstLoad(false)
         }
-    }, [values.tags, values.locations, values.types, values.order, values.soldOut, values.noTickets, firstLoad])
+    }, [values.tags, values.locations, values.types, values.order, values.soldOut, values.noTickets, values.userId, values.minPrice, values.maxPrice, firstLoad])
 
     useEffect(() => {
-        if (!firstLoad && (typesArr || locationsArr || tagsArr || order || soldOut || noTickets)) {
+        if (!firstLoad && (typesArr || locationsArr || tagsArr || order || soldOut || noTickets || userId || minPrice || maxPrice)) {
             console.log("ENTRO")
             setPageIndex(1)
             let query = ""
@@ -280,6 +296,15 @@ const EventsContent = () => {
             if (values?.search) {
                 query = `${query}&search=${values.search}`
             }
+            if (values?.userId) {
+                query = `${query}&userId=${values.userId}`
+            }
+            if (minPrice) {
+                query = `${query}&minPrice=${minPrice}`
+            }
+            if (maxPrice) {
+                query = `${query}&maxPrice=${maxPrice}`
+            }
             let url = `/events?page=1${query}`
             console.log("PATH" + path + search)
             let oldPath = path + search
@@ -288,12 +313,12 @@ const EventsContent = () => {
             }
             history.push(url)
         }
-    }, [typesArr, locationsArr, tagsArr, order, soldOut, noTickets, firstLoad])
+    }, [typesArr, locationsArr, tagsArr, order, soldOut, noTickets, minPrice, maxPrice, firstLoad])
 
-    const { register, handleSubmit, control, watch, formState: { errors } } = useForm();
+    const { register, handleSubmit, control, watch, getValues, formState: { errors } } = useForm();
 
     let filtersStr = ""
-    if (values.page || values.search || values.types || values.locations || values.tags || values.order || values.soldOut || values.noTickets) {
+    if (values.page || values.search || values.types || values.locations || values.tags || values.order || values.soldOut || values.noTickets || values.userId || values.minPrice || values.maxPrice) {
         if (values.page) {
             filtersStr = `?page=${values.page}`
         } else {
@@ -325,6 +350,15 @@ const EventsContent = () => {
         }
         if (values.noTickets) {
             filtersStr = `${filtersStr}&noTickets=${values.noTickets}`
+        }
+        if (values.userId) {
+            filtersStr = `${filtersStr}&userId=${values.userId}`
+        }
+        if (values.minPrice) {
+            filtersStr = `${filtersStr}&minPrice=${values.minPrice}`
+        }
+        if (values.maxPrice) {
+            filtersStr = `${filtersStr}&maxPrice=${values.maxPrice}`
         }
     }
 
@@ -401,16 +435,29 @@ const EventsContent = () => {
         label: "Fecha descendente"
     })
 
+    const onSubmit = (data) => {
+        console.log(data)
+        setFirstLoad(false); 
+        setMaxPrice(getValues("maxPrice")); 
+        setMinPrice(getValues("minPrice"))
+    }
+
+    console.log(minPrice)
+    console.log(maxPrice)
+    console.log(values)
+    console.log(values?.minPrice)
+
     return (
         <section className="products-content">
             <div className="event-page">
-                <form className="event-filter">
+                <div className="event-filter">
+                <form>
                     {/* <div className="products-content__intro">
                          <h2>{i18n.t("filters")}</h2> 
     </div>*/}
                     <Controller
                         name="location"
-                        rules={{ required: i18n.t('fieldRequired') }}
+                        // rules={{ required: i18n.t('fieldRequired') }}
                         control={control}
                         defaultValue={location}
                         render={({ field: { onChange }, fieldState }) => {
@@ -447,7 +494,7 @@ const EventsContent = () => {
                                         onChange={handleSelectChange}
                                         noOptionsText={i18n.t("autocompleteNoOptions")}
                                         isOptionEqualToValue={(option, value) => { return option.value === value.value }}
-                                        renderInput={(params) => <TextField {...params} label={i18n.t("create.location")} error={!!fieldState.error} />}
+                                        renderInput={(params) => <TextField {...params} label={i18n.t("filter.locations")} error={!!fieldState.error} />}
                                     />
 
                                     {fieldState.error ? (
@@ -629,9 +676,98 @@ const EventsContent = () => {
 
 
                         </FormGroup>
-                        }
+                    }
                 </form>
 
+
+                <form onSubmit={handleSubmit(onSubmit)}>
+
+
+                    <h3 className="filter-subtitle">{i18n.t("filter.price")}</h3>
+
+                        <div className="filter-horizontal">
+
+                        <Controller
+                                name="minPrice"
+                                rules={{
+                                    validate: {
+                                        min: (x) => { return x >= 0 || i18n.t("filter.minPriceError") }
+                                    }
+                                }}
+                                control={control}
+                                defaultValue={''}
+                                render={({ field, fieldState }) => {
+                                    const checkMin = () => {
+                                        console.log("ESS")
+                                        console.log(values.minPrice)
+                                        return values.minPrice ? values.minPrice : ''
+                                    }
+
+                                    return (
+                                        <FormControl sx={{ width: 120 }}>
+                                            <TextField id="min-price-input" label={i18n.t("filter.minPrice")} variant="outlined" size="small"
+                                                error={!!fieldState.error}
+                                                value={checkMin}
+                                                {...field}
+                                                InputProps={{
+                                                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                                    inputMode: 'numeric', pattern: '[0-9]*'
+                                                }}
+                                                />
+                                            {fieldState.error ? (
+                                                <FormHelperText error>
+                                                    {fieldState.error?.message}
+                                                </FormHelperText>
+                                            ) : null}
+                                        </FormControl>
+                                    );
+                                }}
+                            />
+<span>-</span>
+                        {/* <TextField size="small" value={""} variant="outlined"></TextField> */}
+                        {/* <TextField size="small" value={""} variant="outlined"></TextField> */}
+                        <Controller
+                                name="maxPrice"
+                                control={control}
+                                rules={{
+                                    validate: {
+                                        range: () => {
+                                        if (getValues("minPrice") && getValues("maxPrice")) {
+                                            return getValues("minPrice") < getValues("maxPrice") || i18n.t("filter.rangePriceError") 
+                                        }
+                                        return true;
+                                    },
+                                    min: (x) => { return x >= 0 || i18n.t("filter.maxPriceError") }
+                                    }
+                                }}
+                                defaultValue={values.maxPrice ? values.maxPrice : ''}
+                                render={({ field, fieldState }) => {
+                                    return (
+                                        <FormControl sx={{ width: 120 }}>
+                                            <TextField id="min-price-input" label={i18n.t("filter.maxPrice")} variant="outlined" size="small"
+                                                error={!!fieldState.error}
+                                                value={values.maxPrice ? values.maxPrice : ''}
+                                                {...field}
+                                                InputProps={{
+                                                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                                    inputMode: 'numeric', pattern: '[0-9]*'
+                                                }}
+                                                />
+                                            {fieldState.error ? (
+                                                <FormHelperText error>
+                                                    {fieldState.error?.message}
+                                                </FormHelperText>
+                                            ) : null}
+                                        </FormControl>
+                                    );
+                                }}
+                            />
+
+                        </div>
+
+                        <div className="center"><Button type="submit" variant="contained">{i18n.t("filter.apply")}</Button></div>
+                </form>
+</div>
                 <div>
                     <div className="products-content__intro">
                         <h2>{i18n.t("filter.title")}</h2>

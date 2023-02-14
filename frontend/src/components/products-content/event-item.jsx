@@ -17,6 +17,7 @@ import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
 
 export const ParseDateTime = (datetime) => {
     const date = new Date(datetime);
+    console.log(i18n.language)
     const dateTimeFormat = new Intl.DateTimeFormat(i18n.language, {
         year: 'numeric',
         month: 'numeric',

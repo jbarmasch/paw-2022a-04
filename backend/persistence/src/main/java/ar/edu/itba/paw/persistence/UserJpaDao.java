@@ -25,7 +25,7 @@ public class UserJpaDao implements UserDao {
         queryNative.setParameter("page", (page - 1) * 10);
         final List<Long> ids = (List<Long>) queryNative.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
-            return new UserList(new ArrayList<>(), 0);
+            return new UserList(Collections.emptyList(), 0);
         final TypedQuery<User> typedQuery = em.createQuery("from User where userid IN :ids ", User.class);
         typedQuery.setParameter("ids", ids);
 
@@ -71,7 +71,7 @@ public class UserJpaDao implements UserDao {
         objects.forEach(queryNative::setParameter);
         final List<Long> ids = (List<Long>) queryNative.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
-            return new UserList(new ArrayList<>(), 0);
+            return new UserList(Collections.emptyList(), 0);
         final TypedQuery<User> typedQuery = em.createQuery("FROM User WHERE userid IN :ids " + typedOrder, User.class);
         typedQuery.setParameter("ids", ids);
 
@@ -122,13 +122,6 @@ public class UserJpaDao implements UserDao {
     public Optional<User> getUserById(long id) {
         return Optional.ofNullable(em.find(User.class, id));
     }
-
-    // @Override
-    // public Optional<User> getOrganizerById(String username) {
-    //     final TypedQuery<User> query = em.createQuery("from User as u where u.userid = :userid and u.roleid = 2", User.class);
-    //     query.setParameter("userid", userid);
-    //     return query.getResultList().stream().findFirst();
-    // }
 
     @SuppressWarnings("unchecked")
     @Override

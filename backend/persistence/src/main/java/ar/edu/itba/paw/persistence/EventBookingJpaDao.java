@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.Optional;
+import java.util.Collections;
 
 @Repository
 public class EventBookingJpaDao implements EventBookingDao {
@@ -28,7 +29,7 @@ public class EventBookingJpaDao implements EventBookingDao {
         queryNative.setParameter("userid", userId);
         final List<Long> ids = (List<Long>) queryNative.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
-            return new EventBookingList(new ArrayList<>(), 0);
+            return new EventBookingList(Collections.emptyList(), 0);
         final TypedQuery<EventBooking> typedQuery = em.createQuery("from EventBooking where id IN :ids ", EventBooking.class);
         typedQuery.setParameter("ids", ids);
 
@@ -40,10 +41,6 @@ public class EventBookingJpaDao implements EventBookingDao {
     @SuppressWarnings("unchecked")
     @Override
     public Optional<EventBooking> getBookingFromUser(long userId, long eventId) {
-        // final TypedQuery<EventBooking> query = em.createQuery("from EventBooking as eb where eb.user.id = :userid AND eb.event.id = :eventid", EventBooking.class);
-        // query.setParameter("userid", userId);
-        // query.setParameter("eventid", eventId);
-        // return query.getResultList().stream().findFirst();
         Query queryNative = em.createNativeQuery("SELECT eb.id FROM eventbookings eb JOIN ticketbookings tb ON eb.id = tb.id WHERE tb.qty > 0 AND eb.userid = :userid AND eb.eventid = :eventid GROUP BY eb.id");
         queryNative.setParameter("userid", userId);
         queryNative.setParameter("eventid", eventId);
@@ -130,8 +127,17 @@ public class EventBookingJpaDao implements EventBookingDao {
             return false;
 
         for (TicketBooking ticketBooking : booking.getTicketBookings()) {
-            ticketBooking.setQty(0);
-            em.persist(ticketBooking);
+            TicketBooking tb = em.find(TicketBooking.class, new BookingId(ticketBooking.getTicket(), booking));
+            if (tb == null) {
+                throw new CancelBookingFailedException();
+            }
+            Ticket ticket = ticketBooking.getTicket();
+            if (!ticket.cancelBooking(ticket.getBooked())) {
+                throw new CancelBookingFailedException();
+            }
+            em.persist(ticket);
+            tb.setQty(tb.getQty() - ticket.getBooked());
+            em.persist(tb);
         }
         em.persist(booking);
         return true;

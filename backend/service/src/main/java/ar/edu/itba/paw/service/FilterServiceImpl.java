@@ -19,7 +19,7 @@ public class FilterServiceImpl implements FilterService {
     private FilterDao filterDao;
 
     @Override
-    public FilterType getFilterType(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, Boolean showSoldOut, Boolean showNoTickets) {
+    public FilterType getFilterType(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, Boolean showSoldOut, Boolean showNoTickets, Integer userId) {
         for (Integer loc : locations) {
             if (loc == null) {
                 // TODO: Change
@@ -38,7 +38,7 @@ public class FilterServiceImpl implements FilterService {
                 throw new RuntimeException();
             }
         }
-        return filterDao.getFilterType(locations, types, minPrice, maxPrice, searchQuery, tags, showSoldOut, showNoTickets);
+        return filterDao.getFilterType(locations, types, minPrice, maxPrice, searchQuery, tags, showSoldOut, showNoTickets, userId);
     }
 }
 

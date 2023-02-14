@@ -66,7 +66,7 @@ const i18n_es = {
         price : "Precio",
         quantity : "Cantidad",
         maxpuser : "Máx. por usuario",
-        starting : "Desde",
+        starting : "Precio mínimo",
         until : "Hasta",
         free : "Gratis",
         noTickets : "Sin tickets",
@@ -101,13 +101,20 @@ const i18n_es = {
         tags : "Seleccionar tags",
         sortBy : "Ordenar por",
         order : "Orden",
+        price : "Price",
+        apply : "Apply",
+        minPrice : "Min. price",
+        maxPrice : "Max. price",
         username : "Nombre de usuario",
         rating : "Puntuación",
         ascending : "Ascendente",
         descending : "Descendente",
         soldOut : "Agotado",
         noTickets : "Sin tickets",
-        advancedOptions: "Opciones avanzadas"
+        advancedOptions: "Opciones avanzadas",
+        minPriceError : "El precio mínimo debe ser mayor o igual a 0",
+        maxPriceError : "El precio máximo debe ser mayor o igual a 0 y al precio mínimo",
+        rangePriceError : "El precio máximo no puede ser menor al mínimo"
     },
     
     bookings : {
@@ -149,7 +156,9 @@ const i18n_es = {
     },
 
     organizer: {
-        organizers : "Organizadores"
+        organizers : "Organizadores",
+        seeEvents : "Ver eventos",
+        noEvents : "Sin eventos"
     },
 
     thankYou: {

@@ -16,6 +16,7 @@ import Logout from '@mui/icons-material/Logout';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import { useContext } from 'react';
 import { Context } from '../utils/context';
+import { useAuth } from '../utils/useAuth';
 
 export const useFindPath = () => {
     const location = useLocation();
@@ -31,6 +32,8 @@ const Header = () => {
     const arrayPaths = ['/'];
     const history = useHistory();
 
+    const { user } = useAuth();
+
     let accessToken;
     let refreshToken;
 
@@ -39,11 +42,11 @@ const Header = () => {
         refreshToken = localStorage.getItem("Refresh-Token");
     }
 
-    const [logged, setLogged] = useState(false)
+    // const [logged, setLogged] = useState(false)
 
-    useEffect(() => {
-        checkLogin(accessToken, refreshToken).then(x => setLogged(x))
-    }, [accessToken, refreshToken])
+    // useEffect(() => {
+    //     checkLogin(accessToken, refreshToken).then(x => setLogged(x))
+    // }, [accessToken, refreshToken])
 
     const [onTop, setOnTop] = useState((!arrayPaths.includes(path)) ? false : true);
     const [menuOpen, setMenuOpen] = useState(false);
@@ -107,8 +110,11 @@ const Header = () => {
         localStorage.removeItem("Access-Token")
         localStorage.removeItem("Refresh-Token")
         localStorage.removeItem("User-ID")
+        localStorage.removeItem("user")
         history.go(0)
     }
+
+    console.log(user)
 
     return (
         <header className={`site-header ${!onTop ? 'site-header--fixed' : ''}`}>
@@ -156,10 +162,10 @@ const Header = () => {
                         </form>
                         <IconButton onClick={() => setSearchOpen(!searchOpen)} className="icon-search"><SearchOutlinedIcon style={{ color: onTop && !searchOpen ? 'white' : 'black' }}/></IconButton>
                     </div>
-                    {!logged &&
+                    {!user &&
                         <Link to="/login"><IconButton><LoginOutlinedIcon style={{ color: onTop ? 'white' : 'black' }}/></IconButton></Link>
                     }
-                    {logged &&
+                    {user &&
                         <>
                             <IconButton
                                 onClick={handleClick}
@@ -169,7 +175,7 @@ const Header = () => {
                                 aria-haspopup="true"
                                 aria-expanded={open ? 'true' : undefined}
                             >
-                                <Avatar sx={{ width: 32, height: 32, color: 'black', bgcolor: "secondary"}}>{user ? user.username[0].toUpperCase() : ""}</Avatar>
+                                <Avatar sx={{ width: 32, height: 32, color: 'black', bgcolor: "secondary"}}>{user.username[0].toUpperCase()}</Avatar>
                             </IconButton>
                             <Menu
                                 anchorEl={anchorEl}

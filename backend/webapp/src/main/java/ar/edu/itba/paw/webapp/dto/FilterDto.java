@@ -19,8 +19,8 @@ public class FilterDto {
     private Map<LocationDto, Integer> locations;
     private Map<TypeDto, Integer> types;
     private Map<TagDto, Integer> tags;
-    private Integer soldOut;
-    private Integer noTickets;
+    private int soldOut;
+    private int noTickets;
 
     public static FilterDto fromFilter(final UriInfo uriInfo, final FilterType filter) {
         final FilterDto dto = new FilterDto();
@@ -72,19 +72,19 @@ public class FilterDto {
         this.tags = tags;
     }
 
-    public Integer getSoldOut() {
+    public int getSoldOut() {
         return soldOut;
     }
 
-    public void setSoldOut(Integer soldOut) {
+    public void setSoldOut(int soldOut) {
         this.soldOut = soldOut;
     }
 
-    public Integer getNoTickets() {
+    public int getNoTickets() {
         return noTickets;
     }
 
-    public void setNoTickets(Integer noTickets) {
+    public void setNoTickets(int noTickets) {
         this.noTickets = noTickets;
     }
 

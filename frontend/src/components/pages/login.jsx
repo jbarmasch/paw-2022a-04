@@ -1,6 +1,7 @@
 import Layout from '../layout';
 import { useForm, Controller } from "react-hook-form";
 import { server } from '../../utils/server';
+import { useAuth } from '../../utils/useAuth';
 import * as React from "react";
 import { useEffect } from "react";
 import i18n from '../../i18n'
@@ -21,6 +22,8 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
 const Login = () => {
+    const { login } = useAuth();
+
     const history = useHistory();
     let path = useFindPath();
     const { search } = useLocation()
@@ -54,6 +57,18 @@ const Login = () => {
         localStorage.setItem("Access-Token", res.headers.get("Access-Token"))
         localStorage.setItem("Refresh-Token", res.headers.get("Refresh-Token"))
         localStorage.setItem("User-ID", res.headers.get("User-ID"))
+
+
+        const bad = await fetch(`${server}/api/users/${res.headers.get("User-ID")}`, {
+            method: "GET",
+            headers: {
+                'Authorization': `Basic ${btoa(authorization)}`
+            }
+        })
+
+        let bes = await bad.json();
+        console.log(bes)
+        login(bes)
 
         if (values?.redirectTo) {
             history.push(values.redirectTo)
@@ -94,7 +109,7 @@ const Login = () => {
                                         defaultValue={''}
                                         render={({ field, fieldState }) => {
                                             return (
-                                                <FormControl className="login-input">
+                                                <FormControl className="full-width-input">
                                                     <TextField id="username-input" label={i18n.t("login.username")} variant="outlined"
                                                         error={!!fieldState.error}
                                                         {...field} />
@@ -130,7 +145,7 @@ const Login = () => {
                                     defaultValue={''}
                                     render={({ field, fieldState }) => {
                                         return (
-                                            <FormControl className="login-input">
+                                            <FormControl className="full-width-input">
                                                 <InputLabel htmlFor="password-input">{i18n.t("login.password")}</InputLabel>
                                                 <OutlinedInput
                                                     id="password-input"

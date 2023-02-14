@@ -1,16 +1,16 @@
+import Skeleton from '@mui/material/Skeleton';
+import Box from '@mui/material/Box';
+
+
 const UserLoading = () => (
-    <a href="#" className="product-item product-item--loading">
-        <div className="product__image">
+    <>
+        <Box className="user-card">
+                <Skeleton width="50%" height="40px" variant="rectangular"/>
+                <Skeleton sx={{marginTop: "7px"}} width="70%" height="40px" variant="rectangular"/>
+                <Skeleton sx={{marginTop: "7px"}} width="40%" height="40px" variant="rectangular"/>
 
-        </div>
-
-        <div className="product__description">
-            <h3></h3>
-            <div className={"product__price"}>
-                <h4></h4>
-            </div>
-        </div>
-    </a>
+        </Box>
+    </>
 );
 
 

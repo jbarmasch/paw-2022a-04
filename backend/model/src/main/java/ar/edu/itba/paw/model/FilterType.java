@@ -13,10 +13,10 @@ public class FilterType {
     private Map<Location, Integer> locations;
     private Map<Type, Integer> types;
     private Map<Tag, Integer> tags;
-    private Integer soldOut;
-    private Integer noTickets;
+    private int soldOut;
+    private int noTickets;
 
-    public FilterType(Map<Location,Integer> locations, Map<Type,Integer> types, Map<Tag,Integer> tags, Integer soldOut, Integer noTickets) {
+    public FilterType(Map<Location,Integer> locations, Map<Type,Integer> types, Map<Tag,Integer> tags, int soldOut, int noTickets) {
         this.locations = locations;
         this.types = types;
         this.tags = tags;
@@ -36,11 +36,11 @@ public class FilterType {
         return this.tags;
     }
 
-    public Integer getSoldOut() {
+    public int getSoldOut() {
         return this.soldOut;
     }
 
-    public Integer getNoTickets() {
+    public int getNoTickets() {
         return this.noTickets;
     }
 }

@@ -114,7 +114,7 @@ const MyEvent = (props) => {
         start++;
     }
 
-    const { data: event, error: errorData } = useSwr(props.match.params.id ? `${server}/api/events/${props.match.params.id}` : null, fetcher)
+    const { data: event, mutate, error: errorData } = useSwr(props.match.params.id ? `${server}/api/events/${props.match.params.id}` : null, fetcher)
 
     const [tickets, setTickets] = useState([]);
 
@@ -224,7 +224,7 @@ const MyEvent = (props) => {
             name: data.name,
             location: data.location.value,
             type: data.type,
-            date: auxi,
+            date: dateAux,
         }
 
         if (data.description) {
@@ -256,16 +256,21 @@ const MyEvent = (props) => {
 
         console.log(obj)
 
-        // const res = await fetch(`${server}/api/events`, {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //         'Authorization': `Bearer ${accessToken}`
-        //     },
-        //     body: JSON.stringify(obj)
-        // })
+        let resi
 
-        return;
+        if (changed) {
+            resi = await fetch(`${server}/api/events/${props.match.params.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify(obj)
+            })
+        }
+
+        let resAux = await resi
+        // return;
 
         console.log(rowsData)
 
@@ -282,6 +287,8 @@ const MyEvent = (props) => {
         let auxi = {
             tickets: []
         }
+
+        if (data.tickets) {
 
         for (const d of data.tickets) {
             if (d.ticketId) {
@@ -342,6 +349,10 @@ const MyEvent = (props) => {
         })
 
         let json = await res;
+        }
+
+        // history
+        mutate()
     }
 
     const StyledTableRow = styled(TableRow)(({ theme }) => ({
@@ -405,7 +416,10 @@ const MyEvent = (props) => {
                 {/* <div className="container my-event-page"> */}
                     <form className="form container my-event-page" onSubmit={handleSubmit(onSubmit)}>
                         <div className="my-event-content">
-                            <img className="event-image" src={`data:image/png;base64,${aux.image}`} alt="My event image" />
+                        <div className="contain">
+                            <img className="event-image" src={`data:image/png;base64,${aux.image}`} alt="Event" />
+                            {!!event.soldOut && <span className="event-image-sold-out">{i18n.t("event.soldOut")}</span>}
+                        </div>
                             <Paper className="event-info" elevation={2}>
                                 {/* <div className="product-single__content">
                         <img className={"product-gallery__image"} src={`data:image/png;base64,${aux.image}`} alt="My event image"/>
@@ -423,7 +437,7 @@ const MyEvent = (props) => {
                                     }
                                 </div>
                                 {!edit ?
-                                    <ul>
+                                    <ul className="event-info-content">
                                         <li>
                                             <h4>{i18n.t("event.name")}</h4>
                                             <span>{event.name}</span>
@@ -432,13 +446,21 @@ const MyEvent = (props) => {
                                             <h4>{i18n.t("event.description")}</h4>
                                             <span>{event.description}</span>
                                         </li>
-                                        <li>
+                                        {/* <li>
                                             <h4>{i18n.t("event.minPrice")}</h4>
-                                            <span>{getPrice(event.minPrice)}</span>
-                                        </li>
+                                            <span>{getPrice(event.minPrice, false)}</span>
+                                        </li> */}
                                         <li>
                                             <h4>{i18n.t("event.location")}</h4>
                                             <span>{event.location.name}</span>
+                                        </li>
+                                        <li>
+                                            <h4>{i18n.t("event.type")}</h4>
+                                            <span>{event.type.name}</span>
+                                        </li>
+                                        <li>
+                                            <h4>{i18n.t("event.date")}</h4>
+                                            <span>{ParseDateTime(event.date)}</span>
                                         </li>
                                         <li>
                                             <h4>{i18n.t("event.tags")}</h4>
@@ -456,7 +478,7 @@ const MyEvent = (props) => {
                                         }
                                     </ul>
                                     :
-                                    <ul>
+                                    <ul className="event-info-content">
                                         <li>
                                             <h4>{i18n.t("event.name")}</h4>
                                             {/* <Input value={event.name}></Input> */}
@@ -467,9 +489,11 @@ const MyEvent = (props) => {
                                 defaultValue={event.name}
                                 render={({ field, fieldState }) => {
                                     return (
-                                        <FormControl sx={{ width: 120 }}>
-                                            <TextField id="name-input" label={i18n.t("event.name")} variant="standard"
+                                        <FormControl className="my-event-input">
+                                            <InputLabel className="casper" htmlFor="name-input">{i18n.t("event.name")}</InputLabel>
+                                            <TextField id="name-input" variant="standard"
                                                 error={!!fieldState.error}
+                                                // isHiddenLabel
                                                 {...field} />
                                             {fieldState.error ? (
                                                 <FormHelperText error>
@@ -491,62 +515,22 @@ const MyEvent = (props) => {
                                 defaultValue={event.description}
                                 render={({ field, fieldState }) => {
                                     return (
-                                        <FormControl sx={{ width: 120 }}>
-                                            <TextField id="description-input" label={i18n.t("event.description")} variant="standard"
+                                        <FormControl className="full-width-input">
+                                            <InputLabel className="casper" htmlFor="description-input">{i18n.t("event.description")}</InputLabel>
+                                            <TextField id="description-input" variant="standard"
+                                                multiline
+                                                maxRows={3}
+                                                // isHiddenLabel
                                                 {...field} />
                                         </FormControl>
                                     );
                                 }}
                             />
                                         </li>
-                                        <li>
+                                        {/* <li>
                                             <h4>{i18n.t("event.minPrice")}</h4>
                                             <span>{event.minPrice}</span>
-                                            {/* <Input value={event.minPrice}></Input> */}
-                                        </li>
-                                        <li>
-                                            <h4>{i18n.t("event.type")}</h4>
-                                            {/* <span>{event.type}</span> */}
-                                            {/* <Input value={event.type.name}></Input> */}
-                                            <Controller
-                                                name="type"
-                                                rules={{ required: i18n.t('fieldRequired') }}
-                                                control={control}
-                                                defaultValue={event.type.id}
-                                                render={({ field, fieldState }) => {
-                                                    return (
-                                                        <FormControl sx={{ width: 120 }} size="small">
-                                                            <InputLabel sx={{display: "none"}} id="type-select-label" error={!!fieldState.error}>{i18n.t("create.type")}</InputLabel>
-                                                            <Select
-                                                                id="type-select"
-                                                                // label={i18n.t("create.type")}
-                                                                labelId="type-select-label"
-                                                                value={event.type.id}
-                                                                error={!!fieldState.error}
-                                                                {...field}
-                                                                variant="standard"
-                                                                input={<OutlinedInput/>}
-                                                            >
-                                                                {typeList.map((x) => (
-                                                                    <MenuItem
-                                                                        key={x.value}
-                                                                        value={x.value}
-                                                                    // value={x.label}
-                                                                    >
-                                                                        {x.label}
-                                                                    </MenuItem>
-                                                                ))}
-                                                            </Select>
-                                                            {fieldState.error ? (
-                                                                <FormHelperText error>
-                                                                    {fieldState.error?.message}
-                                                                </FormHelperText>
-                                                            ) : null}
-                                                        </FormControl>
-                                                    );
-                                                }}
-                                            />
-                                        </li>
+                                        <li> */}
                                         <li>
                                             <h4>{i18n.t("event.location")}</h4>
                                             <Controller
@@ -556,7 +540,7 @@ const MyEvent = (props) => {
                                                 defaultValue={auxxx}
                                                 render={({ field: { onChange }, fieldState }) => {
                                                     return (
-                                                        <FormControl sx={{width: "180px"}} size="small">
+                                                        <FormControl className="my-event-input" size="small">
                                                             <InputLabel sx={{display: "none"}} htmlFor="location-autocomplete">{i18n.t("create.location")}</InputLabel>
                                                             <Autocomplete
                                                                 disablePortal
@@ -585,6 +569,89 @@ const MyEvent = (props) => {
                                             />
                                         </li>
                                         <li>
+                                            <h4>{i18n.t("event.type")}</h4>
+                                            {/* <span>{event.type}</span> */}
+                                            {/* <Input value={event.type.name}></Input> */}
+                                            <Controller
+                                                name="type"
+                                                rules={{ required: i18n.t('fieldRequired') }}
+                                                control={control}
+                                                defaultValue={event.type.id}
+                                                render={({ field, fieldState }) => {
+                                                    return (
+                                                        <FormControl className="my-event-input" size="small" variant="standard">
+                                                            <InputLabel className="casper" id="type-select-label" error={!!fieldState.error}>{i18n.t("create.type")}</InputLabel>
+                                                            <Select
+                                                                id="type-select"
+                                                                labelId="type-select-label"
+                                                                value={event.type.id}
+                                                                error={!!fieldState.error}
+                                                                {...field}
+//                                                                input={<OutlinedInput/>}
+                                                            >
+                                                                {typeList.map((x) => (
+                                                                    <MenuItem
+                                                                        key={x.value}
+                                                                        value={x.value}
+                                                                    // value={x.label}
+                                                                    >
+                                                                        {x.label}
+                                                                    </MenuItem>
+                                                                ))}
+                                                            </Select>
+                                                            {fieldState.error ? (
+                                                                <FormHelperText error>
+                                                                    {fieldState.error?.message}
+                                                                </FormHelperText>
+                                                            ) : null}
+                                                        </FormControl>
+                                                    );
+                                                }}
+                                            />
+                                        </li>
+                                        <li>
+                                        <Controller
+                                control={control}
+                                name="date"
+                                rules={{
+                                    required: i18n.t('fieldRequired'),
+                                    validate: {
+                                        min: (date) => { return (new Date(date) > Date.now()) || i18n.t("create.dateError") }
+                                    }
+                                }}
+                                defaultValue={event.date} // <---------- HERE
+                                render={({ field: { ref, onBlur, name, onChange, ...field }, fieldState }) => (
+                                    <FormControl className="my-event-input">
+                                        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={i18n.language  != 'en' && i18n.language != 'es' ? 'en' : i18n.language}>
+                                            <InputLabel className="casper" htmlFor="event-date-input">{i18n.t("event.date")}</InputLabel>
+                                            <DateTimePicker
+                                                id="event-date-input"
+                                                renderInput={(inputProps) => (
+                                                    <TextField
+                                                        {...inputProps}
+                                                        onBlur={onBlur}
+                                                        name={name}
+                                                        error={!!fieldState.error}
+                                                        variant="standard"
+                                                    />)}
+                                                onChange={(event) => { onChange(event); setDate(event); }}
+                                                {...field}
+                                                inputRef={ref}
+                                            />
+                                        </LocalizationProvider>
+                                        {fieldState.error ? (
+                                            <FormHelperText error>
+                                                {fieldState.error?.message}
+                                            </FormHelperText>
+                                        ) : null}
+                                    </FormControl>
+                                )}
+                            />
+
+
+                                        </li>
+
+                                        <li>
                                             <h4>{i18n.t("event.tags")}</h4>
                                             <Controller
                                                 control={control}
@@ -603,8 +670,8 @@ const MyEvent = (props) => {
 
                                                     return (
                                                         <>
-                                                            <FormControl sx={{ width: "200px" }} variant="standard" size="small">
-                                                                <InputLabel sx={{display: "none"}} id="tags-select-label">{i18n.t("create.tags")}</InputLabel>
+                                                            <FormControl className="my-event-input" variant="standard" size="small">
+                                                                <InputLabel className="casper" id="tags-select-label">{i18n.t("create.tags")}</InputLabel>
                                                                 <Select
                                                                     variant="standard"
                                                                     labelId="tags-select-label"
@@ -613,7 +680,7 @@ const MyEvent = (props) => {
                                                                     // value={tag}
                                                                     value={tag ? tag : theTags}
                                                                     onChange={handleSelectChange}
-                                                                    input={<OutlinedInput label={i18n.t("create.tags")} />}
+                                                                    // input={<OutlinedInput label={i18n.t("create.tags")} />}
                                                                 >
                                                                     {tagList.map((x) => (
                                                                         <MenuItem
@@ -632,6 +699,7 @@ const MyEvent = (props) => {
 
                                             {/* <span>{event.tags}</span> */}
                                         </li>
+                                        
                                         {/* {event.minAge &&
                                             <li>
                                                 <h4>{i18n.t("event.minAge")}</h4>
@@ -700,7 +768,7 @@ const MyEvent = (props) => {
                                                 defaultValue={event.minAge}
                                                 render={({ field, fieldState }) => {
                                                     return (
-                                                        <FormControl variant="standard" disabled={activeMin !== 'undefined' ? activeMin : (event.minAge ? false : true)} className={"min-age-select"}>
+                                                        <FormControl variant="standard" disabled={activeMin !== 'undefined' ? !activeMin : (event.minAge ? false : true)} className={"min-age-select"}>
                                                             <InputLabel id="stackoverflow-label" error={!!fieldState.error}>{i18n.t("event.minAge")}</InputLabel>
                                                             <Select
                                                                 id="age-select"
@@ -859,8 +927,12 @@ const MyEvent = (props) => {
                                         </StyledTableCell>
                                     </StyledTableRow>
                                 </TableHead>
-                                <tbody>
-                                    {fields.map((item, index) => {
+                                <TableBody>
+                                    {fields.length == 0 ?
+                                    
+                                    <TableRow><StyledTableCell>{i18n.t("event.noTickets")}</StyledTableCell></TableRow>
+                                    
+                                    : fields.map((item, index) => {
                                         return (
                                             <StyledTableRow key={item.id}>
                                                 <StyledTableCell>
@@ -1079,7 +1151,7 @@ const MyEvent = (props) => {
                                                             )}
                                                         />
 
-                                                        : <span>{ParseDateTime(item.starting)}</span>
+                                                        : <span>{item.starting ? ParseDateTime(item.starting) : ""}</span>
                                                     }
 
                                                     {/* <input
@@ -1087,7 +1159,7 @@ const MyEvent = (props) => {
                                                             {...register(`tickets[${index}].starting`)}
                                                             type="datetime-local"
                                                 /> */}
-                                                    {errors.tickets?.at(index)?.starting?.type && <span>{i18n.t("fieldRequired")}</span>}
+                                                    {/* {errors.tickets?.at(index)?.starting?.type && <span>{i18n.t("fieldRequired")}</span>} */}
                                                 </StyledTableCell>
                                                 <StyledTableCell className="date-input">
 
@@ -1134,7 +1206,7 @@ const MyEvent = (props) => {
                                                                 </FormControl>
                                                             )}
                                                         />
-                                                        : <span>{ParseDateTime(item.until)}</span>
+                                                        : <span>{item.until ? ParseDateTime(item.until) : ""}</span>
                                                     }
 
                                                     {/* <input
@@ -1181,7 +1253,7 @@ const MyEvent = (props) => {
                                             </StyledTableRow>
                                         );
                                     })}
-                                </tbody>
+                                </TableBody>
                             </Table>
                         </TableContainer>
                         {/* <input type="submit" /> */}

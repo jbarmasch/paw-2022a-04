@@ -3677,7 +3677,7 @@ h5 {
 }
 
 .casper {
-    display: none;
+    display: none !important;
 }
 
 .border {
@@ -3853,12 +3853,25 @@ h5 {
         min-width: 300px;
     }
 
-    &>* {
-        margin-top: 20px;
+    & > form {
+        margin-top: -20px;
+
+        & > * {
+            margin-top: 20px;
+        }
     }
 
     .products-content__intro {
         margin-top: 0;
+    }
+}
+
+.users-filter {
+    display: flex;
+    flex-direction: row;
+
+    * {
+        margin-left: 5px;
     }
 }
 
@@ -4015,12 +4028,12 @@ h5 {
     // min-width: 24vw;
     // max-width: 24vw;
 
-    width: 500px;
+    width: 600px;
     height: fit-content;
 
     @include breakpoint(tablet-lg) {
         width: 400px;
-        height: 500px;
+        height: 600px;
     }
 
     & * {
@@ -4073,6 +4086,13 @@ h5 {
     justify-content: center;
 }
 
+.contain {
+    width: fit-content;
+    height: fit-content;
+    position: relative;
+    overflow: clip;
+}
+
 .event-image {
     object-fit: cover;
     /*
@@ -4083,13 +4103,28 @@ h5 {
         width: 30vw;
         height: 30vw;
     }*/
-    width: 500px;
-    height: 500px;
+    width: 600px;
+    height: 600px;
 
     @include breakpoint(tablet-lg) {
-        width: 500px;
-        height: 500px;
+        width: 600px;
+        height: 600px;
     }
+}
+
+.event-image-sold-out {
+    position: absolute;
+    transform: rotate(-45deg);
+    color: white;
+    padding: 4px 0;
+    left: -27%;
+    font-size: 60px;
+    background-color: red;
+    width: 100%;
+    text-align: center;
+    box-shadow:  0 4px 6px 1px rgba(0, 0, 0, 0.6);
+    text-transform: uppercase;
+    top: 17%;
 }
 
 .event-content {
@@ -4140,8 +4175,12 @@ h5 {
     }
 }
 
-.login-input {
+.full-width-input {
     width: 100%;
+}
+
+.my-event-input {
+    width: 200px;
 }
 
 .form-actions {
@@ -4154,9 +4193,48 @@ h5 {
     flex-direction: column;
 }
 
+.filter-horizontal {
+    display: flex;
+    flex-direction: row;
+
+    span {
+        margin: 0 4px;
+        font-size: 40px;
+    }
+}
+
 .underline {
     text-decoration: underline;
 }
+
+.user-rating {
+    display: flex;
+    align-items: center;
+}
+
+.event-info-content {
+    display: flex;
+    flex-direction: column;
+    // justify-content: space-between;
+    height: 100%;
+    
+    li {
+        margin: 10px 0;
+
+        & > span {
+            display: inline-block;
+            // margin-top: 20px;
+            margin-top: 6px;
+        }
+    }
+}
+
+.bookings-intro {
+    display: flex;
+    justify-content: space-between;
+}
+
+
 
 /*
     .profile-data__items {

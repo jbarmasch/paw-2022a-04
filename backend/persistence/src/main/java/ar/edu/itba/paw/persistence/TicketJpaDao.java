@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.Collections;
 
 @Repository
 public class TicketJpaDao implements TicketDao {
@@ -39,11 +40,11 @@ public class TicketJpaDao implements TicketDao {
     @SuppressWarnings("unchecked")
     @Override
     public List<Ticket> getTickets(long id) {
-        Query idQuery = em.createNativeQuery("SELECT ticketid FROM tickets WHERE eventid = :eventid");
+        Query idQuery = em.createNativeQuery("SELECT ticketid FROM tickets WHERE eventid = :eventid AND qty > 0");
         idQuery.setParameter("eventid", id);
         final List<Long> ids = (List<Long>) idQuery.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
-            return new ArrayList<>();
+            return Collections.emptyList();
         final TypedQuery<Ticket> query = em.createQuery("from Ticket where ticketid IN :ids", Ticket.class);
         query.setParameter("ids", ids);
         return query.getResultList();

@@ -8,6 +8,7 @@ import ar.edu.itba.paw.model.EventBooking;
 import ar.edu.itba.paw.model.EventBookingList;
 import ar.edu.itba.paw.model.TicketBooking;
 import ar.edu.itba.paw.persistence.EventBookingDao;
+import ar.edu.itba.paw.persistence.EventDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,8 @@ import java.util.*;
 public class EventBookingServiceImpl implements EventBookingService {
     @Autowired
     private EventBookingDao eventBookingDao;
+    @Autowired
+    private EventDao eventDao;
     @Autowired
     private MailService mailService;
     @Autowired
@@ -40,8 +43,8 @@ public class EventBookingServiceImpl implements EventBookingService {
     @Override
     public Optional<EventBooking> getBooking(String code) {
         Optional<EventBooking> eb = eventBookingDao.getBooking(code);
-//        if (!eb.isPresent() || (eb.get().getEvent().getDate().isBefore(LocalDateTime.now()) || eb.get().getTicketBookingsSize() == 0))
-        if (!eb.isPresent() || eb.get().getTicketBookingsSize() == 0)
+       if (!eb.isPresent() || (eb.get().getEvent().getDate().isBefore(LocalDateTime.now()) || eb.get().getTicketBookingsSize() == 0))
+    //    if (!eb.isPresent() || eb.get().getTicketBookingsSize() == 0)
             return Optional.empty();
         return eb;
     }
@@ -50,6 +53,11 @@ public class EventBookingServiceImpl implements EventBookingService {
     @Override
     public EventBooking book(EventBooking booking, String baseUrl, Locale locale) throws AlreadyMaxTicketsException, SurpassedMaxTicketsException {
         EventBooking persistedBooking = eventBookingDao.getBookingFromUser(booking.getUser().getId(), booking.getEvent().getId()).orElse(null);
+
+        if (booking.getUser().getId() == booking.getEvent().getOrganizer().getId()) {
+            // TODO: cambiar, no podes bookear tu mismo evento
+            throw new IllegalTicketException();
+        }
 
         Map<Long, TicketBooking> ticketMap = new HashMap<>();
         if (persistedBooking != null) {
@@ -62,6 +70,7 @@ public class EventBookingServiceImpl implements EventBookingService {
         Map<Integer, Integer> alreadyTicketsError = new HashMap<>();
         Map<Integer, Integer> surpassedTicketsError = new HashMap<>();
         int i = 0;
+        // boolean soldOut = false;
         for (TicketBooking ticketBooking : booking.getTicketBookings()) {
             if (ticketBooking.getQty() != null && ticketBooking.getQty() != 0) {
                 if (ticketBooking.getTicket().getEvent().getId() != booking.getEvent().getId())
@@ -69,17 +78,27 @@ public class EventBookingServiceImpl implements EventBookingService {
                 if (ticketBooking.getTicket().getTicketsLeft() < ticketBooking.getQty() || ticketBooking.getQty() > ticketBooking.getTicket().getMaxPerUser()) {
                     surpassedTicketsError.put(i, ticketBooking.getTicket().getTicketsLeft());
                 }
+                // if (ticketBooking.getTicket().getTicketsLeft() - ticketBooking.getQty() == 0) {
+                //     soldOut = true;
+                // }
                 if (persistedBooking != null) {
                     TicketBooking aux = ticketMap.get(ticketBooking.getTicket().getId());
                     if (aux != null) {
                         if (ticketBooking.getQty() + aux.getQty() > ticketBooking.getTicket().getMaxPerUser()) {
                             alreadyTicketsError.put(i, ticketBooking.getTicket().getMaxPerUser() - aux.getQty());
                         }
+                        // if (ticketBooking.getQty() + aux.getQty() == ticketBooking.getTicket().getTicketsLeft()) {
+                        //     soldOut = true;
+                        // }
                     }
                 }
             }
             i++;
         }
+
+        // if (soldOut) {
+        //     eventDao.soldOut(booking.getEvent().getId());
+        // }
 
         if (!alreadyTicketsError.isEmpty()) {
             throw new AlreadyMaxTicketsException(alreadyTicketsError);
@@ -95,6 +114,9 @@ public class EventBookingServiceImpl implements EventBookingService {
         if (eventBooking != null) {
             TransactionUtil.executeAfterTransaction(() -> mailService.sendBookMail(baseUrl + "/bookings/" + eventBooking.getCode(), eventBooking, locale));
         }
+
+        eventDao.checkSoldOut(booking.getEvent().getId());
+
         return eventBooking;
     }
 

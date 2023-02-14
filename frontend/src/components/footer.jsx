@@ -20,7 +20,7 @@ const Footer = () => {
                         </ul>
                         <ul>
                             <li>{i18n.t("footer.contact")}</li>
-                            <li><a href="mailto:botpass@zohomail.com">botpass@zohomail.com</a></li>
+                            <li><a href="mailto:bottlerpass@zohomail.com">bottlerpass@zohomail.com</a></li>
                         </ul>
                     </div>
                 </div>
