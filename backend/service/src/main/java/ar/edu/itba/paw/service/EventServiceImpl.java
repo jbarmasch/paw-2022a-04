@@ -133,6 +133,11 @@ public class EventServiceImpl implements EventService {
     public Optional<EventStats> getEventStats(long id) {
         return eventDao.getEventStats(id);
     }
+
+    @Override
+    public void checkSoldOut(long id) {
+        eventDao.checkSoldOut(id);
+    }
 }
 
 

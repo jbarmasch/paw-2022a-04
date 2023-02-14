@@ -38,6 +38,15 @@ public class User {
     )
     private List<Role> roles;
 
+    public User(long id, String username, String password, String mail, String language, List<Role> roles) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.mail = mail;
+        this.language = language;
+        this.roles = roles;
+    }
+
     public User(String username, String password, String mail, Role initialRole, String language) {
         this.username = username;
         this.password = password;

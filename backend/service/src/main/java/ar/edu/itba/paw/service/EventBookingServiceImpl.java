@@ -21,7 +21,7 @@ public class EventBookingServiceImpl implements EventBookingService {
     @Autowired
     private EventBookingDao eventBookingDao;
     @Autowired
-    private EventDao eventDao;
+    private EventService eventService;
     @Autowired
     private MailService mailService;
     @Autowired
@@ -54,6 +54,9 @@ public class EventBookingServiceImpl implements EventBookingService {
     public EventBooking book(EventBooking booking, String baseUrl, Locale locale) throws AlreadyMaxTicketsException, SurpassedMaxTicketsException {
         EventBooking persistedBooking = eventBookingDao.getBookingFromUser(booking.getUser().getId(), booking.getEvent().getId()).orElse(null);
 
+        System.out.println(booking.getEvent().getOrganizer().getId());
+        System.out.println(booking.getUser().getId());
+
         if (booking.getUser().getId() == booking.getEvent().getOrganizer().getId()) {
             // TODO: cambiar, no podes bookear tu mismo evento
             throw new IllegalTicketException();
@@ -70,7 +73,6 @@ public class EventBookingServiceImpl implements EventBookingService {
         Map<Integer, Integer> alreadyTicketsError = new HashMap<>();
         Map<Integer, Integer> surpassedTicketsError = new HashMap<>();
         int i = 0;
-        // boolean soldOut = false;
         for (TicketBooking ticketBooking : booking.getTicketBookings()) {
             if (ticketBooking.getQty() != null && ticketBooking.getQty() != 0) {
                 if (ticketBooking.getTicket().getEvent().getId() != booking.getEvent().getId())
@@ -78,27 +80,17 @@ public class EventBookingServiceImpl implements EventBookingService {
                 if (ticketBooking.getTicket().getTicketsLeft() < ticketBooking.getQty() || ticketBooking.getQty() > ticketBooking.getTicket().getMaxPerUser()) {
                     surpassedTicketsError.put(i, ticketBooking.getTicket().getTicketsLeft());
                 }
-                // if (ticketBooking.getTicket().getTicketsLeft() - ticketBooking.getQty() == 0) {
-                //     soldOut = true;
-                // }
                 if (persistedBooking != null) {
                     TicketBooking aux = ticketMap.get(ticketBooking.getTicket().getId());
                     if (aux != null) {
                         if (ticketBooking.getQty() + aux.getQty() > ticketBooking.getTicket().getMaxPerUser()) {
                             alreadyTicketsError.put(i, ticketBooking.getTicket().getMaxPerUser() - aux.getQty());
                         }
-                        // if (ticketBooking.getQty() + aux.getQty() == ticketBooking.getTicket().getTicketsLeft()) {
-                        //     soldOut = true;
-                        // }
                     }
                 }
             }
             i++;
         }
-
-        // if (soldOut) {
-        //     eventDao.soldOut(booking.getEvent().getId());
-        // }
 
         if (!alreadyTicketsError.isEmpty()) {
             throw new AlreadyMaxTicketsException(alreadyTicketsError);
@@ -115,7 +107,7 @@ public class EventBookingServiceImpl implements EventBookingService {
             TransactionUtil.executeAfterTransaction(() -> mailService.sendBookMail(baseUrl + "/bookings/" + eventBooking.getCode(), eventBooking, locale));
         }
 
-        eventDao.checkSoldOut(booking.getEvent().getId());
+        eventService.checkSoldOut(booking.getEvent().getId());
 
         return eventBooking;
     }

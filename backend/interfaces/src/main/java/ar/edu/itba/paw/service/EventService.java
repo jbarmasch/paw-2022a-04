@@ -39,4 +39,6 @@ public interface EventService {
     List<Event> getUserEvents(long id, int page);
 
     Optional<EventStats> getEventStats(long id);
+
+    void checkSoldOut(long id);
 }
