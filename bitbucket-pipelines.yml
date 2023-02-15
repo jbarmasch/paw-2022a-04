@@ -19,6 +19,7 @@ pipelines:
             - sed -i "s/@PropertySource(\"classpath:config.properties\")//g" "$codeServiceFile"
             - sed -i "s/env.getProperty(\"encPassword\")/\"$PAW_BOTTLER_ENCPASS\"/g" "$codeServiceFile"
             - sed -i "s/env.getProperty(\"encSalt\")/\"$PAW_BOTTLER_ENCSALT\"/g" "$codeServiceFile"
+            - unset CI
             - mvn clean package
           artifacts:
             - backend/webapp/target/webapp.war
