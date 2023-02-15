@@ -30,8 +30,8 @@ public class JwtTokenUtils {
     public JwtTokenUtils(Environment env) {
         this.env = env;
         this.secret = env.getProperty("secret");
-        this.audience = env.getProperty("hostname");
-        this.issuer = env.getProperty("hostname");
+        this.audience = "http://pawserver.it.itba.edu.ar/paw-2022a-04";
+        this.issuer = "http://pawserver.it.itba.edu.ar/paw-2022a-04";
     }
 
     public String issueToken(AuthenticationTokenDetails authenticationTokenDetails) {

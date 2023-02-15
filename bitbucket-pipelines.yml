@@ -21,7 +21,6 @@ pipelines:
             - sed -i "s/env.getProperty(\"encSalt\")/\"$PAW_BOTTLER_ENCSALT\"/g" "$codeServiceFile"
             - export tokenConfigFile="webapp/src/main/java/ar/edu/itba/paw/webapp/auth/JwtTokenUtils.java"
             - sed -i "s/env.getProperty(\"secret\")/\"$PAW_BOTTLER_ENCPASS\"/g" "$tokenConfigFile"
-            - sed -i "s/env.getProperty(\"hostname\")/\"http://pawserver.it.itba.edu.ar/paw-2022a-04\"/g" "$tokenConfigFile"
             - unset CI
             - mvn clean package
           artifacts:
