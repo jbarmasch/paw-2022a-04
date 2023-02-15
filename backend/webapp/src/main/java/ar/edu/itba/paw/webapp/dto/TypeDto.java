@@ -20,7 +20,7 @@ public class TypeDto {
         dto.name = type.getName(locale);
 
         final UriBuilder typeUriBuilder = uriInfo.getAbsolutePathBuilder().
-                replacePath("api/types").path(String.valueOf(type.getId()));
+                path("api/types").path(String.valueOf(type.getId()));
         dto.self = typeUriBuilder.build();
 
         return dto;
@@ -33,7 +33,7 @@ public class TypeDto {
         dto.name = type.getName();
 
         final UriBuilder typeUriBuilder = uriInfo.getAbsolutePathBuilder().
-                replacePath("api/types").path(String.valueOf(type.getId()));
+                path("api/types").path(String.valueOf(type.getId()));
         dto.self = typeUriBuilder.build();
 
         return dto;

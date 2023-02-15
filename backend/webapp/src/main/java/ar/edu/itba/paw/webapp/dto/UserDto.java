@@ -34,10 +34,10 @@ public class UserDto {
         dto.role = role.size() > 1 ? RoleEnum.ROLE_CREATOR.toString() : role.isEmpty() ? "ROLE_USER" : role.get(0).getRoleName();
 
         final UriBuilder userUriBuilder = uriInfo.getAbsolutePathBuilder().
-                replacePath("api/users").path(String.valueOf(user.getId()));
+                path("api/users").path(String.valueOf(user.getId()));
         dto.self = userUriBuilder.build();
 
-        final UriBuilder eventsUriBuilder = uriInfo.getAbsolutePathBuilder().replacePath("api/events");
+        final UriBuilder eventsUriBuilder = uriInfo.getAbsolutePathBuilder().path("api/events");
         dto.events = eventsUriBuilder.queryParam("userId", String.valueOf(user.getId())).build();
 
         return dto;

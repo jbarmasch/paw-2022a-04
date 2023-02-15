@@ -24,7 +24,7 @@ public class LocationDto {
         dto.name = location.getName();
 
         final UriBuilder locationUriBuilder = uriInfo.getAbsolutePathBuilder().
-                replacePath("api/locations").path(String.valueOf(location.getId()));
+                path("api/locations").path(String.valueOf(location.getId()));
         dto.self = locationUriBuilder.build();
 
         return dto;

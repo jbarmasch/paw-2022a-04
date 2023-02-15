@@ -348,7 +348,7 @@ public class EventController {
         }
 
         final URI uri = uriInfo.getAbsolutePathBuilder()
-            .replacePath("api/bookings").path(String.valueOf(eventBooking.getCode())).build();
+            .path("api/bookings").path(String.valueOf(eventBooking.getCode())).build();
         return Response.created(uri).build();
     }
 

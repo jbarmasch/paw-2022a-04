@@ -51,19 +51,19 @@ public class EventDto {
         dto.soldOut = event.getState() == State.SOLDOUT;
 
         final UriBuilder eventUriBuilder = uriInfo.getAbsolutePathBuilder().
-                replacePath("api/events").path(String.valueOf(event.getId()));
+                path("api/events").path(String.valueOf(event.getId()));
         dto.self = eventUriBuilder.build();
 
         final UriBuilder organizerUriBuilder = uriInfo.getAbsolutePathBuilder().
-                replacePath("api/organizers").path(String.valueOf(event.getOrganizer().getId()));
+                path("api/organizers").path(String.valueOf(event.getOrganizer().getId()));
         dto.organizer = organizerUriBuilder.build();
 
         final UriBuilder imageUriBuilder = uriInfo.getAbsolutePathBuilder().
-                replacePath("api/image").path(String.valueOf(event.getImage().getId()));
+                path("api/image").path(String.valueOf(event.getImage().getId()));
         dto.image = imageUriBuilder.build();
 
         final UriBuilder ticketsUriBuilder = uriInfo.getAbsolutePathBuilder().
-                replacePath("api/events").path(String.valueOf(event.getId())).path("tickets");
+                path("api/events").path(String.valueOf(event.getId())).path("tickets");
         dto.tickets = ticketsUriBuilder.build();
 
         return dto;
