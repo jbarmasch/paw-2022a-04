@@ -19,6 +19,9 @@ pipelines:
             - sed -i "s/@PropertySource(\"classpath:config.properties\")//g" "$codeServiceFile"
             - sed -i "s/env.getProperty(\"encPassword\")/\"$PAW_BOTTLER_ENCPASS\"/g" "$codeServiceFile"
             - sed -i "s/env.getProperty(\"encSalt\")/\"$PAW_BOTTLER_ENCSALT\"/g" "$codeServiceFile"
+            - export tokenConfigFile="service/src/main/java/ar/edu/itba/paw/service/CodeServiceImpl.java"
+            - sed -i "s/env.getProperty(\"secret\")/\"$PAW_BOTTLER_ENCPASS\"/g" "$tokenConfigFile"
+            - sed -i "s/env.getProperty(\"hostname\")/\"http://pawserver.it.itba.edu.ar/paw-2022a-04\"/g" "$tokenConfigFile"
             - unset CI
             - mvn clean package
           artifacts:
