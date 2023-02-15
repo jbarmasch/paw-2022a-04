@@ -30,7 +30,7 @@ const theme = createTheme({
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <ThemeProvider theme={theme}>
-        <BrowserRouter>
+        <BrowserRouter basename="/paw-2022a-04/">
 
             {/* <Context.Provider value={Context}> */}
             {/* <Context.Provider value={getUser()}> */}
