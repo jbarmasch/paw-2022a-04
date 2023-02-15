@@ -4,8 +4,9 @@ import MyEventItem from './my-event-item';
 import {server} from '../../utils/server';
 import {useState} from "react";
 import {parseLink} from '../../utils/pages';
+import {useLocation, useHistory} from 'react-router-dom'
+import queryString from 'query-string'
 import Pagination from '@mui/material/Pagination';
-import {useHistory} from 'react-router-dom'
 import {Controller, useForm} from "react-hook-form";
 import i18n from '../../i18n'
 import Select from '@mui/material/Select';
@@ -13,11 +14,19 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
+import NoEventsContent from '../events-content/no-events-content';
 
 const fetcherHeaders = (...args) => fetch(...args).then((res) => {
-    return {
-        headers: res.headers,
-        data: res.json()
+    if (res.status === 200) {
+        return {
+            headers: res.headers,
+            data: res.json()
+        }
+    } else {
+        return {
+            headers: res.headers,
+            data: []
+        }
     }
 })
 
@@ -25,13 +34,13 @@ function Page({data, aux, setAux, mutate, userId}) {
     if (!data) return <ContentLoading/>
     data = data.data
 
-    data.then((x) => {
+    Promise.resolve(data).then((x) => {
         setAux(x)
     })
 
     return (
         <>
-            {aux &&
+            {(aux && aux.length > 0 &&
                 <section className="event-list my-event-list">
                     {aux.map((item) => (
                         <MyEventItem
@@ -47,8 +56,9 @@ function Page({data, aux, setAux, mutate, userId}) {
                             organizer={item.organizer}
                         />
                     ))}
-                </section>
-            }
+                </section>) ||
+            <NoEventsContent/>
+        }
         </>
     );
 }
@@ -59,6 +69,8 @@ const MyEventsContent = ({userId}) => {
     const [child, setChild] = useState();
     const history = useHistory()
     const [orderProductsOpen, setOrderProductsOpen] = useState(false);
+    const {search} = useLocation()
+    const values = queryString.parse(search)
 
     let links
 
@@ -67,12 +79,12 @@ const MyEventsContent = ({userId}) => {
     let {
         data,
         mutate,
+        isLoading,
         error
-    } = useSwr(`${server}/api/events?page=${pageIndex}&userId=${userId}&noTickets=true`, fetcherHeaders);
+    } = useSwr(`${server}/api/events?page=${pageIndex}&userId=${userId}&noTickets=true&showPast=true`, fetcherHeaders);
 
     if (error) return <p>No data</p>
-    // TOOD: hacer loading bien
-    if (!data) return <ContentLoading/>
+    if (isLoading) return <ContentLoading/>
 
     links = parseLink(data.headers.get("Link"))
 
@@ -147,8 +159,9 @@ const MyEventsContent = ({userId}) => {
                     {data && <Page data={data} aux={child} setAux={setChild} mutate={mutate} userId={userId}/>}
                 </div>
                 <div className="pagination">
-                    <Pagination count={Number(links.last.page)} showFirstButton showLastButton page={pageIndex}
-                                onChange={handlePageChange}/>
+                    <Pagination count={Number(links && links.last ? links.last?.page : 0)} showFirstButton
+                                        showLastButton page={values?.page ? Number(values?.page) : pageIndex}
+                                        onChange={handlePageChange}/>
                 </div>
             </div>
         </section>

@@ -14,6 +14,7 @@ import LocationOnRoundedIcon from '@mui/icons-material/LocationOnRounded';
 import LocalActivityRoundedIcon from '@mui/icons-material/LocalActivityRounded';
 import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
 import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
 
 export const ParseDateTime = (datetime) => {
     const date = new Date(datetime);
@@ -45,13 +46,17 @@ const EventItem = ({id, name, minPrice, location, type, date, image, soldOut, or
             <Card className="event-card">
                 <CardActionArea className="event-card-action">
                     <div className="event-card-container">
-                        <CardMedia
+                        <LazyLoadImage
                             className="event-card-image"
                             component="img"
-                            image={`data:image/png;base64,${aux.image}`}
-                            alt="green iguana"
+                            height="300px"
+                            width="300px"
+                            src={`data:image/png;base64,${aux.image}`}
+                            alt={i18n.t("event.event")}
                         />
+                            
                         {!!soldOut && <span className="event-card-image-sold-out">{i18n.t("event.soldOut")}</span>}
+                        {minPrice === -1 && <span className="event-card-image-no-tickets">{i18n.t("event.noTickets")}</span>}
                     </div>
                     <CardHeader className="event-card-header" title={name}/>
                     <CardContent className="event-card-content">

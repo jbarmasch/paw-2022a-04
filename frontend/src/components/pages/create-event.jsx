@@ -25,11 +25,11 @@ import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
 import 'dayjs/locale/es';
 import 'dayjs/locale/en';
 import {useAuth} from '../../utils/useAuth';
+import {LoadingPage} from '../../utils/loadingPage'
 
 const CreateEvent = () => {
     const history = useHistory();
 
-    // TODO: mover a context
     let accessToken;
     if (typeof window !== 'undefined') {
         accessToken = localStorage.getItem("Access-Token");
@@ -74,11 +74,17 @@ const CreateEvent = () => {
         start++;
     }
 
+    async function onImageChange(e) {
+        e.preventDefault()
+        if (e.target.files[0].size > (1024 * 1024)) {
+        } else {
+            await setImage(e.target.files[0])
+        }
+    }
+
     const onSubmit = async (data) => {
-        console.log(data)
 
         let auxi = new Date(data.date).toISOString().slice(0, -8)
-        console.log(auxi)
 
         let obj = {
             name: data.name,
@@ -100,50 +106,26 @@ const CreateEvent = () => {
             obj.minAge = data.minAge
         }
 
-        console.log(obj)
+
+        const formData = new FormData();
+
+        formData.append('image', image, image.name)
+        formData.append('form', new Blob([JSON.stringify(obj)], {
+            type: "application/json"
+        }));
 
         const res = await fetch(`${server}/api/events`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
-            },
-            body: JSON.stringify(obj)
-        })
-
-        let json = await res;
-
-        if (json.status !== 201) {
-            return;
-        }
-
-        let eventId = json.headers.get("Location")?.split("/").slice(-1)[0]
-
-        console.log(data.image)
-        console.log(data.image[0])
-
-        const formData = new FormData();
-
-        // const file = data.image[0];
-        // let blob = file.slice(0, file.size, file.type);
-        // let newFile = new File([blob], file.name, {
-        //     type: file.type,
-        // });
-
-        formData.append("image", data.image[0])
-
-        const resImage = await fetch(`${server}/api/events/${eventId}/image`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'multipart/form-data',
                 'Authorization': `Bearer ${accessToken}`
             },
             body: formData
         })
 
-        let jsonImage = await resImage;
+        let json = await res;
 
-        if (jsonImage.status === 201) {
+        if (json.status === 201) {
+            let eventId = json.headers.get("Location")?.split("/").slice(-1)[0]
             history.push("/my-events/" + eventId)
         }
     }
@@ -152,8 +134,7 @@ const CreateEvent = () => {
         return <></>
     }
 
-    // TODO: hacer loading
-    if (locationsLoading || tagsLoading || typesLoading) return <p>{i18n.t("loading")}</p>
+    if (locationsLoading || tagsLoading || typesLoading) return <LoadingPage/>
 
     let locationList = []
     locations.forEach(x => locationList.push({
@@ -231,12 +212,10 @@ const CreateEvent = () => {
                                                 options={locationList}
                                                 noOptionsText={i18n.t("autocompleteNoOptions")}
                                                 onChange={(event, item) => {
-                                                    console.log(item)
                                                     onChange(item);
                                                     setLocation(item)
                                                 }}
                                                 isOptionEqualToValue={(option, value) => {
-                                                    console.log(value.value + " " + option.value);
                                                     return option.value === value.value
                                                 }}
                                                 renderInput={(params) => <TextField {...params}
@@ -258,7 +237,7 @@ const CreateEvent = () => {
                                 name="type"
                                 rules={{required: i18n.t('fieldRequired')}}
                                 control={control}
-                                defaultValue={''} // <---------- HERE
+                                defaultValue={''}
                                 render={({field, fieldState}) => {
                                     return (
                                         <FormControl sx={{width: 120}}>
@@ -353,7 +332,6 @@ const CreateEvent = () => {
                                                     />)}
                                                 label={i18n.t("create.date")}
                                                 onChange={(event) => {
-                                                    console.log(event.toISOString());
                                                     onChange(event.toISOString());
                                                     setDate(event.toISOString());
                                                 }}
@@ -421,13 +399,12 @@ const CreateEvent = () => {
                                         );
                                     }}
                                 />
-                            </div>
+                                </div>
                             <div className="horizontal align-center">
                                 <Controller
                                     name="image"
                                     control={control}
                                     defaultValue={''}
-                                    // defaultValue={image}
                                     rules={{
                                         required: i18n.t('fieldRequired'),
                                     }}
@@ -441,9 +418,10 @@ const CreateEvent = () => {
                                                 ref={inputRef}
                                                 onChange={e => {
                                                     field.onChange(e.target.files);
-                                                    console.log(e.target.files[0])
                                                     setImageName(e.target.files[0].name)
-                                                }}
+                                                    onImageChange(e)
+                                                    }
+                                                }
                                             />
                                             <label htmlFor="file-upload-button">
                                                 <Button variant="raised" component="span">
@@ -453,7 +431,6 @@ const CreateEvent = () => {
                                             {imageName && (<>
                                                 <span>{imageName}</span>
                                                 <IconButton onClick={() => {
-                                                    console.log(image)
                                                     setImageName(null)
                                                     inputRef.current.value = null
                                                 }}><ClearRoundedIcon/></IconButton>

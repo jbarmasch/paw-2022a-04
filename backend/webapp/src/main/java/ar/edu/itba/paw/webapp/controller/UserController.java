@@ -22,8 +22,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-//import static javax.ws.rs.core.Response.ResponseBuilder;
-
 @Path("api/users")
 @Component
 public class UserController {
@@ -117,7 +115,7 @@ public class UserController {
         if (userStatsDto.isPresent()) {
             return Response.ok(userStatsDto.get()).build();
         } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.noContent().build();
         }
     }
 }

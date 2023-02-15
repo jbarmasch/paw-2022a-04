@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useState, useRef} from 'react';
 import Layout from '../layout';
 import {server, fetcher} from '../../utils/server';
-import useSwr from "swr";
+import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
 import MyEventLoading from "../../components/my-events-content/my-event-loading";
 import {useForm, useFieldArray, Controller} from "react-hook-form";
@@ -47,6 +47,9 @@ import {ParseDateTime} from "../events-content/event-item"
 import {LoadingPage} from "../../utils/loadingPage";
 import * as React from "react";
 import {useAuth} from "../../utils/useAuth";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogTitle from '@mui/material/DialogTitle';
 
 const isEqualsJson = (oldTicket, newTicket) => {
     let oldKeys = Object.keys(oldTicket);
@@ -64,6 +67,7 @@ const MyEvent = (props) => {
     const [rowsData, setRowsData] = useState([]);
     const [edit, setEdit] = useState(false);
     const [activeMin, setActiveMin] = useState();
+    const [open, setOpen] = useState(false);
 
     const {
         data: locations,
@@ -99,7 +103,17 @@ const MyEvent = (props) => {
         data: event,
         mutate,
         error: errorData
-    } = useSwr(props.match.params.id ? `${server}/api/events/${props.match.params.id}` : null, fetcher)
+    } = useSWR(props.match.params.id ? `${server}/api/events/${props.match.params.id}` : null, fetcher)
+    const {
+        data: eventStats,
+        isLoading: statsLoading,
+        error: statsError
+    } = useSWR(props.match.params.id ? `${server}/api/events/${props.match.params.id}/stats` : null, fetcher)
+    const {
+        data: ticketStats,
+        isLoading: tStatsLoading,
+        error: tStatsError
+    } = useSWR(props.match.params.id ? `${server}/api/events/${props.match.params.id}/ticket-stats` : null, fetcher)
 
     const [tickets, setTickets] = useState([]);
 
@@ -112,14 +126,14 @@ const MyEvent = (props) => {
                     }
                 })
                 .then(d => {
-                    console.log(d)
                     setTickets(d)
                     setValue("tickets", tickets);
+                    reset()
                 })
         }
     }, [event])
 
-    const {data: aux, error: error} = useSwr(event ? `${event.image}` : null, fetcher)
+    const {data: aux, error: error} = useSWR(event ? `${event.image}` : null, fetcher)
 
     const {register, control, handleSubmit, reset, watch, setValue, getValues, formState: {errors}} = useForm({
         defaultValues: {
@@ -150,15 +164,18 @@ const MyEvent = (props) => {
         setValue("tickets", tickets);
     }, [tickets]);
 
-    if (error || errorData) return <p>No data</p>
+    if (error || errorData) {
+        history.push("/404")
+        return;
+    }
     if (!aux || !event || !user) return <MyEventLoading/>
 
+    if (user.id != event.organizer.split("/").splice(-1)[0]) {
+        history.push("/404");
+        return; 
+    }
+
     const onSubmit = async (data) => {
-        console.log(data)
-
-        console.log("LISTO")
-        console.log(event)
-
         let dateAux = new Date(data.date).toISOString().slice(0, -8)
 
         let obj = {
@@ -206,15 +223,16 @@ const MyEvent = (props) => {
 
         await resi
 
-        console.log(rowsData)
-
         for (const x of rowsData) {
-            await fetch(`${server}/api/tickets/${x}`, {
+            await fetch(`${server}/api/tickets/${x.ticketId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 },
             })
+
+            remove(x.index)
+            reset()
         }
 
         let res
@@ -224,7 +242,19 @@ const MyEvent = (props) => {
 
         if (data.tickets) {
 
-            for (const d of data.tickets) {
+            for (let d of data.tickets) {
+                if (d.starting) {
+                    d.starting = new Date(d.starting).toISOString().slice(0, -8)
+                } else {
+                    d.starting = ""
+                }
+
+                if (d.until) {
+                    d.until = new Date(d.until).toISOString().slice(0, -8)
+                } else {
+                    d.until = ""
+                }
+
                 if (d.ticketId) {
                     const ticket = tickets.find(x => {
                         return x.ticketId == d.ticketId
@@ -244,14 +274,15 @@ const MyEvent = (props) => {
                         until: ticket.until ? ticket.until : ""
                     }
 
-                    const newTicket = {...defaultValues};
+                    delete d.bookings
+                    delete d.event
+                    delete d.self
 
-                    console.log(newTicket)
+                    const newTicket = {...defaultValues};
 
                     let aux = JSON.parse(JSON.stringify(d));
 
                     if (!isEqualsJson(d, newTicket)) {
-                        console.log("not equals")
                         res = await fetch(`${server}/api/tickets/${d.ticketId}`, {
                             method: 'PUT',
                             headers: {
@@ -267,7 +298,6 @@ const MyEvent = (props) => {
             }
 
             let aux = JSON.parse(JSON.stringify(auxi));
-            console.log(aux)
 
             res = await fetch(`${server}/api/events/${props.match.params.id}/tickets`, {
                 method: 'POST',
@@ -282,6 +312,26 @@ const MyEvent = (props) => {
         }
 
         mutate()
+    }
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const deleteEvent = async () => {
+        let res = await fetch(`${server}/api/events/${event.id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            },
+        })
+        await res;
+        mutate()
+        history.push("/")
     }
 
     const StyledTableRow = styled(TableRow)(({theme}) => ({
@@ -307,6 +357,16 @@ const MyEvent = (props) => {
 
     if (locationsLoading || tagsLoading || typesLoading) return <LoadingPage/>
 
+    let over = new Date(event.date) < Date.now()
+
+    if (over) {
+        if (statsError | tStatsError) {
+            history.push("/404")
+            return;
+        }
+        if (statsLoading || tStatsLoading) return <LoadingPage/>
+    }
+    
     let locationList = []
     locations.forEach(x => locationList.push({
         value: x.id,
@@ -335,8 +395,6 @@ const MyEvent = (props) => {
         x.id
     ))
 
-    console.log(event.minAge)
-
     return (
         <Layout>
             <section className="product-single">
@@ -348,11 +406,27 @@ const MyEvent = (props) => {
                         </div>
                         <Paper className="event-info" elevation={2}>
                             <div className="event-actions">
-                                {!edit ?
+                                {!over && 
+                                (!edit ?
                                     <>
                                         <IconButton onClick={() => setEdit(true)}
                                                     type="submit"><EditRoundedIcon/></IconButton>
-                                        <IconButton><DeleteRoundedIcon/></IconButton>
+                                        <IconButton onClick={handleClickOpen}><DeleteRoundedIcon/></IconButton>
+                                        <Dialog
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="responsive-dialog-title"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {i18n.t("event.sureDelete")}
+                </DialogTitle>
+                <DialogActions>
+                    <Button onClick={handleClose}>{i18n.t("bookings.cancel")}</Button>
+                    <Button onClick={deleteEvent} autoFocus>
+                        {i18n.t("bookings.accept")}
+                    </Button>
+                </DialogActions>
+            </Dialog>
                                     </> :
                                     <>
                                         <IconButton onClick={() => {
@@ -360,7 +434,7 @@ const MyEvent = (props) => {
                                         }}><DoneRoundedIcon/></IconButton>
                                         <IconButton onClick={() => setEdit(false)}><ClearRoundedIcon/></IconButton>
                                     </>
-                                }
+                                )}
                             </div>
                             {!edit ?
                                 <ul className="event-info-content">
@@ -465,7 +539,6 @@ const MyEvent = (props) => {
                                                             options={locationList}
                                                             noOptionsText={i18n.t("autocompleteNoOptions")}
                                                             onChange={(event, item) => {
-                                                                console.log(item)
                                                                 onChange(item);
                                                                 setLocation(item)
                                                             }}
@@ -499,7 +572,7 @@ const MyEvent = (props) => {
                                                     }
                                                 }
                                             }}
-                                            defaultValue={event.date}
+                                            defaultValue={event.date ? event.date : ""}
                                             render={({field: {ref, onBlur, name, onChange, ...field}, fieldState}) => (
                                                 <FormControl className="my-event-input">
                                                     <LocalizationProvider dateAdapter={AdapterDayjs}
@@ -508,6 +581,7 @@ const MyEvent = (props) => {
                                                                     htmlFor="event-date-input">{i18n.t("event.date")}</InputLabel>
                                                         <DateTimePicker
                                                             id="event-date-input"
+                                                            minDate={Date.now()}
                                                             renderInput={(inputProps) => (
                                                                 <TextField
                                                                     {...inputProps}
@@ -559,7 +633,6 @@ const MyEvent = (props) => {
                                                                 <MenuItem
                                                                     key={x.value}
                                                                     value={x.value}
-                                                                    // value={x.label}
                                                                 >
                                                                     {x.label}
                                                                 </MenuItem>
@@ -585,7 +658,6 @@ const MyEvent = (props) => {
                                             render={({field: {onChange, value, name, ref}}) => {
                                                 const handleSelectChange = (selectedOption) => {
                                                     onChange(selectedOption.target.value);
-                                                    console.log(selectedOption.target.value)
                                                     setTag(selectedOption.target.value);
                                                 };
 
@@ -624,7 +696,6 @@ const MyEvent = (props) => {
                                             value={activeMin !== 'undefined' ? activeMin : (event.minAge ? true : false)}
                                             checked={activeMin !== 'undefined' ? activeMin : (event.minAge ? true : false)}
                                             control={<Checkbox onClick={() => {
-                                                console.log(activeMin)
                                                 setActiveMin(activeMin !== 'undefined' ? !activeMin : (event.minAge ? false : true))
                                             }
                                             }/>}
@@ -683,14 +754,17 @@ const MyEvent = (props) => {
                     </div>
                     <TableContainer component={Paper}>
                         <Table className="edit-table" size="small">
+                            
+                            {!over ? 
+                            <>
                             <TableHead>
                                 <StyledTableRow>
-                                    <StyledTableCell>Ticket name</StyledTableCell>
-                                    <StyledTableCell>Price</StyledTableCell>
-                                    <StyledTableCell>Quantity</StyledTableCell>
-                                    <StyledTableCell>Max p/ user</StyledTableCell>
-                                    <StyledTableCell>Starting</StyledTableCell>
-                                    <StyledTableCell>Until</StyledTableCell>
+                                    <StyledTableCell>{i18n.t("event.ticket")}</StyledTableCell>
+                                    <StyledTableCell>{i18n.t("event.price")}</StyledTableCell>
+                                    <StyledTableCell>{i18n.t("event.quantity")}</StyledTableCell>
+                                    <StyledTableCell>{i18n.t("event.maxPUser")}</StyledTableCell>
+                                    <StyledTableCell>{i18n.t("event.starting")}</StyledTableCell>
+                                    <StyledTableCell>{i18n.t("event.until")}</StyledTableCell>
                                     <StyledTableCell>
                                         {edit &&
                                             <IconButton onClick={() => {
@@ -892,7 +966,7 @@ const MyEvent = (props) => {
                                                             name={`tickets[${index}].starting`}
                                                             rules={{
                                                             }}
-                                                            defaultValue={date}
+                                                            defaultValue={item?.starting}
                                                             render={({
                                                                          field: {ref, onBlur, name, onChange, ...field},
                                                                          fieldState
@@ -914,9 +988,8 @@ const MyEvent = (props) => {
                                                                                 />)}
                                                                             isHiddenLabel
                                                                             onChange={(event) => {
-                                                                                console.log(event.toISOString());
-                                                                                onChange(event.toISOString());
-                                                                                setDate(event.toISOString());
+                                                                                onChange(event)
+                                                                                setDate(event)
                                                                             }}
                                                                             {...field}
                                                                             inputRef={ref}
@@ -939,6 +1012,7 @@ const MyEvent = (props) => {
                                                 <StyledTableCell className="date-input">
 
                                                     {edit ?
+
                                                         <Controller
                                                             control={control}
                                                             name={`tickets[${index}].until`}
@@ -950,7 +1024,7 @@ const MyEvent = (props) => {
                                                                     return true;
                                                                 }
                                                             }}
-                                                            defaultValue={date}
+                                                            defaultValue={item?.until}
                                                             render={({
                                                                          field: {ref, onBlur, name, onChange, ...field},
                                                                          fieldState
@@ -973,9 +1047,8 @@ const MyEvent = (props) => {
                                                                                 />)}
                                                                             isHiddenLabel
                                                                             onChange={(event) => {
-                                                                                console.log(event.toISOString());
-                                                                                onChange(event.toISOString());
-                                                                                setDate(event.toISOString());
+                                                                                onChange(event);
+                                                                                setDate(event);
                                                                             }}
                                                                             {...field}
                                                                             inputRef={ref}
@@ -995,21 +1068,92 @@ const MyEvent = (props) => {
                                                 </StyledTableCell>
 
                                                 <StyledTableCell>
-
+                                                {edit && 
                                                     <IconButton onClick={() => {
                                                         if (item.ticketId) {
-                                                            console.log(item.ticketId)
-                                                            rowsData.push(item.ticketId)
+                                                            rowsData.push({ ticketId: item.ticketId, index: index })
                                                             setRowsData(rowsData)
                                                         }
                                                         remove(index)
                                                     }}><DeleteRoundedIcon/></IconButton>
 
+                                                }
                                                 </StyledTableCell>
                                             </StyledTableRow>
                                         );
                                     })}
-                            </TableBody>
+                            </TableBody></> 
+                            :
+                                    
+                                <>{eventStats && 
+                                <><TableHead>
+                                    <StyledTableRow>
+                                        <StyledTableCell>{i18n.t("eventStats.stats")}</StyledTableCell>
+                                        <StyledTableCell></StyledTableCell>
+                                    </StyledTableRow>
+                                </TableHead>
+                                <TableBody>
+                                    <StyledTableRow>
+                                        <StyledTableCell>{i18n.t("eventStats.attended")}</StyledTableCell>
+                                        <StyledTableCell className="right-text">{eventStats.attended}</StyledTableCell>
+                                    </StyledTableRow>
+                                    <StyledTableRow>
+                                        <StyledTableCell>{i18n.t("eventStats.booked")}</StyledTableCell>
+                                        <StyledTableCell className="right-text">{eventStats.booked}</StyledTableCell>
+                                    </StyledTableRow>
+                                    <StyledTableRow>
+                                        <StyledTableCell>{i18n.t("eventStats.attendance")}</StyledTableCell>
+                                        <StyledTableCell className="right-text">{eventStats.attendance}</StyledTableCell>
+                                    </StyledTableRow>
+                                    <StyledTableRow>
+                                        <StyledTableCell>{i18n.t("eventStats.saleRatio")}</StyledTableCell>
+                                        <StyledTableCell className="right-text">{eventStats.saleRatio}</StyledTableCell>
+                                    </StyledTableRow>
+                                    <StyledTableRow>
+                                        <StyledTableCell>{i18n.t("eventStats.income")}</StyledTableCell>
+                                        <StyledTableCell className="right-text">{eventStats.income}</StyledTableCell>
+                                    </StyledTableRow>
+                                    <StyledTableRow>
+                                        <StyledTableCell>{i18n.t("eventStats.expected")}</StyledTableCell>
+                                        <StyledTableCell className="right-text">{eventStats.expectedIncome}</StyledTableCell>
+                                    </StyledTableRow>
+                                </TableBody>
+</>
+}
+                                {ticketStats && 
+                                <>
+                                                                <TableHead>
+                                    <StyledTableRow>
+                                        <StyledTableCell>{i18n.t("ticketStats.ticketName")}</StyledTableCell>
+                                        <StyledTableCell>{i18n.t("ticketStats.attendance")}</StyledTableCell>
+                                        <StyledTableCell>{i18n.t("ticketStats.saleRatio")}</StyledTableCell>
+                                        <StyledTableCell>{i18n.t("ticketStats.price")}</StyledTableCell>
+                                        <StyledTableCell>{i18n.t("ticketStats.realQty")}</StyledTableCell>
+                                        <StyledTableCell>{i18n.t("ticketStats.qty")}</StyledTableCell>
+                                        <StyledTableCell>{i18n.t("ticketStats.income")}</StyledTableCell>
+                                        <StyledTableCell>{i18n.t("ticketStats.booked")}</StyledTableCell>
+                                    </StyledTableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {fields.map((item, index) => {
+                                            return (
+                                                <StyledTableRow key={item.id}>
+                                                    <StyledTableCell><span>{item.ticketName}</span></StyledTableCell>
+                                                    <StyledTableCell><span>{item.attendance}</span></StyledTableCell>
+                                                    <StyledTableCell><span>{item.saleRatio}</span></StyledTableCell>
+                                                    <StyledTableCell><span>{item.price}</span></StyledTableCell>
+                                                    <StyledTableCell><span>{item.realQty}</span></StyledTableCell>
+                                                    <StyledTableCell><span>{item.qty}</span></StyledTableCell>
+                                                    <StyledTableCell><span>{item.income}</span></StyledTableCell>
+                                                    <StyledTableCell><span>{item.booked}</span></StyledTableCell>
+                                                    </StyledTableRow>
+                                            );
+                                        })}
+                                </TableBody>
+                            </>
+                        }
+                            </>}
+
                         </Table>
                     </TableContainer>
                 </form>

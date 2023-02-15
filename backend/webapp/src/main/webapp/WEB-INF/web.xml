@@ -60,10 +60,10 @@
             <param-name>jersey.config.servlet.filter.forwardOn404</param-name>
             <param-value>true</param-value>
         </init-param>
-        <init-param>
+        <!-- <init-param>
             <param-name>jersey.config.server.response.setStatusOverSendError</param-name>
             <param-value>true</param-value>
-        </init-param>
+        </init-param> -->
     </filter>
 
     <filter>
@@ -136,7 +136,8 @@
 
     <servlet-mapping>
         <servlet-name>default</servlet-name>
-        <url-pattern>/static/*</url-pattern>
+         <url-pattern>/static/*</url-pattern>
+<!--        <url-pattern>/*</url-pattern>-->
     </servlet-mapping>
     <servlet>
         <servlet-name>index</servlet-name>

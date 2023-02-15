@@ -8,14 +8,16 @@ import Button from '@mui/material/Button';
 import Rating from '@mui/material/Rating';
 import i18n from "../../i18n"
 import {fetcher} from "../../utils/server";
+import UserLoading from "./user-loading";
 
 const UserItem = ({id, username, rating, votes, events}) => {
     const {data: aux, isLoading, error} = useSwr(events, fetcher)
 
     if (error) {
-        console.log(error)
         return <p></p>
     }
+
+    if (isLoading) return <UserLoading/>
 
     return (
         <Card>
@@ -24,7 +26,7 @@ const UserItem = ({id, username, rating, votes, events}) => {
                 <span className="user-rating">{rating}<Rating value={rating} readOnly size="small"/> ({votes})</span>
             </CardContent>
             <CardActions>
-                {(!isLoading && aux) ? <Link to={`/events?page=1&userId=${id}`}><Button
+                {(aux && aux.length > 0) ? <Link to={`/events?page=1&userId=${id}`}><Button
                         size="small">{i18n.t("organizer.seeEvents")}</Button></Link> :
                     <Button disabled size="small">{i18n.t("organizer.noEvents")}</Button>}
             </CardActions>

@@ -35,7 +35,7 @@ public class MailServiceImpl implements MailService {
             final MimeMessage mimeMessage = emailSender.createMimeMessage();
             final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, "UTF-8");
             message.setSubject(subject);
-            message.setFrom("botpass@zohomail.com");
+            message.setFrom("bottlerpass@zohomail.com");
             message.setTo(recipientEmail);
             final String htmlContent = htmlTemplateEngine.process(templateName, ctx);
             message.setText(htmlContent, true);
@@ -50,7 +50,7 @@ public class MailServiceImpl implements MailService {
             final MimeMessage mimeMessage = emailSender.createMimeMessage();
             final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
             message.setSubject(subject);
-            message.setFrom("botpass@zohomail.com");
+            message.setFrom("bottlerpass@zohomail.com");
             message.setTo(recipientEmail);
             final String htmlContent = htmlTemplateEngine.process(templateName, ctx);
             message.setText(htmlContent, true);

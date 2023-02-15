@@ -7,8 +7,6 @@ import {createTheme, ThemeProvider} from '@mui/material/styles';
 import WebFont from 'webfontloader';
 import {Context} from './utils/context';
 
-// import getUser from './utils/context';
-
 WebFont.load({
     google: {
         families: ['Roboto&display=swap'],
@@ -30,13 +28,8 @@ const theme = createTheme({
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <ThemeProvider theme={theme}>
-        <BrowserRouter basename="/paw-2022a-04/">
-
-            {/* <Context.Provider value={Context}> */}
-            {/* <Context.Provider value={getUser()}> */}
+        <BrowserRouter>
             <App/>
-            {/* </Context.Provider> */}
-
         </BrowserRouter>
     </ThemeProvider>
 );

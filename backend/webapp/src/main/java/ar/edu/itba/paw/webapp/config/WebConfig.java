@@ -45,23 +45,14 @@ import java.util.Properties;
 
 @EnableAsync
 @EnableTransactionManagement
-//@EnableWebMvc
 @PropertySource("classpath:config.properties")
 @ComponentScan({"ar.edu.itba.paw.webapp.controller", "ar.edu.itba.paw.service", "ar.edu.itba.paw.persistence"})
 @Configuration
-//public class WebConfig extends WebMvcConfigurerAdapter {
 public class WebConfig {
     @Value("classpath:schema.sql")
     private Resource schemaSql;
     @Autowired
     private Environment env;
-//    @Autowired
-//    private RequestMappingHandlerAdapter requestMappingHandlerAdapter;
-
-//    @PostConstruct
-//    public void ignoreDefaultModel() {
-//        requestMappingHandlerAdapter.setIgnoreDefaultModelOnRedirect(true);
-//    }
 
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
@@ -111,14 +102,6 @@ public class WebConfig {
         dbp.addScript(schemaSql);
         return dbp;
     }
-
-//    @Bean
-//    @Override
-//    public LocalValidatorFactoryBean getValidator() {
-//        LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
-//        bean.setValidationMessageSource(messageSource());
-//        return bean;
-//    }
 
     @Bean
     public MessageSource messageSource() {
@@ -176,8 +159,6 @@ public class WebConfig {
         final Properties properties = new Properties();
         properties.setProperty("hibernate.hbm2ddl.auto", "update");
         properties.setProperty("hibernate.dialect", "ar.edu.itba.paw.webapp.config.PostgreSQL94CustomDialect");
-//        properties.setProperty("hibernate.show_sql", "true");
-//        properties.setProperty("format_sql", "true");
         factoryBean.setJpaProperties(properties);
         return factoryBean;
     }

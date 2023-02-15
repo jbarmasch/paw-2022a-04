@@ -37,8 +37,6 @@ const Event = (props) => {
 
     const [showBlock, setShowBlock] = useState('description');
 
-    // const fetcher = (url) => fetch(url).then((res) => res.json());
-
     const {register, handleSubmit, control, watch, formState: {errors}} = useForm();
 
     const history = useHistory();
@@ -71,6 +69,10 @@ const Event = (props) => {
 
     if (error || errorData || errorOrganizer) return <p>{i18n.t("noData")}</p>
     if (!aux || !event || !organizer || isLoading) return <LoadingPage/>
+
+    if (new Date(event.date) <= Date.now()) {
+        history.push("/404")
+    }
 
     const getArray = (max, left, booked) => {
         max = max - (booked ? booked : 0);
@@ -108,11 +110,9 @@ const Event = (props) => {
         },
     }));
 
+    
     const onSubmit = async (data) => {
         let isLogged = await checkLogin(accessToken, refreshToken)
-        console.log(isLogged)
-
-        console.log(data)
         delete data.location
         let i = 0
         let auxi = {
@@ -120,9 +120,6 @@ const Event = (props) => {
         }
 
         for (let x in data) {
-            console.log(x)
-            console.log(location)
-            console.log(data[x])
             let qtyAux = location[i++]
             if (qtyAux) {
                 auxi.bookings.push({
@@ -161,6 +158,17 @@ const Event = (props) => {
                     event: event
                 }
             });
+        }
+    }
+
+    let bookable = 0;
+    if (tickets) {
+        for (const item of tickets) {
+            let max = item.maxPerUser
+            let booked = prevBooking?.ticketBookings.find((x) => x.ticket.ticketId === item.ticketId)?.qty
+            let left = item.qty - item.booked
+            booked = booked ? booked : 0
+            bookable += (max - booked) <= left ? (max - booked) : left;
         }
     }
 
@@ -253,9 +261,9 @@ const Event = (props) => {
                                                                          fieldState
                                                                      }) => {
                                                                 const list = getArray(item.maxPerUser, item.qty - item.booked, prevBooking?.ticketBookings.find((x) => x.ticket.ticketId === item.ticketId)?.qty)
+                                                                const canBook = list.length > 0;
                                                                 const currentSelection = value
                                                                 const handleSelectChange = (selectedOption) => {
-                                                                    console.log(selectedOption.target.value)
                                                                     onChange(selectedOption.target.value);
                                                                     let value = -1
                                                                     for (let i = 0; i < tickets.length; i++) {
@@ -273,8 +281,9 @@ const Event = (props) => {
                                                                 };
 
                                                                 return (
-                                                                    <FormControl className={"qty-select"}
-                                                                                 disabled={Number(userId) === organizer.id || event.soldOut}>
+                                                                    <FormControl className={"qty-select "  + ((Number(userId) === organizer.id || event.soldOut || !canBook) ? "select-disabled" : "")} disabled={Number(userId) === organizer.id || event.soldOut || !canBook}
+
+                                                                    >
                                                                         <InputLabel id="select-qty-label"
                                                                                     error={!!fieldState.error}>{i18n.t("event.selectQty")}</InputLabel>
                                                                         <Select
@@ -313,8 +322,8 @@ const Event = (props) => {
                         )}
 
                         <div className="center">
-                            <Button disabled={Number(userId) === organizer.id || event.soldOut} color="secondary"
-                                    variant="contained" type="submit">{i18n.t("book")}</Button>
+                            <Button disabled={((Number(userId) === organizer.id) || event.soldOut || bookable === 0)} className={"marg-top"} color="secondary"
+                            variant="contained" type="submit">{i18n.t("book")}</Button>
                         </div>
                     </form>
                 </div>

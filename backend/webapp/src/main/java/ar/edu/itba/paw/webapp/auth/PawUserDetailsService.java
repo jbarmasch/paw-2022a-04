@@ -23,22 +23,6 @@ import java.util.stream.Collectors;
 @Component
 public class PawUserDetailsService implements UserDetailsService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PawUserDetailsService.class);
-//    @Autowired
-//    private UserService us;
-//
-//    @Override
-//    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-//        final User user = us.findByUsername(username).orElse(null);
-//        if (user == null) {
-//            LOGGER.error("No user by the name {}", username);
-//            throw new UsernameNotFoundException("Username not found");
-//        }
-//
-//        final Collection<GrantedAuthority> authorities = new ArrayList<>();
-//        for (Role role : user.getRoles())
-//            authorities.add(new SimpleGrantedAuthority(role.getRoleName()));
-//        return new org.springframework.security.core.userdetails.User(username, user.getPassword(), authorities);
-//    }
 
     @Autowired
     private UserService us;
@@ -50,12 +34,6 @@ public class PawUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException(String.format("No user found with username '%s'.", username));
         }
 
-//        return new AuthenticatedUserDetails.Builder()
-//                .withUsername(user.getUsername())
-//                .withPassword(user.getPassword())
-//                .withAuthorities(mapToGrantedAuthorities(user.getRoles()))
-//                .withActive(true)
-//                .build();
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), mapToGrantedAuthorities(user.getRoles()));
     }
 

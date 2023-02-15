@@ -5,7 +5,8 @@ import {server} from '../../utils/server';
 import {useState} from "react";
 import {parseLink} from '../../utils/pages';
 import Pagination from '@mui/material/Pagination';
-import {useHistory} from 'react-router-dom'
+import {useLocation, useHistory} from 'react-router-dom'
+import queryString from 'query-string'
 import {Controller, useForm} from "react-hook-form";
 import i18n from '../../i18n'
 import Select from '@mui/material/Select';
@@ -13,11 +14,19 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
+import NoBookingsContent from "./no-bookings-content";
 
 const fetcherHeaders = (...args) => fetch(...args).then((res) => {
-    return {
-        headers: res.headers,
-        data: res.json()
+    if (res.status === 200) {
+        return {
+            headers: res.headers,
+            data: res.json()
+        }
+    } else {
+        return {
+            headers: res.headers,
+            data: []
+        }
     }
 })
 
@@ -25,14 +34,13 @@ function Page({data, aux, setAux, mutate, userId}) {
     if (!data) return <BookingsLoading/>
     data = data.data
 
-    data.then((x) => {
+    Promise.resolve(data).then((x) => {
         setAux(x)
-        console.log(x)
     })
 
     return (
         <>
-            {aux &&
+            {(aux && aux.length > 0 &&
                 <section>
                     {aux.map((item) => (
                         <BookingItem
@@ -48,7 +56,7 @@ function Page({data, aux, setAux, mutate, userId}) {
                             mutate={mutate}
                         />
                     ))}
-                </section>
+                </section>) || <NoBookingsContent/>
             }
         </>
     );
@@ -59,6 +67,8 @@ const BookingsContent = ({userId}) => {
     const [order, setOrder] = useState("DATE_ASC")
     const [child, setChild] = useState();
     const history = useHistory()
+    const {search} = useLocation()
+    const values = queryString.parse(search)
 
     let links
     const {control, formState: {errors}} = useForm();
@@ -66,7 +76,7 @@ const BookingsContent = ({userId}) => {
     // TODO: tiene headers
     let {data, mutate, error} = useSwr(`${server}/api/bookings?page=${pageIndex}&userId=${userId}`, fetcherHeaders);
 
-    if (error) return <p>No data</p>
+    if (error) {history.push("/404"); return}
     if (!data) return <BookingsLoading/>
 
     links = parseLink(data.headers.get("Link"))
@@ -96,8 +106,9 @@ const BookingsContent = ({userId}) => {
                     {data && <Page data={data} aux={child} setAux={setChild} mutate={mutate} userId={userId}/>}
                 </div>
                 <div className="pagination">
-                    <Pagination count={Number(links.last.page)} showFirstButton showLastButton page={pageIndex}
-                                onChange={handlePageChange}/>
+                <Pagination count={Number(links && links.last ? links.last?.page : 0)} showFirstButton
+                                        showLastButton page={values?.page ? Number(values?.page) : pageIndex}
+                                        onChange={handlePageChange}/>
                 </div>
             </div>
         </section>

@@ -3,13 +3,12 @@ const i18n_es = {
     submit: "Enviar",
     fieldRequired: "Este campo es obligatorio",
     fieldInvalid: "Este campo es inválido",
-    passwordMatch: "Las contraseñas no coinciden",
-    passwordInvalid: "La contraseña es inválida",
     loading: "Cargando...",
     autocompleteNoOptions: "No hay opciones",
     filters: "Filtros",
     noData: "Sin datos",
     seeEvents: "Ver eventos",
+    landing: "Aterrizaje",
 
     nav: {
         events: "Eventos",
@@ -19,18 +18,10 @@ const i18n_es = {
         account: "Cuenta",
         organizers: "Organizadores",
         profile: "Perfil",
-        logout: "Cerrar sesión"
+        logout: "Cerrar sesión",
+        searchEvent: "Buscar eventos"
     },
-
-    myEvents: {
-        title: "Mis eventos",
-        ticketDateError: "STARTING > UNTIL GILASTRUM",
-        ticketPriceError: "El precio de un ticket no puede ser menor a 0",
-        ticketQtyError: "La cantidad de tickets no puede ser menor a 1",
-        ticketsPerUserError: "La cantidad de tickets por usuario debe estar entre 1 y 10",
-        ticketsLeftError: "Te quedaste sin tickets hermano"
-    },
-
+    
     home: {
         phrase: "Vení a divertirte con nosotros!",
         page: "Inicio",
@@ -47,7 +38,7 @@ const i18n_es = {
         bookTitle: "Reservá desde la comodidad de tu casa",
         bookDesc: "Nuestro sencillo sistema de reservas te permite reservar instantáneamente",
     },
-
+    
     create: {
         name: "Nombre del evento",
         description: "Descripción",
@@ -61,6 +52,15 @@ const i18n_es = {
         dateError: "No se puede crear un evento que ya haya terminado"
     },
 
+    myEvents: {
+        title: "Mis eventos",
+        ticketDateError: "STARTING > UNTIL GILASTRUM",
+        ticketPriceError: "El precio de un ticket no puede ser menor a 0",
+        ticketQtyError: "La cantidad de tickets no puede ser menor a 1",
+        ticketsPerUserError: "La cantidad de tickets por usuario debe estar entre 1 y 10",
+        ticketsLeftError: "Te quedaste sin tickets hermano"
+    },
+
     event: {
         name: "Nombre del evento",
         description: "Descripción del evento",
@@ -72,7 +72,8 @@ const i18n_es = {
         price: "Precio",
         quantity: "Cantidad",
         date: "Fecha",
-        maxpuser: "Máx. por usuario",
+        maxPUser: "Máx. por usuario",
+        sureDelete: "¿Está seguro que desea borrar este evento?",
         until: "Hasta",
         free: "Gratis",
         noTickets: "Sin tickets",
@@ -91,7 +92,9 @@ const i18n_es = {
         minAge: "Edad mín.",
         minAgeText: "A partir de ",
         organizer: "Organizador",
-        noEvents: "No events found"
+        noEvents: "No se encontraron eventos",
+        event: "Evento",
+        over: "Terminado"
     },
 
     login: {
@@ -145,7 +148,6 @@ const i18n_es = {
         invalidate: "Invalidar"
     },
 
-
     stats: {
         stats: "Estadísticas",
         eventsAttended: "Eventos reservados",
@@ -155,18 +157,23 @@ const i18n_es = {
     },
 
     register: {
+        register: "Registrarse",
+        name : "Nombre de usuario",
         create: "Registrate para crear eventos y reservar entradas",
-        name: "Nombre de usuario",
+        mail: "Email",
+        username: "Nombre de usuario",
         pass: "Contraseña",
-        repeat: "Repetir contraseña"
+        repeat: "Repetir contraseña",
+        mailPatternError : "Mail inválido",
+        passwordPatternError : "La contraseña solo puede contener letras minúsculas, mayúsculas y números",
+        passwordLenError : "La contraseña debe tener entre 8 y 100 caracteres",
+        passwordMatchError : "Las contraseñas no coinciden",
+        usernameLenError : "El nombre de usuario debe tener al menos 8 caracteres",
+        notFoundError : "Nombre de usuario o contraseña incorrectos"
     },
 
     footer: {
         text: "BotPass conecta organizadores de eventos con la gente, dando visibilidad a los eventos menos conocidos y al mismo tiempo brindando una plataforma para que los organizadores puedan vender entradas y ver sus estadísticas.",
-        events: "Events",
-        fewTickets: "Few tickets",
-        recommended: "Recommended",
-        popular: "Popular",
         contact: "Contacto",
     },
 
@@ -180,6 +187,27 @@ const i18n_es = {
 
     thankYou: {
         phrase: "Gracias por reservar con BotPass"
+    },
+
+    eventStats: {
+        stats: "Estadísticas del evento",
+        attended: "Cantidad de personas que asistió",
+        booked: "Reservas",
+        attendance: "Porcentaje de asistencia",
+        saleRatio: "Ratio de venta",
+        income: "Ganancia",
+        expected: "Ganancia esperada"
+    },
+
+    ticketStats: {
+        ticketName: "Nombre del ticket",
+        attendance: "Asistencia",
+        saleRatio: "Ratio de ventas",
+        price: "Precio",
+        realQty: "Cantidad real",
+        qty: "Cantidad",
+        income: "Ganancia",
+        booked: "Reservas",
     }
 };
 

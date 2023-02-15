@@ -2,7 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-  "homepage": "http://pawserver.it.itba.edu.ar/paw-2022a-04",
+  "homepage": ".",
   "dependencies": {
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
@@ -20,6 +20,7 @@
     "react-dom": "^18.2.0",
     "react-helmet": "^6.1.0",
     "react-hook-form": "^7.43.0",
+    "react-lazy-load-image-component": "^1.5.6",
     "react-router-dom": "^5.0.1",
     "react-scripts": "5.0.1",
     "react-select": "^5.7.0",
@@ -29,14 +30,15 @@
     "webfontloader": "^1.6.28"
   },
   "devDependencies": {
-    "@testing-library/react": "^9.5.0",
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/user-event": "^7.2.1",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^14.4.3",
     "msw": "^0.24.2"
   },
   "scripts": {
     "start": "PORT=2557 react-scripts start",
-    "build": "GENERATE_SOURCEMAP=false react-scripts build",
+    "build": "GENERATE_SOURCEMAP=false react-scripts build && npm run post-build",
+    "post-build": "mv build/*.json build/*.png build/*.ico build/*.txt build/static",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

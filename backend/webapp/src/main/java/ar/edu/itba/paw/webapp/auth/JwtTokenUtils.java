@@ -14,25 +14,25 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.springframework.core.env.Environment;
 
 @Component
 public class JwtTokenUtils {
-//    @Value("${authentication.jwt.secret}")
-    private String secret = "hola";
+    private final Environment env;
+    private final Long clockSkew = 10L;
+    private final String authoritiesClaimName = "authorities";
+    private final String isRefreshName = "isRefresh";
+    private final String secret;
+    private final String audience;
+    private final String issuer;
 
-    //    @Value("${authentication.jwt.clockSkew}")
-    private Long clockSkew = 10L;
-
-    //    @Value("${authentication.jwt.audience}")
-    private String audience = "http://181.46.186.8:2555";
-
-    //    @Value("${authentication.jwt.issuer}")
-    private String issuer = "http://181.46.186.8:2555";
-
-    //    @Value("${authentication.jwt.claimNames.authorities}")
-    private String authoritiesClaimName = "authorities";
-
-    private String isRefreshName = "isRefresh";
+    @Autowired
+    public JwtTokenUtils(Environment env) {
+        this.env = env;
+        this.secret = env.getProperty("secret");
+        this.audience = env.getProperty("hostname");
+        this.issuer = env.getProperty("hostname");
+    }
 
     public String issueToken(AuthenticationTokenDetails authenticationTokenDetails) {
         return Jwts.builder()
@@ -49,7 +49,6 @@ public class JwtTokenUtils {
     }
 
     public AuthenticationTokenDetails parseToken(String token) {
-//        try {
             Claims claims = Jwts.parser()
                     .setSigningKey(secret)
                     .requireAudience(audience)
@@ -65,14 +64,6 @@ public class JwtTokenUtils {
                     .withExpirationDate(extractExpirationDateFromClaims(claims))
                     .withIsRefresh(extractIsRefreshFromClaims(claims))
                     .build();
-
-//        } catch (ExpiredJwtException e) {
-//            throw new RuntimeException("Expired token", e);
-//        } catch (InvalidClaimException e) {
-//            throw new RuntimeException("Invalid value for claim \"" + e.getClaimName() + "\"", e);
-//        } catch (Exception e) {
-//            throw new RuntimeException("Invalid token", e);
-//        }
     }
 
     private String extractTokenIdFromClaims(@NotNull Claims claims) {

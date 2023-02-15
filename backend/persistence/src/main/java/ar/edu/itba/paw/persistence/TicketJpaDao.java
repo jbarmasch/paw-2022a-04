@@ -75,6 +75,8 @@ public class TicketJpaDao implements TicketDao {
                 "t.ticketId = tb.ticketId JOIN eventbookings eb on tb.id = eb.id WHERE e.eventid = :eventid GROUP BY t.ticketid) AS aux");
         query.setParameter("eventid", id);
         List<Object[]> resultSet = query.getResultList();
+        if (resultSet.isEmpty())
+            return Collections.emptyList();
         List<TicketStats> ticketStats = new ArrayList<>();
         for (Object[] result : resultSet) {
             ticketStats.add(new TicketStats((String) result[0], ((Number) result[1]).doubleValue(), ((Number) result[2]).doubleValue(), ((Number) result[3]).doubleValue(),

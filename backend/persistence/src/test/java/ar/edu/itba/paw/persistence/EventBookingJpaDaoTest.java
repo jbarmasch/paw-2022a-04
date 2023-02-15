@@ -31,17 +31,6 @@ public class EventBookingJpaDaoTest {
         TestUtils.setUpEventBooking(em);
     }
 
-//    @Test
-//    public void testGetAllBookingsFromUser() {
-//        EventBooking eventBooking = new EventBooking(TestUtils.USER2, TestUtils.EVENT, null, TestUtils.EVENT_BOOKING_CODE);
-//        em.persist(eventBooking);
-//        EventBookingList eventBookings = eventBookingDao.getAllBookingsFromUser(TestUtils.USER2.getId(), 1);
-//        Assert.assertNotNull(eventBookings.getBookingList());
-//        Assert.assertFalse(eventBookings.getBookingList().isEmpty());
-//        Assert.assertEquals(1, eventBookings.getBookingList().size());
-//        Assert.assertEquals(eventBooking.getId(), eventBookings.getBookingList().get(0).getId());
-//    }
-
     @Test
     public void testGetBookingFromUser() {
         EventBooking eventBooking = new EventBooking(TestUtils.USER2, TestUtils.EVENT, null, TestUtils.EVENT_BOOKING_CODE);

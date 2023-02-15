@@ -52,7 +52,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventList filterBy(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String query, List<Integer> tags, String username, Long userId, Order order, Boolean showSoldOut, Boolean showNoTickets, int page) {
+    public EventList filterBy(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String query, List<Integer> tags, String username, Long userId, Order order, Boolean showSoldOut, Boolean showNoTickets, Boolean showPast, int page) {
         for (Integer location : locations) {
             if (location == null) {
                 // TODO: Change
@@ -71,7 +71,7 @@ public class EventServiceImpl implements EventService {
                 throw new RuntimeException();
             }
         }
-        return eventDao.filterBy(locations, types, minPrice, maxPrice, query, tags, username, userId, order, showSoldOut, showNoTickets, page);
+        return eventDao.filterBy(locations, types, minPrice, maxPrice, query, tags, username, userId, order, showSoldOut, showNoTickets, showPast, page);
     }
 
     @Transactional

@@ -61,7 +61,6 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                         SecurityContextHolder.setContext(context);
                     }
                 } catch (ExpiredJwtException e) {
-                    System.out.println("Expired!");
                 }
             } else if (authorizationHeader.startsWith("Basic")) {
                 String[] credentials = new String(Base64.getDecoder().decode(authorizationHeader.substring(6))).split(":");

@@ -4,23 +4,12 @@ import {useLocalStorage} from './useLocalStorage';
 import {server} from './server';
 import {useHistory, useLocation} from 'react-router-dom'
 
-// const useFindPath = () => {
-//     const location = useLocation();
-//     const [currentPath, setCurrentPath] = useState();
-//     useEffect(() => {
-//         setCurrentPath(location.pathname);
-//     }, [location]);
-//     return currentPath;
-// };
-
 let protectedPaths = ["/bookings", "/profile", "/create-event", "/my-events"]
 
 export const useAuth = () => {
     const {user, addUser, removeUser} = useUser();
     const {getItem} = useLocalStorage();
     const history = useHistory()
-    // const path = useFindPath();
-    // const prevLocation = useLocation();
     const { pathname } = useLocation();
     let redirect = false;
 
@@ -67,13 +56,6 @@ export const useAuth = () => {
             }
         }
     }
-
-    // console.log(pathname)
-    // protectedPaths.forEach(x => {
-    //     if (pathname && pathname.includes(x)) {
-    //         checkLogin();
-    //     }
-    // })
 
     useEffect(() => {
         if (redirect) {

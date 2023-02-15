@@ -68,21 +68,6 @@ public class EventJpaDaoTest {
         Assert.assertEquals(event.getId(), events.get(0).getId());
     }
 
-//    @Test
-//    public void testGetUpcoming() {
-//        Event event = TestUtils.createEvent(em);
-//        Event event_later = TestUtils.createEvent(em);
-//        Event event_before = TestUtils.createEvent(em);
-//        event_later.setDate(TestUtils.EVENT_DATE_LATER);
-//        event_before.setDate(TestUtils.EVENT_DATE_BEFORE);
-//
-//        List<Event> events = eventDao.getUpcomingEvents();
-//        Assert.assertNotNull(events);
-//        Assert.assertEquals(2, events.size());
-//        Assert.assertEquals(event.getId(), events.get(0).getId());
-//        Assert.assertEquals(event_later.getId(), events.get(1).getId());
-//    }
-
     @Test
     public void testEventUpdate() {
         final Event event = TestUtils.createEvent(em);

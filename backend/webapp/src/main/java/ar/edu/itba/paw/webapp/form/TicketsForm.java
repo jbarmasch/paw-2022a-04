@@ -11,17 +11,6 @@ public class TicketsForm {
     @BookingList
     private List<TicketForm> tickets;
 
-//    @NotNull
-//    private Long eventId;
-
-//    public Long getEventId() {
-//        return eventId;
-//    }
-//
-//    public void setEventId(Long eventId) {
-//        this.eventId = eventId;
-//    }
-
     public List<TicketForm> getTickets() {
         return tickets;
     }

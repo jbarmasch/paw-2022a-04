@@ -5,7 +5,6 @@ import {server, fetcher} from '../../utils/server';
 import i18n from '../../i18n'
 
 const SimilarEvents = ({id}) => {
-    console.log(id)
     const {data: aux, isLoading, error} = useSwr(`${server}/api/events/${id}/similar`, fetcher)
 
     if (error) return
@@ -19,7 +18,7 @@ const SimilarEvents = ({id}) => {
 
     return (
         <>
-            {aux.length > 0 &&
+            {aux && aux.length > 0 &&
                 <div className="container">
                     <h4 className="featured-title">{i18n.t(aux.length > 1 ? "event.similarPl" : "event.similarSi")}</h4>
                     <div className="event-list featured-list">

@@ -3,13 +3,12 @@ const i18n_en = {
     submit: "Submit",
     fieldRequired: "This field is required",
     fieldInvalid: "This field is invalid",
-    passwordMatch: "Passwords do not match",
-    passwordInvalid: "Password is invalid",
     loading: "Loading...",
     autocompleteNoOptions: "No options",
     filters: "Filters",
     noData: "No data",
     seeEvents: "See events",
+    landing: "Landing",
 
     nav: {
         events: "Events",
@@ -19,7 +18,8 @@ const i18n_en = {
         account: "Account",
         organizers: "Organizers",
         profile: "Profile",
-        logout: "Logout"
+        logout: "Logout",
+        searchEvent: "Search events"
     },
 
     home: {
@@ -46,11 +46,19 @@ const i18n_en = {
         type: "Select event type",
         tags: "Select tags",
         hasMin: "Min. age",
-        selectMinAge: "Select min. age",
         minAge: "Min. age",
         uploadFile: 'Upload event picture',
         date: 'Event date',
         dateError: "The event must not have ended"
+    },
+
+    myEvents: {
+        title: "My events",
+        ticketDateError: "STARTING > UNTIL GILASTRUM",
+        ticketPriceError: "Ticket price should be at least 0",
+        ticketQtyError: "There should be at least 1 ticket",
+        ticketsPerUserError: "The amount of tickets per user should be between 1 & 10",
+        ticketsLeftError: "Te quedaste sin tickets hermano"
     },
 
     event: {
@@ -60,10 +68,12 @@ const i18n_en = {
         type: "Event type",
         location: "Location",
         tags: "Tags",
+        ticket: "Ticket name",
         price: "Price",
         quantity: "Quantity",
         date: "Date",
-        maxpuser: "Max. per user",
+        maxPUser: "Max. per user",
+        sureDelete: "Are you sure you want to delete this event?",
         until: "Until",
         free: "Free",
         noTickets: "No tickets",
@@ -82,7 +92,9 @@ const i18n_en = {
         minAge: "Min. age",
         minAgeText: "From ",
         organizer: "Organizer",
-        noEvents: "No se han encontrado eventos"
+        noEvents: "No se han encontrado eventos",
+        event: "Event",
+        over: "Over"
     },
 
     login: {
@@ -93,7 +105,8 @@ const i18n_en = {
         forgot: "Forgot your password?",
         signIn: "Sign in",
         notAMember: "Not a member yet?",
-        signUp: "Sign up"
+        signUp: "Sign up",
+        notFound: "Username or password is incorrect"
     },
 
     filter: {
@@ -143,27 +156,24 @@ const i18n_en = {
         favLocation: "Favorite location"
     },
 
-    myEvents: {
-        title: "My events",
-        ticketDateError: "STARTING > UNTIL GILASTRUM",
-        ticketPriceError: "Ticket price should be at least 0",
-        ticketQtyError: "There should be at least 1 ticket",
-        ticketsPerUserError: "The amount of tickets per user should be between 1 & 10",
-        ticketsLeftError: "Te quedaste sin tickets hermano"
-    },
-
     register: {
+        register: "Register",
+        name : "Username",
         create: "Create an account to create events and book tickets",
-        name: "Username",
+        mail: "Email",
+        username: "Username",
         pass: "Password",
-        repeat: "Repeat password"
+        repeatError: "Repeat password",
+        mailPatternError : "Invalid mail",
+        passwordPatternError : "Password can only contain lowercase and uppercase letters and digits",
+        passwordLenError : "Password must be between 8 and 100 characters long",
+        passwordMatchError : "Passwords don't match",
+        usernameLenError : "Username must be between 8 and 100 characters long",
+        notFoundError : "Incorrect username or password",
     },
 
     footer: {
         text: "BotPass connects event organizers with people, giving visibility to less known events as well as providing a platform for organizers to sell tickets and visualize stats.",
-        events: "Events",
-        recommended: "Recommended",
-        popular: "Popular",
         contact: "Contact",
     },
 
@@ -177,6 +187,27 @@ const i18n_en = {
 
     thankYou: {
         phrase: "Thank you for booking with BotPass"
+    },
+
+    eventStats: {
+        stats: "Event stats",
+        attended: "Attended",
+        booked: "Amount of people that booked",
+        attendance: "Attendance percentage",
+        saleRatio: "Sale ratio",
+        income: "Income",
+        expected: "Expected income"
+    },
+
+    ticketStats: {
+        ticketName: "Ticket name",
+        attendance: "Attendance",
+        saleRatio: "Sale ratio",
+        price: "Price",
+        realQty: "Real quantity",
+        qty: "Quantity",
+        income: "Income",
+        booked: "Booked",
     }
 };
 

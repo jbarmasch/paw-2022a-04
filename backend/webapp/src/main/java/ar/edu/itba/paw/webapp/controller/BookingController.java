@@ -60,7 +60,7 @@ public class BookingController {
         });
 
         if (page != 1) {
-            response.link(uriInfo.getAbsolutePathBuilder().queryParam("page", page - 1).build(), "prev");
+            response.link(uriInfo.getBaseUriBuilder().queryParam("page", page - 1).build(), "prev");
         }
         if (page != lastPage) {
             response.link(uriInfo.getAbsolutePathBuilder().queryParam("page", page + 1).build(), "next");
@@ -79,8 +79,6 @@ public class BookingController {
     public Response getById(@PathParam("code") final String code) {
         Optional<BookingDto> bookingDto = bs.getBooking(code).map(e -> BookingDto.fromBooking(uriInfo, e));
 
-//        HttpServletRequest request,
-//        String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), request.getContextPath());
         String bookUrl = "http://181.46.186.8:2557" + "/bookings/" + code;
         byte[] encodeBase64 = Base64.getEncoder().encode(cs.createQr(bookUrl));
         String base64Encoded = new String(encodeBase64, StandardCharsets.UTF_8);
@@ -101,7 +99,6 @@ public class BookingController {
         EventBooking eventBooking = bs.getBooking(code).orElse(null);
 
         if (eventBooking == null) {
-//            LOGGER.error("Event not found");
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 

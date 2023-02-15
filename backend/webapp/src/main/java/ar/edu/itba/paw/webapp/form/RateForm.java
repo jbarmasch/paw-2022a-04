@@ -4,7 +4,6 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-//@Before()
 public class RateForm {
     @Min(1)
     @Max(5)

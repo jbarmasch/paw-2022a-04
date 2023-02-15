@@ -67,7 +67,6 @@ const Login = () => {
         let user = await bad.json();
         user["accessToken"] = res.headers.get("Access-Token")
         user["refreshToken"] = res.headers.get("Refresh-Token")
-        console.log(user)
         login(user)
 
         if (values?.redirectTo) {
@@ -155,17 +154,6 @@ const Login = () => {
                             </div>
 
                             {error && <FormHelperText error>{i18n.t("login.notFound")}</FormHelperText>}
-
-                            <div className="form__info">
-                                <FormControlLabel
-                                    name="keepSigned"
-                                    value={false}
-                                    control={<Checkbox /* onClick={() => setActive(!active)} */ />}
-                                    label={i18n.t("login.keepMe")}
-                                    labelPlacement="end"
-                                />
-                                <a href="/forgot-password" className="form__info__forgot-password">Forgot password?</a>
-                            </div>
 
                             <div className="form-actions">
                                 <Button type="submit" variant="contained">{i18n.t("login.signIn")}</Button>

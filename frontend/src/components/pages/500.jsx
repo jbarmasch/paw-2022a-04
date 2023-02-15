@@ -6,7 +6,7 @@ const ServerError = () => {
         <Layout>
             <section className="errors-page">
                 <div className="container error-container">
-                    <img className="error" alt="Error" src={errorImage}/>
+                    <img width="40vw" height="28vw" className="error" alt="Error" src={errorImage}/>
                 </div>
             </section>
         </Layout>

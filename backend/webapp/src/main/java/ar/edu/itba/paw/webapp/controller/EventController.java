@@ -9,9 +9,7 @@ import ar.edu.itba.paw.service.EventService;
 import ar.edu.itba.paw.service.TicketService;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.webapp.auth.UserManager;
-import ar.edu.itba.paw.webapp.dto.EventDto;
-import ar.edu.itba.paw.webapp.dto.EventStatsDto;
-import ar.edu.itba.paw.webapp.dto.TicketDto;
+import ar.edu.itba.paw.webapp.dto.*;
 import ar.edu.itba.paw.webapp.form.*;
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
@@ -69,8 +67,9 @@ public class EventController {
                                @QueryParam("order") final Order order,
                                @QueryParam("soldOut") final Boolean showSoldOut,
                                @QueryParam("noTickets") final Boolean showNoTickets,
+                               @QueryParam("showPast") final Boolean showPast,
                                @QueryParam("page") @DefaultValue("1") final int page) {
-        final EventList res = es.filterBy(locations, types, minPrice, maxPrice, search, tags, username, userId, order, showSoldOut, showNoTickets, page);
+        final EventList res = es.filterBy(locations, types, minPrice, maxPrice, search, tags, username, userId, order, showSoldOut, showNoTickets, showPast, page);
         final List<EventDto> userList = res
                 .getEventList()
                 .stream()
@@ -100,13 +99,17 @@ public class EventController {
     }
 
     @POST
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
-    public Response createEvent(@Valid final EventForm form) throws IOException {
+    @Consumes(value = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA})
+    public Response createEvent(@PathParam("id") final long id, 
+                                @Valid @FormDataParam("form") final EventForm form,
+                                @FormDataParam("image") InputStream inputStream,
+                                @FormDataParam("image") FormDataContentDisposition contentDisposition) throws IOException {
+        byte[] data = IOUtils.toByteArray(inputStream);
+
         final long userId = um.getUserId();
         
-//        String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), request.getContextPath());
         final Event event = es.create(form.getName(), form.getDescription(), form.getLocation(), form.getType(), form.getTimestamp(),
-                null, form.getTags(), userId, form.isHasMinAge() ? form.getMinAge() : null,
+                data, form.getTags(), userId, form.isHasMinAge() ? form.getMinAge() : null,
                 "http://181.46.186.8:2557", LocaleContextHolder.getLocale());
 
         final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(event.getId())).build();
@@ -119,19 +122,6 @@ public class EventController {
     public Response updateEvent(@PathParam("id") final long id, @Valid final EventForm form) {
         es.updateEvent(id, form.getName(), form.getDescription(), form.getLocation(), form.getType(), form.getTimestamp(),
                 null, form.getTags(), form.isHasMinAge() ? form.getMinAge() : null);
-
-        return Response.accepted().build();
-    }
-
-    @Path("/{id}/image")
-    @POST
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response addImage(@PathParam("id") final long id, 
-                             @FormDataParam("image") InputStream inputStream,
-                             @FormDataParam("image") FormDataContentDisposition contentDisposition) throws IOException {
-        System.out.println("hola");
-        byte[] data = IOUtils.toByteArray(inputStream);
-        es.updateEventImage(id, data);
 
         return Response.accepted().build();
     }
@@ -294,6 +284,7 @@ public class EventController {
         Optional<Event> event = es.getEventById(id);
 
         if (!event.isPresent()) {
+            LOGGER.error("EVENT NOT FOUND");
             return Response.serverError().build();
         }
 
@@ -303,7 +294,12 @@ public class EventController {
                         ticket.getLocalDate(ticket.getStarting()), ticket.getLocalDate(ticket.getUntil()), ticket.getMaxPerUser());
             }
         } catch (DateRangeException e) {
-            return Response.serverError().build();
+//            ValidationErrorDto error = ValidationErrorDto.fromValidationException()
+//
+//            return Response
+//                .status(Response.Status.BAD_REQUEST)
+//                .entity(new GenericEntity<List<ValidationErrorDto>>(errors) {})
+//                .build();
         }
 
         return Response.accepted().build();
@@ -336,18 +332,9 @@ public class EventController {
             eventBooking = bs.book(booking, "http://181.46.186.8:2557", LocaleContextHolder.getLocale());
         } catch (AlreadyMaxTicketsException | SurpassedMaxTicketsException ex) {
             return Response.serverError().build();
-//            for (Map.Entry<Integer, Integer> error : ex.getErrorMap().entrySet()) {
-//                if (error.getValue() <= 0) {
-//                    errors.rejectValue("bookings[" + error.getKey() + "].qty", "Max.bookForm.qtyReached", null, "");
-//                    return Response.serverError().build();
-//                } else {
-//                    errors.rejectValue("bookings[" + error.getKey() + "].qty", "Max.bookForm.qty", new Object[]{error.getValue()}, "");
-//                    return Response.serverError().build();
-//                }
-//                LOGGER.error("BookForm has errors: {}", errors.getAllErrors().toArray());
         }
 
-        final URI uri = uriInfo.getAbsolutePathBuilder()
+        final URI uri = uriInfo.getBaseUriBuilder()
             .path("api/bookings").path(String.valueOf(eventBooking.getCode())).build();
         return Response.created(uri).build();
     }
@@ -361,7 +348,24 @@ public class EventController {
         if (eventStatsDto.isPresent()) {
             return Response.ok(eventStatsDto.get()).build();
         } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.noContent().build();
+        }
+    }
+
+    @Path("/{id}/ticket-stats")
+    @GET
+    @Produces(value = {MediaType.APPLICATION_JSON,})
+    public Response getTicketStats(@PathParam("id") final long id) {
+        List<TicketStats> ticketsStats = ts.getTicketStats(id);
+        final List<TicketStatsDto> ticketList = ticketsStats
+                .stream()
+                .map(e -> TicketStatsDto.fromTicketStats(uriInfo, e))
+                .collect(Collectors.toList());
+
+        if (!ticketList.isEmpty()) {
+            return Response.ok(ticketList).build();
+        } else {
+            return Response.noContent().build();
         }
     }
 }

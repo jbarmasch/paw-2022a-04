@@ -39,7 +39,6 @@ function Page({data, aux, setAux}) {
 
     Promise.resolve(data).then((x) => {
         setAux(x)
-        console.log(x)
     })
 
     return (
@@ -93,7 +92,6 @@ const UsersContent = () => {
                 queryUrl = `${queryUrl}&search=${query}`
             }
             let url = `/organizers?page=1${queryUrl}`
-            console.log(pathname)
             let oldPath = pathname + search
             if (oldPath === url) {
                 return
@@ -155,18 +153,7 @@ const UsersContent = () => {
         label: "Usuario descendente"
     })
 
-    // const handleParam = setValue => e => setValue(e.target.value)
-    //
-    // const handleKeyDown = (e) => {
-    //     console.log(e.key)
-    //     if (e.key === 'Enter') {
-    //         setQuery(query)
-    //         history.replace(`/organizers?page=1&search=${query}`);
-    //     }
-    // }
-
     const onSubmit = (data) => {
-        console.log(getValues("search"))
         setFirstLoad(false);
         setQuery(getValues("search"));
     }
@@ -175,27 +162,8 @@ const UsersContent = () => {
         <section className="users-content products-content">
             <div className="products-content__intro">
                 <h2>{i18n.t("organizer.organizers")}</h2>
-                {/*<TextField*/}
-                {/*    type='text'*/}
-                {/*    variant="standard"*/}
-                {/*    className="search-users"*/}
-                {/*    name='search'*/}
-                {/*    value={searchQuery}*/}
-                {/*    // onChange={handleParam(setQuery)}*/}
-                {/*    // onKeyDown={handleKeyDown}*/}
-                {/*    placeholder={i18n.t("organizer.searchOrganizer")}*/}
-                {/*    aria-label='Search organizer'*/}
-                {/*    InputProps={{*/}
-                {/*        endAdornment: (*/}
-                {/*            <InputAdornment position="end">*/}
-                {/*                <SearchRoundedIcon/>*/}
-                {/*            </InputAdornment>*/}
-                {/*        ),*/}
-                {/*    }}*/}
-                {/*/>*/}
 
                 <form onSubmit={handleSubmit(onSubmit)} className="search-users">
-                    {/* <div className="filter-horizontal"> */}
                         <Controller
                             name="search"
                             control={control}
@@ -221,31 +189,12 @@ const UsersContent = () => {
                             }}
                         />
 
-                    {/* }</div> */}
                 </form>
 
 
                 <form className={`products-content__filter}`}>
 
                     <div className="products__filter__select">
-
-                        {/* <Controller
-                                    control={control}
-                                    defaultValue={''}
-                                    name="search"
-                                    render={({ field: { onChange, value, name, ref } }) => {
-                                        const handleSelectChange = (selectedOption) => {
-                                            setSearch(selectedOption.target.value);
-                                        };
-
-                                        return (
-                                            <FormControl>
-                                                <InputLabel className="order-label" id="order-select-label">{i18n.t("filter.sortBy")}</InputLabel>
-                                                <Input/>
-                                            </FormControl>
-                                        );
-                                    }}
-                                /> */}
 
                         <Controller
                             control={control}
@@ -292,8 +241,9 @@ const UsersContent = () => {
                     {data && <Page data={data} aux={child} setAux={setChild}/>}
                 </div>
                 <div className="pagination">
-                    <Pagination count={Number(links.last ? links.last.page : 1)} showFirstButton showLastButton
-                                page={pageIndex} onChange={handlePageChange}/>
+                <Pagination count={Number(links && links.last ? links.last?.page : 0)} showFirstButton
+                                        showLastButton page={values?.page ? Number(values?.page) : pageIndex}
+                                        onChange={handlePageChange}/>
                 </div>
             </div>
         </section>

@@ -205,33 +205,4 @@ public class UserJpaDaoTest {
         Assert.assertEquals(TestUtils.USER1.getId(), rating.getOrganizer().getId());
         Assert.assertEquals(attendee.getId(), rating.getUser().getId());
     }
-
-    //@Test
-    //public void testGetOrganizerStats() {
-    //    final Event pastEvent = TestUtils.createEvent(em);
-    //    pastEvent.setDate(TestUtils.RATEABLE_DATE);
-    //    pastEvent.setOrganizer(TestUtils.USER1);
-    //    em.persist(pastEvent);
-    //    Ticket ticket = TestUtils.createTicket(em);
-    //    ticket.setEvent(pastEvent);
-    //    em.persist(ticket);
-    //    User attendee = TestUtils.createUser(em);
-    //    EventBooking eBooking = TestUtils.createEventBooking(em);
-    //    eBooking.setEvent(pastEvent);
-    //    eBooking.setUser(attendee);
-    //    eBooking.setConfirmed(true);
-    //    em.persist(eBooking);
-    //    TicketBooking tBooking = new TicketBooking(ticket, TestUtils.BOOKING_QTY, eBooking);
-    //    em.persist(tBooking);
-//
-    //    OrganizerStats organizerStats = userDao.getOrganizerStats(TestUtils.USER1.getId()).orElse(null);
-//
-    //    Assert.assertNotNull(organizerStats);
-    //    Assert.assertEquals(1, organizerStats.getEventsCreated());
-    //    Assert.assertEquals(TestUtils.BOOKING_QTY, organizerStats.getBookingsGotten());
-    //    Assert.assertEquals(pastEvent.getId(), organizerStats.getPopularEvent().getId());
-    //    Assert.assertEquals(TestUtils.TICKET_PRICE * TestUtils.BOOKING_QTY, organizerStats.getIncome(), 0.0001);
-    //    Assert.assertEquals( (double) TestUtils.BOOKING_QTY / TestUtils.TICKET_QTY, organizerStats.getAttendance(), 0.0001);
-    //}
-
 }

@@ -4,16 +4,23 @@ import Button from "@mui/material/Button";
 import MoneyOffCsredRoundedIcon from '@mui/icons-material/MoneyOffCsredRounded';
 import CelebrationRoundedIcon from '@mui/icons-material/CelebrationRounded';
 import ChairRoundedIcon from '@mui/icons-material/ChairRounded';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
 
 export default function PageIntro() {
     return (
         <section className="page-intro">
 
             <div className="page-intro__container">
-                <img className="page-intro__slide" alt="Landing" src={landingImage}/>
-                <h2 className="page-intro__content vertical">
+            <LazyLoadImage
+                            className="page-intro__slide"
+                            component="img"
+                            height="80vh"
+                            width="100vw"
+                            src={landingImage}
+                            alt={i18n.t("landing")}
+                        />
+                <h2 className="page-intro__content">
                     {i18n.t("home.phrase")}
-                    <div><Button color={"secondary"} variant={"contained"}>{i18n.t("seeEvents")}</Button></div>
                 </h2>
             </div>
 
@@ -49,5 +56,3 @@ export default function PageIntro() {
         </section>
     )
 };
-
-// export default PageIntro;

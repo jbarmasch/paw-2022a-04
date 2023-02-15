@@ -23,15 +23,15 @@ public class TicketBookingDto {
         dto.ticket = TicketDto.fromTicket(uriInfo, ticketBooking.getTicket());
         dto.qty = ticketBooking.getQty();
 
-        final UriBuilder eventUriBuilder = uriInfo.getAbsolutePathBuilder().
+        final UriBuilder eventUriBuilder = uriInfo.getBaseUriBuilder().
                 path("api/tickets").path(String.valueOf(ticketBooking.getId()));
         dto.self = eventUriBuilder.build();
 
-        final UriBuilder organizerUriBuilder = uriInfo.getAbsolutePathBuilder().
+        final UriBuilder organizerUriBuilder = uriInfo.getBaseUriBuilder().
                 path("api/users").path(String.valueOf(ticketBooking.getEventBooking().getUser().getId()));
         dto.user = organizerUriBuilder.build();
 
-        final UriBuilder imageUriBuilder = uriInfo.getAbsolutePathBuilder().
+        final UriBuilder imageUriBuilder = uriInfo.getBaseUriBuilder().
                 path("api/events").path(String.valueOf(ticketBooking.getEventBooking().getEvent().getId()));
         dto.event = imageUriBuilder.build();
 

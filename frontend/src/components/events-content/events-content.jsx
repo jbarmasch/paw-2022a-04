@@ -47,7 +47,6 @@ function Page({data, aux, setAux}) {
 
     Promise.resolve(data).then((x) => {
         setAux(x)
-        console.log(x)
     })
 
     return (
@@ -224,7 +223,6 @@ const EventsContent = () => {
         return filters
     }
 
-    // TODO: tiene headers
     const {data: filters, error: errorFilters} = useSwr(
         `${server}/api/filters${getFilters()}`
         , fetcher)
@@ -664,7 +662,6 @@ const EventsContent = () => {
                                         defaultValue={''}
                                         name="ticketless"
                                         render={({field: {onChange}}) => {
-                                            console.log(noTickets)
                                             const currentSelection = noTickets ? noTickets === "true" : false
 
                                             const handleTicketChange = (e, selectedOption) => {

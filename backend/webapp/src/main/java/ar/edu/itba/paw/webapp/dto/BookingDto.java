@@ -41,7 +41,7 @@ public class BookingDto {
         dto.confirmed = eventBooking.isConfirmed();
 
         final UriBuilder eventUriBuilder = uriInfo.getBaseUriBuilder().
-                replacePath("bookings").path(String.valueOf(eventBooking.getCode()));
+                path("api/bookings").path(String.valueOf(eventBooking.getCode()));
         dto.self = eventUriBuilder.build();
 
         final UriBuilder organizerUriBuilder = uriInfo.getBaseUriBuilder().

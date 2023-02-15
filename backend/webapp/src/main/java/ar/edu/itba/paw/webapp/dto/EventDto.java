@@ -42,7 +42,6 @@ public class EventDto {
         dto.minAge = event.getMinAge();
         dto.location = LocationDto.fromLocation(uriInfo, event.getLocation());
         dto.type = TypeDto.fromType(uriInfo, event.getType());
-//        dto.tags = event.getTags().stream().map(Tag::getName).collect(Collectors.toList());
         List<TagDto> list = new ArrayList<>();
         for (Tag tag : event.getTags()) {
             list.add(TagDto.fromTag(uriInfo, tag));

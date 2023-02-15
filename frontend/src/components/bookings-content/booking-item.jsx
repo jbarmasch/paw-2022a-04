@@ -19,6 +19,8 @@ import {useState} from "react";
 import {ParseDateTime} from "../events-content/event-item";
 import LocationOnRoundedIcon from "@mui/icons-material/LocationOnRounded";
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+
 
 const BookingItem = ({image, code, event, rating, ticketBookings, mutate}) => {
     const [open, setOpen] = useState(false);
@@ -98,13 +100,32 @@ const BookingItem = ({image, code, event, rating, ticketBookings, mutate}) => {
     return (
         <Paper className="booking-item" elevation={2}>
             <div>
-            <img onClick={handleClickOpenQR} className="booking-qr-small pointer" src={`data:image/png;base64,${image}`} alt="QR"/>
+
+            <LazyLoadImage
+            onClick={handleClickOpenQR} 
+                            className="booking-qr-small pointer"
+                            component="img"
+                            height="100px"
+                            width="100px"
+                            src={`data:image/png;base64,${image}`}
+                            alt={"QR"}
+                        />
+
+
             <Dialog
                 open={openQR}
                 onClose={handleCloseQR}
                 aria-labelledby="responsive-dialog-title"
             >
-                <img className="booking-qr" src={`data:image/png;base64,${image}`} alt="QR"/>
+                <LazyLoadImage
+            onClick={handleClickOpenQR} 
+                            className="booking-qr"
+                            component="img"
+                            height="400px"
+                            width="400px"
+                            src={`data:image/png;base64,${image}`}
+                            alt={"QR"}
+                        />
             </Dialog>
             </div>
             <div className="booking-content vertical">

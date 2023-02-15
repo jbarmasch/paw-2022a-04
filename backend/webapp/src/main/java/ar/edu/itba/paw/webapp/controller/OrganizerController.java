@@ -20,8 +20,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-//import static javax.ws.rs.core.Response.ResponseBuilder;
-
 @Path("api/organizers")
 @Component
 public class OrganizerController {

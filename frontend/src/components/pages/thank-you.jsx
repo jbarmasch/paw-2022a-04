@@ -33,8 +33,7 @@ const ThankYou = () => {
 
     const {data, isLoading, error} = useSwr(`${booking}`, fetcher)
 
-    // TODO: loading
-    if (error) return <p>No data</p>
+    if (error) {history.push("/404"); return;}
     if (isLoading) return <LoadingPage/>
 
     let total = 0;

@@ -30,7 +30,7 @@ public class EventBookingJpaDao implements EventBookingDao {
         final List<Long> ids = (List<Long>) queryNative.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());
         if (ids.isEmpty())
             return new EventBookingList(Collections.emptyList(), 0);
-        final TypedQuery<EventBooking> typedQuery = em.createQuery("from EventBooking where id IN :ids ", EventBooking.class);
+        final TypedQuery<EventBooking> typedQuery = em.createQuery("from EventBooking where id IN :ids ORDER BY event.date DESC", EventBooking.class);
         typedQuery.setParameter("ids", ids);
 
         Query count = em.createNativeQuery("SELECT COUNT(DISTINCT eb.id) FROM eventbookings eb JOIN ticketbookings tb ON eb.id = tb.id WHERE tb.qty > 0 AND eb.userid = :userid");
@@ -113,7 +113,6 @@ public class EventBookingJpaDao implements EventBookingDao {
                 }
             }
             em.persist(eventBooking);
-            System.out.println("codigo: " + eventBooking.getCode());
 
             return eventBooking;
         }
@@ -122,7 +121,6 @@ public class EventBookingJpaDao implements EventBookingDao {
     @Override
     public boolean cancelBooking(EventBooking booking) {
         if (booking == null) {
-            // TODO: Change
             throw new CancelBookingFailedException();
         }
 

@@ -83,17 +83,6 @@ public class FilterJpaDao implements FilterDao {
             objects.put("maxPrice", maxPrice);
         }
 
-            // if (showNoTickets) {
-            //     if (!condition)
-            //         querySelect.append(" LEFT JOIN tickets t on e.eventid = t.eventid");
-            //     if (!having) {
-            //         queryCondition.append(" HAVING");
-            //         having = true;
-            //     } else queryCondition.append(" AND");
-            //     queryCondition.append(" COUNT(t.ticketid) >= 0");
-            //     objects.put("maxPrice", maxPrice);
-            // }
-            
         if (tags != null && tags.size() > 0) {
             querySelect.append(" LEFT JOIN eventtags et on e.eventid = et.eventid");
             if (!having)
