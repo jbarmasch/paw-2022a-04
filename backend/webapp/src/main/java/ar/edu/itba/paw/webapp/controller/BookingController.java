@@ -42,7 +42,7 @@ public class BookingController {
                 .stream()
                 .map(e -> {
                     BookingDto bookingDto = BookingDto.fromBooking(uriInfo, e);
-                    String bookUrl = "http://181.46.186.8:2557" + "/bookings/" + e.getCode();
+                    String bookUrl = "http://pawserver.it.itba.edu.ar/paw-2022a-04" + "/bookings/" + e.getCode();
                     byte[] encodeBase64 = Base64.getEncoder().encode(cs.createQr(bookUrl));
                     String base64Encoded = new String(encodeBase64, StandardCharsets.UTF_8);
                     bookingDto.setImage(base64Encoded);
@@ -79,7 +79,7 @@ public class BookingController {
     public Response getById(@PathParam("code") final String code) {
         Optional<BookingDto> bookingDto = bs.getBooking(code).map(e -> BookingDto.fromBooking(uriInfo, e));
 
-        String bookUrl = "http://181.46.186.8:2557" + "/bookings/" + code;
+        String bookUrl = "http://pawserver.it.itba.edu.ar/paw-2022a-04" + "/bookings/" + code;
         byte[] encodeBase64 = Base64.getEncoder().encode(cs.createQr(bookUrl));
         String base64Encoded = new String(encodeBase64, StandardCharsets.UTF_8);
 

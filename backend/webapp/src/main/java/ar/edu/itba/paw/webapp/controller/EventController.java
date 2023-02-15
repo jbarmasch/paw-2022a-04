@@ -110,7 +110,7 @@ public class EventController {
         
         final Event event = es.create(form.getName(), form.getDescription(), form.getLocation(), form.getType(), form.getTimestamp(),
                 data, form.getTags(), userId, form.isHasMinAge() ? form.getMinAge() : null,
-                "http://181.46.186.8:2557", LocaleContextHolder.getLocale());
+                "http://pawserver.it.itba.edu.ar/paw-2022a-04", LocaleContextHolder.getLocale());
 
         final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(event.getId())).build();
         return Response.created(uri).build();
@@ -329,7 +329,7 @@ public class EventController {
 
         EventBooking eventBooking;
         try {
-            eventBooking = bs.book(booking, "http://181.46.186.8:2557", LocaleContextHolder.getLocale());
+            eventBooking = bs.book(booking, "http://pawserver.it.itba.edu.ar/paw-2022a-04", LocaleContextHolder.getLocale());
         } catch (AlreadyMaxTicketsException | SurpassedMaxTicketsException ex) {
             return Response.serverError().build();
         }

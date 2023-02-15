@@ -13,7 +13,7 @@ pipelines:
             - sed -i "s/env.getProperty(\"dbUsername\")/\"$PAW_BOTTLER_USER\"/g" "$webConfigFile"
             - sed -i "s/env.getProperty(\"dbPassword\")/\"$PAW_BOTTLER_PASS\"/g" "$webConfigFile"
             - sed -i "s/env.getProperty(\"dbURL\")/\"jdbc:postgresql:\/\/10.16.1.110\/$PAW_BOTTLER_USER\"/g" "$webConfigFile"
-            - sed -i "s/env.getProperty(\"mailUsername\")/\"botpass@mail.com\"/g" "$webConfigFile"
+            - sed -i "s/env.getProperty(\"mailUsername\")/\"bottlerpass@zohomail.com\"/g" "$webConfigFile"
             - sed -i "s/env.getProperty(\"mailPassword\")/\"$PAW_BOTTLER_MAILPASS\"/g" "$webConfigFile"
             - export codeServiceFile="service/src/main/java/ar/edu/itba/paw/service/CodeServiceImpl.java"
             - sed -i "s/@PropertySource(\"classpath:config.properties\")//g" "$codeServiceFile"

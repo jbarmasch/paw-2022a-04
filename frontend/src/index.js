@@ -5,7 +5,6 @@ import App from './App';
 import {HashRouter, BrowserRouter} from 'react-router-dom'
 import {createTheme, ThemeProvider} from '@mui/material/styles';
 import WebFont from 'webfontloader';
-import {Context} from './utils/context';
 
 WebFont.load({
     google: {
@@ -28,7 +27,7 @@ const theme = createTheme({
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <ThemeProvider theme={theme}>
-        <BrowserRouter>
+        <BrowserRouter basename="/paw-2022a-04/">
             <App/>
         </BrowserRouter>
     </ThemeProvider>
