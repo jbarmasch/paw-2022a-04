@@ -1,5 +1,4 @@
-// export const server = 'http://pawserver.it.itba.edu.ar/paw-2022a-04';
-export const server = 'http://localhost:2555/paw-2022a-04';
+export const server = 'http://pawserver.it.itba.edu.ar/paw-2022a-04';
 
 export const fetcher = async url => {
     const res = await fetch(url)
