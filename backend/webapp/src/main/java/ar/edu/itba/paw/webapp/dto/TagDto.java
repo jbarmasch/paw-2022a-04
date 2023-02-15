@@ -20,7 +20,7 @@ public class TagDto {
         dto.id = tag.getId();
         dto.name = tag.getName();
 
-        final UriBuilder locationUriBuilder = uriInfo.getAbsolutePathBuilder().
+        final UriBuilder locationUriBuilder = uriInfo.getBaseUriBuilder().
                 path("api/tags").path(String.valueOf(tag.getId()));
         dto.self = locationUriBuilder.build();
 
@@ -33,7 +33,7 @@ public class TagDto {
         dto.id = tag.getId();
         dto.name = tag.getName(locale);
 
-        final UriBuilder locationUriBuilder = uriInfo.getAbsolutePathBuilder().
+        final UriBuilder locationUriBuilder = uriInfo.getBaseUriBuilder().
                 path("api/tags").path(String.valueOf(tag.getId()));
         dto.self = locationUriBuilder.build();
 

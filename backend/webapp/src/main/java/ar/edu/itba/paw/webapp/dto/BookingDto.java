@@ -40,15 +40,15 @@ public class BookingDto {
         dto.code = eventBooking.getCode();
         dto.confirmed = eventBooking.isConfirmed();
 
-        final UriBuilder eventUriBuilder = uriInfo.getAbsolutePathBuilder().
-                path("api/bookings").path(String.valueOf(eventBooking.getCode()));
+        final UriBuilder eventUriBuilder = uriInfo.getBaseUriBuilder().
+                replacePath("bookings").path(String.valueOf(eventBooking.getCode()));
         dto.self = eventUriBuilder.build();
 
-        final UriBuilder organizerUriBuilder = uriInfo.getAbsolutePathBuilder().
+        final UriBuilder organizerUriBuilder = uriInfo.getBaseUriBuilder().
                 path("api/users").path(String.valueOf(eventBooking.getUser().getId()));
         dto.user = organizerUriBuilder.build();
 
-        final UriBuilder imageUriBuilder = uriInfo.getAbsolutePathBuilder().
+        final UriBuilder imageUriBuilder = uriInfo.getBaseUriBuilder().
                 path("api/events").path(String.valueOf(eventBooking.getEvent().getId()));
         dto.event = imageUriBuilder.build();
 

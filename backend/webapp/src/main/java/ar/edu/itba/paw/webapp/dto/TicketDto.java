@@ -33,15 +33,15 @@ public class TicketDto {
         dto.starting = ticket.getStarting();
         dto.until = ticket.getUntil();
 
-        final UriBuilder ticketUriBuilder = uriInfo.getAbsolutePathBuilder().
+        final UriBuilder ticketUriBuilder = uriInfo.getBaseUriBuilder().
                 path("api/tickets").path(String.valueOf(ticket.getId()));
         dto.self = ticketUriBuilder.build();
 
-        final UriBuilder eventUriBuilder = uriInfo.getAbsolutePathBuilder().
+        final UriBuilder eventUriBuilder = uriInfo.getBaseUriBuilder().
                 path("api/events").path(String.valueOf(ticket.getEvent().getId()));
         dto.event = eventUriBuilder.build();
 
-        final UriBuilder bookingsUriBuilder = uriInfo.getAbsolutePathBuilder().
+        final UriBuilder bookingsUriBuilder = uriInfo.getBaseUriBuilder().
                 path("api/eventBookings");
         dto.bookings = bookingsUriBuilder.build();
 

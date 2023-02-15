@@ -23,7 +23,7 @@ public class LocationDto {
         dto.id = location.getId();
         dto.name = location.getName();
 
-        final UriBuilder locationUriBuilder = uriInfo.getAbsolutePathBuilder().
+        final UriBuilder locationUriBuilder = uriInfo.getBaseUriBuilder().
                 path("api/locations").path(String.valueOf(location.getId()));
         dto.self = locationUriBuilder.build();
 

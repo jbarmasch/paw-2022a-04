@@ -15,7 +15,7 @@ public class ImageDto {
 
         dto.image = image.getImage();
 
-        final UriBuilder eventUriBuilder = uriInfo.getAbsolutePathBuilder().
+        final UriBuilder eventUriBuilder = uriInfo.getBaseUriBuilder().
                 path("api/image").path(String.valueOf(image.getId()));
         dto.self = eventUriBuilder.build();
 
