@@ -14,21 +14,23 @@ import Profile from './components/pages/profile'
 import ThankYou from './components/pages/thank-you'
 import PageNotFound from './components/pages/404'
 import ServerError from './components/pages/500'
-import { useAuth } from './utils/useAuth';
-import { AuthContext } from './utils/context';
+import {useAuth} from './utils/useAuth';
+import {AuthContext} from './utils/context';
 import {useEffect, useState} from "react";
+import Booking from "./components/pages/booking";
 
 export default function App() {
     const [user, setUser] = useState()
 
     return (
-        <AuthContext.Provider value={{ user, setUser }}>
+        <AuthContext.Provider value={{user, setUser}}>
             <Switch>
                 <Route exact path="/" component={Home}/>
                 <Route exact path="/events" component={Events}/>
-                <Route path="/create-event" component={CreateEvent}/>
-                <Route path="/bookings" component={Bookings}/>
                 <Route path="/events/:id" component={Event}/>
+                <Route path="/create-event" component={CreateEvent}/>
+                <Route exact path="/bookings" component={Bookings}/>
+                <Route path="/bookings/:code" component={Booking}/>
                 <Route path="/login" component={Login}/>
                 <Route exact path="/organizers" component={Organizers}/>
                 <Route path="/recommended" component={Recommended}/>

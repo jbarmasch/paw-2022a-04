@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,11 +32,11 @@ public class TagController {
 
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON,})
-    public Response listTags() {
+    public Response listTags(@QueryParam("locale") final String locale) {
         final List<Tag> res = ts.getAll();
         final List<TagDto> tagList = res
                 .stream()
-                .map(e -> TagDto.fromTag(uriInfo, e))
+                .map(e -> TagDto.fromTag(uriInfo, e, locale))
                 .collect(Collectors.toList());
 
         if (tagList.isEmpty()) {

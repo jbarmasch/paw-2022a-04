@@ -47,7 +47,8 @@ public class UserJpaDao implements UserDao {
         StringBuilder querySelect = new StringBuilder("FROM users u JOIN userroles ur ON u.userid = ur.userid LEFT JOIN events e ON u.userid = e.userid LEFT JOIN ratings r ON u.userid = r.userid");
         StringBuilder queryCondition = new StringBuilder(" WHERE ur.roleid = 2");
         if (searchQuery != null) {
-            queryCondition.append(" AND ((SELECT to_tsvector('Spanish', u.username) @@ websearch_to_tsquery(:searchquery)) = 't' OR u.username ILIKE CONCAT('%', :searchquery, '%'))");
+            // queryCondition.append(" AND ((SELECT to_tsvector('Spanish', u.username) @@ websearch_to_tsquery(:searchquery)) = 't' OR u.username ILIKE CONCAT('%', :searchquery, '%'))");
+            queryCondition.append(" AND u.username ILIKE CONCAT('%', :searchquery, '%')");
             objects.put("searchquery", searchQuery);
         }
         StringBuilder orderQuery = new StringBuilder();
@@ -185,6 +186,7 @@ public class UserJpaDao implements UserDao {
 
     @Override
     public boolean canRate(long organizerId, long userId) {
+        System.out.println("CULO");
         final TypedQuery<EventBooking> query = em.createQuery("from EventBooking as eb where eb.user.id = :userid and eb.event.date > :date and eb.event.date < NOW() and eb.event.organizer.id = :organizerid", EventBooking.class);
         query.setParameter("userid", userId);
         query.setParameter("organizerid", organizerId);

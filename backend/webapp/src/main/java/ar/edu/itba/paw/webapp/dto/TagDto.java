@@ -10,6 +10,7 @@ import java.net.URI;
 public class TagDto {
     private long id;
     private String name;
+    private String name_en;
 
     private URI self;
 
@@ -18,6 +19,19 @@ public class TagDto {
 
         dto.id = tag.getId();
         dto.name = tag.getName();
+
+        final UriBuilder locationUriBuilder = uriInfo.getAbsolutePathBuilder().
+                replacePath("api/tags").path(String.valueOf(tag.getId()));
+        dto.self = locationUriBuilder.build();
+
+        return dto;
+    }
+
+    public static TagDto fromTag(final UriInfo uriInfo, final Tag tag, final String locale) {
+        final TagDto dto = new TagDto();
+
+        dto.id = tag.getId();
+        dto.name = tag.getName(locale);
 
         final UriBuilder locationUriBuilder = uriInfo.getAbsolutePathBuilder().
                 replacePath("api/tags").path(String.valueOf(tag.getId()));

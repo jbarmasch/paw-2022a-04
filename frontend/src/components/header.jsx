@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import {useEffect, useRef, useState} from 'react';
 import useOnClickOutside from 'use-onclickoutside';
 import i18n from "../i18n";
-import { Link, useHistory, useLocation } from 'react-router-dom'
-import { checkLogin } from '../utils/auth'
+import {Link, useHistory, useLocation} from 'react-router-dom'
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import IconButton from '@mui/material/IconButton';
 import Avatar from '@mui/material/Avatar';
@@ -14,9 +13,9 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import Logout from '@mui/icons-material/Logout';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
-import { useContext } from 'react';
-import { Context } from '../utils/context';
-import { useAuth } from '../utils/useAuth';
+import {useAuth} from '../utils/useAuth';
+import BotPassLogo from '../assets/images/logo-right.png'
+import BotPassIntroLogo from '../assets/images/logo-right-intro.png'
 
 export const useFindPath = () => {
     const location = useLocation();
@@ -32,23 +31,9 @@ const Header = () => {
     const arrayPaths = ['/'];
     const history = useHistory();
 
-    const { user } = useAuth();
+    const {user} = useAuth();
 
-    let accessToken;
-    let refreshToken;
-
-    if (typeof window !== 'undefined') {
-        accessToken = localStorage.getItem("Access-Token");
-        refreshToken = localStorage.getItem("Refresh-Token");
-    }
-
-    // const [logged, setLogged] = useState(false)
-
-    // useEffect(() => {
-    //     checkLogin(accessToken, refreshToken).then(x => setLogged(x))
-    // }, [accessToken, refreshToken])
-
-    const [onTop, setOnTop] = useState((!arrayPaths.includes(path)) ? false : true);
+    const [onTop, setOnTop] = useState(arrayPaths.includes(path));
     const [menuOpen, setMenuOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
     const navRef = useRef(null);
@@ -100,10 +85,10 @@ const Header = () => {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
-      setAnchorEl(event.currentTarget);
+        setAnchorEl(event.currentTarget);
     };
     const handleClose = () => {
-      setAnchorEl(null);
+        setAnchorEl(null);
     };
 
     const logout = () => {
@@ -120,16 +105,20 @@ const Header = () => {
         <header className={`site-header ${!onTop ? 'site-header--fixed' : ''}`}>
             <div className="container">
                 <Link to="/">
-                    <h1 className={"site-logo " + ((path && path == "/") ? "header-link-active" : "")}>{/*<Logo/>*/}BotPass</h1>
+                    {/* <h1 className={"site-logo " + ((path && path === "/") ? "header-link-active" : "")}><Logo/>BotPass</h1> */}
+                    {!onTop ? <img alt="BotPass" height="50px" width="126px" className="logo" src={BotPassLogo}/> : <img alt="BotPass" height="50px" width="126px" className="logo" src={BotPassIntroLogo}/>}
                 </Link>
                 <nav ref={navRef} className={`site-nav ${menuOpen ? 'site-nav--open' : ''}`}>
-                    <Link className={"header-link " + (path?.includes("/events") ? "header-link-active" : "")} to="/events">
+                    <Link className={"header-link " + (path?.includes("/events") ? "header-link-active" : "")}
+                          to="/events">
                         {i18n.t("nav.events")}
                     </Link>
-                    <Link className={"header-link " + (path?.includes("/organizers") ? "header-link-active" : "")} to="/organizers">
+                    <Link className={"header-link " + (path?.includes("/organizers") ? "header-link-active" : "")}
+                          to="/organizers">
                         {i18n.t("nav.organizers")}
                     </Link>
-                    <Link className={"header-link " + ((path && path == "/create-event") ? "header-link-active" : "")} to="/create-event">
+                    <Link className={"header-link " + ((path && path === "/create-event") ? "header-link-active" : "")}
+                          to="/create-event">
                         {i18n.t("nav.createEvent")}
                     </Link>
                     <Link className="site-nav__btn" to="/profile">
@@ -148,7 +137,7 @@ const Header = () => {
 
                 <div className="site-header__actions">
                     <div ref={searchRef}
-                        className={`search-form-wrapper ${searchOpen ? 'search-form--active' : ''}`}>
+                         className={`search-form-wrapper ${searchOpen ? 'search-form--active' : ''}`}>
                         <form className={`search-form`} onSubmit={handleSubmit}>
                             <i className="icon-cancel" onClick={() => setSearchOpen(!searchOpen)}></i>
                             <input
@@ -160,22 +149,30 @@ const Header = () => {
                                 aria-label='Search event'
                             />
                         </form>
-                        <IconButton onClick={() => setSearchOpen(!searchOpen)} className="icon-search"><SearchOutlinedIcon style={{ color: onTop && !searchOpen ? 'white' : 'black' }}/></IconButton>
+                        <IconButton onClick={() => setSearchOpen(!searchOpen)}
+                                    className="icon-search"><SearchOutlinedIcon
+                            style={{color: onTop && !searchOpen ? 'white' : 'black'}}/></IconButton>
                     </div>
                     {!user &&
-                        <Link to="/login"><IconButton><LoginOutlinedIcon style={{ color: onTop ? 'white' : 'black' }}/></IconButton></Link>
+                        <Link to="/login"><IconButton><LoginOutlinedIcon
+                            style={{color: onTop ? 'white' : 'black'}}/></IconButton></Link>
                     }
                     {user &&
                         <>
                             <IconButton
                                 onClick={handleClick}
                                 size="small"
-                                sx={{ ml: 2 }}
+                                sx={{ml: 2}}
                                 aria-controls={open ? 'account-menu' : undefined}
                                 aria-haspopup="true"
                                 aria-expanded={open ? 'true' : undefined}
                             >
-                                <Avatar sx={{ width: 32, height: 32, color: 'black', bgcolor: "secondary"}}>{user.username[0].toUpperCase()}</Avatar>
+                                <Avatar sx={{
+                                    width: 32,
+                                    height: 32,
+                                    color: 'black',
+                                    bgcolor: "secondary"
+                                }}>{user.username[0].toUpperCase()}</Avatar>
                             </IconButton>
                             <Menu
                                 anchorEl={anchorEl}
@@ -209,32 +206,32 @@ const Header = () => {
                                         },
                                     },
                                 }}
-                                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                                transformOrigin={{horizontal: 'right', vertical: 'top'}}
+                                anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
                             >
                                 <Link to="/profile">
                                     <MenuItem className={"nav-link"} onClick={handleClose}>
-                                        <Avatar />{i18n.t("nav.profile")}
+                                        <Avatar/>{i18n.t("nav.profile")}
                                     </MenuItem>
                                 </Link>
                                 <Link to="/my-events">
                                     <MenuItem className={"nav-link"} onClick={handleClose}>
-                                        <Avatar />{i18n.t("nav.myEvents")}
+                                        <Avatar/>{i18n.t("nav.myEvents")}
                                     </MenuItem>
                                 </Link>
                                 <Link to="/bookings">
                                     <MenuItem className={"nav-link"} onClick={handleClose}>
-                                        <Avatar />{i18n.t("nav.bookings")}
+                                        <Avatar/>{i18n.t("nav.bookings")}
                                     </MenuItem>
                                 </Link>
-                                <Divider />
+                                <Divider/>
                                 <MenuItem className={"nav-link"} onClick={handleClose}>
                                     <ListItemIcon>
-                                        <Button className="icon-button" onClick={logout} startIcon={<Logout fontSize="small" />}>
+                                        <Button className="icon-button" onClick={logout}
+                                                startIcon={<Logout fontSize="small"/>}>
                                             {i18n.t("nav.logout")}
                                         </Button>
                                     </ListItemIcon>
-                                    {/* {i18n.t("nav.logout")} */}
                                 </MenuItem>
                             </Menu>
                         </>
@@ -242,7 +239,7 @@ const Header = () => {
                     <IconButton
                         onClick={() => setMenuOpen(true)}
                         className="site-header__btn-menu"
-                        style={{ color: onTop ? 'white' : 'black' }}>
+                        style={{color: onTop ? 'white' : 'black'}}>
                         <MenuRoundedIcon/>
                     </IconButton>
                 </div>

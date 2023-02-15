@@ -4,6 +4,7 @@ import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.service.EventService;
 import ar.edu.itba.paw.service.TicketService;
 import ar.edu.itba.paw.service.UserService;
+import ar.edu.itba.paw.service.EventBookingService;
 import ar.edu.itba.paw.webapp.dto.*;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,8 @@ import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -30,6 +33,8 @@ public class UserController {
     private EventService es;
     @Autowired
     private TicketService ts;
+    @Autowired
+    private EventBookingService bs;
 
     @Context
     private UriInfo uriInfo;
@@ -83,6 +88,21 @@ public class UserController {
 
         if (userDto.isPresent()) {
             return Response.ok(userDto.get()).build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+    }
+
+    @GET
+    @Path("/{id}/booking")
+    @Produces(value = {MediaType.APPLICATION_JSON,})
+    public Response getById(@PathParam("id") final long id,
+                            @QueryParam("eventId") final long eventId) {
+        Optional<BookingDto> bookingDto = bs.getBookingFromUser(id, eventId).map(e -> BookingDto.fromBooking(uriInfo, e));
+
+        if (bookingDto.isPresent()) {
+            BookingDto aux = bookingDto.get();
+            return Response.ok(aux).build();
         } else {
             return Response.status(Response.Status.NOT_FOUND).build();
         }

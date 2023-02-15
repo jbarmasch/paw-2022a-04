@@ -18,4 +18,6 @@ public interface EventBookingDao {
     boolean cancelBooking(EventBooking booking);
 
     void confirmBooking(EventBooking eventBooking);
+
+    void invalidateBooking(EventBooking eventBooking);
 }

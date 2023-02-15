@@ -1,7 +1,7 @@
 import Layout from '../layout';
 import UsersContent from '../users-content/users-content';
 
-const Users = () => {  
+const Users = () => {
     return (
         <Layout>
             <section className="products-page">

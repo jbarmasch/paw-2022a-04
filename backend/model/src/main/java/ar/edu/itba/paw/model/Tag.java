@@ -45,6 +45,12 @@ public class Tag {
         return name_en;
     }
 
+    public String getName(String locale) {
+        if (locale != null && locale.equals("es"))
+            return name;
+        return name_en;
+    }
+
     @Override
     public int hashCode() {
         return  (int) id;

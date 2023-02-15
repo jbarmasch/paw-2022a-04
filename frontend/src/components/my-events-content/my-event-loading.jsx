@@ -1,16 +1,20 @@
+import Box from "@mui/material/Box";
+import Skeleton from "@mui/material/Skeleton";
+
 const MyEventLoading = () => (
-    <a href="#" className="product-item product-item--loading">
-        <div className="product__image">
-
-        </div>
-
-        <div className="product__description">
-            <h3></h3>
-            <div className={"product__price"}>
-                <h4></h4>
+    <>
+        <Box className="event-card">
+            <div className="event-card-action">
+                <div className="event-card-container">
+                    <Skeleton variant="rectangular" className="event-card-image"/>
+                </div>
+                <Box width="100%">
+                    <Skeleton/>
+                    <Skeleton width="60%"/>
+                </Box>
             </div>
-        </div>
-    </a>
+        </Box>
+    </>
 );
 
 

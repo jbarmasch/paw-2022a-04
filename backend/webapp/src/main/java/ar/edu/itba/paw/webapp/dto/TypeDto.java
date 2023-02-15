@@ -13,6 +13,19 @@ public class TypeDto {
 
     private URI self;
 
+    public static TypeDto fromType(final UriInfo uriInfo, final Type type, final String locale) {
+        final TypeDto dto = new TypeDto();
+
+        dto.id = type.getId();
+        dto.name = type.getName(locale);
+
+        final UriBuilder typeUriBuilder = uriInfo.getAbsolutePathBuilder().
+                replacePath("api/types").path(String.valueOf(type.getId()));
+        dto.self = typeUriBuilder.build();
+
+        return dto;
+    }
+
     public static TypeDto fromType(final UriInfo uriInfo, final Type type) {
         final TypeDto dto = new TypeDto();
 

@@ -94,11 +94,13 @@ public class EventBookingJpaDao implements EventBookingDao {
                     if (!ticket.book(ticketBooking.getQty())) {
                         throw new BookingFailedException();
                     }
-                    em.persist(ticket);
-                    if (ticketAux.getQty() != null && ticketAux.getQty() > 0) {
+                    if (ticketAux.getQty() != null) {
                         ticketAux.setQty(ticketAux.getQty() + ticketBooking.getQty());
-                        em.persist(ticketAux);
+                    } else {
+                        ticketAux.setQty(ticketBooking.getQty());
                     }
+                    em.persist(ticket);
+                    em.persist(ticketAux);
                 } else {
                     Ticket ticket = ticketBooking.getTicket();
                     if (!ticket.book(ticketBooking.getQty())) {
@@ -111,6 +113,7 @@ public class EventBookingJpaDao implements EventBookingDao {
                 }
             }
             em.persist(eventBooking);
+            System.out.println("codigo: " + eventBooking.getCode());
 
             return eventBooking;
         }
@@ -136,7 +139,7 @@ public class EventBookingJpaDao implements EventBookingDao {
                 throw new CancelBookingFailedException();
             }
             em.persist(ticket);
-            tb.setQty(tb.getQty() - ticket.getBooked());
+            tb.setQty(0);
             em.persist(tb);
         }
         em.persist(booking);
@@ -146,6 +149,12 @@ public class EventBookingJpaDao implements EventBookingDao {
     @Override
     public void confirmBooking(EventBooking eventBooking) {
         eventBooking.setConfirmed(true);
+        em.persist(eventBooking);
+    }
+
+    @Override
+    public void invalidateBooking(EventBooking eventBooking) {
+        eventBooking.setConfirmed(false);
         em.persist(eventBooking);
     }
 }

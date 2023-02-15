@@ -1,7 +1,7 @@
-import { createContext } from 'react';
+import {createContext} from 'react';
 import {server} from './server';
 import {useEffect, useState} from "react";
-import { Link, useHistory, useLocation } from 'react-router-dom'
+import {Link, useHistory, useLocation} from 'react-router-dom'
 
 // let user = null;
 
@@ -30,7 +30,7 @@ import { Link, useHistory, useLocation } from 'react-router-dom'
 //                         'Authorization': `Bearer ${accessToken}`
 //                     },
 //                 })
-    
+
 //                 let auxi = await presi
 //                 let au = auxi.json()
 //                 user = au
@@ -54,7 +54,7 @@ import { Link, useHistory, useLocation } from 'react-router-dom'
 //                         'Authorization': `Bearer ${accessToken}`
 //                     },
 //                 })
-    
+
 //                 let auxi = await resi.json()
 //                 user = auxi
 //             }
@@ -76,9 +76,10 @@ import { Link, useHistory, useLocation } from 'react-router-dom'
 // }
 
 // export const Context = createContext();
-import { User } from './useUser';
+import {User} from './useUser';
 
 export const AuthContext = createContext({
-  user: null,
-  setUser: () => {},
+    user: null,
+    setUser: () => {
+    },
 });

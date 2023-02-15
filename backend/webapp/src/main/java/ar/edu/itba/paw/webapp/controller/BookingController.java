@@ -5,16 +5,13 @@ import ar.edu.itba.paw.service.CodeService;
 import ar.edu.itba.paw.service.EventBookingService;
 import ar.edu.itba.paw.service.TicketService;
 import ar.edu.itba.paw.webapp.dto.BookingDto;
-import ar.edu.itba.paw.webapp.form.BookingForm;
-import ar.edu.itba.paw.webapp.form.RateForm;
+import ar.edu.itba.paw.webapp.form.BouncerBookForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
-import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
@@ -39,10 +36,18 @@ public class BookingController {
     public Response listBookings(@QueryParam("userId") final long userId,
                                  @QueryParam("page") @DefaultValue("1") final int page) {
         final EventBookingList res = bs.getAllBookingsFromUser(userId, page);
+
         final List<BookingDto> userList = res
                 .getBookingList()
                 .stream()
-                .map(e -> BookingDto.fromBooking(uriInfo, e))
+                .map(e -> {
+                    BookingDto bookingDto = BookingDto.fromBooking(uriInfo, e);
+                    String bookUrl = "http://181.46.186.8:2557" + "/bookings/" + e.getCode();
+                    byte[] encodeBase64 = Base64.getEncoder().encode(cs.createQr(bookUrl));
+                    String base64Encoded = new String(encodeBase64, StandardCharsets.UTF_8);
+                    bookingDto.setImage(base64Encoded);
+                    return bookingDto;
+                })
                 .collect(Collectors.toList());
 
         int lastPage = res.getPages();
@@ -51,7 +56,8 @@ public class BookingController {
             return Response.noContent().build();
         }
 
-        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<BookingDto>>(userList) {});
+        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<BookingDto>>(userList) {
+        });
 
         if (page != 1) {
             response.link(uriInfo.getAbsolutePathBuilder().queryParam("page", page - 1).build(), "prev");
@@ -89,8 +95,9 @@ public class BookingController {
     }
 
     @Path("/{code}")
-    @POST
-    public Response rateUser(@PathParam("code") final String code) {
+    @PUT
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
+    public Response confirmBooking(@PathParam("code") final String code, final BouncerBookForm bouncerBookForm) {
         EventBooking eventBooking = bs.getBooking(code).orElse(null);
 
         if (eventBooking == null) {
@@ -98,7 +105,12 @@ public class BookingController {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        bs.confirmBooking(eventBooking);
+        if (bouncerBookForm.isConfirmed()) {
+            bs.confirmBooking(eventBooking);
+        } else {
+            bs.invalidateBooking(eventBooking);
+
+        }
         return Response.accepted().build();
     }
 

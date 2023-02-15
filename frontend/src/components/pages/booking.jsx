@@ -1,6 +1,6 @@
 import landingImage from '../../assets/images/intro.jpg'
 import {useHistory, useLocation} from 'react-router-dom'
-import {fetcher} from "../../utils/server";
+import {server, fetcher} from "../../utils/server";
 import Layout from "../layout"
 import SimilarEvents from '../events-content/similar-events';
 import RecommendedEvents from '../events-content/recommended-events';
@@ -12,30 +12,49 @@ import Table from "@mui/material/Table";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableBody from "@mui/material/TableBody";
+import Button from "@mui/material/Button";
 import {getPrice} from "../../utils/price";
 import {StyledTableRow, StyledTableCell} from "../../utils/styleTable";
 import {ParseDateTime} from "../events-content/event-item";
 import LocationOnRoundedIcon from '@mui/icons-material/LocationOnRounded';
 import LocalActivityRoundedIcon from '@mui/icons-material/LocalActivityRounded';
 import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
+import {useAuth} from "../../utils/useAuth";
+import {useEffect, useState} from "react";
 import {LoadingPage} from "../../utils/loadingPage";
 
-const ThankYou = () => {
-    const {state} = useLocation()
-    const history = useHistory()
+const Booking = (props) => {
+    let {user} = useAuth()
+    const history = useHistory();
+    const [bouncer, setBouncer] = useState(false)
 
-    if (!state) {
-        history.push("/")
+    useEffect(() => {
+        console.log("hola")
+        console.log(user)
+        if (user === undefined) {
+            return
+        }
+       if (user.role !== "ROLE_BOUNCER") {
+           history.push("/404")
+           return
+       }
+        setBouncer(true)
+    }, [user]);
+
+    let accessToken;
+    if (typeof window !== 'undefined') {
+        accessToken = localStorage.getItem("Access-Token");
     }
 
-    let booking = state.booking
-    let event = state.event
+    const {data: booking, mutate, isLoading, error} = useSwr(`${server}/api/bookings/${props.match.params.code}`, fetcher)
+    const {data: event, isLoading: isLoadingEvent, error: errorEvent} = useSwr(booking ? booking.event : null, fetcher)
 
-    const {data, isLoading, error} = useSwr(`${booking}`, fetcher)
+    if (!bouncer) {
+        return <LoadingPage/>
+    }
 
-    // TODO: loading
-    if (error) return <p>No data</p>
-    if (isLoading) return <LoadingPage/>
+    if (error || errorEvent) return <p>No data</p>
+    if (isLoading || isLoadingEvent) return <LoadingPage/>
 
     let total = 0;
     const calcPrice = (price, qty) => {
@@ -43,15 +62,53 @@ const ThankYou = () => {
         return;
     }
 
+    const confirmBooking = async () => {
+        const res = await fetch(`${server}/api/bookings/${props.match.params.code}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: JSON.stringify({confirmed: true})
+        })
+
+        let json = await res;
+
+        if (json.status != 202) {
+            return;
+        }
+
+        mutate()
+    }
+
+    const invalidateBooking = async () => {
+        const res = await fetch(`${server}/api/bookings/${props.match.params.code}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: JSON.stringify({confirmed: false})
+        })
+
+        let json = await res;
+
+        if (json.status != 202) {
+            return;
+        }
+
+        mutate()
+    }
+
     return (
         <Layout>
             <section className="thank-you-page">
                 <div style={{position: "relative"}}>
-                    <img className="thank-you-image" alt="Landing" src={landingImage}/>
-                    <h2 className="thank-you-content">{i18n.t("thankYou.phrase")}</h2>
+                    <img className="thank-you-image booking-intro" alt="Landing" src={landingImage}/>
                 </div>
-                <div className="horizontal center">
-                    <img className="booking-qr" src={`data:image/png;base64,${data.image}`} alt="QR"/>
+                <div className="horizontal center flex-wrap">
+                    <img className="booking-qr" src={`data:image/png;base64,${booking.image}`} alt="Event"/>
+                <div>
                     <Paper className={"thank-you-item"}>
 
                         <div className={"vertical thank-you-info"}>
@@ -72,7 +129,7 @@ const ThankYou = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {data.ticketBookings.map((item) => (
+                                    {booking.ticketBookings.map((item) => (
                                         <StyledTableRow key={item.ticket.ticketId}>
                                             <StyledTableCell>{item.ticket.ticketName}</StyledTableCell>
                                             <StyledTableCell align="right">{item.qty}</StyledTableCell>
@@ -85,18 +142,22 @@ const ThankYou = () => {
                                 </TableBody>
                             </Table>
                         </TableContainer>
-                        <div className="booking-total">
+                        <div className="booking-total marg-top">
                             <span>Total:</span>
                             <span>${total}</span>
                         </div>
+
                         </div>
                     </Paper>
+<div className="center marg-top">
+    {booking.confirmed ?  <Button color="primary" onClick={invalidateBooking} variant="contained">{i18n.t("bookings.invalidate")}</Button> :
+        <Button color="secondary" onClick={confirmBooking} variant="contained">{i18n.t("bookings.confirm")}</Button>}
+</div>
                 </div>
-                <SimilarEvents id={event.id}/>
-                <RecommendedEvents id={event.id}/>
+                </div>
             </section>
         </Layout>
     )
 }
 
-export default ThankYou;
+export default Booking;

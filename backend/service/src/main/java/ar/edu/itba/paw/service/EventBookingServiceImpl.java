@@ -44,18 +44,14 @@ public class EventBookingServiceImpl implements EventBookingService {
     public Optional<EventBooking> getBooking(String code) {
         Optional<EventBooking> eb = eventBookingDao.getBooking(code);
        if (!eb.isPresent() || (eb.get().getEvent().getDate().isBefore(LocalDateTime.now()) || eb.get().getTicketBookingsSize() == 0))
-    //    if (!eb.isPresent() || eb.get().getTicketBookingsSize() == 0)
             return Optional.empty();
-        return eb;
+       return eb;
     }
 
     @Transactional
     @Override
     public EventBooking book(EventBooking booking, String baseUrl, Locale locale) throws AlreadyMaxTicketsException, SurpassedMaxTicketsException {
         EventBooking persistedBooking = eventBookingDao.getBookingFromUser(booking.getUser().getId(), booking.getEvent().getId()).orElse(null);
-
-        System.out.println(booking.getEvent().getOrganizer().getId());
-        System.out.println(booking.getUser().getId());
 
         if (booking.getUser().getId() == booking.getEvent().getOrganizer().getId()) {
             // TODO: cambiar, no podes bookear tu mismo evento
@@ -131,5 +127,11 @@ public class EventBookingServiceImpl implements EventBookingService {
     @Override
     public void confirmBooking(EventBooking eventBooking) {
         eventBookingDao.confirmBooking(eventBooking);
+    }
+
+    @Transactional
+    @Override
+    public void invalidateBooking(EventBooking eventBooking) {
+        eventBookingDao.invalidateBooking(eventBooking);
     }
 }

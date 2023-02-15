@@ -22,7 +22,7 @@ public class FilterDto {
     private int soldOut;
     private int noTickets;
 
-    public static FilterDto fromFilter(final UriInfo uriInfo, final FilterType filter) {
+    public static FilterDto fromFilter(final UriInfo uriInfo, final FilterType filter, final String locale) {
         final FilterDto dto = new FilterDto();
 
         Map<LocationDto, Integer> locations = new HashMap<>();
@@ -33,13 +33,13 @@ public class FilterDto {
 
         Map<TypeDto, Integer> types = new HashMap<>();
         for (Map.Entry<Type, Integer> entry : filter.getTypes().entrySet()) {
-            types.put(TypeDto.fromType(uriInfo, entry.getKey()), entry.getValue());
+            types.put(TypeDto.fromType(uriInfo, entry.getKey(), locale), entry.getValue());
         }
         dto.types = types; 
 
         Map<TagDto, Integer> tags = new HashMap<>();
         for (Map.Entry<Tag, Integer> entry : filter.getTags().entrySet()) {
-            tags.put(TagDto.fromTag(uriInfo, entry.getKey()), entry.getValue());
+            tags.put(TagDto.fromTag(uriInfo, entry.getKey(), locale), entry.getValue());
         }
         dto.tags = tags;
         dto.soldOut = filter.getSoldOut();

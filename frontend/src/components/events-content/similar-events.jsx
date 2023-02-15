@@ -1,20 +1,18 @@
 import EventItem from './event-item';
 import EventItemLoading from './item-loading';
 import useSwr from 'swr';
-import { server } from '../../utils/server';
+import {server, fetcher} from '../../utils/server';
 import i18n from '../../i18n'
 
-const fetcher = (url) => fetch(url).then((res) => res.json());
-
-const SimilarEvents = ({ id }) => {
+const SimilarEvents = ({id}) => {
     console.log(id)
-    const { data: aux, error: error } = useSwr(`${server}/api/events/${id}/similar`, fetcher)
+    const {data: aux, isLoading, error} = useSwr(`${server}/api/events/${id}/similar`, fetcher)
 
     if (error) return
-    if (!aux) return (
+    if (isLoading) return (
         <div className="container">
             <div className="event-list featured-list">
-                {[...Array(12)].map((e, i) => <EventItemLoading key={i} />)}
+                {[...Array(4)].map((e, i) => <EventItemLoading key={i}/>)}
             </div>
         </div>
     )
@@ -35,6 +33,7 @@ const SimilarEvents = ({ id }) => {
                                 date={item.date}
                                 key={item.id}
                                 image={item.image}
+                                organizer={item.organizer}
                             />
                         )}
                     </div>

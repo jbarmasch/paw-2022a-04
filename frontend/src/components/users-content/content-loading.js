@@ -11,15 +11,9 @@ const ContentLoading = () => {
                     <Skeleton width="150px" height="60px"/>
                     <Skeleton width="150px" height="60px"/>
                 </div>
-                {/* <UserLoading/>
-                <UserLoading/>
-                <UserLoading/>
-                <UserLoading/>
-                <UserLoading/>
-    <UserLoading/> */}
             </div>
             <div className="user-list">
-                {[...Array(12)].map((e, i) => <UserLoading key={i} />)}
+                {[...Array(12)].map((e, i) => <UserLoading key={i}/>)}
             </div>
         </section>
     );

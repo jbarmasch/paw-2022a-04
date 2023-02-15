@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useState} from 'react';
 
 export const useLocalStorage = () => {
     const [value, setValue] = useState(null);
@@ -20,5 +20,5 @@ export const useLocalStorage = () => {
         setValue(null);
     };
 
-    return { value, setItem, getItem, removeItem };
+    return {value, setItem, getItem, removeItem};
 };

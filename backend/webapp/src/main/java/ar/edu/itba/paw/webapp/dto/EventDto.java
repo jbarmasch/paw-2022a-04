@@ -55,7 +55,7 @@ public class EventDto {
         dto.self = eventUriBuilder.build();
 
         final UriBuilder organizerUriBuilder = uriInfo.getAbsolutePathBuilder().
-                replacePath("api/users").path(String.valueOf(event.getOrganizer().getId()));
+                replacePath("api/organizers").path(String.valueOf(event.getOrganizer().getId()));
         dto.organizer = organizerUriBuilder.build();
 
         final UriBuilder imageUriBuilder = uriInfo.getAbsolutePathBuilder().

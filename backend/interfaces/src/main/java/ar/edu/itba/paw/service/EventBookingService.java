@@ -21,4 +21,6 @@ public interface EventBookingService {
     void cancelBooking(String code, Locale locale);
 
     void confirmBooking(EventBooking eventBooking);
+
+    void invalidateBooking(EventBooking eventBooking);
 }

@@ -1,47 +1,50 @@
 import useSwr from 'swr';
-import UsersLoading from './content-loading';
 import {server} from '../../utils/server';
 import {parseLink} from '../../utils/pages';
 import UserItem from "./user-item";
-import {useEffect, useState} from "react";
+import {useState, useEffect} from "react";
 import Pagination from '@mui/material/Pagination';
 import ContentLoading from './content-loading';
-import { useHistory, useLocation } from 'react-router-dom'
-import { Controller, useForm } from "react-hook-form";
+import {useHistory, useLocation} from 'react-router-dom'
+import {Controller, useForm} from "react-hook-form";
 import i18n from '../../i18n'
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import FormControlLabel from '@mui/material/FormControlLabel';
+import Select from '@mui/material/Select';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
-import FormGroup from '@mui/material/FormGroup';
-import Checkbox from '@mui/material/Checkbox';
-import Input from '@mui/material/Input';
-import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
-import FormHelperText from '@mui/material/FormHelperText';
-import { useFindPath } from '../header'
+import InputAdornment from '@mui/material/InputAdornment';
 import queryString from 'query-string'
+import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
+import NoOrganizersContent from "./no-users-content";
 
 const fetcherHeaders = (...args) => fetch(...args).then((res) => {
-    return {
-        headers: res.headers,
-        data: res.json()
+    if (res.status === 200) {
+        return {
+            headers: res.headers,
+            data: res.json()
+        }
+    } else {
+        return {
+            headers: res.headers,
+            data: []
+        }
     }
 })
 
-function Page({ data, aux, setAux }) {
-    if (!data) return <ContentLoading />
+function Page({data, aux, setAux}) {
+    if (!data) return <ContentLoading/>
     data = data.data
 
-    data.then((x) => {
+    Promise.resolve(data).then((x) => {
         setAux(x)
+        console.log(x)
     })
 
     return (
         <>
-            {aux &&
+            {(aux && aux.length > 0 &&
                 <section className="user-list">
                     {aux.map((item) => (
                         <UserItem
@@ -53,7 +56,8 @@ function Page({ data, aux, setAux }) {
                             events={item.events}
                         />
                     ))}
-                </section>
+                </section>) ||
+                <NoOrganizersContent/>
             }
         </>
     );
@@ -61,45 +65,76 @@ function Page({ data, aux, setAux }) {
 
 const UsersContent = () => {
     const history = useHistory()
-    const { search } = useLocation()
+    const {search, pathname} = useLocation()
     const values = queryString.parse(search)
 
-    const [pageIndex, setPageIndex] = useState(values.page ? Number(values.page) : 1)
-    const [orderProductsOpen, setOrderProductsOpen] = useState(false);
-    const [order, setOrder] = useState(values.order ? values.order : "USERNAME_ASC")
-    const [searchQuery, setSearchQuery] = useState(values.search ? values.search : undefined)
     const [query, setQuery] = useState()
+    const [order, setOrder] = useState();
+    const [pageIndex, setPageIndex] = useState(1);
     const [child, setChild] = useState();
+    const [firstLoad, setFirstLoad] = useState(true)
+
+    useEffect(() => {
+        if (firstLoad && (values.search || values.order)) {
+            setOrder(values?.order)
+            setQuery(values?.search)
+            setFirstLoad(false)
+        }
+    }, [values.search, values.order, values.soldOut, firstLoad])
+
+    useEffect(() => {
+        if (!firstLoad && (search || order)) {
+            setPageIndex(1)
+            let queryUrl = ""
+            if (order?.length > 0) {
+                queryUrl = `${queryUrl}&order=${order}`
+            }
+            if (query?.length > 0) {
+                queryUrl = `${queryUrl}&search=${query}`
+            }
+            let url = `/organizers?page=1${queryUrl}`
+            console.log(pathname)
+            let oldPath = pathname + search
+            if (oldPath === url) {
+                return
+            }
+            history.push(url)
+        }
+    }, [query, order, firstLoad])
+
+    const {handleSubmit, control, getValues, formState: {errors}} = useForm();
+
+    let filtersStr = ""
+    if (values.page || values.search || values.order) {
+        if (values.page) {
+            filtersStr = `?page=${values.page}`
+        } else {
+            filtersStr = `?page=1`
+        }
+        if (values.search) {
+            filtersStr = `${filtersStr}&search=${values.search}`
+        }
+        if (values.order) {
+            filtersStr = `${filtersStr}&order=${values.order}`
+        }
+    }
 
     let links
 
-    const { register, handleSubmit, control, watch, formState: { errors } } = useForm();
+    const {data, error} = useSwr(`${server}/api/organizers${filtersStr}`, fetcherHeaders)
 
-    let {data, error} = useSwr(searchQuery ?
-        `${server}/api/organizers?page=${pageIndex}&order=${order}&search=${searchQuery}` 
-        : `${server}/api/organizers?page=${pageIndex}&order=${order}`
-        , fetcherHeaders);
+    if (error) {
+        history.push("/404");
+        return
+    }
 
-    if (error) return <p>No data</p>
-    // TODO: hacer loading bien
-    if (!data) return <ContentLoading />
+    if (!data) return <ContentLoading/>
 
     links = parseLink(data.headers.get("Link"))
 
     const handlePageChange = (e, page) => {
         setPageIndex(page)
         history.replace(`/organizers?page=${page}`)
-    }
-
-    const style = {
-        control: base => ({
-            ...base,
-            caretColor: "transparent",
-            border: "revert",
-            background: "transparent",
-            boxShadow: "1px 1px transparent",
-            height: "42px"
-        })
     }
 
     let orderList = []
@@ -120,37 +155,81 @@ const UsersContent = () => {
         label: "Usuario descendente"
     })
 
-    const preventDefault = f => e => {
-        e.preventDefault()
-        f(e)
-    }
+    // const handleParam = setValue => e => setValue(e.target.value)
+    //
+    // const handleKeyDown = (e) => {
+    //     console.log(e.key)
+    //     if (e.key === 'Enter') {
+    //         setQuery(query)
+    //         history.replace(`/organizers?page=1&search=${query}`);
+    //     }
+    // }
 
-    const handleParam = setValue => e => setValue(e.target.value)
-
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            history.replace(`/organizers?page=1&search=${query}`);
-            setSearchQuery(query)
-        }
+    const onSubmit = (data) => {
+        console.log(getValues("search"))
+        setFirstLoad(false);
+        setQuery(getValues("search"));
     }
 
     return (
         <section className="users-content products-content">
             <div className="products-content__intro">
                 <h2>{i18n.t("organizer.organizers")}</h2>
-                {/* <button type="button" onClick={() => setOrderProductsOpen(!orderProductsOpen)}
-                        className="products-filter-btn"><i className="icon-filters"></i></button> */}
-                            <Input
-                                type='text'
-                                name='search'
-                                onChange={handleParam(setQuery)}
-                                onKeyDown={handleKeyDown}
-                                placeholder='Search organizer'
-                                aria-label='Search organizer'
-                            />
-                    <form className={`products-content__filter ${orderProductsOpen ? 'products-order-open' : ''}`}>
-                            <div className="products__filter__select">
-                            {/* <Controller
+                {/*<TextField*/}
+                {/*    type='text'*/}
+                {/*    variant="standard"*/}
+                {/*    className="search-users"*/}
+                {/*    name='search'*/}
+                {/*    value={searchQuery}*/}
+                {/*    // onChange={handleParam(setQuery)}*/}
+                {/*    // onKeyDown={handleKeyDown}*/}
+                {/*    placeholder={i18n.t("organizer.searchOrganizer")}*/}
+                {/*    aria-label='Search organizer'*/}
+                {/*    InputProps={{*/}
+                {/*        endAdornment: (*/}
+                {/*            <InputAdornment position="end">*/}
+                {/*                <SearchRoundedIcon/>*/}
+                {/*            </InputAdornment>*/}
+                {/*        ),*/}
+                {/*    }}*/}
+                {/*/>*/}
+
+                <form onSubmit={handleSubmit(onSubmit)} className="search-users">
+                    {/* <div className="filter-horizontal"> */}
+                        <Controller
+                            name="search"
+                            control={control}
+                            defaultValue={query ? query : ""}
+                            render={({field, fieldState}) => {
+                                return (
+                                    <FormControl>
+                                        <TextField id="min-price-input" label={i18n.t("organizer.searchOrganizer")}
+                                                   variant="standard" size="small"
+                                                   error={!!fieldState.error}
+                                                   value={query ? query : ""}
+                                                   {...field}
+                                                   InputProps={{
+                                                       endAdornment: (
+                                                           <InputAdornment position="end">
+                                                               <SearchRoundedIcon/>
+                                                           </InputAdornment>
+                                                       ),
+                                                   }}
+                                        />
+                                    </FormControl>
+                                );
+                            }}
+                        />
+
+                    {/* }</div> */}
+                </form>
+
+
+                <form className={`products-content__filter}`}>
+
+                    <div className="products__filter__select">
+
+                        {/* <Controller
                                     control={control}
                                     defaultValue={''}
                                     name="search"
@@ -168,53 +247,53 @@ const UsersContent = () => {
                                     }}
                                 /> */}
 
-                                <Controller
-                                    control={control}
-                                    defaultValue={'USERNAME_ASC'}
-                                    name="order"
-                                    render={({ field: { onChange, value, name, ref } }) => {
-                                        const currentSelection = orderList.find(
-                                            (c) => c.value === value
-                                        );
+                        <Controller
+                            control={control}
+                            defaultValue={'USERNAME_ASC'}
+                            name="order"
+                            render={({field: {onChange, value, name, ref}}) => {
+                                const handleSelectChange = (selectedOption) => {
+                                    setFirstLoad(false)
+                                    onChange(selectedOption.target.value);
+                                    setOrder(selectedOption.target.value);
+                                };
 
-                                        const handleSelectChange = (selectedOption) => {
-                                            onChange(selectedOption.target.value);
-                                            setOrder(selectedOption.target.value);
-                                        };
-
-                                        return (
-                                            <FormControl>
-                                                <InputLabel className="order-label" id="order-select-label">{i18n.t("filter.sortBy")}</InputLabel>
-                                                <Select
-                                                    className="order-select"
-                                                    labelId="order-select-label"
-                                                    id="order-select"
-                                                    value={order ? order : "DATE_ASC"}
-                                                    onChange={handleSelectChange}
-                                                    input={<OutlinedInput className="order-label" label={i18n.t("filter.sortBy")} />}
+                                return (
+                                    <FormControl>
+                                        <InputLabel className="order-label"
+                                                    id="order-select-label">{i18n.t("filter.sortBy")}</InputLabel>
+                                        <Select
+                                            className="order-select"
+                                            labelId="order-select-label"
+                                            id="order-select"
+                                            value={order ? order : "USERNAME_ASC"}
+                                            onChange={handleSelectChange}
+                                            input={<OutlinedInput className="order-label"
+                                                                  label={i18n.t("filter.sortBy")}/>}
+                                        >
+                                            {orderList.map((x) => (
+                                                <MenuItem
+                                                    key={x.value}
+                                                    value={x.value}
                                                 >
-                                                    {orderList.map((x) => (
-                                                        <MenuItem
-                                                            key={x.value}
-                                                            value={x.value}
-                                                        >
-                                                            {x.label}
-                                                        </MenuItem>
-                                                    ))}
-                                                </Select>
-                                            </FormControl>
-                                        );
-                                    }}
-                                />
-                            </div>
-                        </form>
+                                                    {x.label}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                );
+                            }}
+                        />
+                    </div>
+                </form>
             </div>
             <div>
                 <div>
-                    {data && <Page data={data} aux={child} setAux={setChild} />}
+                    {data && <Page data={data} aux={child} setAux={setChild}/>}
                 </div>
                 <div className="pagination">
-                    <Pagination count={Number(links.last ? links.last.page : 1)} showFirstButton showLastButton page={pageIndex} onChange={handlePageChange} />
+                    <Pagination count={Number(links.last ? links.last.page : 1)} showFirstButton showLastButton
+                                page={pageIndex} onChange={handlePageChange}/>
                 </div>
             </div>
         </section>

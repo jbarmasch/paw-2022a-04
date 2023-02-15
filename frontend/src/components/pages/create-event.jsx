@@ -1,111 +1,64 @@
 import Layout from '../layout';
 import * as React from 'react';
-// import Select from "react-select";
-import { useForm, Controller } from "react-hook-form";
+import {useForm, Controller} from "react-hook-form";
 import i18n from '../../i18n'
-import { server } from '../../utils/server'
-import { Link, useHistory, useLocation } from 'react-router-dom'
-import { useFindPath } from '../header'
+import {server, fetcher} from '../../utils/server'
+import {Link, useHistory, useLocation} from 'react-router-dom'
 import useSWRImmutable from 'swr/immutable'
-import { useEffect, useState, useRef } from "react";
-
-import { Theme, useTheme } from '@mui/material/styles';
+import {useEffect, useState, useRef} from "react";
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormHelperText from '@mui/material/FormHelperText';
 import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Select, {SelectChangeEvent} from '@mui/material/Select';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Autocomplete from '@mui/material/Autocomplete';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import {DateTimePicker} from '@mui/x-date-pickers/DateTimePicker';
+import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import ClearRoundedIcon from '@mui/icons-material/ClearRounded';
-import dayjs from 'dayjs'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
 import 'dayjs/locale/es';
 import 'dayjs/locale/en';
-
-const fetcher = (...args) => fetch(...args).then((res) => res.json())
+import {useAuth} from '../../utils/useAuth';
 
 const CreateEvent = () => {
-    const prevLocation = useLocation();
     const history = useHistory();
-    let path = useFindPath();
 
+    // TODO: mover a context
     let accessToken;
-    let refreshToken;
     if (typeof window !== 'undefined') {
         accessToken = localStorage.getItem("Access-Token");
-        refreshToken = localStorage.getItem("Refresh-Token");
     }
 
-    useEffect(() => {
-        const fetchData = async (accessToken, refreshToken, pathname) => {
-            let res = fetch(`${server}/api/users/test`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                },
-            })
-
-            let aux = await res;
-            if (aux.status == 200) {
-                return;
-            }
-
-            res = fetch(`${server}/api/users/test`, {
-                headers: {
-                    'Authorization': `Bearer ${refreshToken}`
-                },
-            })
-
-            aux = await res;
-            if (aux.status == 200) {
-                localStorage.setItem("Access-Token", aux.headers.get("Access-Token"))
-                return;
-            }
-
-            if (path !== "/login") {
-                history.push(`/login?redirectTo=${prevLocation.pathname}`);
-            }
-        }
-
-        if (accessToken && refreshToken) {
-            fetchData(accessToken, refreshToken, path)
-        } else {
-            const pathname = path
-            if (path !== "/login") {
-                history.push(`/login?redirectTo=${prevLocation.pathname}`);
-            }
-        }
-    }, [accessToken, refreshToken, prevLocation]);
+    const {user} = useAuth();
 
     const {
         data: locations,
         isLoading: locationsLoading,
-        isValidating: locationsValidating
+        error: locationsError
     } = useSWRImmutable(`${server}/api/locations`, fetcher)
     const [location, setLocation] = useState([]);
     const {
         data: tags,
         isLoading: tagsLoading,
-        isValidating: tagsValidating
-    } = useSWRImmutable(`${server}/api/tags`, fetcher)
+        error: tagsError
+    } = useSWRImmutable(`${server}/api/tags?locale=${i18n.language}`, fetcher)
     const [tag, setTag] = useState([]);
     const {
         data: types,
         isLoading: typesLoading,
-        isValidating: typesValidating
-    } = useSWRImmutable(`${server}/api/types`, fetcher)
+        error: typesError
+    } = useSWRImmutable(`${server}/api/types?locale=${i18n.language}`, fetcher)
     const [type, setType] = useState([]);
     const [minAge, setMinAge] = useState();
     const [date, setDate] = useState(null);
 
-    const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm();
+    const {handleSubmit, control, formState: {errors}} = useForm();
     const [active, setActive] = useState(false)
     const [imageName, setImageName] = useState()
     const [image, setImage] = useState()
@@ -160,7 +113,7 @@ const CreateEvent = () => {
 
         let json = await res;
 
-        if (json.status != 201) {
+        if (json.status !== 201) {
             return;
         }
 
@@ -190,9 +143,13 @@ const CreateEvent = () => {
 
         let jsonImage = await resImage;
 
-        if (jsonImage.status == 201) {
+        if (jsonImage.status === 201) {
             history.push("/my-events/" + eventId)
         }
+    }
+
+    if (!user) {
+        return <></>
     }
 
     // TODO: hacer loading
@@ -216,36 +173,6 @@ const CreateEvent = () => {
         label: x.name
     }))
 
-    const style = {
-        control: base => ({
-            ...base,
-            border: "revert",
-            background: "transparent",
-            boxShadow: "1px 1px transparent",
-            height: "42px",
-        })
-    }
-
-    const ITEM_HEIGHT = 48;
-    const ITEM_PADDING_TOP = 8;
-    const MenuProps = {
-        PaperProps: {
-            style: {
-                maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-                width: 250,
-            },
-        },
-    };
-
-    const handleLocationChange = (event) => {
-        setLocation(event);
-    };
-
-    const handleChange = (e) => {
-        console.log(e.target.files[0])
-        console.log(e.target.files[0].path)
-    }
-
     return (
         <Layout>
             <section className="form-page">
@@ -256,15 +183,15 @@ const CreateEvent = () => {
 
                             <Controller
                                 name="name"
-                                rules={{ required: i18n.t('fieldRequired') }}
+                                rules={{required: i18n.t('fieldRequired')}}
                                 control={control}
                                 defaultValue={''}
-                                render={({ field, fieldState }) => {
+                                render={({field, fieldState}) => {
                                     return (
-                                        <FormControl sx={{ width: 120 }}>
+                                        <FormControl sx={{width: 120}}>
                                             <TextField id="name-input" label={i18n.t("create.name")} variant="outlined"
-                                                error={!!fieldState.error}
-                                                {...field} />
+                                                       error={!!fieldState.error}
+                                                       {...field} />
                                             {fieldState.error ? (
                                                 <FormHelperText error>
                                                     {fieldState.error?.message}
@@ -279,11 +206,12 @@ const CreateEvent = () => {
                                 name="description"
                                 control={control}
                                 defaultValue={''}
-                                render={({ field, fieldState }) => {
+                                render={({field, fieldState}) => {
                                     return (
-                                        <FormControl sx={{ width: 120 }}>
-                                            <TextField id="description-input" label={i18n.t("create.description")} variant="outlined"
-                                                {...field} />
+                                        <FormControl sx={{width: 120}}>
+                                            <TextField id="description-input" label={i18n.t("create.description")}
+                                                       variant="outlined"
+                                                       {...field} />
                                         </FormControl>
                                     );
                                 }}
@@ -291,12 +219,12 @@ const CreateEvent = () => {
 
                             <Controller
                                 name="location"
-                                rules={{ required: i18n.t('fieldRequired') }}
+                                rules={{required: i18n.t('fieldRequired')}}
                                 control={control}
                                 defaultValue={location}
-                                render={({ field: { onChange }, fieldState }) => {
+                                render={({field: {onChange}, fieldState}) => {
                                     return (
-                                        <FormControl sx={{ width: 120 }}>
+                                        <FormControl sx={{width: 120}}>
                                             <Autocomplete
                                                 disablePortal
                                                 id="location-autocomplete"
@@ -307,8 +235,13 @@ const CreateEvent = () => {
                                                     onChange(item);
                                                     setLocation(item)
                                                 }}
-                                                isOptionEqualToValue={(option, value) => { console.log(value.value + " " + option.value); return option.value === value.value }}
-                                                renderInput={(params) => <TextField {...params} label={i18n.t("create.location")} error={!!fieldState.error} />}
+                                                isOptionEqualToValue={(option, value) => {
+                                                    console.log(value.value + " " + option.value);
+                                                    return option.value === value.value
+                                                }}
+                                                renderInput={(params) => <TextField {...params}
+                                                                                    label={i18n.t("create.location")}
+                                                                                    error={!!fieldState.error}/>}
                                             />
 
                                             {fieldState.error ? (
@@ -323,18 +256,18 @@ const CreateEvent = () => {
 
                             <Controller
                                 name="type"
-                                rules={{ required: i18n.t('fieldRequired') }}
+                                rules={{required: i18n.t('fieldRequired')}}
                                 control={control}
                                 defaultValue={''} // <---------- HERE
-                                render={({ field, fieldState }) => {
+                                render={({field, fieldState}) => {
                                     return (
-                                        <FormControl sx={{ width: 120 }}>
-                                            <InputLabel id="type-select-label" error={!!fieldState.error}>{i18n.t("create.type")}</InputLabel>
+                                        <FormControl sx={{width: 120}}>
+                                            <InputLabel id="type-select-label"
+                                                        error={!!fieldState.error}>{i18n.t("create.type")}</InputLabel>
                                             <Select
                                                 id="type-select"
                                                 label={i18n.t("create.type")}
                                                 labelId="type-select-label"
-                                                // onChange={(e, i) => {console.log(i); onChange(i); setType(i)}}
                                                 error={!!fieldState.error}
                                                 {...field}
                                             >
@@ -342,7 +275,6 @@ const CreateEvent = () => {
                                                     <MenuItem
                                                         key={x.value}
                                                         value={x.value}
-                                                    // value={x.label}
                                                     >
                                                         {x.label}
                                                     </MenuItem>
@@ -362,14 +294,9 @@ const CreateEvent = () => {
                                 control={control}
                                 defaultValue={''}
                                 name="tags"
-                                render={({ field: { onChange, value, name, ref } }) => {
-                                    const currentSelection = tagList.find(
-                                        (c) => c.value === value
-                                    );
-
+                                render={({field: {onChange, value, name, ref}}) => {
                                     const handleSelectChange = (selectedOption) => {
                                         onChange(selectedOption.target.value);
-                                        console.log(selectedOption.target.value)
                                         setTag(selectedOption.target.value);
                                     };
 
@@ -383,7 +310,7 @@ const CreateEvent = () => {
                                                     multiple
                                                     value={tag}
                                                     onChange={handleSelectChange}
-                                                    input={<OutlinedInput label={i18n.t("create.tags")} />}
+                                                    input={<OutlinedInput label={i18n.t("create.tags")}/>}
                                                 >
                                                     {tagList.map((x) => (
                                                         <MenuItem
@@ -400,51 +327,22 @@ const CreateEvent = () => {
                                 }}
                             />
 
-
-                            {/* <Controller
-                                    name="date"
-                                    rules={{ required: i18n.t('create.date'),
-                                min: Date.now() }}
-                                    control={control}
-                                    defaultValue={date} // <---------- HERE
-                                    render={({ field, fieldState }) => {
-                                        return (
-                                            <FormControl sx={{ width: 120 }}>
-                                                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DateTimePicker
-                                    renderInput={(props) => <TextField {...props} />}
-                                    label={i18n.t("create.date")}
-                                    value={date}
-                                    onChange={(e) => {
-                                        setDate(e);
-                                    }}
-                                    error={!!fieldState.error}
-                                                    {...field}
-                                />
-                            </LocalizationProvider>
-                                                {fieldState.error ? (
-                                                    <FormHelperText error>
-                                                        {fieldState.error?.message}
-                                                    </FormHelperText>
-                                                ) : null}
-                                            </FormControl>
-                                        );
-                                    }}
-                                /> */}
-
                             <Controller
                                 control={control}
                                 name="date"
                                 rules={{
                                     required: i18n.t('fieldRequired'),
                                     validate: {
-                                        min: (date) => { return (new Date(date) > Date.now()) || i18n.t("create.dateError") }
+                                        min: (date) => {
+                                            return (new Date(date) > Date.now()) || i18n.t("create.dateError")
+                                        }
                                     }
                                 }}
-                                defaultValue={date} // <---------- HERE
-                                render={({ field: { ref, onBlur, name, onChange, ...field }, fieldState }) => (
-                                    <FormControl sx={{ width: 120 }}>
-                                        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={i18n.language != 'en' && i18n.language != 'es' ? 'en' : i18n.language}>
+                                defaultValue={date}
+                                render={({field: {ref, onBlur, name, onChange, ...field}, fieldState}) => (
+                                    <FormControl sx={{width: 120}}>
+                                        <LocalizationProvider dateAdapter={AdapterDayjs}
+                                                              adapterLocale={i18n.language !== 'en' && i18n.language !== 'es' ? 'en' : i18n.language}>
                                             <DateTimePicker
                                                 renderInput={(inputProps) => (
                                                     <TextField
@@ -454,7 +352,11 @@ const CreateEvent = () => {
                                                         error={!!fieldState.error}
                                                     />)}
                                                 label={i18n.t("create.date")}
-                                                onChange={(event) => { console.log(event.toISOString()); onChange(event.toISOString()); setDate(event.toISOString()); }}
+                                                onChange={(event) => {
+                                                    console.log(event.toISOString());
+                                                    onChange(event.toISOString());
+                                                    setDate(event.toISOString());
+                                                }}
                                                 {...field}
                                                 inputRef={ref}
                                             />
@@ -472,7 +374,7 @@ const CreateEvent = () => {
                             <div className="horizontal align-center">
                                 <FormControlLabel
                                     value={false}
-                                    control={<Checkbox onClick={() => setActive(!active)} />}
+                                    control={<Checkbox onClick={() => setActive(!active)}/>}
                                     label={i18n.t("create.hasMin")}
                                     labelPlacement="end"
                                 />
@@ -487,11 +389,13 @@ const CreateEvent = () => {
                                         }
                                     }}
                                     control={control}
-                                    defaultValue={''} // <---------- HERE
-                                    render={({ field, fieldState }) => {
+                                    defaultValue={''}
+                                    render={({field, fieldState}) => {
                                         return (
-                                            <FormControl disabled={!active} className={"min-age-select " + (!active ? "select-disabled" : "")}>
-                                                <InputLabel id="stackoverflow-label" error={!!fieldState.error}>{i18n.t("create.minAge")}</InputLabel>
+                                            <FormControl disabled={!active}
+                                                         className={"min-age-select " + (!active ? "select-disabled" : "")}>
+                                                <InputLabel id="stackoverflow-label"
+                                                            error={!!fieldState.error}>{i18n.t("create.minAge")}</InputLabel>
                                                 <Select
                                                     id="age-select"
                                                     label={i18n.t("create.minAge")}
@@ -518,17 +422,6 @@ const CreateEvent = () => {
                                     }}
                                 />
                             </div>
-                            {/* <input type="file" {...register("image", { required: true })} onChange={handleChange}/> */}
-                            {/* <Button
-                                variant="contained"
-                                component="label"
-                            >
-                                {i18n.t('create.uploadFile')}
-                                <input
-                                    type="file"
-                                    hidden
-                                />
-                            </Button> */}
                             <div className="horizontal align-center">
                                 <Controller
                                     name="image"
@@ -538,7 +431,7 @@ const CreateEvent = () => {
                                     rules={{
                                         required: i18n.t('fieldRequired'),
                                     }}
-                                    render={({ field }) => (
+                                    render={({field}) => (
                                         <>
                                             <input
                                                 accept="image/*"
@@ -558,21 +451,20 @@ const CreateEvent = () => {
                                                 </Button>
                                             </label>
                                             {imageName && (<>
-                                                                <span>{imageName}</span>
-                                                                <IconButton onClick={() => {
-                                                                    console.log(image)
-                                                                    setImageName(null)
-                                                                    inputRef.current.value = null
-                                                                }}><ClearRoundedIcon/></IconButton>
-                                                            </>)}
+                                                <span>{imageName}</span>
+                                                <IconButton onClick={() => {
+                                                    console.log(image)
+                                                    setImageName(null)
+                                                    inputRef.current.value = null
+                                                }}><ClearRoundedIcon/></IconButton>
+                                            </>)}
                                         </>
                                     )}
                                 />
                             </div>
                             <div className="form-actions">
-                            <Button variant="contained" type="submit">{i18n.t("submit")}</Button>
+                                <Button variant="contained" type="submit">{i18n.t("submit")}</Button>
                             </div>
-                            {/* <button className="btn-submit" type="submit">{i18n.t("submit")}</button> */}
                         </form>
                     </div>
 

@@ -1,37 +1,39 @@
-import Link from 'react-router-dom';
 import useSwr from "swr";
-import { server } from "../../utils/server";
-import { getPrice } from "../../utils/price";
-import { confirmAlert } from 'react-confirm-alert';
-import 'react-confirm-alert/src/react-confirm-alert.css';
+import {server, fetcher} from "../../utils/server";
+import {getPrice} from "../../utils/price";
 import BookingLoading from './item-loading'
+import {useHistory} from "react-router-dom";
 import i18n from '../../i18n'
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
 import Table from '@mui/material/Table';
-import TableRow from '@mui/material/TableRow';
-import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
-import { styled } from '@mui/material/styles';
+import {StyledTableRow, StyledTableCell} from "../../utils/styleTable";
 import Dialog from '@mui/material/Dialog';
 import Rating from '@mui/material/Rating';
 import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import {useState} from "react";
+import {ParseDateTime} from "../events-content/event-item";
+import LocationOnRoundedIcon from "@mui/icons-material/LocationOnRounded";
+import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 
-const fetcher = (...args) => fetch(...args).then((res) => res.json())
-
-const BookingItem = ({ code, event, rating, ticketBookings, confirmed, mutate }) => {
+const BookingItem = ({image, code, event, rating, ticketBookings, mutate}) => {
     const [open, setOpen] = useState(false);
+    const {data, isLoading, error} = useSwr(`${event}`, fetcher);
+    const [openQR, setOpenQR] = useState(false);
+    const [newRating, setNewRating] = useState(rating)
 
-    const { data, error } = useSwr(`${event}`, fetcher);
+    const history = useHistory();
 
-    if (error) return <p>Loading...</p>
-    if (!data) return <BookingLoading />
+    if (error) {
+        history.push("/404")
+        return <></>
+    }
+
+    if (isLoading) return <BookingLoading/>
 
     let total = 0;
 
@@ -40,89 +42,101 @@ const BookingItem = ({ code, event, rating, ticketBookings, confirmed, mutate })
     }
 
     let accessToken;
-    let refreshToken;
     if (typeof window !== 'undefined') {
         accessToken = localStorage.getItem("Access-Token");
-        refreshToken = localStorage.getItem("Refresh-Token");
     }
-
-    const StyledTableRow = styled(TableRow)(({ theme }) => ({
-        '&:nth-of-type(even)': {
-            backgroundColor: theme.palette.action.hover,
-        },
-        '&:last-child td, &:last-child th': {
-            border: 0,
-        },
-    }));
-
-    const StyledTableCell = styled(TableCell)(({ theme }) => ({
-        [`&.${tableCellClasses.head}`]: {
-          // backgroundColor: "#343434",
-          // backgroundColor: theme.palette.secondary.main,
-          backgroundColor: "#cacaca",
-          color: theme.palette.common.black,
-          fontSize: "14px",
-          fontWeight: "500"
-        },
-        [`&.${tableCellClasses.body}`]: {
-          fontSize: 14,
-        },
-      }));
 
     let submit = () => {
         setOpen(!open)
     };
 
     const askFor = async () => {
-                               let res = await fetch(`${server}/api/bookings/${code}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'Authorization': `Bearer ${accessToken}`
-                            },
-                        })
-                        let c = await res;
-                        mutate() 
+        let res = await fetch(`${server}/api/bookings/${code}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            },
+        })
+        await res;
+        mutate()
         setOpen(!open)
     }
 
     const isBefore = (date) => {
         let evDate = new Date(date);
-        console.log(evDate)
         return evDate < Date.now();
+    }
+
+    const handleClickOpenQR = () => {
+        setOpenQR(true);
+    };
+
+    const handleCloseQR = () => {
+        setOpenQR(false);
+    };
+
+    const rate = async (e, v) => {
+        setNewRating(v)
+        const res = await fetch(`${server}/api/events/${data.id}/rating`, {
+            method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify({rating: v})
+            })
+
+            let json = await res;
+
+            if (json.status !== 202) {
+                return;
+            }
+
+            mutate()
     }
 
     return (
         <Paper className="booking-item" elevation={2}>
-            <div className="booking-content">
+            <div>
+            <img onClick={handleClickOpenQR} className="booking-qr-small pointer" src={`data:image/png;base64,${image}`} alt="QR"/>
+            <Dialog
+                open={openQR}
+                onClose={handleCloseQR}
+                aria-labelledby="responsive-dialog-title"
+            >
+                <img className="booking-qr" src={`data:image/png;base64,${image}`} alt="QR"/>
+            </Dialog>
+            </div>
+            <div className="booking-content vertical">
                 <h3>{data.name}</h3>
-                <div className="booking-rating">
-                    <h4>{rating}</h4>
-                </div>
+                <span><LocationOnRoundedIcon className="event-info-icons"/>{data.location.name}</span>
+                <span><CalendarMonthRoundedIcon className="event-info-icons"/>{ParseDateTime(data.date)}</span>
             </div>
             <div className="booking-tickets">
                 {ticketBookings &&
                     <>
                         <TableContainer component={Paper}>
-                        <Table className="booking-table" size="small" aria-label="simple table">
-                            <TableHead>
-                                <TableRow>
-                                    <StyledTableCell>{i18n.t("bookings.ticket")}</StyledTableCell>
-                                    <StyledTableCell align="right">{i18n.t("bookings.qty")}</StyledTableCell>
-                                    <StyledTableCell align="right">{i18n.t("bookings.price")}</StyledTableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {ticketBookings.map((item) => (
-                                    <StyledTableRow key={item.ticket.ticketId} >
-                                        <StyledTableCell >{item.ticket.ticketName}</StyledTableCell >
-                                        <StyledTableCell align="right">{item.qty}</StyledTableCell >
-                                        <StyledTableCell align="right">{getPrice(item.ticket.price, false)}</StyledTableCell >
-                                        {calcPrice(item.ticket.price, item.qty)}
-                                    </StyledTableRow >
-                                ))
-                                }
-                            </TableBody>
-                        </Table>
+                            <Table className="booking-table" size="small" aria-label="simple table">
+                                <TableHead>
+                                    <StyledTableRow>
+                                        <StyledTableCell>{i18n.t("bookings.ticket")}</StyledTableCell>
+                                        <StyledTableCell align="right">{i18n.t("bookings.qty")}</StyledTableCell>
+                                        <StyledTableCell align="right">{i18n.t("bookings.price")}</StyledTableCell>
+                                    </StyledTableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {ticketBookings.map((item) => (
+                                        <StyledTableRow key={item.ticket.ticketId}>
+                                            <StyledTableCell>{item.ticket.ticketName}</StyledTableCell>
+                                            <StyledTableCell align="right">{item.qty}</StyledTableCell>
+                                            <StyledTableCell
+                                                align="right">{getPrice(item.ticket.price * item.qty, false)}</StyledTableCell>
+                                            {calcPrice(item.ticket.price, item.qty)}
+                                        </StyledTableRow>
+                                    ))
+                                    }
+                                </TableBody>
+                            </Table>
                         </TableContainer>
                         <div className="booking-total">
                             <span>Total:</span>
@@ -132,7 +146,12 @@ const BookingItem = ({ code, event, rating, ticketBookings, confirmed, mutate })
                 }
             </div>
             <div className="booking-action">
-                {isBefore(data.date) ? <div className="vertical">{i18n.t("bookings.rate")}:<Rating name="org-rating" defaultValue={rating} precision={0.5} /></div> : <Button variant="contained" color="error" onClick={submit}>{i18n.t("bookings.cancel")}</Button>}
+                {isBefore(data.date) ?
+                    <div className="vertical">{i18n.t("bookings.rate")}:
+                        <Rating onChange={rate}
+                        name="org-rating" value={newRating ? newRating : 0}/></div>
+                    :
+                    <Button variant="contained" color="error" onClick={submit}>{i18n.t("bookings.cancel")}</Button>}
             </div>
             <Dialog
                 open={open}
@@ -141,62 +160,17 @@ const BookingItem = ({ code, event, rating, ticketBookings, confirmed, mutate })
                 aria-describedby="alert-dialog-description"
             >
                 <DialogTitle id="alert-dialog-title">
-                {i18n.t("bookings.cancelMessage")}
-                </DialogTitle>
-                {/*<DialogContent>
-                <DialogContentText id="alert-dialog-description">
                     {i18n.t("bookings.cancelMessage")}
-                </DialogContentText>
-                </DialogContent>*/}
+                </DialogTitle>
                 <DialogActions>
-                <Button onClick={submit}>{i18n.t("bookings.cancel")}</Button>
-                <Button onClick={askFor} autoFocus>
-                    {i18n.t("bookings.accept")}
-                </Button>
+                    <Button onClick={submit}>{i18n.t("bookings.cancel")}</Button>
+                    <Button onClick={askFor} autoFocus>
+                        {i18n.t("bookings.accept")}
+                    </Button>
                 </DialogActions>
             </Dialog>
         </Paper>
     )
 };
-
-{/* <div className="booking-item border">
-        <div className="booking-content">
-            <h3>{data.name}</h3>
-            <div className="booking-rating">
-                <h4>{rating}</h4>
-            </div>
-        </div>
-        <div className="product__description booking-tickets">
-            {ticketBookings &&
-                <table className="ticket-table booking-table">
-                    <thead>
-                    <tr>
-                        <th>Ticket</th>
-                        <th>Qty</th>
-                        <th>Price</th>
-                    </tr>
-                    </thead>
-                    {ticketBookings.map((item) => (
-                        <tbody key={item.ticket.ticketId}>
-                        <tr>
-                            <td>{item.ticket.ticketName}</td>
-                            <td className="right-text">{item.qty}</td>
-                            <td className="right-text">{getPrice(item.ticket.price)}</td>
-                        </tr>
-                        {calcPrice(item.ticket.price, item.qty)}
-                        </tbody>
-                    ))
-                    }
-                </table>
-            }
-            <div className="booking-total">
-                <span>Total:</span>
-                <span>${total}</span>
-            </div>
-        </div>
-        <div className="booking-action">
-            <button onClick={submit}>Confirm dialog</button>
-        </div>
-        </div> */}
 
 export default BookingItem

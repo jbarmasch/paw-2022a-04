@@ -2,7 +2,7 @@ import Footer from "./footer"
 import Header from "./header"
 import {useFindPath} from './header'
 
-const Layout = ({ children }) => {
+const Layout = ({children}) => {
     let path = useFindPath();
 
     return (
@@ -11,9 +11,9 @@ const Layout = ({ children }) => {
             <main className={(path !== '/' ? 'main-page' : '')}>
                 {children}
             </main>
-            {path !== '/login' && ( <Footer/> )}
+            {path !== '/login' && (<Footer/>)}
         </>
-  )
+    )
 }
-  
- export default Layout
+
+export default Layout
