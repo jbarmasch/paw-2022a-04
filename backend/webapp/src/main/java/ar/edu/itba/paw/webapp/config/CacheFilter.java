@@ -11,7 +11,7 @@ import java.io.IOException;
 public class CacheFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        response.setHeader("Cache-Control", "public, max-age=86400");
+        response.setHeader("Cache-Control", "public, max-age=31536000");
         filterChain.doFilter(request, response);
     }
 }

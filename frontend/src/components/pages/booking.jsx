@@ -25,12 +25,11 @@ import {LoadingPage} from "../../utils/loadingPage";
 
 const Booking = (props) => {
     let {user} = useAuth()
+
     const history = useHistory();
     const [bouncer, setBouncer] = useState(false)
 
     useEffect(() => {
-        console.log("hola")
-        console.log(user)
         if (user === undefined) {
             return
         }

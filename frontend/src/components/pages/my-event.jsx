@@ -46,6 +46,7 @@ import {getPrice} from "../../utils/price";
 import {ParseDateTime} from "../events-content/event-item"
 import {LoadingPage} from "../../utils/loadingPage";
 import * as React from "react";
+import {useAuth} from "../../utils/useAuth";
 
 const isEqualsJson = (oldTicket, newTicket) => {
     let oldKeys = Object.keys(oldTicket);
@@ -55,50 +56,34 @@ const isEqualsJson = (oldTicket, newTicket) => {
         return oldTicket[key] == newTicket[key]
     });
 }
-
-const getMinValue = (ticket) => {
-    return ticket.hasOwnProperty("booked") && ticket.booked > 0 ? ticket.booked : 1
-}
-
 const MyEvent = (props) => {
-    const prevLocation = useLocation();
-
-    const [showBlock, setShowBlock] = useState('description');
+    let {user} = useAuth()
 
     const history = useHistory();
-    let path = useFindPath();
 
     const [rowsData, setRowsData] = useState([]);
-    const [index, setIndex] = useState(0);
     const [edit, setEdit] = useState(false);
     const [activeMin, setActiveMin] = useState();
-
 
     const {
         data: locations,
         isLoading: locationsLoading,
-        isValidating: locationsValidating
     } = useSWRImmutable(`${server}/api/locations`, fetcher)
     const [location, setLocation] = useState();
     const {
         data: tags,
         isLoading: tagsLoading,
-        isValidating: tagsValidating
     } = useSWRImmutable(`${server}/api/tags?locale=${i18n.language}`, fetcher)
     const [tag, setTag] = useState();
     const {
         data: types,
         isLoading: typesLoading,
-        isValidating: typesValidating
     } = useSWRImmutable(`${server}/api/types?locale=${i18n.language}`, fetcher)
-    const [type, setType] = useState();
-    const [minAge, setMinAge] = useState();
     const [date, setDate] = useState(null);
 
     const [active, setActive] = useState(false)
     const [imageName, setImageName] = useState()
     const [image, setImage] = useState()
-    const inputRef = useRef(null);
 
     let start = 14;
     let ages = [];
@@ -122,10 +107,8 @@ const MyEvent = (props) => {
         if (event) {
             fetch(event.tickets)
                 .then(r => {
-                    if (r.status == 200) {
+                    if (r.status === 200) {
                         return r.json()
-                    } else {
-                        return
                     }
                 })
                 .then(d => {
@@ -159,58 +142,16 @@ const MyEvent = (props) => {
     );
 
     let accessToken;
-    let refreshToken;
     if (typeof window !== 'undefined') {
         accessToken = localStorage.getItem("Access-Token");
-        refreshToken = localStorage.getItem("Refresh-Token");
     }
 
     useEffect(() => {
         setValue("tickets", tickets);
     }, [tickets]);
 
-    useEffect(() => {
-        const fetchData = async (accessToken, refreshToken, pathname) => {
-            let res = fetch(`${server}/api/users/test`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                },
-            })
-
-            let aux = await res;
-            if (aux.status == 200) {
-                return;
-            }
-
-            res = fetch(`${server}/api/users/test`, {
-                headers: {
-                    'Authorization': `Bearer ${refreshToken}`
-                },
-            })
-
-            aux = await res;
-            if (aux.status == 200) {
-                localStorage.setItem("Access-Token", aux.headers.get("Access-Token"))
-                return;
-            }
-
-            if (path !== "/login") {
-                history.push(`/login?redirectTo=${prevLocation.pathname}`);
-            }
-        }
-
-        if (accessToken && refreshToken) {
-            fetchData(accessToken, refreshToken, path)
-        } else {
-            const pathname = path
-            if (path !== "/login") {
-                history.push(`/login?redirectTo=${prevLocation.pathname}`);
-            }
-        }
-    }, [accessToken, refreshToken]);
-
     if (error || errorData) return <p>No data</p>
-    if (!aux || !event) return <MyEventLoading/>
+    if (!aux || !event || !user) return <MyEventLoading/>
 
     const onSubmit = async (data) => {
         console.log(data)

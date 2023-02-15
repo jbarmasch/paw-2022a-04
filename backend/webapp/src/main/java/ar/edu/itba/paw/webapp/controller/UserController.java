@@ -120,19 +120,4 @@ public class UserController {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
-
-    @GET
-    @Path("/test")
-    @Produces(value = {MediaType.APPLICATION_JSON,})
-    public Response testJwt() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        final User user = us.findByUsername(username).orElse(null);
-
-        if (user != null) {
-            return Response.ok(user).build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-    }
 }
