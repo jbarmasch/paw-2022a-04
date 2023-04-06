@@ -23,7 +23,7 @@ pipelines:
             - sed -i "s/env.getProperty(\"encSalt\")/\"$PAW_BOTTLER_ENCSALT\"/g" "$codeServiceFile"
             - export tokenConfigFile="webapp/src/main/java/ar/edu/itba/paw/webapp/auth/JwtTokenUtils.java"
             - sed -i "s/env.getProperty(\"secret\")/\"$PAW_BOTTLER_ENCPASS\"/g" "$tokenConfigFile"
-            - sed -i "s/env.getProperty(\"baseUrl\")/\"http://pawserver.it.itba.edu.ar/paw-2022a-04\"/g" "$tokenConfigFile"
+            - sed -i "s/env.getProperty(\"baseUrl\")/\"http:\/\/pawserver.it.itba.edu.ar\/paw-2022a-04\"/g" "$tokenConfigFile"
             - export responseFilterFile="webapp/src/main/java/ar/edu/itba/paw/webapp/config/ResponseFilter"
             - sed -i "s/env.getProperty(\"cors\")/\"false\"/g" "$responseFilterFile"
             - unset CI
