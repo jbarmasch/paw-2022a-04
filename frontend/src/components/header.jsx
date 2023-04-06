@@ -20,7 +20,6 @@ import LocalActivityRoundedIcon from '@mui/icons-material/LocalActivityRounded';
 import BookOnlineRoundedIcon from '@mui/icons-material/BookOnlineRounded';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 
-
 export const useFindPath = () => {
     const location = useLocation();
     const [currentPath, setCurrentPath] = useState();
@@ -235,7 +234,7 @@ const Header = () => {
                                         <Avatar />{i18n.t("nav.profile")}
                                     </MenuItem>
                                 </Link>
-                                {user?.role === "ROLE_CREATOR" && <Link to="/my-events">
+                                {user?.roles.includes("ROLE_CREATOR") && <Link to="/my-events">
                                     <MenuItem className={"nav-link"} onClick={handleClose}>
                                         <LocalActivityRoundedIcon className="nav-menu-icon" />{i18n.t("nav.myEvents")}
                                     </MenuItem>

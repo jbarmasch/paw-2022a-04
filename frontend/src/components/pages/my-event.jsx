@@ -133,7 +133,8 @@ const MyEvent = (props) => {
         }
     }, [event])
 
-    const {data: aux, error: error} = useSWR(event ? `${event.image}` : null, fetcher)
+    const imgFetcher = (...args) => fetch(...args).then(res => res.blob())
+    const {data: aux, error: error} = useSWR(event ? `${event.image}` : null, imgFetcher)
 
     const {register, control, handleSubmit, reset, watch, setValue, getValues, formState: {errors}} = useForm({
         defaultValues: {
@@ -211,13 +212,18 @@ const MyEvent = (props) => {
         let resi
 
         if (changed) {
+            const formData = new FormData();
+            formData.append('image', aux, "")
+            formData.append('form', new Blob([JSON.stringify(obj)], {
+                type: "application/json"
+            }));
+
             resi = await fetch(`${server}/api/events/${props.match.params.id}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
                 },
-                body: JSON.stringify(obj)
+                body: formData
             })
         }
 
@@ -401,7 +407,7 @@ const MyEvent = (props) => {
                 <form className="form container my-event-page" onSubmit={handleSubmit(onSubmit)}>
                     <div className="my-event-content">
                         <div className="contain">
-                            <img className="event-image" src={`data:image/png;base64,${aux.image}`} alt="Event"/>
+                            <img className="event-image" src={event.image} alt="Event"/>
                             {!!event.soldOut && <span className="event-image-sold-out">{i18n.t("event.soldOut")}</span>}
                         </div>
                         <Paper className="event-info" elevation={2}>

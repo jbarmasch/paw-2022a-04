@@ -18,11 +18,6 @@ import { LazyLoadImage } from 'react-lazy-load-image-component';
 
 
 const MyEventItem = ({id, name, minPrice, location, type, date, image, soldOut, organizer}) => {
-    const {data: aux, isLoading, error: error} = useSwr(image, fetcher)
-
-    if (error) return <p>No data</p>
-    if (isLoading) return <MyEventLoading/>
-
     return (
         <Link to={`/my-events/${id}`}>
             <Card className="event-card">
@@ -33,7 +28,7 @@ const MyEventItem = ({id, name, minPrice, location, type, date, image, soldOut, 
                             component="img"
                             height="300px"
                             width="300px"
-                            src={`data:image/png;base64,${aux.image}`}
+                            src={image}
                             alt={i18n.t("event.event")}
                         />
                         {!!soldOut && <span className="event-card-image-sold-out">{i18n.t("event.soldOut")}</span>}

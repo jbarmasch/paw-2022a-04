@@ -5,5 +5,5 @@ import java.util.List;
 import ar.edu.itba.paw.model.FilterType;
 
 public interface FilterService {
-   FilterType getFilterType(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, Boolean showSoldOut, Boolean showNoTickets, Integer userId);
+   FilterType getFilterType(List<Long> locations, List<Long> types, Double minPrice, Double maxPrice, String searchQuery, List<Long> tags, Boolean showSoldOut, Boolean showNoTickets, Long userId);
 }

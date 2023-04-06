@@ -18,7 +18,6 @@ import org.springframework.core.env.Environment;
 
 @Component
 public class JwtTokenUtils {
-    private final Environment env;
     private final Long clockSkew = 10L;
     private final String authoritiesClaimName = "authorities";
     private final String isRefreshName = "isRefresh";
@@ -28,10 +27,9 @@ public class JwtTokenUtils {
 
     @Autowired
     public JwtTokenUtils(Environment env) {
-        this.env = env;
         this.secret = env.getProperty("secret");
-        this.audience = "http://pawserver.it.itba.edu.ar/paw-2022a-04";
-        this.issuer = "http://pawserver.it.itba.edu.ar/paw-2022a-04";
+        this.audience = env.getProperty("baseUrl");
+        this.issuer = env.getProperty("baseUrl");
     }
 
     public String issueToken(AuthenticationTokenDetails authenticationTokenDetails) {

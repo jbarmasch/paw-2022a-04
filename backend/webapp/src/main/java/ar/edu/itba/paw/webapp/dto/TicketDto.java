@@ -8,7 +8,7 @@ import java.net.URI;
 import java.time.LocalDateTime;
 
 public class TicketDto {
-    private Long ticketId;
+    private long ticketId;
     private String ticketName;
     private Double price;
     private Integer qty;
@@ -48,11 +48,11 @@ public class TicketDto {
         return dto;
     }
 
-    public Long getTicketId() {
+    public long getTicketId() {
         return ticketId;
     }
 
-    public void setTicketId(Long ticketId) {
+    public void setTicketId(int ticketId) {
         this.ticketId = ticketId;
     }
 

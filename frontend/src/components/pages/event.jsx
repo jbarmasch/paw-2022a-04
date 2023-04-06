@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import Layout from '../layout';
-import {server, fetcher} from '../../utils/server';
+import {server, fetcher, imgFetcher} from '../../utils/server';
 import {getPrice} from '../../utils/price';
 
 import useSwr from "swr";
@@ -57,7 +57,6 @@ const Event = (props) => {
         error: errorData
     } = useSwr(props.match.params.id ? `${server}/api/events/${props.match.params.id}` : null, fetcher)
     const {data: tickets, error: errorTickets} = useSwr(event ? `${event.tickets}` : null, fetcher)
-    const {data: aux, error: error} = useSwr(event ? `${event.image}` : null, fetcher)
     const {data: organizer, error: errorOrganizer} = useSwr(event ? `${event.organizer}` : null, fetcher)
     const [location, setLocation] = useState(tickets ? new Array(tickets.length) : []);
 
@@ -67,8 +66,8 @@ const Event = (props) => {
         error: errorBooking
     } = useSwr(props.match.params.id ? `${server}/api/users/${userId}/booking?eventId=${props.match.params.id}` : null, fetcher, {shouldRetryOnError: false})
 
-    if (error || errorData || errorOrganizer) return <p>{i18n.t("noData")}</p>
-    if (!aux || !event || !organizer || isLoading) return <LoadingPage/>
+    if (errorData || errorOrganizer) return <p>{i18n.t("noData")}</p>
+    if (!event || !organizer || isLoading) return <LoadingPage/>
 
     if (new Date(event.date) <= Date.now()) {
         history.push("/404")
@@ -179,7 +178,8 @@ const Event = (props) => {
                 <div className="container my-event-page">
                     <div className="my-event-content">
                         <div className="contain">
-                            <img className="event-image" src={`data:image/png;base64,${aux.image}`} alt="Event"/>
+                            {/*<img className="event-image" src={`data:image/png;base64,${aux.image}`} alt="Event"/>*/}
+                            <img className="event-image" src={event.image} alt="Event"/>
                             {!!event.soldOut && <span className="event-image-sold-out">{i18n.t("event.soldOut")}</span>}
                         </div>
                         <Paper className="event-info" elevation={2}>

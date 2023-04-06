@@ -16,7 +16,7 @@ public interface EventService {
 
     Event create(String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, long userId, Integer minAge, String baseURL, Locale locale);
 
-    EventList filterBy(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String query, List<Integer> tags, String username, Long userId, Order orderBy, Boolean showSoldOut, Boolean showNoTickets, Boolean showPast, int page);
+    EventList filterBy(List<Long> locations, List<Long> types, Double minPrice, Double maxPrice, String query, List<Long> tags, String username, Long userId, Order orderBy, Boolean showSoldOut, Boolean showNoTickets, Boolean showPast, Long similarEvent, Long recommendedEvent, Boolean fewTickets, Boolean upcoming, int page);
 
     void updateEvent(long id, String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, Integer minAge);
 

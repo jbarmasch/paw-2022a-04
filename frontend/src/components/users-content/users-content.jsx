@@ -240,11 +240,13 @@ const UsersContent = () => {
                 <div>
                     {data && <Page data={data} aux={child} setAux={setChild}/>}
                 </div>
+                {links.last?.page && links.last?.page > 1 &&
                 <div className="pagination">
                 <Pagination count={Number(links && links.last ? links.last?.page : 0)} showFirstButton
                                         showLastButton page={values?.page ? Number(values?.page) : pageIndex}
                                         onChange={handlePageChange}/>
                 </div>
+                }
             </div>
         </section>
     );

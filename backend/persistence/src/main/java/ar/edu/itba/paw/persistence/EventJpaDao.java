@@ -26,7 +26,12 @@ public class EventJpaDao implements EventDao {
     public Event createEvent(String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, User organizer, Integer minAge, User bouncer) {
         Location location = em.getReference(Location.class, locationId);
         Type type = em.getReference(Type.class, typeId);
-        Image image = imageDao.createImage(imageArray);
+        Image image;
+        if (imageArray == null || imageArray.length == 0) {
+            image = em.getReference(Image.class, 1L);
+        } else {
+            image = imageDao.createImage(imageArray);
+        }
         List<Tag> tagList = new ArrayList<>();
         for (Long tagId : tagIds)
             tagList.add(em.getReference(Tag.class, tagId));
@@ -50,7 +55,7 @@ public class EventJpaDao implements EventDao {
 
     @SuppressWarnings("unchecked")
     @Override
-    public EventList filterBy(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, String username, Long userId, Order order, Boolean showSoldOut, Boolean showNoTickets, Boolean showPast, int page) {
+    public EventList filterBy(List<Long> locations, List<Long> types, Double minPrice, Double maxPrice, String searchQuery, List<Long> tags, String username, Long userId, Order order, Boolean showSoldOut, Boolean showNoTickets, Boolean showPast, int page) {
         boolean having = false;
         Map<String, Object> objects = new HashMap<>();
         StringBuilder querySelect = new StringBuilder("FROM events ec");
@@ -120,8 +125,9 @@ public class EventJpaDao implements EventDao {
                 queryCondition.append(" HAVING");
             else
                 queryCondition.append(" AND");
-            queryCondition.append(" ARRAY_AGG(e.tagid) && ARRAY");
+            queryCondition.append(" ARRAY_AGG(e.tagid) && CAST(ARRAY");
             queryCondition.append(tags);
+            queryCondition.append(" AS bigint[])");
         }
         int pageSize = 12;
         objects.put("page", (page - 1) * pageSize);

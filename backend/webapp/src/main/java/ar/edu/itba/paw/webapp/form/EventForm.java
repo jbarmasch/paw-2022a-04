@@ -16,10 +16,10 @@ public class EventForm {
     private String description;
 
     @NotNull
-    private Integer location;
+    private Long location;
 
     @NotNull
-    private Integer type;
+    private Long type;
 
     @NotEmpty
     @Future
@@ -87,19 +87,19 @@ public class EventForm {
         this.description = description;
     }
 
-    public Integer getLocation() {
+    public Long getLocation() {
         return location;
     }
 
-    public void setLocation(Integer location) {
+    public void setLocation(Long location) {
         this.location = location;
     }
 
-    public Integer getType() {
+    public Long getType() {
         return type;
     }
 
-    public void setType(Integer type) {
+    public void setType(Long type) {
         this.type = type;
     }
 

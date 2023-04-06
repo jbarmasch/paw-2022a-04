@@ -19,20 +19,20 @@ public class FilterServiceImpl implements FilterService {
     private FilterDao filterDao;
 
     @Override
-    public FilterType getFilterType(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, Boolean showSoldOut, Boolean showNoTickets, Integer userId) {
-        for (Integer loc : locations) {
-            if (loc == null) {
+    public FilterType getFilterType(List<Long> locations, List<Long> types, Double minPrice, Double maxPrice, String searchQuery, List<Long> tags, Boolean showSoldOut, Boolean showNoTickets, Long userId) {
+        for (Long location : locations) {
+            if (location == null) {
                 // TODO: Change
                 throw new RuntimeException();
             }
         }
-        for (Integer typ : types) {
-            if (typ == null) {
+        for (Long type : types) {
+            if (type == null) {
                 // TODO: Change
                 throw new RuntimeException();
             }
         }
-        for (Integer tag : tags) {
+        for (Long tag : tags) {
             if (tag == null) {
                 // TODO: Change
                 throw new RuntimeException();

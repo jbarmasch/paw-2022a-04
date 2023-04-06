@@ -61,6 +61,10 @@ public class WebConfig {
 
     @Bean
     public JavaMailSender getJavaMailSender() {
+        if (!Boolean.parseBoolean(env.getProperty("mail"))) {
+            return null;
+        }
+
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.zoho.com");
         mailSender.setPort(587);
@@ -159,6 +163,10 @@ public class WebConfig {
         final Properties properties = new Properties();
         properties.setProperty("hibernate.hbm2ddl.auto", "update");
         properties.setProperty("hibernate.dialect", "ar.edu.itba.paw.webapp.config.PostgreSQL94CustomDialect");
+        if (Boolean.parseBoolean(env.getProperty("debug"))) {
+            properties.setProperty("hibernate.show_sql", "true");
+            properties.setProperty("format_sql", "true");
+        }
         factoryBean.setJpaProperties(properties);
         return factoryBean;
     }

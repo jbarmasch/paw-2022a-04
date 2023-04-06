@@ -57,7 +57,7 @@ public class UserManager {
     public Long getUserId() {
         User user = getUser();
         if (user != null)
-            return user.getId();
+            return (long) user.getId();
         return null;
     }
 

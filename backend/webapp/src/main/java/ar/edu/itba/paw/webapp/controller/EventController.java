@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,6 +49,8 @@ public class EventController {
     private EventBookingService bs;
     @Autowired
     private UserManager um;
+    @Autowired
+    private Environment env;
 
     @Context
     private UriInfo uriInfo;
@@ -56,21 +59,25 @@ public class EventController {
 
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON,})
-    public Response listEvents(@QueryParam("locations") final List<Integer> locations,
-                               @QueryParam("types") final List<Integer> types,
+    public Response listEvents(@QueryParam("locations") final List<Long> locations,
+                               @QueryParam("types") final List<Long> types,
                                @QueryParam("minPrice") final Double minPrice,
                                @QueryParam("maxPrice") final Double maxPrice,
                                @QueryParam("search") final String search,
-                               @QueryParam("tags") final List<Integer> tags,
+                               @QueryParam("tags") final List<Long> tags,
                                @QueryParam("searchUsername") final String username,
                                @QueryParam("userId") final Long userId,
                                @QueryParam("order") final Order order,
                                @QueryParam("soldOut") final Boolean showSoldOut,
                                @QueryParam("noTickets") final Boolean showNoTickets,
                                @QueryParam("showPast") final Boolean showPast,
+                               @QueryParam("similar") final Long similarEvent,
+                               @QueryParam("recommended") final Long recommendedEvent,
+                               @QueryParam("fewTickets") final Boolean fewTickets,
+                               @QueryParam("upcoming") final Boolean upcoming,
                                @QueryParam("page") @DefaultValue("1") final int page) {
-        final EventList res = es.filterBy(locations, types, minPrice, maxPrice, search, tags, username, userId, order, showSoldOut, showNoTickets, showPast, page);
-        final List<EventDto> userList = res
+        final EventList res = es.filterBy(locations, types, minPrice, maxPrice, search, tags, username, userId, order, showSoldOut, showNoTickets, showPast, similarEvent, recommendedEvent, fewTickets, upcoming, page);
+        final List<EventDto> eventList = res
                 .getEventList()
                 .stream()
                 .map(e -> EventDto.fromEvent(uriInfo, e))
@@ -78,11 +85,11 @@ public class EventController {
 
         int lastPage = res.getPages();
 
-        if (userList.isEmpty()) {
+        if (eventList.isEmpty()) {
             return Response.noContent().build();
         }
 
-        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<EventDto>>(userList) {});
+        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<EventDto>>(eventList) {});
 
         if (page != 1) {
             response.link(uriInfo.getAbsolutePathBuilder().queryParam("page", page - 1).build(), "prev");
@@ -110,7 +117,7 @@ public class EventController {
         
         final Event event = es.create(form.getName(), form.getDescription(), form.getLocation(), form.getType(), form.getTimestamp(),
                 data, form.getTags(), userId, form.isHasMinAge() ? form.getMinAge() : null,
-                "http://pawserver.it.itba.edu.ar/paw-2022a-04", LocaleContextHolder.getLocale());
+                uriInfo.getBaseUriBuilder().toString(), LocaleContextHolder.getLocale());
 
         final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(event.getId())).build();
         return Response.created(uri).build();
@@ -118,10 +125,15 @@ public class EventController {
 
     @Path("/{id}")
     @PUT
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
-    public Response updateEvent(@PathParam("id") final long id, @Valid final EventForm form) {
+    @Consumes(value = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA})
+    public Response updateEvent(@PathParam("id") final long id,
+                                @Valid @FormDataParam("form") final EventForm form,
+                                @FormDataParam("image") InputStream inputStream,
+                                @FormDataParam("image") FormDataContentDisposition contentDisposition) throws IOException {
+        byte[] data = IOUtils.toByteArray(inputStream);
+
         es.updateEvent(id, form.getName(), form.getDescription(), form.getLocation(), form.getType(), form.getTimestamp(),
-                null, form.getTags(), form.isHasMinAge() ? form.getMinAge() : null);
+                data, form.getTags(), form.isHasMinAge() ? form.getMinAge() : null);
 
         return Response.accepted().build();
     }

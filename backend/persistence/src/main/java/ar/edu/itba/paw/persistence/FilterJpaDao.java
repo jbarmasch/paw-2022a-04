@@ -20,7 +20,7 @@ public class FilterJpaDao implements FilterDao {
     private EntityManager em;
 
     @Override
-    public FilterType getFilterType(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, Boolean showSoldOut, Boolean showNoTickets, Integer userId) {
+    public FilterType getFilterType(List<Long> locations, List<Long> types, Double minPrice, Double maxPrice, String searchQuery, List<Long> tags, Boolean showSoldOut, Boolean showNoTickets, Long userId) {
         return new FilterType(
             getLocationFilterCount(types, minPrice, maxPrice, searchQuery, tags, showSoldOut, showNoTickets, userId),
             getTypeFilterCount(locations, minPrice, maxPrice, searchQuery, tags, showSoldOut, showNoTickets, userId),
@@ -31,7 +31,7 @@ public class FilterJpaDao implements FilterDao {
     }
 
     @SuppressWarnings("unchecked")
-    private Map<Location, Integer> getLocationFilterCount(List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, Boolean showSoldOut, Boolean showNoTickets, Integer userId) {
+    private Map<Location, Integer> getLocationFilterCount(List<Long> types, Double minPrice, Double maxPrice, String searchQuery, List<Long> tags, Boolean showSoldOut, Boolean showNoTickets, Long userId) {
         boolean having = false;
         Map<String, Object> objects = new HashMap<>();
         StringBuilder querySelect = new StringBuilder("SELECT l.locationid, l.name, e.eventid FROM locations l JOIN events e ON l.locationid = e.locationid");
@@ -89,8 +89,9 @@ public class FilterJpaDao implements FilterDao {
                 queryCondition.append(" HAVING");
             else
                 queryCondition.append(" AND");
-            queryCondition.append(" ARRAY_AGG(et.tagid) && ARRAY");
+            queryCondition.append(" ARRAY_AGG(et.tagid) && CAST(ARRAY");
             queryCondition.append(tags);
+            queryCondition.append(" AS bigint[])");
         }
 
         String query = "SELECT aux.locationid, aux.name, COUNT(aux.eventid) FROM(" + querySelect.append(queryCondition) + ") AS aux GROUP BY aux.locationid, aux.name ORDER BY aux.name";
@@ -108,7 +109,7 @@ public class FilterJpaDao implements FilterDao {
     }
 
     @SuppressWarnings("unchecked")
-    private Map<Type, Integer> getTypeFilterCount(List<Integer> locations, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, Boolean showSoldOut, Boolean showNoTickets, Integer userId) {
+    private Map<Type, Integer> getTypeFilterCount(List<Long> locations, Double minPrice, Double maxPrice, String searchQuery, List<Long> tags, Boolean showSoldOut, Boolean showNoTickets, Long userId) {
         boolean having = false, condition = false;
         Map<String, Object> objects = new HashMap<>();
         
@@ -167,8 +168,9 @@ public class FilterJpaDao implements FilterDao {
                 queryCondition.append(" HAVING");
             else
                 queryCondition.append(" AND");
-            queryCondition.append(" ARRAY_AGG(et.tagid) && ARRAY");
+            queryCondition.append(" ARRAY_AGG(et.tagid) && CAST(ARRAY");
             queryCondition.append(tags);
+            queryCondition.append(" AS bigint[])");
         }
 
         String query = "SELECT aux.typeid, aux.name, aux.name_en, COUNT(aux.eventid) FROM (" + querySelect.append(queryCondition) + ") AS aux GROUP BY aux.typeid, aux.name, aux.name_en ORDER BY aux.typeid";
@@ -186,7 +188,7 @@ public class FilterJpaDao implements FilterDao {
     }
 
     @SuppressWarnings("unchecked")
-    private Map<Tag, Integer> getTagFilterCount(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, Boolean showSoldOut, Boolean showNoTickets, Integer userId) {
+    private Map<Tag, Integer> getTagFilterCount(List<Long> locations, List<Long> types, Double minPrice, Double maxPrice, String searchQuery, Boolean showSoldOut, Boolean showNoTickets, Long userId) {
         boolean having = false;
         Map<String, Object> objects = new HashMap<>();
         
@@ -256,7 +258,7 @@ public class FilterJpaDao implements FilterDao {
     }
 
     @SuppressWarnings("unchecked")
-    private int getSoldOutFilterCount(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, Boolean showNoTickets, Integer userId) {
+    private int getSoldOutFilterCount(List<Long> locations, List<Long> types, Double minPrice, Double maxPrice, String searchQuery, List<Long> tags, Boolean showNoTickets, Long userId) {
         boolean having = false;
         Map<String, Object> objects = new HashMap<>();
         
@@ -318,8 +320,9 @@ public class FilterJpaDao implements FilterDao {
                 queryCondition.append(" HAVING");
             else
                 queryCondition.append(" AND");
-            queryCondition.append(" ARRAY_AGG(et.tagid) && ARRAY");
+            queryCondition.append(" ARRAY_AGG(et.tagid) && CAST(ARRAY");
             queryCondition.append(tags);
+            queryCondition.append(" AS bigint[])");
         }
 
         String query = "SELECT COUNT(aux.eventid) FROM (" + querySelect.append(queryCondition) + ") AS aux";
@@ -332,8 +335,8 @@ public class FilterJpaDao implements FilterDao {
         return ((Number) queryNative.getSingleResult()).intValue();
     }
 
- @SuppressWarnings("unchecked")
-    private int getNoTicketsFilterCount(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String searchQuery, List<Integer> tags, Boolean showSoldOut, Integer userId) {
+    @SuppressWarnings("unchecked")
+    private int getNoTicketsFilterCount(List<Long> locations, List<Long> types, Double minPrice, Double maxPrice, String searchQuery, List<Long> tags, Boolean showSoldOut, Long userId) {
         Map<String, Object> objects = new HashMap<>();
         
         StringBuilder querySelect = new StringBuilder("SELECT e.eventid FROM events e ");
@@ -378,8 +381,9 @@ public class FilterJpaDao implements FilterDao {
         if (tags != null && tags.size() > 0) {
             querySelect.append(" LEFT JOIN eventtags et on e.eventid = et.eventid");
             queryCondition.append(" AND");
-            queryCondition.append(" ARRAY_AGG(et.tagid) && ARRAY");
+            queryCondition.append(" ARRAY_AGG(et.tagid) && CAST(ARRAY");
             queryCondition.append(tags);
+            queryCondition.append(" AS bigint[])");
         }
 
         String query = "SELECT COUNT(aux.eventid) FROM (" + querySelect.append(queryCondition) + ") AS aux";

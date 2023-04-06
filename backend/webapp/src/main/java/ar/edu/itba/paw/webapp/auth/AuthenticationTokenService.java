@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Component
 public class AuthenticationTokenService {
-    private Long validFor = 86400L;
+    private final Long validFor = 86400L;
 
     @Autowired
     private JwtTokenUtils tokenUtils;

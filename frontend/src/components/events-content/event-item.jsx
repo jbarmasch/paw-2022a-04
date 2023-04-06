@@ -31,15 +31,14 @@ export const ParseDateTime = (datetime) => {
 const EventItem = ({id, name, minPrice, location, type, date, image, soldOut, organizer}) => {
     const history = useHistory()
 
-    const {data: aux, isLoading: isLoadingImg, error: errorImage} = useSwr(image, fetcher)
     const {data: org, isLoading, error: errorOrganizer} = useSwr(organizer, fetcher)
 
-    if (errorImage || errorOrganizer) {
+    if (errorOrganizer) {
         history.push("/404");
         return
     }
 
-    if (isLoading || isLoadingImg) return <EventItemLoading/>
+    if (isLoading) return <EventItemLoading/>
 
     return (
         <Link to={`/events/${id}`}>
@@ -51,7 +50,7 @@ const EventItem = ({id, name, minPrice, location, type, date, image, soldOut, or
                             component="img"
                             height="300px"
                             width="300px"
-                            src={`data:image/png;base64,${aux.image}`}
+                            src={image}
                             alt={i18n.t("event.event")}
                         />
                             

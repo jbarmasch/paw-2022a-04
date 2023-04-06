@@ -12,14 +12,12 @@ import java.net.URI;
 public class UserDto {
     private String username;
     private String mail;
-    private String role;
-
-    private URI self;
-    private URI events;
-
     private double rating;
     private int votes;
     private long id;
+
+    private URI self;
+    private URI events;
 
     public static UserDto fromUser(final UriInfo uriInfo, final User user) {
         final UserDto dto = new UserDto();
@@ -29,9 +27,6 @@ public class UserDto {
         dto.mail = user.getMail();
         dto.votes = user.getVotes();
         dto.rating = user.getRating();
-
-        List<Role> role = user.getRoles();
-        dto.role = role.size() > 1 ? RoleEnum.ROLE_CREATOR.toString() : role.isEmpty() ? "ROLE_USER" : role.get(0).getRoleName();
 
         final UriBuilder userUriBuilder = uriInfo.getBaseUriBuilder().
                 path("api/users").path(String.valueOf(user.getId()));
@@ -98,13 +93,5 @@ public class UserDto {
 
     public void setVotes(int votes) {
         this.votes = votes;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
     }
 }

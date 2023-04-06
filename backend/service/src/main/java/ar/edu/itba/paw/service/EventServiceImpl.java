@@ -46,32 +46,45 @@ public class EventServiceImpl implements EventService {
         Event event = eventDao.createEvent(name, description, locationId, typeId, date, imageArray, tagIds, organizer, minAge, bouncer);
         userService.makeCreator(organizer);
         userService.updateUser(bouncer.getId(), String.valueOf(event.getId()), null, String.valueOf(event.getId()));
-        mailService.sendBouncerMail(event, password, baseURL + "/events/" + event.getId(), locale);
+        mailService.sendBouncerMail(event, password, baseURL + "events/" + event.getId(), locale);
 
         return event;
     }
 
     @Override
-    public EventList filterBy(List<Integer> locations, List<Integer> types, Double minPrice, Double maxPrice, String query, List<Integer> tags, String username, Long userId, Order order, Boolean showSoldOut, Boolean showNoTickets, Boolean showPast, int page) {
-        for (Integer location : locations) {
+    public EventList filterBy(List<Long> locations, List<Long> types, Double minPrice, Double maxPrice, String query, List<Long> tags, String username, Long userId, Order orderBy, Boolean showSoldOut, Boolean showNoTickets, Boolean showPast, Long similarEvent, Long recommendedEvent, Boolean fewTickets, Boolean upcoming, int page) {
+        if (similarEvent != null) {
+            return new EventList(eventDao.getSimilarEvents(similarEvent), 1);
+        }
+        if (recommendedEvent != null) {
+            return new EventList(eventDao.getPopularEvents(recommendedEvent), 1);
+        }
+        if (fewTickets != null) {
+            return new EventList(eventDao.getFewTicketsEvents(), 1);
+        }
+        if (upcoming != null) {
+            return new EventList(eventDao.getUpcomingEvents(), 1);
+        }
+
+        for (Long location : locations) {
             if (location == null) {
                 // TODO: Change
                 throw new RuntimeException();
             }
         }
-        for (Integer type : types) {
+        for (Long type : types) {
             if (type == null) {
                 // TODO: Change
                 throw new RuntimeException();
             }
         }
-        for (Integer tag : tags) {
+        for (Long tag : tags) {
             if (tag == null) {
                 // TODO: Change
                 throw new RuntimeException();
             }
         }
-        return eventDao.filterBy(locations, types, minPrice, maxPrice, query, tags, username, userId, order, showSoldOut, showNoTickets, showPast, page);
+        return eventDao.filterBy(locations, types, minPrice, maxPrice, query, tags, username, userId, orderBy, showSoldOut, showNoTickets, showPast, page);
     }
 
     @Transactional

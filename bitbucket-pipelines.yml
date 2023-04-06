@@ -15,12 +15,17 @@ pipelines:
             - sed -i "s/env.getProperty(\"dbURL\")/\"jdbc:postgresql:\/\/10.16.1.110\/$PAW_BOTTLER_USER\"/g" "$webConfigFile"
             - sed -i "s/env.getProperty(\"mailUsername\")/\"bottlerpass@zohomail.com\"/g" "$webConfigFile"
             - sed -i "s/env.getProperty(\"mailPassword\")/\"$PAW_BOTTLER_MAILPASS\"/g" "$webConfigFile"
+            - sed -i "s/env.getProperty(\"mail\")/\"false\"/g" "$webConfigFile"
+            - sed -i "s/env.getProperty(\"debug\")/\"false\"/g" "$webConfigFile"
             - export codeServiceFile="service/src/main/java/ar/edu/itba/paw/service/CodeServiceImpl.java"
             - sed -i "s/@PropertySource(\"classpath:config.properties\")//g" "$codeServiceFile"
             - sed -i "s/env.getProperty(\"encPassword\")/\"$PAW_BOTTLER_ENCPASS\"/g" "$codeServiceFile"
             - sed -i "s/env.getProperty(\"encSalt\")/\"$PAW_BOTTLER_ENCSALT\"/g" "$codeServiceFile"
             - export tokenConfigFile="webapp/src/main/java/ar/edu/itba/paw/webapp/auth/JwtTokenUtils.java"
             - sed -i "s/env.getProperty(\"secret\")/\"$PAW_BOTTLER_ENCPASS\"/g" "$tokenConfigFile"
+            - sed -i "s/env.getProperty(\"baseUrl\")/\"http://pawserver.it.itba.edu.ar/paw-2022a-04\"/g" "$tokenConfigFile"
+            - export responseFilterFile="webapp/src/main/java/ar/edu/itba/paw/webapp/config/ResponseFilter"
+            - sed -i "s/env.getProperty(\"cors\")/\"false\"/g" "$responseFilterFile"
             - unset CI
             - mvn clean package
           artifacts:

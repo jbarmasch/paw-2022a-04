@@ -228,7 +228,8 @@ const EventsContent = () => {
         , fetcher)
 
     useEffect(() => {
-        if (firstLoad && (values.tags || values.types || values.locations || values.soldOut || values.order || values.noTickets || values.userId || values.minPrice || values.maxPrice)) {
+        // if (firstLoad && (values.tags || values.types || values.locations || values.soldOut || values.order || values.noTickets || values.userId || values.minPrice || values.maxPrice)) {
+        if ((values.tags || values.types || values.locations || values.soldOut || values.order || values.noTickets || values.userId || values.minPrice || values.maxPrice)) {
             if (values.tags && values.tags.constructor !== Array) {
                 setTagsArr(values?.tags.split(","))
             } else {
@@ -256,6 +257,8 @@ const EventsContent = () => {
 
     useEffect(() => {
         if (!firstLoad && (typesArr || locationsArr || tagsArr || order || soldOut || noTickets || userId || minPrice || maxPrice)) {
+            // console.log(minPrice)
+
             setPageIndex(1)
             let query = ""
             if (typesArr?.length > 0) {
@@ -288,6 +291,7 @@ const EventsContent = () => {
             if (soldOut) {
                 query = `${query}&soldOut=${soldOut}`
             }
+            console.log(noTickets)
             if (noTickets) {
                 query = `${query}&noTickets=${noTickets}`
             }
@@ -474,29 +478,33 @@ const EventsContent = () => {
                                 };
 
                                 return (
-                                    <FormControl className="filter-input">
-                                        <Autocomplete
-                                            multiple
-                                            disablePortal
-                                            id="location-autocomplete"
-                                            options={locationList}
-                                            value={currentSelection}
-                                            onChange={handleSelectChange}
-                                            noOptionsText={i18n.t("autocompleteNoOptions")}
-                                            isOptionEqualToValue={(option, value) => {
-                                                return option.value === value.value
-                                            }}
-                                            renderInput={(params) => <TextField {...params}
-                                                                                label={i18n.t("filter.locations")}
-                                                                                error={!!fieldState.error}/>}
-                                        />
+                                    <>
+                                        {locationList && locationList.length > 0 &&
+                                            <FormControl className="filter-input">
+                                                <Autocomplete
+                                                    multiple
+                                                    disablePortal
+                                                    id="location-autocomplete"
+                                                    options={locationList}
+                                                    value={currentSelection}
+                                                    onChange={handleSelectChange}
+                                                    noOptionsText={i18n.t("autocompleteNoOptions")}
+                                                    isOptionEqualToValue={(option, value) => {
+                                                        return option.value === value.value
+                                                    }}
+                                                    renderInput={(params) => <TextField {...params}
+                                                                                        label={i18n.t("filter.locations")}
+                                                                                        error={!!fieldState.error}/>}
+                                                />
 
-                                        {fieldState.error ? (
-                                            <FormHelperText error>
-                                                {fieldState.error?.message}
-                                            </FormHelperText>
-                                        ) : null}
-                                    </FormControl>
+                                                {fieldState.error ? (
+                                                    <FormHelperText error>
+                                                        {fieldState.error?.message}
+                                                    </FormHelperText>
+                                                ) : null}
+                                            </FormControl>
+                                        }
+                                    </>
                                 );
                             }}
                         />
@@ -635,7 +643,7 @@ const EventsContent = () => {
                                         defaultValue={''}
                                         name="soldout"
                                         render={({field: {onChange}}) => {
-                                            const currentSelection = soldOut ? soldOut === "true" : false
+                                            const currentSelection = values?.soldOut === "true"
 
                                             const handleSelectChange = (e, selectedOption) => {
                                                 setFirstLoad(false)
@@ -662,7 +670,7 @@ const EventsContent = () => {
                                         defaultValue={''}
                                         name="ticketless"
                                         render={({field: {onChange}}) => {
-                                            const currentSelection = noTickets ? noTickets === "true" : false
+                                            const currentSelection = values?.noTickets === "true"
 
                                             const handleTicketChange = (e, selectedOption) => {
                                                 setFirstLoad(false)
@@ -691,6 +699,8 @@ const EventsContent = () => {
 
 
                     <form onSubmit={handleSubmit(onSubmit)}>
+                        {((minPrice || maxPrice) || (links.last?.page && links.last?.page > 0)) &&
+                            <>
                         <h3 className="filter-subtitle">{i18n.t("filter.price")}</h3>
 
                         <div className="filter-horizontal">
@@ -773,6 +783,8 @@ const EventsContent = () => {
                             />
 
                         </div>
+                            </>
+                        }
                         <div className="space-around">
                             <Button onClick={clearFilters} variant="text">{i18n.t("filter.clear")}</Button>
                             <Button type="submit" variant="contained">{i18n.t("filter.apply")}</Button>
@@ -798,6 +810,8 @@ const EventsContent = () => {
                                         };
 
                                         return (
+                                            <>
+                                            {links.last?.page && links.last?.page > 0 &&
                                             <FormControl>
                                                 <InputLabel className="order-label"
                                                             id="order-select-label">{i18n.t("filter.sortBy")}</InputLabel>
@@ -820,6 +834,8 @@ const EventsContent = () => {
                                                     ))}
                                                 </Select>
                                             </FormControl>
+                                            }
+                                            </>
                                         );
                                     }}
                                 />
@@ -831,11 +847,13 @@ const EventsContent = () => {
                             className="event-discovery flex w-full flex-1 flex-col items-center justify-center px-20 text-center">
                             {dataEvents && <Page data={dataEvents} aux={child} setAux={setChild}/>}
                         </div>
-                        <div className="pagination">
-                            <Pagination count={Number(links && links.last ? links.last?.page : 0)} showFirstButton
-                                        showLastButton page={values?.page ? Number(values?.page) : pageIndex}
-                                        onChange={handlePageChange}/>
-                        </div>
+                        {links.last?.page && links.last?.page > 1 &&
+                            <div className="pagination">
+                                <Pagination count={Number(links && links.last ? links.last?.page : 0)} showFirstButton
+                                            showLastButton page={values?.page ? Number(values?.page) : pageIndex}
+                                            onChange={handlePageChange}/>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>

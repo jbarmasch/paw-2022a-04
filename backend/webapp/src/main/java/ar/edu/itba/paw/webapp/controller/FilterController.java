@@ -55,14 +55,14 @@ public class FilterController {
 
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON,})
-    public Response getFilterType(@QueryParam("locations") final List<Integer> locations,
-                                  @QueryParam("types") final List<Integer> types,
+    public Response getFilterType(@QueryParam("locations") final List<Long> locations,
+                                  @QueryParam("types") final List<Long> types,
                                   @QueryParam("minPrice") final Double minPrice,
                                   @QueryParam("maxPrice") final Double maxPrice,
                                   @QueryParam("search") final String search,
-                                  @QueryParam("tags") final List<Integer> tags,
+                                  @QueryParam("tags") final List<Long> tags,
                                   @QueryParam("soldOut") final Boolean showSoldOut,
-                                  @QueryParam("userId") final Integer userId,
+                                  @QueryParam("userId") final Long userId,
                                   @QueryParam("noTickets") final Boolean showNoTickets,
                                   @QueryParam("locale") final String locale) {
         final FilterType res = fs.getFilterType(locations, types, minPrice, maxPrice, search, tags, showSoldOut, showNoTickets, userId);

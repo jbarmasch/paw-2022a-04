@@ -36,6 +36,7 @@ const CreateEvent = () => {
     }
 
     const {user} = useAuth();
+    const {refresh} = useAuth();
 
     const {
         data: locations,
@@ -77,6 +78,7 @@ const CreateEvent = () => {
     async function onImageChange(e) {
         e.preventDefault()
         if (e.target.files[0].size > (1024 * 1024)) {
+            console.log("HUGE")
         } else {
             await setImage(e.target.files[0])
         }
@@ -106,10 +108,12 @@ const CreateEvent = () => {
             obj.minAge = data.minAge
         }
 
-
         const formData = new FormData();
-
-        formData.append('image', image, image.name)
+        if (image) {
+            formData.append('image', image, image.name)
+        } else {
+            formData.append('image', '')
+        }
         formData.append('form', new Blob([JSON.stringify(obj)], {
             type: "application/json"
         }));
@@ -126,6 +130,7 @@ const CreateEvent = () => {
 
         if (json.status === 201) {
             let eventId = json.headers.get("Location")?.split("/").slice(-1)[0]
+            refresh()
             history.push("/my-events/" + eventId)
         }
     }
@@ -405,10 +410,10 @@ const CreateEvent = () => {
                                     name="image"
                                     control={control}
                                     defaultValue={''}
-                                    rules={{
-                                        required: i18n.t('fieldRequired'),
-                                    }}
-                                    render={({field}) => (
+                                    // rules={{
+                                    //     required: i18n.t('fieldRequired'),
+                                    // }}
+                                    render={({field, fieldState}) => (
                                         <>
                                             <input
                                                 accept="image/*"
@@ -435,6 +440,11 @@ const CreateEvent = () => {
                                                     inputRef.current.value = null
                                                 }}><ClearRoundedIcon/></IconButton>
                                             </>)}
+                                            {/*{fieldState.error ? (*/}
+                                            {/*    <FormHelperText error>*/}
+                                            {/*        {fieldState.error?.message}*/}
+                                            {/*    </FormHelperText>*/}
+                                            {/*) : null}*/}
                                         </>
                                     )}
                                 />

@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -46,7 +47,13 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                      authenticationTokenDetails = authenticationTokenService.parseToken(authenticationToken);
 
                     if (authenticationTokenDetails.isRefresh()) {
-                        String accessToken = authenticationTokenService.issueRefreshToken(authenticationTokenDetails.getUsername(), authenticationTokenDetails.getAuthorities());
+                        // TODO: Change exception
+                        User user = us.findByUsername(authenticationTokenDetails.getUsername()).orElseThrow(RuntimeException::new);
+                        Set<RoleEnum> authorities = user.getRoles().stream()
+                                .map(role -> RoleEnum.valueOf(role.getRoleName()))
+                                .collect(Collectors.toSet());
+
+                        String accessToken = authenticationTokenService.issueRefreshToken(authenticationTokenDetails.getUsername(), authorities);
                         Authentication authenticationRequest = new JwtAuthenticationToken(accessToken);
                         Authentication authenticationResult = authenticationManager.authenticate(authenticationRequest);
                         SecurityContext context = SecurityContextHolder.createEmptyContext();
@@ -61,6 +68,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                         SecurityContextHolder.setContext(context);
                     }
                 } catch (ExpiredJwtException e) {
+                    // TODO
                 }
             } else if (authorizationHeader.startsWith("Basic")) {
                 String[] credentials = new String(Base64.getDecoder().decode(authorizationHeader.substring(6))).split(":");
