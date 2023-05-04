@@ -25,6 +25,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.print.attribute.standard.Media;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
 import javax.validation.Validator;
@@ -49,9 +50,9 @@ public class EventController {
     private EventBookingService bs;
     @Autowired
     private UserManager um;
-    @Autowired
-    private Environment env;
 
+    @Context
+    private HttpServletRequest request;
     @Context
     private UriInfo uriInfo;
 
@@ -106,18 +107,17 @@ public class EventController {
     }
 
     @POST
-    @Consumes(value = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA})
-    public Response createEvent(@PathParam("id") final long id, 
-                                @Valid @FormDataParam("form") final EventForm form,
+    @Consumes(value = {MediaType.MULTIPART_FORM_DATA})
+    public Response createEvent(@Valid @FormDataParam("form") final EventForm form,
                                 @FormDataParam("image") InputStream inputStream,
                                 @FormDataParam("image") FormDataContentDisposition contentDisposition) throws IOException {
-        byte[] data = IOUtils.toByteArray(inputStream);
+        byte[] image = IOUtils.toByteArray(inputStream);
 
         final long userId = um.getUserId();
         
         final Event event = es.create(form.getName(), form.getDescription(), form.getLocation(), form.getType(), form.getTimestamp(),
-                data, form.getTags(), userId, form.isHasMinAge() ? form.getMinAge() : null,
-                uriInfo.getBaseUriBuilder().toString(), LocaleContextHolder.getLocale());
+                image, form.getTags(), userId, form.isHasMinAge() ? form.getMinAge() : null,
+                uriInfo.getBaseUriBuilder().toString(), request.getLocale());
 
         final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(event.getId())).build();
         return Response.created(uri).build();
@@ -125,7 +125,7 @@ public class EventController {
 
     @Path("/{id}")
     @PUT
-    @Consumes(value = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA})
+    @Consumes(value = {MediaType.MULTIPART_FORM_DATA})
     public Response updateEvent(@PathParam("id") final long id,
                                 @Valid @FormDataParam("form") final EventForm form,
                                 @FormDataParam("image") InputStream inputStream,
@@ -341,7 +341,7 @@ public class EventController {
 
         EventBooking eventBooking;
         try {
-            eventBooking = bs.book(booking, "http://pawserver.it.itba.edu.ar/paw-2022a-04", LocaleContextHolder.getLocale());
+            eventBooking = bs.book(booking, uriInfo.getBaseUriBuilder().toString(), request.getLocale());
         } catch (AlreadyMaxTicketsException | SurpassedMaxTicketsException ex) {
             return Response.serverError().build();
         }

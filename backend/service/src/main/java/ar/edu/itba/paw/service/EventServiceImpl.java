@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.service;
 
+import ar.edu.itba.paw.exceptions.FilterException;
 import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.persistence.EventDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,20 +69,17 @@ public class EventServiceImpl implements EventService {
 
         for (Long location : locations) {
             if (location == null) {
-                // TODO: Change
-                throw new RuntimeException();
+                throw new FilterException();
             }
         }
         for (Long type : types) {
             if (type == null) {
-                // TODO: Change
-                throw new RuntimeException();
+                throw new FilterException();
             }
         }
         for (Long tag : tags) {
             if (tag == null) {
-                // TODO: Change
-                throw new RuntimeException();
+                throw new FilterException();
             }
         }
         return eventDao.filterBy(locations, types, minPrice, maxPrice, query, tags, username, userId, orderBy, showSoldOut, showNoTickets, showPast, page);

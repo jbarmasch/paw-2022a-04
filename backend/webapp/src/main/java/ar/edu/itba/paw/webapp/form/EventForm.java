@@ -5,6 +5,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.*;
+import javax.ws.rs.DefaultValue;
 import java.time.LocalDateTime;
 
 public class EventForm {

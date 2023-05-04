@@ -25,9 +25,17 @@ import FormHelperText from '@mui/material/FormHelperText';
 import Button from '@mui/material/Button';
 import {useFindPath} from '../header'
 
-const fetcher = (...args) => fetch(...args).then((res) => res.json())
+const fetcher = (...args) => fetch(...args, {
+    headers: {
+        "Accept-Language": i18n.language
+    }
+}).then((res) => res.json())
 
-const fetcherHeaders = (...args) => fetch(...args).then((res) => {
+const fetcherHeaders = (...args) => fetch(...args, {
+    headers: {
+        "Accept-Language": i18n.language
+    }
+}).then((res) => {
     if (res.status === 200) {
         return {
             headers: res.headers,
@@ -228,7 +236,6 @@ const EventsContent = () => {
         , fetcher)
 
     useEffect(() => {
-        // if (firstLoad && (values.tags || values.types || values.locations || values.soldOut || values.order || values.noTickets || values.userId || values.minPrice || values.maxPrice)) {
         if ((values.tags || values.types || values.locations || values.soldOut || values.order || values.noTickets || values.userId || values.minPrice || values.maxPrice)) {
             if (values.tags && values.tags.constructor !== Array) {
                 setTagsArr(values?.tags.split(","))
@@ -257,8 +264,6 @@ const EventsContent = () => {
 
     useEffect(() => {
         if (!firstLoad && (typesArr || locationsArr || tagsArr || order || soldOut || noTickets || userId || minPrice || maxPrice)) {
-            // console.log(minPrice)
-
             setPageIndex(1)
             let query = ""
             if (typesArr?.length > 0) {

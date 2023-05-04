@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -26,17 +27,19 @@ public class TagController {
     private TagService ts;
 
     @Context
+    private HttpServletRequest request;
+    @Context
     private UriInfo uriInfo;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TagController.class);
 
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON,})
-    public Response listTags(@QueryParam("locale") final String locale) {
+    public Response listTags() {
         final List<Tag> res = ts.getAll();
         final List<TagDto> tagList = res
                 .stream()
-                .map(e -> TagDto.fromTag(uriInfo, e, locale))
+                .map(e -> TagDto.fromTag(uriInfo, e, request.getLocale().getLanguage()))
                 .collect(Collectors.toList());
 
         if (tagList.isEmpty()) {

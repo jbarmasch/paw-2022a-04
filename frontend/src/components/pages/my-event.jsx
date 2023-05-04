@@ -77,12 +77,12 @@ const MyEvent = (props) => {
     const {
         data: tags,
         isLoading: tagsLoading,
-    } = useSWRImmutable(`${server}/api/tags?locale=${i18n.language}`, fetcher)
+    } = useSWRImmutable(`${server}/api/tags`, fetcher)
     const [tag, setTag] = useState();
     const {
         data: types,
         isLoading: typesLoading,
-    } = useSWRImmutable(`${server}/api/types?locale=${i18n.language}`, fetcher)
+    } = useSWRImmutable(`${server}/api/types`, fetcher)
     const [date, setDate] = useState(null);
 
     const [active, setActive] = useState(false)
@@ -102,7 +102,8 @@ const MyEvent = (props) => {
     const {
         data: event,
         mutate,
-        error: errorData
+        error: errorData,
+        isLoading: eventLoading
     } = useSWR(props.match.params.id ? `${server}/api/events/${props.match.params.id}` : null, fetcher)
     const {
         data: eventStats,
@@ -134,9 +135,9 @@ const MyEvent = (props) => {
     }, [event])
 
     const imgFetcher = (...args) => fetch(...args).then(res => res.blob())
-    const {data: aux, error: error} = useSWR(event ? `${event.image}` : null, imgFetcher)
+    const {data: aux, error: error, isLoading: auxLoading} = useSWRImmutable(event ? `${event.image}` : null, imgFetcher)
 
-    const {register, control, handleSubmit, reset, watch, setValue, getValues, formState: {errors}} = useForm({
+    const {register, control, handleSubmit, reset, watch, setValue, getValues, formState: {errors}, setError} = useForm({
         defaultValues: {
             tickets: [{
                 ticketName: "",
@@ -169,7 +170,13 @@ const MyEvent = (props) => {
         history.push("/404")
         return;
     }
-    if (!aux || !event || !user) return <MyEventLoading/>
+    if (auxLoading || eventLoading || !user) {
+        console.log(aux)
+        console.log(event)
+        console.log(user)
+        // ver que event puede ser undefined acá cuando muta
+        return <MyEventLoading/>
+    }
 
     if (user.id != event.organizer.split("/").splice(-1)[0]) {
         history.push("/404");
@@ -225,9 +232,15 @@ const MyEvent = (props) => {
                 },
                 body: formData
             })
+
+
+            console.log("mutate")
+            await mutate(`${server}/api/events/${props.match.params.id}`, obj)
         }
 
         await resi
+
+        // if (resi.status !== 200)
 
         for (const x of rowsData) {
             await fetch(`${server}/api/tickets/${x.ticketId}`, {
@@ -247,7 +260,6 @@ const MyEvent = (props) => {
         }
 
         if (data.tickets) {
-
             for (let d of data.tickets) {
                 if (d.starting) {
                     d.starting = new Date(d.starting).toISOString().slice(0, -8)
@@ -299,25 +311,54 @@ const MyEvent = (props) => {
                         })
                     }
                 } else {
-                    auxi.tickets.push(d)
+                    if (d.ticketName !== '') {
+                        auxi.tickets.push(d)
+                    }
                 }
             }
 
-            let aux = JSON.parse(JSON.stringify(auxi));
+            if (auxi.tickets.length !== 0) {
+                let aux = JSON.parse(JSON.stringify(auxi));
 
-            res = await fetch(`${server}/api/events/${props.match.params.id}/tickets`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
-                },
-                body: JSON.stringify(aux)
-            })
+                res = await fetch(`${server}/api/events/${props.match.params.id}/tickets`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                    body: JSON.stringify(aux)
+                })
 
-            await res;
+                await res;
+
+                if (res.status === 400) {
+                    let errors = await res.json()
+                    errors.forEach(x => {
+                        let variable = String(x["path"]).split(".").slice(-1)[0]
+                        console.log(variable)
+                        switch (variable) {
+                            case "ticketName":
+                                console.log(x)
+                                setError('tickets[].ticketName', {type: 'custom', message: x['message']});
+                                break
+                            case "price":
+                                setError('ticketPrice', {type: 'custom', message: x['message']});
+                                break
+                            case "password":
+                                setError('password', {type: 'custom', message: x['message']});
+                                break
+                            case "repeatPassword":
+                                setError('repeatPassword', {type: 'custom', message: x['message']});
+                                break
+                            default:
+                                break;
+                        }
+                    })
+                }
+            }
         }
 
-        mutate()
+        // mutate()
     }
 
     const handleClickOpen = () => {

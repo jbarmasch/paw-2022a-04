@@ -11,6 +11,7 @@ import java.net.URI;
 
 public class UserDto {
     private String username;
+    // TODO: La API no debiera exponer los emails de usuarios y organizadores. Esto es un concern de seguridad.
     private String mail;
     private double rating;
     private int votes;

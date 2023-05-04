@@ -48,18 +48,18 @@ const CreateEvent = () => {
         data: tags,
         isLoading: tagsLoading,
         error: tagsError
-    } = useSWRImmutable(`${server}/api/tags?locale=${i18n.language}`, fetcher)
+    } = useSWRImmutable(`${server}/api/tags`, fetcher)
     const [tag, setTag] = useState([]);
     const {
         data: types,
         isLoading: typesLoading,
         error: typesError
-    } = useSWRImmutable(`${server}/api/types?locale=${i18n.language}`, fetcher)
+    } = useSWRImmutable(`${server}/api/types`, fetcher)
     const [type, setType] = useState([]);
     const [minAge, setMinAge] = useState();
     const [date, setDate] = useState(null);
 
-    const {handleSubmit, control, formState: {errors}} = useForm();
+    const {handleSubmit, control, formState: {errors}, setError} = useForm();
     const [active, setActive] = useState(false)
     const [imageName, setImageName] = useState()
     const [image, setImage] = useState()
@@ -108,6 +108,8 @@ const CreateEvent = () => {
             obj.minAge = data.minAge
         }
 
+        // TODO: POST event and then PUT the image!
+
         const formData = new FormData();
         if (image) {
             formData.append('image', image, image.name)
@@ -132,6 +134,36 @@ const CreateEvent = () => {
             let eventId = json.headers.get("Location")?.split("/").slice(-1)[0]
             refresh()
             history.push("/my-events/" + eventId)
+        } else if (json.status === 400) {
+            let errors = await json.json()
+            errors.forEach(x => {
+                let variable = String(x["path"]).split(".").slice(-1)[0]
+                switch (variable) {
+                    case "name":
+                        setError('name', {type: 'custom', message: x['message']});
+                        break
+                    case "description":
+                        setError('description', {type: 'custom', message: x['message']});
+                        break
+                    case "location":
+                        setError('location', {type: 'custom', message: x['message']});
+                        break
+                    case "type":
+                        setError('type', {type: 'custom', message: x['message']});
+                        break
+                    case "tags":
+                        setError('tags', {type: 'custom', message: x['message']});
+                        break
+                    case "date":
+                        setError('date', {type: 'custom', message: x['message']});
+                        break
+                    case "minAge":
+                        setError('minAge', {type: 'custom', message: x['message']});
+                        break
+                    default:
+                        break;
+                }
+            })
         }
     }
 

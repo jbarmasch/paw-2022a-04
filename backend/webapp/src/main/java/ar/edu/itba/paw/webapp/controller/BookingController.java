@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.nio.charset.StandardCharsets;
@@ -29,6 +30,8 @@ public class BookingController {
     private CodeService cs;
 
     @Context
+    private HttpServletRequest request;
+    @Context
     private UriInfo uriInfo;
 
     @GET
@@ -42,7 +45,7 @@ public class BookingController {
                 .stream()
                 .map(e -> {
                     BookingDto bookingDto = BookingDto.fromBooking(uriInfo, e);
-                    String bookUrl = "http://pawserver.it.itba.edu.ar/paw-2022a-04" + "/bookings/" + e.getCode();
+                    String bookUrl = uriInfo.getBaseUriBuilder().toString() + "/bookings/" + e.getCode();
                     byte[] encodeBase64 = Base64.getEncoder().encode(cs.createQr(bookUrl));
                     String base64Encoded = new String(encodeBase64, StandardCharsets.UTF_8);
                     bookingDto.setImage(base64Encoded);
@@ -79,7 +82,7 @@ public class BookingController {
     public Response getById(@PathParam("code") final String code) {
         Optional<BookingDto> bookingDto = bs.getBooking(code).map(e -> BookingDto.fromBooking(uriInfo, e));
 
-        String bookUrl = "http://pawserver.it.itba.edu.ar/paw-2022a-04" + "/bookings/" + code;
+        String bookUrl = uriInfo.getBaseUriBuilder().toString() + "/bookings/" + code;
         byte[] encodeBase64 = Base64.getEncoder().encode(cs.createQr(bookUrl));
         String base64Encoded = new String(encodeBase64, StandardCharsets.UTF_8);
 
@@ -115,7 +118,7 @@ public class BookingController {
     @DELETE
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
     public Response cancelBooking(@PathParam("code") final String code) {
-        bs.cancelBooking(code, LocaleContextHolder.getLocale());
+        bs.cancelBooking(code, request.getLocale());
 
         return Response.noContent().build();
     }

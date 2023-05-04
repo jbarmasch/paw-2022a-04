@@ -32,9 +32,13 @@ public class EventJpaDao implements EventDao {
         } else {
             image = imageDao.createImage(imageArray);
         }
-        List<Tag> tagList = new ArrayList<>();
-        for (Long tagId : tagIds)
-            tagList.add(em.getReference(Tag.class, tagId));
+        List<Tag> tagList = null;
+        if (tagIds != null) {
+            tagList = new ArrayList<>();
+            for (Long tagId : tagIds) {
+                tagList.add(em.getReference(Tag.class, tagId));
+            }
+        }
         final Event event = new Event(name, description, location, type, date, tagList, organizer, State.ACTIVE, null, image, minAge, bouncer);
         em.persist(event);
         return event;
@@ -152,9 +156,13 @@ public class EventJpaDao implements EventDao {
         Location location = em.getReference(Location.class, locationId);
         Type type = em.getReference(Type.class, typeId);
         Image image = imageDao.createImage(imageArray);
-        List<Tag> tagList = new ArrayList<>();
-        for (Long tagId : tagIds)
-            tagList.add(em.getReference(Tag.class, tagId));
+        List<Tag> tagList = null;
+        if (tagIds != null) {
+            tagList = new ArrayList<>();
+            for (Long tagId : tagIds) {
+                tagList.add(em.getReference(Tag.class, tagId));
+            }
+        }
         final Event event = em.find(Event.class, id);
         event.setDate(date);
         event.setDescription(description);

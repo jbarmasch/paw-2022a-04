@@ -73,7 +73,6 @@ const BookingsContent = ({userId}) => {
     let links
     const {control, formState: {errors}} = useForm();
 
-    // TODO: tiene headers
     let {data, mutate, error} = useSwr(`${server}/api/bookings?page=${pageIndex}&userId=${userId}`, fetcherHeaders);
 
     if (error) {history.push("/404"); return}

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -25,17 +26,19 @@ public class TypeController {
     private TypeService ts;
 
     @Context
+    private HttpServletRequest request;
+    @Context
     private UriInfo uriInfo;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TypeController.class);
 
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON,})
-    public Response listTypes(@QueryParam("locale") final String locale) {
+    public Response listTypes() {
         final List<Type> res = ts.getAll();
         final List<TypeDto> typeList = res
                 .stream()
-                .map(e -> TypeDto.fromType(uriInfo, e, locale))
+                .map(e -> TypeDto.fromType(uriInfo, e, request.getLocale().getLanguage()))
                 .collect(Collectors.toList());
 
         if (typeList.isEmpty()) {

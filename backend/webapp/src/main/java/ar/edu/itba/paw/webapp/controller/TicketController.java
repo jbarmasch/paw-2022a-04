@@ -38,8 +38,6 @@ import java.util.stream.Collectors;
 public class TicketController {
     @Autowired
     private TicketService ts;
-    @Autowired
-    private EventService es;
 
     @Context
     private UriInfo uriInfo;
@@ -58,6 +56,7 @@ public class TicketController {
             ts.updateTicket(ticket, form.getTicketName(), form.getPrice(), form.getQty(),
                     form.getLocalDate(form.getStarting()), form.getLocalDate(form.getUntil()), form.getMaxPerUser());
         } catch (TicketUnderflowException e) {
+            LOGGER.error("Ticket underflow error");
             return Response.serverError().build();
         }
 

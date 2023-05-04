@@ -8,9 +8,11 @@ import ar.edu.itba.paw.service.EventBookingService;
 import ar.edu.itba.paw.webapp.dto.*;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -34,6 +36,8 @@ public class UserController {
     @Autowired
     private EventBookingService bs;
 
+    @Context
+    private HttpServletRequest request;
     @Context
     private UriInfo uriInfo;
 
@@ -71,9 +75,9 @@ public class UserController {
 
     @POST
     @Consumes(value = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
-    public Response createUser(@Valid UserForm form) {
-        final User user = us.create(form.getUsername(), form.getPassword(), form.getMail(), Locale.ENGLISH);
-        
+    public Response createUser(@Context HttpServletRequest headers, @Valid UserForm form) {
+        final User user = us.create(form.getUsername(), form.getPassword(), form.getMail(), request.getLocale());
+
         final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(user.getId())).build();
         return Response.created(uri).build();
     }

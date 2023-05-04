@@ -30,8 +30,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
     @Override
     public void setAuthenticated(boolean authenticated) {
         if (authenticated) {
-            throw new IllegalArgumentException(
-                    "Cannot set this token to trusted. Use constructor which takes a GrantedAuthority list instead");
+            throw new IllegalArgumentException();
         }
         super.setAuthenticated(false);
     }

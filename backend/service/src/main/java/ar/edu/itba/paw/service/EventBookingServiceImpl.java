@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.exceptions.AlreadyMaxTicketsException;
+import ar.edu.itba.paw.exceptions.CancelBookingFailedException;
 import ar.edu.itba.paw.exceptions.IllegalTicketException;
 import ar.edu.itba.paw.exceptions.SurpassedMaxTicketsException;
 import ar.edu.itba.paw.model.EventBooking;
@@ -52,7 +53,6 @@ public class EventBookingServiceImpl implements EventBookingService {
         EventBooking persistedBooking = eventBookingDao.getBookingFromUser(booking.getUser().getId(), booking.getEvent().getId()).orElse(null);
 
         if (booking.getUser().getId() == booking.getEvent().getOrganizer().getId()) {
-            // TODO: cambiar, no podes bookear tu mismo evento
             throw new IllegalTicketException();
         }
 
@@ -112,8 +112,7 @@ public class EventBookingServiceImpl implements EventBookingService {
         EventBooking booking = eventBookingDao.getBooking(code).orElse(null);
         
         if (booking == null) {
-            // TODO: Change
-            throw new RuntimeException();
+            throw new CancelBookingFailedException();
         }
 
         if (eventBookingDao.cancelBooking(booking)) {

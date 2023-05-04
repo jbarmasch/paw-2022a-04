@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.servlet.LocaleResolver;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
@@ -176,10 +177,10 @@ public class WebConfig {
         return new JpaTransactionManager(emf);
     }
 
-    @Bean
-    public Validator validator() {
-        final LocalValidatorFactoryBean factory = new LocalValidatorFactoryBean();
-        factory.setValidationMessageSource(messageSource());
-        return factory;
-    }
+//    @Bean
+//    public Validator validatorFactory() {
+//        LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
+//        validator.setValidationMessageSource(messageSource());
+//        return validator;
+//    }
 }

@@ -52,7 +52,7 @@ public class TicketDto {
         return ticketId;
     }
 
-    public void setTicketId(int ticketId) {
+    public void setTicketId(long ticketId) {
         this.ticketId = ticketId;
     }
 

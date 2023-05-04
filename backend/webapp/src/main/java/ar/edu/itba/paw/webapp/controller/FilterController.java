@@ -27,6 +27,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.print.attribute.standard.Media;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
 import javax.validation.Validator;
@@ -48,6 +49,8 @@ public class FilterController {
     private FilterService fs;
 
     @Context
+    private HttpServletRequest request;
+    @Context
     private UriInfo uriInfo;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TagController.class);
@@ -66,7 +69,7 @@ public class FilterController {
                                   @QueryParam("noTickets") final Boolean showNoTickets,
                                   @QueryParam("locale") final String locale) {
         final FilterType res = fs.getFilterType(locations, types, minPrice, maxPrice, search, tags, showSoldOut, showNoTickets, userId);
-        final FilterDto filterDto = FilterDto.fromFilter(uriInfo, res, locale);
+        final FilterDto filterDto = FilterDto.fromFilter(uriInfo, res, request.getLocale().getLanguage());
 
         if (filterDto != null) {
             return Response.ok(filterDto).build();

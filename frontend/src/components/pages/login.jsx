@@ -26,9 +26,9 @@ const Login = () => {
     const history = useHistory();
     const {search} = useLocation()
     const values = queryString.parse(search)
-    const [error, setError] = useState(false)
+    // const [error, setError] = useState(false)
 
-    const {register, handleSubmit, control, watch, formState: {errors}} = useForm();
+    const {register, handleSubmit, control, watch, formState: {errors}, setError} = useForm();
 
     const [showPassword, setShowPassword] = React.useState(false);
 
@@ -49,7 +49,11 @@ const Login = () => {
         })
 
         if (res.status !== 200) {
-            setError(true)
+            if (res.status === 401) {
+                setError('username', {type: 'custom', message: ""});
+                setError('password', {type: 'custom', message: i18n.t("login.notFound")});
+            }
+
             return;
         }
 
@@ -153,7 +157,7 @@ const Login = () => {
 
                             </div>
 
-                            {error && <FormHelperText error>{i18n.t("login.notFound")}</FormHelperText>}
+                            {/*{error && <FormHelperText error>{i18n.t("login.notFound")}</FormHelperText>}*/}
 
                             <div className="form-actions">
                                 <Button type="submit" variant="contained">{i18n.t("login.signIn")}</Button>

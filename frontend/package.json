@@ -2,7 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-  "homepage": "http://api.slococo.com.ar:2557/paw-2022a-04",
+  "homepage": "http://ssh.slococo.com.ar:2557/paw-2022a-04",
   "dependencies": {
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
