@@ -103,8 +103,9 @@ const EventsContent = () => {
     const [soldOut, setSoldOut] = useState();
     const [noTickets, setNoTickets] = useState();
     const [userId, setUserId] = useState();
-    const [minPrice, setMinPrice] = useState();
-    const [maxPrice, setMaxPrice] = useState();
+    // const [minPrice, setMinPrice] = useState();
+    // const [maxPrice, setMaxPrice] = useState();
+    const [priceArr, setPriceArr] = useState();
 
     const getFilters = () => {
         let filters = ""
@@ -231,9 +232,7 @@ const EventsContent = () => {
         return filters
     }
 
-    const {data: filters, error: errorFilters} = useSwr(
-        `${server}/api/filters${getFilters()}`
-        , fetcher)
+    const {data: filters, error: errorFilters} = useSwr(`${server}/api/filters${getFilters()}`, fetcher)
 
     useEffect(() => {
         if ((values.tags || values.types || values.locations || values.soldOut || values.order || values.noTickets || values.userId || values.minPrice || values.maxPrice)) {
@@ -256,14 +255,16 @@ const EventsContent = () => {
             setSoldOut(values?.soldOut)
             setNoTickets(values?.noTickets)
             setUserId(values?.userId)
-            setMinPrice(values?.minPrice)
-            setMaxPrice(values?.maxPrice)
+            console.log("SE CARGA CON" + values?.minPrice)
+            setPriceArr([values?.minPrice, values?.maxPrice])
+            // setMinPrice(values?.minPrice)
+            // setMaxPrice(values?.maxPrice)
             setFirstLoad(false)
         }
     }, [values.tags, values.locations, values.types, values.order, values.soldOut, values.noTickets, values.userId, values.minPrice, values.maxPrice, firstLoad])
 
     useEffect(() => {
-        if (!firstLoad && (typesArr || locationsArr || tagsArr || order || soldOut || noTickets || userId || minPrice || maxPrice)) {
+        if (!firstLoad && (typesArr || locationsArr || tagsArr || order || soldOut || noTickets || userId || priceArr)) {
             setPageIndex(1)
             let query = ""
             if (typesArr?.length > 0) {
@@ -296,7 +297,7 @@ const EventsContent = () => {
             if (soldOut) {
                 query = `${query}&soldOut=${soldOut}`
             }
-            console.log(noTickets)
+            // console.log(noTickets)
             if (noTickets) {
                 query = `${query}&noTickets=${noTickets}`
             }
@@ -306,11 +307,17 @@ const EventsContent = () => {
             if (values?.userId) {
                 query = `${query}&userId=${values.userId}`
             }
-            if (minPrice) {
-                query = `${query}&minPrice=${minPrice}`
+            // if (minPrice) {
+            //     query = `${query}&minPrice=${minPrice}`
+            // }
+            // if (maxPrice) {
+            //     query = `${query}&maxPrice=${maxPrice}`
+            // }
+            if (priceArr?.length > 0 && priceArr[0]) {
+                query = `${query}&minPrice=${priceArr[0]}`
             }
-            if (maxPrice) {
-                query = `${query}&maxPrice=${maxPrice}`
+            if (priceArr?.length > 0 && priceArr[1]) {
+                query = `${query}&maxPrice=${priceArr[1]}`
             }
             let url = `/events?page=1${query}`
             let oldPath = path + search
@@ -319,9 +326,12 @@ const EventsContent = () => {
             }
             history.push(url)
         }
-    }, [typesArr, locationsArr, tagsArr, order, soldOut, noTickets, minPrice, maxPrice, firstLoad])
+    }, [typesArr, locationsArr, tagsArr, order, soldOut, noTickets, priceArr, firstLoad])
 
-    const {handleSubmit, control, getValues, formState: {errors}} = useForm();
+    const {handleSubmit, control, getValues, formState: {errors}} = useForm({
+        mode: 'onSubmit',
+        reValidateMode: 'onSubmit'
+    });
 
     let filtersStr = ""
     if (values.page || values.search || values.types || values.locations || values.tags || values.order || values.soldOut || values.noTickets || values.userId || values.minPrice || values.maxPrice) {
@@ -377,6 +387,9 @@ const EventsContent = () => {
         return
     }
 
+    let minPrice = values?.minPrice ? values.minPrice : ''
+    let maxPrice = values?.maxPrice ? values.maxPrice : ''
+
     if (!filters || !dataEvents) return <ContentLoading/>
 
     links = parseLink(dataEvents.headers.get("Link"))
@@ -411,6 +424,10 @@ const EventsContent = () => {
     let soldOutCount = filters.soldOut;
     let noTicketsCount = filters.noTickets;
 
+    let priceList = [values?.minPrice, values?.maxPrice]
+    // let minPrice = values?.minPrice ? values.minPrice : ''
+    // let maxPrice = values?.maxPrice ? values.maxPrice : ''
+
     const handlePageChange = (e, page) => {
         setPageIndex(page)
         let str
@@ -423,6 +440,7 @@ const EventsContent = () => {
     }
 
     let orderList = []
+    // TODO: i18n
     orderList.push({
         value: "DATE_ASC",
         label: "Fecha ascendente"
@@ -434,15 +452,18 @@ const EventsContent = () => {
 
     const onSubmit = (data) => {
         setFirstLoad(false);
-        setMaxPrice(getValues("maxPrice"));
-        setMinPrice(getValues("minPrice"))
+        // console.log("se hizo?")
+        // console.log(getValues("minPrice"))
+        // console.log(getValues("maxPrice"))
+        setPriceArr([getValues("minPrice"), getValues("maxPrice")])
     }
 
     const clearFilters = () => {
         history.replace("/events?page=1")
         setNoTickets(undefined)
-        setMinPrice(undefined)
-        setMaxPrice(undefined)
+        // setMinPrice(undefined)
+        // setMaxPrice(undefined)
+        setPriceArr(undefined)
         setTagsArr(undefined)
         setLocationsArr(undefined)
         setTypesArr(undefined)
@@ -704,7 +725,7 @@ const EventsContent = () => {
 
 
                     <form onSubmit={handleSubmit(onSubmit)}>
-                        {((minPrice || maxPrice) || (links.last?.page && links.last?.page > 0)) &&
+                        {((priceArr) || (links.last?.page && links.last?.page > 0)) &&
                             <>
                         <h3 className="filter-subtitle">{i18n.t("filter.price")}</h3>
 
@@ -719,15 +740,22 @@ const EventsContent = () => {
                                     }
                                 }}
                                 control={control}
-                                defaultValue={minPrice ? minPrice : ""}
-                                render={({field, fieldState}) => {
+                                defaultValue={""}
+                                render={({field: {onChange}, fieldState}) => {
+                                    let currentSelection = minPrice
+
+                                    const handleMinPriceChange = (e) => {
+                                        onChange(e.target.value);
+                                        minPrice = e.target.value
+                                    };
+
                                     return (
                                         <FormControl sx={{width: 120}}>
                                             <TextField id="min-price-input" label={i18n.t("filter.minPrice")}
                                                        variant="outlined" size="small"
                                                        error={!!fieldState.error}
-                                                       value={minPrice ? minPrice : ""}
-                                                       {...field}
+                                                       value={currentSelection}
+                                                       onChange={handleMinPriceChange}
                                                        InputProps={{
                                                            startAdornment: <InputAdornment
                                                                position="start">$</InputAdornment>,
@@ -753,7 +781,7 @@ const EventsContent = () => {
                                             let minPrice = getValues("minPrice")
                                             let maxPrice = getValues("maxPrice")
                                             if (minPrice && maxPrice) {
-                                                return minPrice < maxPrice || i18n.t("filter.rangePriceError")
+                                                return Number(minPrice) < Number(maxPrice) || i18n.t("filter.rangePriceError")
                                             }
                                             return true;
                                         },
@@ -762,15 +790,21 @@ const EventsContent = () => {
                                         }
                                     }
                                 }}
-                                defaultValue={maxPrice ? maxPrice : ""}
-                                render={({field, fieldState}) => {
+                                defaultValue={""}
+                                render={({field: {onChange}, fieldState}) => {
+                                    const currentSelection = maxPrice
+                                    const handleMaxPriceChange = (e) => {
+                                        onChange(e.target.value);
+                                        maxPrice = e.target.value
+                                    };
+
                                     return (
                                         <FormControl sx={{width: 120}}>
                                             <TextField id="min-price-input" label={i18n.t("filter.maxPrice")}
                                                        variant="outlined" size="small"
                                                        error={!!fieldState.error}
-                                                       value={maxPrice ? maxPrice : ""}
-                                                       {...field}
+                                                       value={currentSelection}
+                                                       onChange={handleMaxPriceChange}
                                                        InputProps={{
                                                            startAdornment: <InputAdornment
                                                                position="start">$</InputAdornment>,

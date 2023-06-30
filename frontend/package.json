@@ -31,17 +31,27 @@
     "webfontloader": "^1.6.28"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.22.2",
+    "@babel/preset-react": "^7.22.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
-    "msw": "^0.24.2"
+    "babel-jest": "^29.5.0",
+    "enzyme": "^3.11.0",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^27.5.1",
+    "jest-transform-stub": "^2.0.0",
+    "msw": "^0.24.2",
+    "node-fetch": "^3.3.1",
+    "react-test-renderer": "^18.2.0",
+    "whatwg-fetch": "^3.6.2"
   },
   "scripts": {
     "start": "PORT=2557 react-scripts start",
     "build": "GENERATE_SOURCEMAP=false react-scripts build && npm run post-build",
     "server": "GENERATE_SOURCEMAP=false react-scripts build && serve -s build",
     "post-build": "mv build/*.json build/*.png build/*.ico build/*.txt build/static/",
-    "test": "react-scripts test",
+    "test": "jest --watch",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

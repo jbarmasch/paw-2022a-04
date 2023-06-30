@@ -50,6 +50,7 @@ import {useAuth} from "../../utils/useAuth";
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogTitle from '@mui/material/DialogTitle';
+import utc from "dayjs/plugin/utc";
 
 const isEqualsJson = (oldTicket, newTicket) => {
     let oldKeys = Object.keys(oldTicket);
@@ -171,9 +172,9 @@ const MyEvent = (props) => {
         return;
     }
     if (auxLoading || eventLoading || !user) {
-        console.log(aux)
-        console.log(event)
-        console.log(user)
+        // console.log(aux)
+        // console.log(event)
+        // console.log(user)
         // ver que event puede ser undefined acá cuando muta
         return <MyEventLoading/>
     }
@@ -206,13 +207,33 @@ const MyEvent = (props) => {
             obj.minAge = data.minAge
         }
         let changed = false
-        if (obj.name != data.name ||
-            obj.location != data.location ||
-            obj.type != data.type ||
-            obj.date != date.date ||
-            (data.description && obj.description != date.description) ||
-            (data.tags && obj.tags != date.tags) ||
-            (data.minAge && obj.minAge != date.minAge)) {
+
+        var utc = require('dayjs/plugin/utc')
+        dayjs.extend(utc)
+
+        console.log(event.name)
+        console.log(data.name)
+        console.log(event.location)
+        console.log(data.location)
+        console.log(event.type)
+        console.log(data.type)
+        console.log(event.date)
+        console.log(dayjs(data.date).utc().format().slice(0, -4))
+        console.log(event.description)
+        console.log(data.description)
+        console.log(event.tags)
+        console.log(data.tags)
+        console.log(event.minAge)
+        console.log(data.minAge)
+
+        if (event.name != data.name ||
+            event.location != data.location.value ||
+            event.type != data.type ||
+            event.date != dayjs(data.date).utc().format().slice(0, -4) ||
+            (data.description && event.description != data.description) ||
+            (data.tags && event.tags != data.tags) ||
+            (data.minAge && event.minAge != data.minAge)) {
+            console.log("DALE???")
             changed = true
         }
 
@@ -235,7 +256,9 @@ const MyEvent = (props) => {
 
 
             console.log("mutate")
-            await mutate(`${server}/api/events/${props.match.params.id}`, obj)
+            // await mutate(`${server}/api/events/${props.match.params.id}`, obj)
+            // await mutate({ ...event, obj })
+            // mutate()
         }
 
         await resi
@@ -359,6 +382,7 @@ const MyEvent = (props) => {
         }
 
         // mutate()
+        await mutate({ ...event, obj })
     }
 
     const handleClickOpen = () => {
@@ -368,6 +392,22 @@ const MyEvent = (props) => {
     const handleClose = () => {
         setOpen(false);
     };
+
+    const handleClickActive = async (e) => {
+        // console.log(e.target.value)
+
+        let resi = await fetch(`${server}/api/events/${props.match.params.id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: JSON.stringify({"active": e.target.value})
+        })
+
+        await resi;
+        mutate()
+    }
 
     const deleteEvent = async () => {
         let res = await fetch(`${server}/api/events/${event.id}`, {
@@ -407,7 +447,7 @@ const MyEvent = (props) => {
     let over = new Date(event.date) < Date.now()
 
     if (over) {
-        if (statsError | tStatsError) {
+        if (statsError || tStatsError) {
             history.push("/404")
             return;
         }
@@ -459,6 +499,11 @@ const MyEvent = (props) => {
                                         <IconButton onClick={() => setEdit(true)}
                                                     type="submit"><EditRoundedIcon/></IconButton>
                                         <IconButton onClick={handleClickOpen}><DeleteRoundedIcon/></IconButton>
+                                        {event.soldOut ?
+                                            <Button onClick={(e) => handleClickActive(e)} value={true}>{i18n.t("event.active")}</Button>
+                                        :
+                                            <Button onClick={(e) => handleClickActive(e)} value={false}>{i18n.t("event.notActive")}</Button>
+                                        }
                                         <Dialog
                 open={open}
                 onClose={handleClose}
@@ -740,10 +785,10 @@ const MyEvent = (props) => {
 
                                     <div className="horizontal align-center">
                                         <FormControlLabel
-                                            value={activeMin !== 'undefined' ? activeMin : (event.minAge ? true : false)}
-                                            checked={activeMin !== 'undefined' ? activeMin : (event.minAge ? true : false)}
+                                            value={activeMin !== 'undefined' ? activeMin : (!!event.minAge)}
+                                            checked={activeMin !== 'undefined' ? activeMin : (!!event.minAge)}
                                             control={<Checkbox onClick={() => {
-                                                setActiveMin(activeMin !== 'undefined' ? !activeMin : (event.minAge ? false : true))
+                                                setActiveMin(activeMin !== 'undefined' ? !activeMin : (!event.minAge))
                                             }
                                             }/>}
                                             label={i18n.t("create.hasMin")}
@@ -764,7 +809,7 @@ const MyEvent = (props) => {
                                             render={({field, fieldState}) => {
                                                 return (
                                                     <FormControl variant="standard"
-                                                                 disabled={activeMin !== 'undefined' ? !activeMin : (event.minAge ? false : true)}
+                                                                 disabled={activeMin !== 'undefined' ? !activeMin : (!event.minAge)}
                                                                  className={"min-age-select"}>
                                                         <InputLabel id="stackoverflow-label"
                                                                     error={!!fieldState.error}>{i18n.t("event.minAge")}</InputLabel>
@@ -1008,23 +1053,69 @@ const MyEvent = (props) => {
                                                 <StyledTableCell className="date-input">
 
                                                     {edit ?
+                                                        // <Controller
+                                                        //     control={control}
+                                                        //     name={`tickets[${index}].starting`}
+                                                        //     rules={{
+                                                        //     }}
+                                                        //     defaultValue={item?.starting}
+                                                        //     render={({
+                                                        //                  field: {ref, onBlur, name, onChange, ...field},
+                                                        //                  fieldState
+                                                        //              }) => (
+                                                        //         <FormControl>
+                                                        //             <LocalizationProvider dateAdapter={AdapterDayjs}
+                                                        //                                   adapterLocale={i18n.language != 'en' && i18n.language != 'es' ? 'en' : i18n.language}>
+                                                        //                 <InputLabel sx={{display: "none"}}
+                                                        //                             htmlFor={`tickets[${index}].starting`}>{i18n.t("bookings.starting")}</InputLabel>
+                                                        //                 <DateTimePicker
+                                                        //                     id={`tickets[${index}].starting`}
+                                                        //                     renderInput={(inputProps) => (
+                                                        //                         <TextField
+                                                        //                             {...inputProps}
+                                                        //                             onBlur={onBlur}
+                                                        //                             name={name}
+                                                        //                             error={!!fieldState.error}
+                                                        //                             variant="standard"
+                                                        //                         />)}
+                                                        //                     isHiddenLabel
+                                                        //                     onChange={(event) => {
+                                                        //                         onChange(event)
+                                                        //                         setDate(event)
+                                                        //                     }}
+                                                        //                     {...field}
+                                                        //                     inputRef={ref}
+                                                        //                 />
+                                                        //             </LocalizationProvider>
+                                                        //             {fieldState.error ? (
+                                                        //                 <FormHelperText error>
+                                                        //                     {fieldState.error?.message}
+                                                        //                 </FormHelperText>
+                                                        //             ) : null}
+                                                        //         </FormControl>
+                                                        //     )}
+                                                        // />
+
                                                         <Controller
                                                             control={control}
                                                             name={`tickets[${index}].starting`}
                                                             rules={{
+                                                                // required: i18n.t('fieldRequired'),
+                                                                // validate: {
+                                                                //     min: (date) => {
+                                                                //         return (new Date(date) > Date.now()) || i18n.t("create.dateError")
+                                                                //     }
+                                                                // }
                                                             }}
-                                                            defaultValue={item?.starting}
-                                                            render={({
-                                                                         field: {ref, onBlur, name, onChange, ...field},
-                                                                         fieldState
-                                                                     }) => (
-                                                                <FormControl>
+                                                            defaultValue={item?.starting ? item.starting : ""}
+                                                            render={({field: {ref, onBlur, name, onChange, ...field}, fieldState}) => (
+                                                                <FormControl className="my-event-input">
                                                                     <LocalizationProvider dateAdapter={AdapterDayjs}
                                                                                           adapterLocale={i18n.language != 'en' && i18n.language != 'es' ? 'en' : i18n.language}>
-                                                                        <InputLabel sx={{display: "none"}}
-                                                                                    htmlFor={`tickets[${index}].starting`}>{i18n.t("bookings.starting")}</InputLabel>
-                                                                        <DateTimePicker
-                                                                            id={`tickets[${index}].starting`}
+                                                                        <InputLabel className="casper"
+                                                                                    htmlFor={`tickets[${index}].starting-input`}>{i18n.t("bookings.starting")}</InputLabel>
+                                                                                        <DateTimePicker
+                                                                                            id={`tickets[${index}].starting-input`}
                                                                             renderInput={(inputProps) => (
                                                                                 <TextField
                                                                                     {...inputProps}
@@ -1033,10 +1124,8 @@ const MyEvent = (props) => {
                                                                                     error={!!fieldState.error}
                                                                                     variant="standard"
                                                                                 />)}
-                                                                            isHiddenLabel
                                                                             onChange={(event) => {
-                                                                                onChange(event)
-                                                                                setDate(event)
+                                                                                onChange(event);
                                                                             }}
                                                                             {...field}
                                                                             inputRef={ref}
@@ -1050,6 +1139,7 @@ const MyEvent = (props) => {
                                                                 </FormControl>
                                                             )}
                                                         />
+
 
                                                         :
                                                         <span>{item.starting ? ParseDateTime(item.starting) : ""}</span>
@@ -1071,7 +1161,7 @@ const MyEvent = (props) => {
                                                                     return true;
                                                                 }
                                                             }}
-                                                            defaultValue={item?.until}
+                                                            defaultValue={item?.until ? item.until : ""}
                                                             render={({
                                                                          field: {ref, onBlur, name, onChange, ...field},
                                                                          fieldState
@@ -1080,10 +1170,10 @@ const MyEvent = (props) => {
                                                                     <LocalizationProvider dateAdapter={AdapterDayjs}
                                                                                           adapterLocale={i18n.language != 'en' && i18n.language != 'es' ? 'en' : i18n.language}>
                                                                         <InputLabel sx={{display: "none"}}
-                                                                                    htmlFor={`tickets[${index}].until`}>{i18n.t("bookings.until")}</InputLabel>
+                                                                                    htmlFor={`tickets[${index}].until-input`}>{i18n.t("bookings.until")}</InputLabel>
                                                                         <DateTimePicker
 
-                                                                            id={`tickets[${index}].until`}
+                                                                            id={`tickets[${index}].until-input`}
                                                                             renderInput={(inputProps) => (
                                                                                 <TextField
                                                                                     {...inputProps}
@@ -1095,7 +1185,6 @@ const MyEvent = (props) => {
                                                                             isHiddenLabel
                                                                             onChange={(event) => {
                                                                                 onChange(event);
-                                                                                setDate(event);
                                                                             }}
                                                                             {...field}
                                                                             inputRef={ref}

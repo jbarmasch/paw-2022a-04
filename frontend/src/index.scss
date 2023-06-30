@@ -13,8 +13,11 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
+
+
 body {
   overflow: overlay;
+  scrollbar-gutter: stable both-edges;
 }
 
 .react-confirm-alert-body-element {

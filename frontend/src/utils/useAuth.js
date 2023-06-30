@@ -65,7 +65,7 @@ export const useAuth = () => {
 
         const user = getItem('user');
         if (user) {
-            console.log(user)
+            // console.log(user)
             addUser(JSON.parse(user));
         }
         protectedPaths.forEach(x => {
@@ -81,9 +81,9 @@ export const useAuth = () => {
     const login = (user) => {
         const accessToken = getItem('Access-Token')
 
-        console.log(user)
+        // console.log(user)
         user["roles"] = jwtDecode(accessToken)["authorities"]
-        console.log(user)
+        // console.log(user)
 
         addUser(user);
     };
@@ -93,23 +93,6 @@ export const useAuth = () => {
     };
 
     const refresh = () => {
-        // let user = getItem('user');
-        // console.log(user)
-        // if (user) {
-        //     user = JSON.parse(user)
-        //     fetch(`${server}/api/users/${user["id"]}`, {
-        //         method: "GET",
-        //         headers: {
-        //             'Authorization': `Bearer ${user["accessToken"]}`
-        //         }
-        //     }).then(x => x.json().then(y => {
-        //             console.log(y)
-        //             user["role"] = y["role"]
-        //             console.log(user)
-        //             addUser(user);
-        //         }
-        //     ))
-        // }
         const refreshToken = getItem('Refresh-Token')
 
         fetch(`${server}/api/users`, {
@@ -118,7 +101,7 @@ export const useAuth = () => {
             },
         })
             .then(y => {
-                console.log(y)
+                // console.log(y)
                 if (y.status === 200) {
                     let accessToken = y.headers.get("Access-Token")
                     localStorage.setItem("Access-Token", accessToken)
@@ -126,7 +109,7 @@ export const useAuth = () => {
                     const user = getItem('user')
                     let aux = JSON.parse(user)
                     aux["roles"] = jwtDecode(accessToken)["authorities"]
-                    console.log(aux)
+                    // console.log(aux)
                     addUser(aux);
                 }
             })

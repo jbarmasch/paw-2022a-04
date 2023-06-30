@@ -132,7 +132,13 @@ const UsersContent = () => {
 
     const handlePageChange = (e, page) => {
         setPageIndex(page)
-        history.replace(`/organizers?page=${page}`)
+        let str
+        if (search.includes("page")) {
+            str = search.replace(new RegExp("[0-9]"), page)
+        } else {
+            str = `/organizers?page=${page}`
+        }
+        history.replace(str)
     }
 
     let orderList = []

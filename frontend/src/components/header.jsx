@@ -14,8 +14,8 @@ import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import Logout from '@mui/icons-material/Logout';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import { useAuth } from '../utils/useAuth';
-import BotPassLogo from '../assets/images/logo-right.png'
-import BotPassIntroLogo from '../assets/images/logo-right-intro.png'
+import BotPassLogo from '../assets/images/logo-right.png';
+import BotPassIntroLogo from '../assets/images/logo-right-intro.png';
 import LocalActivityRoundedIcon from '@mui/icons-material/LocalActivityRounded';
 import BookOnlineRoundedIcon from '@mui/icons-material/BookOnlineRounded';
 import { LazyLoadImage } from 'react-lazy-load-image-component';

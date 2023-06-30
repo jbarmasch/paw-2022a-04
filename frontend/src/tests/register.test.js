@@ -1,42 +1,124 @@
-import {render, screen, waitForElement, fireEvent} from '@testing-library/react';
+import {render, screen, waitForElement, fireEvent, act, wait, waitFor} from '@testing-library/react';
 import Register from '../components/pages/register';
-import {HashRouter, BrowserRouter} from 'react-router-dom'
+import {BrowserRouter, useLocation} from 'react-router-dom'
+import i18n from "../i18n";
+import 'whatwg-fetch'
+import '@testing-library/jest-dom/extend-expect'
 
-test('Renders BotPass header', async () => {
-    render(<Register/>);
+jest.mock("react-router-dom", () => ({
+    ...jest.requireActual("react-router-dom"),
+    useLocation: () => ({
+        pathname: "localhost:2557/paw-2022a-04/register"
+    })
+}));
 
-    const info = {
-        username: "mairimashita",
-        email: "mairimashita@gmail.com",
-        password: "irumakun",
-        repeatPassword: "irumakun",
-    };
-    
-    fireEvent.change(screen.getElementById("username-input"), {
-        target: { value: info.username },
+global.window = { location: { pathname: null } };
+
+describe("register", () => {
+    beforeEach(() => {
+        render(<BrowserRouter>
+                <Register/>
+            </BrowserRouter>
+        )
+    })
+
+    test('load data', async () => {
+        const info = {
+            username: "mairimashita",
+            email: "mairimashita@gmail.com",
+            password: "irumakun",
+            repeatPassword: "irumakun",
+        };
+
+        const registerUsername = i18n.t("register.username")
+        const registerMail = i18n.t("register.mail")
+        const registerPassword = i18n.t("register.pass")
+        const registerRepeatPassword = i18n.t("register.repeat")
+
+        fireEvent.change(screen.getByLabelText(registerUsername), {
+            target: { value: info.username },
+        });
+        fireEvent.change(screen.getByLabelText(registerMail), {
+            target: { value: info.email },
+        });
+        fireEvent.change(screen.getByLabelText(registerPassword), {
+            target: { value: info.password },
+        });
+        fireEvent.change(screen.getByLabelText(registerRepeatPassword), {
+            target: { value: info.repeatPassword },
+        });
+
+        expect(screen.getByLabelText(registerUsername).value).toBe(info.username);
+        expect(screen.getByLabelText(registerUsername).value).not.toBe(info.email);
+        expect(screen.getByLabelText(registerMail).value).toBe(info.email);
+        expect(screen.getByLabelText(registerPassword).value).toBe(info.password);
+        expect(screen.getByLabelText(registerRepeatPassword).value).toBe(info.repeatPassword);
     });
 
-    fireEvent.change(screen.getElementById("password-input"), {
-        target: { value: info.password },
+    test('create x user', async () => {
+        const info = {
+            username: "mairimashita",
+            email: "mairimashitagmail.com",
+            password: "irumakun",
+            repeatPassword: "irumakun",
+        };
+
+        const registerUsername = i18n.t("register.username")
+        const registerMail = i18n.t("register.mail")
+        const registerPassword = i18n.t("register.pass")
+        const registerRepeatPassword = i18n.t("register.repeat")
+
+        fireEvent.change(screen.getByLabelText(registerUsername), {
+            target: { value: info.username },
+        });
+        fireEvent.change(screen.getByLabelText(registerMail), {
+            target: { value: info.email },
+        });
+        fireEvent.change(screen.getByLabelText(registerPassword), {
+            target: { value: info.password },
+        });
+        fireEvent.change(screen.getByLabelText(registerRepeatPassword), {
+            target: { value: info.repeatPassword },
+        });
+
+        fireEvent.click(screen.getByText(i18n.t("login.signUp")))
+        expect(await screen.findByText(i18n.t("register.mailPatternError"))).toBeInTheDocument()
     });
 
-    fireEvent.change(screen.getElementById("email-input"), {
-        target: { value: info.email },
+
+    test('create user', async () => {
+        const info = {
+            username: "mairimashita",
+            email: "mairimashita@gmail.com",
+            password: "irumakun",
+            repeatPassword: "irumakun",
+        };
+
+        const registerUsername = i18n.t("register.username")
+        const registerMail = i18n.t("register.mail")
+        const registerPassword = i18n.t("register.pass")
+        const registerRepeatPassword = i18n.t("register.repeat")
+
+        fireEvent.change(screen.getByLabelText(registerUsername), {
+            target: { value: info.username },
+        });
+        fireEvent.change(screen.getByLabelText(registerMail), {
+            target: { value: info.email },
+        });
+        fireEvent.change(screen.getByLabelText(registerPassword), {
+            target: { value: info.password },
+        });
+        fireEvent.change(screen.getByLabelText(registerRepeatPassword), {
+            target: { value: info.repeatPassword },
+        });
+
+        await act(async () => {
+            fireEvent.click(screen.getByText(i18n.t("login.signUp")))
+            await waitFor(() => {
+                // const location = useLocation();
+                // expect(location.pathname).toBe("/localhost:2557/paw-2022a-04/")
+                expect(global.window.location.pathname).not.toContain('/register');
+            })
+        })
     });
-    fireEvent.change(screen.getElementById("repeat-password-input"), {
-        target: { value: info.repeatPassword },
-    });
-
-    expect(screen.getElementById("username-input").value).toBe(info.username);
-    expect(screen.getElementById("email-input").value).toBe(info.email);
-    expect(screen.getElementById("password-input").value).toBe(info.password);
-    expect(screen.getElementById("repeat-password-input").value).toBe(info.repeatPassword);
-
-    // await act(async () => {
-    //     expect(await screen.getByRole('heading', {
-    //         name: /BotPass/i,
-    //     })).toBeInTheDocument();
-    // })
-
-    // expect(header).toBeInTheDocument();
-});
+})

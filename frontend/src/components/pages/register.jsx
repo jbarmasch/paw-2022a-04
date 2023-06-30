@@ -70,7 +70,7 @@ const RegisterPage = () => {
                 let variable = String(x["path"]).split(".").slice(-1)[0]
                 switch (variable) {
                     case "username":
-                        console.log(x)
+                        // console.log(x)
                         setError('username', { type: 'custom', message: x['message'] });
                         break
                     case "mail":
