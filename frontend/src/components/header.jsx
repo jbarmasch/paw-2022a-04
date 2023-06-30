@@ -234,7 +234,7 @@ const Header = () => {
                                         <Avatar />{i18n.t("nav.profile")}
                                     </MenuItem>
                                 </Link>
-                                {user?.roles.includes("ROLE_CREATOR") && <Link to="/my-events">
+                                {user?.roles?.includes("ROLE_CREATOR") && <Link to="/my-events">
                                     <MenuItem className={"nav-link"} onClick={handleClose}>
                                         <LocalActivityRoundedIcon className="nav-menu-icon" />{i18n.t("nav.myEvents")}
                                     </MenuItem>
