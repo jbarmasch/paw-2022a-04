@@ -11,6 +11,7 @@ import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.webapp.auth.UserManager;
 import ar.edu.itba.paw.webapp.dto.*;
 import ar.edu.itba.paw.webapp.form.*;
+import ar.edu.itba.paw.webapp.validations.PATCH;
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -27,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.print.attribute.standard.Media;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import javax.validation.Validator;
 import javax.ws.rs.*;
@@ -169,20 +171,18 @@ public class EventController {
         return Response.accepted().build();
     }
 
-    @PUT
-    @Path("/{id}/active")
-    public Response activeEvent(@PathParam("id") final long id) {
-        es.active(id);
+    @PATCH
+    @Path("/{id}")
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
+    public Response soldOutEvent(@PathParam("id") final long id,
+                                 @Valid final PatchForm patchForm) {
+        if (patchForm.isActive()) {
+            es.active(id);
+        } else {
+            es.soldOut(id);
+        }
 
-        return Response.accepted().build();
-    }
-
-    @PUT
-    @Path("/{id}/soldout")
-    public Response soldOutEvent(@PathParam("id") final long id) {
-        es.soldOut(id);
-
-        return Response.accepted().build();
+        return Response.noContent().build();
     }
 
     @DELETE
@@ -296,7 +296,7 @@ public class EventController {
         Optional<Event> event = es.getEventById(id);
 
         if (!event.isPresent()) {
-            LOGGER.error("EVENT NOT FOUND");
+            LOGGER.error("Event not found");
             return Response.serverError().build();
         }
 
@@ -306,12 +306,18 @@ public class EventController {
                         ticket.getLocalDate(ticket.getStarting()), ticket.getLocalDate(ticket.getUntil()), ticket.getMaxPerUser());
             }
         } catch (DateRangeException e) {
-//            ValidationErrorDto error = ValidationErrorDto.fromValidationException()
-//
-//            return Response
-//                .status(Response.Status.BAD_REQUEST)
-//                .entity(new GenericEntity<List<ValidationErrorDto>>(errors) {})
-//                .build();
+//            if (e.getStarting() != null) {
+//                errors.rejectValue("starting", "Event.eventForm.date", null, "");
+//            } else {
+//                errors.rejectValue("until", "Event.eventForm.date", null, "");
+//            }
+            LOGGER.error("Ticket date error");
+            CustomErrorDto error = CustomErrorDto.fromException(e.getMessage());
+
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity(new GenericEntity<CustomErrorDto>(error) {})
+                    .build();
         }
 
         return Response.accepted().build();
@@ -342,8 +348,24 @@ public class EventController {
         EventBooking eventBooking;
         try {
             eventBooking = bs.book(booking, uriInfo.getBaseUriBuilder().toString(), request.getLocale());
-        } catch (AlreadyMaxTicketsException | SurpassedMaxTicketsException ex) {
-            return Response.serverError().build();
+        } catch (AlreadyMaxTicketsException | SurpassedMaxTicketsException e) {
+//            for (Map.Entry<Integer, Integer> error : ex.getErrorMap().entrySet()) {
+//                if (error.getValue() <= 0) {
+//                    errors.rejectValue("bookings[" + error.getKey() + "].qty", "Max.bookForm.qtyReached", null, "");
+//                } else {
+//                    errors.rejectValue("bookings[" + error.getKey() + "].qty", "Max.bookForm.qty", new Object[]{error.getValue()}, "");
+//                }
+//            }
+            LOGGER.error("Booking max error");
+            CustomErrorDto error = CustomErrorDto.fromException(e.getMessage());
+
+//            System.out.println(e.getMessage());
+//            System.out.println(e.getErrorMap());
+
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity(new GenericEntity<CustomErrorDto>(error) {})
+                    .build();
         }
 
         final URI uri = uriInfo.getBaseUriBuilder()

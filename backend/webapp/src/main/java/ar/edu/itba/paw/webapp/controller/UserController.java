@@ -30,10 +30,6 @@ public class UserController {
     @Autowired
     private UserService us;
     @Autowired
-    private EventService es;
-    @Autowired
-    private TicketService ts;
-    @Autowired
     private EventBookingService bs;
 
     @Context

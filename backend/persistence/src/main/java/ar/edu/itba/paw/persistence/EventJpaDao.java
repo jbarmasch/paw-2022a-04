@@ -93,7 +93,7 @@ public class EventJpaDao implements EventDao {
         queryCondition.append(" GROUP BY ec.eventid, date ");
         StringBuilder orderQuery = new StringBuilder();
         if (order != null) {
-            orderQuery.append(" ORDER BY ").append(order.getOrder()).append(" ").append(order.getOrderBy());
+            orderQuery.append(" ORDER BY lower(").append(order.getOrder()).append(") ").append(order.getOrderBy());
         } else {
             orderQuery.append(" ORDER BY date ");
         }
@@ -109,8 +109,9 @@ public class EventJpaDao implements EventDao {
         if (minPrice != null) {
             if (!having) {
                 queryCondition.append(" HAVING");
-                having = true;
-            } else queryCondition.append(" AND");
+            } else {
+                queryCondition.append(" AND");
+            }
             having = true;
             queryCondition.append(" COALESCE(MIN(t.price), 0) >= :minPrice");
             objects.put("minPrice", minPrice);
@@ -118,17 +119,20 @@ public class EventJpaDao implements EventDao {
         if (maxPrice != null) {
             if (!having) {
                 queryCondition.append(" HAVING");
-                having = true;
-            } else queryCondition.append(" AND");
+            } else {
+                queryCondition.append(" AND");
+            }
+            having = true;
             queryCondition.append(" COALESCE(MIN(t.price), 0) <= :maxPrice");
             objects.put("maxPrice", maxPrice);
         }
         if (tags != null && tags.size() > 0) {
             querySelect.append(" LEFT JOIN eventtags e on ec.eventid = e.eventid");
-            if (!having)
+            if (!having) {
                 queryCondition.append(" HAVING");
-            else
+            } else {
                 queryCondition.append(" AND");
+            }
             queryCondition.append(" ARRAY_AGG(e.tagid) && CAST(ARRAY");
             queryCondition.append(tags);
             queryCondition.append(" AS bigint[])");

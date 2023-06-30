@@ -29,7 +29,7 @@ public class ResponseFilter extends GenericFilterBean {
 
         if (cors) {
             res.setHeader("Access-Control-Allow-Origin", "*");
-            res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE, HEAD");
+            res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, PATCH, OPTIONS, DELETE, HEAD");
             res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
             res.setHeader("Access-Control-Expose-Headers", "Access-Token, Refresh-Token, User-ID, Location, Link");
         }

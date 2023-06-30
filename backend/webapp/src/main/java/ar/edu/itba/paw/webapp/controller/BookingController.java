@@ -59,8 +59,7 @@ public class BookingController {
             return Response.noContent().build();
         }
 
-        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<BookingDto>>(userList) {
-        });
+        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<BookingDto>>(userList) {});
 
         if (page != 1) {
             response.link(uriInfo.getBaseUriBuilder().queryParam("page", page - 1).build(), "prev");
@@ -109,7 +108,6 @@ public class BookingController {
             bs.confirmBooking(eventBooking);
         } else {
             bs.invalidateBooking(eventBooking);
-
         }
         return Response.accepted().build();
     }

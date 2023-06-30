@@ -25,10 +25,6 @@ import java.util.stream.Collectors;
 public class OrganizerController {
     @Autowired
     private UserService us;
-    @Autowired
-    private EventService es;
-    @Autowired
-    private TicketService ts;
 
     @Context
     private UriInfo uriInfo;

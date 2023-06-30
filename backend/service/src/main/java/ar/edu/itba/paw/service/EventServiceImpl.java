@@ -49,6 +49,7 @@ public class EventServiceImpl implements EventService {
         userService.updateUser(bouncer.getId(), String.valueOf(event.getId()), null, String.valueOf(event.getId()));
         mailService.sendBouncerMail(event, password, baseURL + "events/" + event.getId(), locale);
 
+//        System.out.println("BOUNCER" + event.getId() + ":" + password);
         return event;
     }
 

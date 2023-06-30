@@ -44,7 +44,7 @@ public class UserJpaDao implements UserDao {
     @Override
     public UserList filterBy(String searchQuery, Order order, int page) {
         Map<String, Object> objects = new HashMap<>();
-        StringBuilder querySelect = new StringBuilder("FROM users u JOIN userroles ur ON u.userid = ur.userid LEFT JOIN events e ON u.userid = e.userid LEFT JOIN ratings r ON u.userid = r.userid");
+        StringBuilder querySelect = new StringBuilder("FROM users u JOIN userroles ur ON u.userid = ur.userid LEFT JOIN events e ON u.userid = e.userid LEFT JOIN ratings r ON u.userid = r.organizerid");
         StringBuilder queryCondition = new StringBuilder(" WHERE ur.roleid = 2");
         if (searchQuery != null) {
             queryCondition.append(" AND u.username ILIKE CONCAT('%', :searchquery, '%')");
@@ -54,19 +54,19 @@ public class UserJpaDao implements UserDao {
         StringBuilder typedOrder = new StringBuilder();
         if (order != null) {
             if (order == Order.RATING_ASC || order == Order.RATING_DESC) {
-                orderQuery.append(" ORDER BY AVG(").append(order.getOrder()).append(") ").append(order.getOrderBy());
+                orderQuery.append(" ORDER BY AVG(COALESCE(").append(order.getOrder()).append(", 0)) ").append(order.getOrderBy());
             }
             else {
                 orderQuery.append(" ORDER BY ").append(order.getOrder()).append(" ").append(order.getOrderBy());
             }
             typedOrder.append(" ORDER BY ").append(order.getOrder()).append(" ").append(order.getOrderBy());
         } else {
-            orderQuery.append(" ORDER BY username ");
-            typedOrder.append(" ORDER BY username ");
+            orderQuery.append(" ORDER BY lower(username) ");
+            typedOrder.append(" ORDER BY lower(username) ");
         }
         int pageSize = 12;
         objects.put("page", (page - 1) * pageSize);
-        String query = "SELECT aux.userid FROM (SELECT u.userid " + querySelect.append(queryCondition) + " GROUP BY u.userid" + orderQuery + ") as aux ";
+        String query = "SELECT aux.userid FROM (SELECT u.userid, " + ((order == Order.RATING_ASC || order == Order.RATING_DESC) ? " AVG(COALESCE(rating, 0)) rating " : " username ") + querySelect.append(queryCondition) + " GROUP BY u.userid, u.username " + orderQuery + ") as aux GROUP BY aux.userid " + ((order == Order.RATING_ASC || order == Order.RATING_DESC) ? "" : ", username ") + orderQuery;
         Query queryNative = em.createNativeQuery(query + " LIMIT " + pageSize + " OFFSET :page");
         objects.forEach(queryNative::setParameter);
         final List<Long> ids = (List<Long>) queryNative.getResultList().stream().map(o -> ((Number) o).longValue()).collect(Collectors.toList());

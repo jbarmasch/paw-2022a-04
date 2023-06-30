@@ -55,6 +55,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/api/events").hasAnyRole("CREATOR", "USER")
                 .antMatchers(HttpMethod.PUT, "/api/events/*/image").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/events", "/api/events/*").permitAll()
+                .antMatchers(HttpMethod.PATCH, "/api/events/*").hasAnyRole("CREATOR", "USER")
                 .antMatchers(HttpMethod.GET, "/api/events/few-tickets").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/events/*/tickets").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/events/upcoming").permitAll()

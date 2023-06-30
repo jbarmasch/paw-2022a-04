@@ -9,10 +9,7 @@ import ar.edu.itba.paw.model.Ticket;
 import ar.edu.itba.paw.service.EventService;
 import ar.edu.itba.paw.service.TagService;
 import ar.edu.itba.paw.service.TicketService;
-import ar.edu.itba.paw.webapp.dto.EventDto;
-import ar.edu.itba.paw.webapp.dto.TicketStatsDto;
-import ar.edu.itba.paw.webapp.dto.TagDto;
-import ar.edu.itba.paw.webapp.dto.TicketDto;
+import ar.edu.itba.paw.webapp.dto.*;
 import ar.edu.itba.paw.webapp.form.EventForm;
 import ar.edu.itba.paw.webapp.form.TicketForm;
 import ar.edu.itba.paw.webapp.form.TicketsForm;
@@ -56,8 +53,15 @@ public class TicketController {
             ts.updateTicket(ticket, form.getTicketName(), form.getPrice(), form.getQty(),
                     form.getLocalDate(form.getStarting()), form.getLocalDate(form.getUntil()), form.getMaxPerUser());
         } catch (TicketUnderflowException e) {
+//            errors.rejectValue("qty", "Min.bookForm.qtyAnother", new Object[]{ticket.getBooked()}, "");
+
             LOGGER.error("Ticket underflow error");
-            return Response.serverError().build();
+            CustomErrorDto error = CustomErrorDto.fromException(e.getMessage());
+
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity(new GenericEntity<CustomErrorDto>(error) {})
+                    .build();
         }
 
         return Response.accepted().build();
