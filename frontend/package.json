@@ -2,7 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-  "homepage": "http://ssh.slococo.com.ar:2557/paw-2022a-04",
+  "homepage": "http://pawserver.it.itba.edu.ar/paw-2022a-04",
   "dependencies": {
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
@@ -49,7 +49,7 @@
   "scripts": {
     "start": "PORT=2557 react-scripts start",
     "build": "GENERATE_SOURCEMAP=false react-scripts build && npm run post-build",
-    "server": "GENERATE_SOURCEMAP=false react-scripts build && serve -s build",
+    "server": "GENERATE_SOURCEMAP=false react-scripts build && npm run post-build && serve -s build",
     "post-build": "mv build/*.json build/*.png build/*.ico build/*.txt build/static/",
     "test": "jest --watch",
     "eject": "react-scripts eject"
