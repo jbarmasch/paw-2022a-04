@@ -343,7 +343,7 @@ const MyEvent = (props) => {
                 console.log(fields)
 
                 let q = 0
-                for (const f of fields)  {
+                for (const f of fields) {
                     console.log(f)
                     if (f.name === d.name) {
                         break
@@ -409,7 +409,10 @@ const MyEvent = (props) => {
                                 switch (variable) {
                                     case "ticketName":
                                         console.log(x)
-                                        setError('tickets[' + q + '].ticketName', {type: 'custom', message: x['message']});
+                                        setError('tickets[' + q + '].ticketName', {
+                                            type: 'custom',
+                                            message: x['message']
+                                        });
                                         break
                                     case "price":
                                         setError('tickets[' + q + '].price', {type: 'custom', message: x['message']});
@@ -418,14 +421,20 @@ const MyEvent = (props) => {
                                         setError('tickets[' + q + '].qty', {type: 'custom', message: x['message']});
                                         break
                                     case "starting":
-                                        setError('tickets[' + q + '].starting', {type: 'custom', message: x['message']});
+                                        setError('tickets[' + q + '].starting', {
+                                            type: 'custom',
+                                            message: x['message']
+                                        });
                                         break
                                     case "until":
                                         setError('tickets[' + q + '].until', {type: 'custom', message: x['message']});
                                         break
                                     case "maxPerUser":
-                                        console.log('tickets[' + q + '].maxPerUser')
-                                        setError('tickets[' + q + '].maxPerUser', {type: 'custom', message: x['message']});
+                                        // console.log('tickets[' + q + '].maxPerUser')
+                                        setError('tickets[' + q + '].maxPerUser', {
+                                            type: 'custom',
+                                            message: x['message']
+                                        });
                                         break
                                     default:
                                         break;
@@ -435,51 +444,104 @@ const MyEvent = (props) => {
                     }
                 } else {
                     if (d.ticketName !== '') {
-                        auxi.tickets.push(d)
+                        // auxi.tickets.push(d)
+
+                        res = await fetch(`${server}/api/events/${props.match.params.id}/tickets`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${accessToken}`
+                            },
+                            body: JSON.stringify(d)
+                        })
+
+                        await res
+
+                        if (res.status === 400) {
+                            errors = await res.json()
+                            // TODO: podría no ser una lista: ticketUnderflow, dateRange, eventFinished
+                            //  hacer if con typeof
+                            errors.forEach(x => {
+                                let variable = String(x["path"]).split(".").slice(-1)[0]
+                                switch (variable) {
+                                    case "ticketName":
+                                        console.log(x)
+                                        setError('tickets[' + q + '].ticketName', {
+                                            type: 'custom',
+                                            message: x['message']
+                                        });
+                                        break
+                                    case "price":
+                                        setError('tickets[' + q + '].price', {type: 'custom', message: x['message']});
+                                        break
+                                    case "qty":
+                                        setError('tickets[' + q + '].qty', {type: 'custom', message: x['message']});
+                                        break
+                                    case "starting":
+                                        setError('tickets[' + q + '].starting', {
+                                            type: 'custom',
+                                            message: x['message']
+                                        });
+                                        break
+                                    case "until":
+                                        setError('tickets[' + q + '].until', {type: 'custom', message: x['message']});
+                                        break
+                                    case "maxPerUser":
+                                        setError('tickets[' + q + '].maxPerUser', {
+                                            type: 'custom',
+                                            message: x['message']
+                                        });
+                                        break
+                                    default:
+                                        break;
+                                }
+                            })
+                        }
                     }
                 }
             }
-
-            if (auxi.tickets.length !== 0) {
-                let aux = JSON.parse(JSON.stringify(auxi));
-
-                res = await fetch(`${server}/api/events/${props.match.params.id}/tickets`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`
-                    },
-                    body: JSON.stringify(aux)
-                })
-
-                await res;
-
-                if (res.status === 400) {
-                    errors = await res.json()
-                    errors.forEach(x => {
-                        let variable = String(x["path"]).split(".").slice(-1)[0]
-                        console.log(variable)
-                        switch (variable) {
-                            case "ticketName":
-                                console.log(x)
-                                setError('tickets[].ticketName', {type: 'custom', message: x['message']});
-                                break
-                            case "price":
-                                setError('ticketPrice', {type: 'custom', message: x['message']});
-                                break
-                            case "password":
-                                setError('password', {type: 'custom', message: x['message']});
-                                break
-                            case "repeatPassword":
-                                setError('repeatPassword', {type: 'custom', message: x['message']});
-                                break
-                            default:
-                                break;
-                        }
-                    })
-                }
-            }
         }
+
+        //     if (auxi.tickets.length !== 0) {
+        //         let aux = JSON.parse(JSON.stringify(auxi));
+        //
+        //         res = await fetch(`${server}/api/events/${props.match.params.id}/tickets`, {
+        //             method: 'POST',
+        //             headers: {
+        //                 'Content-Type': 'application/json',
+        //                 'Authorization': `Bearer ${accessToken}`
+        //             },
+        //             body: JSON.stringify(aux)
+        //         })
+        //
+        //         await res;
+        //
+        //         if (res.status === 400) {
+        //             errors = await res.json()
+        //             errors.forEach(x => {
+        //                 let variable = String(x["path"]).split(".").slice(-1)[0]
+        //                 console.log(variable)
+        //                 switch (variable) {
+        //                     case "ticketName":
+        //                         console.log(x)
+        //                         setError('tickets[].ticketName', {type: 'custom', message: x['message']});
+        //                         break
+        //                     case "price":
+        //                         setError('ticketPrice', {type: 'custom', message: x['message']});
+        //                         break
+        //                     case "password":
+        //                         setError('password', {type: 'custom', message: x['message']});
+        //                         break
+        //                     case "repeatPassword":
+        //                         setError('repeatPassword', {type: 'custom', message: x['message']});
+        //                         break
+        //                     default:
+        //                         break;
+        //                 }
+        //             })
+        //         }
+        //     }
+        // }
 
         // mutate()
         if (!errors) {

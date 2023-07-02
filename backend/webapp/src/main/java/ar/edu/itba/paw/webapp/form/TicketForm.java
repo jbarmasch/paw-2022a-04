@@ -12,7 +12,7 @@ import java.util.Objects;
 @DateOrder
 public class TicketForm {
     private int id;
-    
+
     @NotEmpty(message = "{NotEmpty.ticketForm.ticketName}")
     private String ticketName;
 

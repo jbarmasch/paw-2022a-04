@@ -9,8 +9,7 @@ public class BookingForm {
         this.qty = qty;
     }
 
-    public BookingForm() {
-    }
+    public BookingForm() {}
 
     public Long getTicketId() {
         return ticketId;

@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.exceptions.AlreadyMaxTicketsException;
-import ar.edu.itba.paw.exceptions.DateRangeException;
 import ar.edu.itba.paw.exceptions.SurpassedMaxTicketsException;
 import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.service.EventBookingService;
@@ -18,20 +17,11 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.print.attribute.standard.Media;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
-import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.IOException;
@@ -284,7 +274,7 @@ public class EventController {
     @Path("/{id}/tickets")
     @POST
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
-    public Response addTicket(final TicketsForm form, @PathParam("id") final long id) {
+    public Response addTicket(@Valid TicketForm form, @PathParam("id") final long id) {
         Optional<Event> event = es.getEventById(id);
 
         if (!event.isPresent()) {
@@ -292,30 +282,8 @@ public class EventController {
             return Response.serverError().build();
         }
 
-        int i = 0;
-        try {
-            for (TicketForm ticket : form.getTickets()) {
-                ts.addTicket(event.get(), ticket.getTicketName(), ticket.getPrice(), ticket.getQty(),
-                        ticket.getLocalDate(ticket.getStarting()), ticket.getLocalDate(ticket.getUntil()), ticket.getMaxPerUser());
-                i++;
-            }
-        } catch (DateRangeException e) {
-//            if (e.getStarting() != null) {
-//                errors.rejectValue("starting", "Event.eventForm.date", null, "");
-//            } else {
-//                errors.rejectValue("until", "Event.eventForm.date", null, "");
-//            }
-            LOGGER.error("Ticket date error");
-            ValidationErrorDto error = ValidationErrorDto.fromException(
-                    messageSource.getMessage(e.getMessage(), null, request.getLocale()),
-                    "tickets[" + i + "]" + (e.getStarting() != null ? "starting" : "until"));
-//            CustomErrorDto error = CustomErrorDto.fromException(e.getMessage());
-
-            return Response
-                    .status(Response.Status.BAD_REQUEST)
-                    .entity(new GenericEntity<ValidationErrorDto>(error) {})
-                    .build();
-        }
+        ts.addTicket(event.get(), form.getTicketName(), form.getPrice(), form.getQty(),
+                form.getLocalDate(form.getStarting()), form.getLocalDate(form.getUntil()), form.getMaxPerUser());
 
         return Response.accepted().build();
     }
@@ -323,7 +291,7 @@ public class EventController {
     @Path("/{id}/bookings")
     @POST
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
-    public Response bookEvent(@PathParam("id") final long id, final BookForm form) {
+    public Response bookEvent(@PathParam("id") final long id, final @Valid BookForm form) {
         final User user = um.getUser();
         Optional<Event> event = es.getEventById(id);
 
@@ -342,22 +310,26 @@ public class EventController {
             booking.addBooking(ticketBooking);
         }
 
+        // TODO: arreglar
         EventBooking eventBooking;
         try {
             eventBooking = bs.book(booking, uriInfo.getBaseUriBuilder().toString(), request.getLocale());
         } catch (AlreadyMaxTicketsException | SurpassedMaxTicketsException e) {
-//            for (Map.Entry<Integer, Integer> error : ex.getErrorMap().entrySet()) {
-//                if (error.getValue() <= 0) {
+            for (Map.Entry<Integer, Integer> error : e.getErrorMap().entrySet()) {
+                if (error.getValue() <= 0) {
+                    System.out.println(error.getKey());
+                    System.out.println("Max.bookForm.qtyReached");
 //                    errors.rejectValue("bookings[" + error.getKey() + "].qty", "Max.bookForm.qtyReached", null, "");
-//                } else {
+                } else {
+                    System.out.println(error.getKey());
+                    System.out.println("Max.bookForm.qty");
 //                    errors.rejectValue("bookings[" + error.getKey() + "].qty", "Max.bookForm.qty", new Object[]{error.getValue()}, "");
-//                }
-//            }
-            LOGGER.error("Booking max error");
+                }
+            }
+            LOGGER.error("Booking error");
             CustomErrorDto error = CustomErrorDto.fromException(e.getMessage());
 
-//            System.out.println(e.getMessage());
-//            System.out.println(e.getErrorMap());
+            System.out.println(e.getErrorMap());
 
             return Response
                     .status(Response.Status.BAD_REQUEST)

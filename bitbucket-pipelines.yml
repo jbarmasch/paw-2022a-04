@@ -7,10 +7,11 @@ pipelines:
           caches:
             - maven
           script:
-            - cd frontend
+            - export repoDir="$PWD"
+            - cd "$repoDir/frontend"
             - export packageFile="package.json"
             - sed -i "s/ssh.slococo.com.ar:2557/pawserver.it.itba.edu.ar/g" "$packageFile"
-            - cd backend
+            - cd "$repoDir/backend"
             - export webConfigFile="webapp/src/main/java/ar/edu/itba/paw/webapp/config/WebConfig.java"
             - sed -i "s/@PropertySource(\"classpath:config.properties\")//g" "$webConfigFile"
             - sed -i "s/env.getProperty(\"dbUsername\")/\"$PAW_BOTTLER_USER\"/g" "$webConfigFile"

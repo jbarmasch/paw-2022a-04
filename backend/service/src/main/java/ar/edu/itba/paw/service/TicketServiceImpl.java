@@ -1,9 +1,6 @@
 package ar.edu.itba.paw.service;
 
-import ar.edu.itba.paw.exceptions.DateRangeException;
-import ar.edu.itba.paw.exceptions.EventFinishedException;
-import ar.edu.itba.paw.exceptions.IllegalTicketException;
-import ar.edu.itba.paw.exceptions.TicketUnderflowException;
+import ar.edu.itba.paw.exceptions.*;
 import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.model.Ticket;
 import ar.edu.itba.paw.model.TicketBooking;
@@ -28,13 +25,13 @@ public class TicketServiceImpl implements TicketService {
 
     @Transactional
     @Override
-    public void addTicket(Event event, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until, Integer maxPerUser) throws DateRangeException {
+    public void addTicket(Event event, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until, Integer maxPerUser) {
         if (event.isFinished())
             throw new EventFinishedException();
         if (starting != null && starting.isAfter(event.getDate()))
-            throw new DateRangeException(starting, null);
+            throw new DateRangeStartingException();
         if (until != null && until.isAfter(event.getDate()))
-            throw new DateRangeException(null, until);
+            throw new DateRangeUntilException();
         ticketDao.addTicket(event, ticketName, price, qty, starting, until, maxPerUser);
     }
 
@@ -50,7 +47,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Transactional
     @Override
-    public void updateTicket(Ticket ticket, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until, Integer maxPerUser) throws TicketUnderflowException {
+    public void updateTicket(Ticket ticket, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until, Integer maxPerUser) {
         if (qty < ticket.getBooked())
             throw new TicketUnderflowException();
         ticketDao.updateTicket(ticket, ticketName, price, qty, starting, until, maxPerUser);

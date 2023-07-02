@@ -1,9 +1,14 @@
 package ar.edu.itba.paw.webapp.validations;
 
 import ar.edu.itba.paw.webapp.form.BookingForm;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import javax.ws.rs.core.Context;
 import java.util.List;
 
 public class BookingListValidator implements ConstraintValidator<BookingList, List<BookingForm>> {

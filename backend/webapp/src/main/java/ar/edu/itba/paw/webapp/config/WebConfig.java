@@ -117,6 +117,14 @@ public class WebConfig {
         return messageSource;
     }
 
+//    @Bean
+//    public MessageSource messageSource() {
+//        final ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+//        messageSource.setBasename("classpath:i18n/ValidationMessages");
+//        messageSource.setDefaultEncoding(StandardCharsets.UTF_8.displayName());
+//        return messageSource;
+//    }
+
     @Bean(name = "multipartResolver")
     public CommonsMultipartResolver multipartResolver() {
         CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
