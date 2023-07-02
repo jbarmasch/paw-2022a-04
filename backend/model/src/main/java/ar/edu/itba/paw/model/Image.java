@@ -16,8 +16,7 @@ public class Image {
         this.image = image;
     }
 
-    public Image() {
-    }
+    public Image() {}
 
     public long getId() {
         return id;

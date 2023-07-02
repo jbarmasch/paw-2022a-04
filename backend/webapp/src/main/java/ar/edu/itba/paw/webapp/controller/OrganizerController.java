@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 public class OrganizerController {
     @Autowired
     private UserService us;
-
     @Context
     private UriInfo uriInfo;
 

@@ -27,8 +27,7 @@ public class TicketBooking {
         this.eventBooking = eventBooking;
     }
 
-    public TicketBooking() {
-    }
+    public TicketBooking() {}
 
     public long getId() {
         return eventBooking.getId();

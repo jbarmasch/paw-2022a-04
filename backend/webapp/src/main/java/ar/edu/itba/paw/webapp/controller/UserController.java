@@ -31,7 +31,6 @@ public class UserController {
     private UserService us;
     @Autowired
     private EventBookingService bs;
-
     @Context
     private HttpServletRequest request;
     @Context

@@ -49,12 +49,13 @@ const i18n_es = {
         minAge: "Edad mín.",
         uploadFile: 'Subir foto de evento',
         date: 'Fecha del evento',
-        dateError: "No se puede crear un evento que ya haya terminado"
+        dateError: "No se puede crear un evento que ya haya terminado",
+        imageError: "El tamaño de la imágen debe ser menor a 1MB"
     },
 
     myEvents: {
         title: "Mis eventos",
-        ticketDateError: "STARTING > UNTIL GILASTRUM",
+        ticketDateError: "STARTING > UNTIL",
         ticketPriceError: "El precio de un ticket no puede ser menor a 0",
         ticketQtyError: "La cantidad de tickets no puede ser menor a 1",
         ticketsPerUserError: "La cantidad de tickets por usuario debe estar entre 1 y 10",

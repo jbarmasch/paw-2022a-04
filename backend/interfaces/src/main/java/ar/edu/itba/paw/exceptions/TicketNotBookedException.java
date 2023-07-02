@@ -1,6 +1,6 @@
 package ar.edu.itba.paw.exceptions;
 
-public class TicketNotBookedException extends RuntimeException {
+public class TicketNotBookedException extends LocalizedRuntimeException {
     private static final long serialVersionUID = -53L;
     private static final String message = "exception.ticketNotBooked";
 

@@ -25,10 +25,7 @@ public class BookingController {
     @Autowired
     private EventBookingService bs;
     @Autowired
-    private TicketService ts;
-    @Autowired
     private CodeService cs;
-
     @Context
     private HttpServletRequest request;
     @Context
@@ -99,7 +96,6 @@ public class BookingController {
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
     public Response confirmBooking(@PathParam("code") final String code, final BouncerBookForm bouncerBookForm) {
         EventBooking eventBooking = bs.getBooking(code).orElse(null);
-
         if (eventBooking == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }

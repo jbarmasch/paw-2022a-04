@@ -183,4 +183,11 @@ public class WebConfig {
 //        validator.setValidationMessageSource(messageSource());
 //        return validator;
 //    }
+
+//    @Bean
+//    public Validator validator() {
+//        final LocalValidatorFactoryBean factory = new LocalValidatorFactoryBean();
+//        factory.setValidationMessageSource(messageSource());
+//        return factory;
+//    }
 }

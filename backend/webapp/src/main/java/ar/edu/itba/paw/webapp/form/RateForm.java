@@ -5,9 +5,9 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 public class RateForm {
-    @Min(1)
-    @Max(5)
-    @NotNull
+    @Min(value = 1, message = "{Min.rateForm.rating}")
+    @Max(value = 5, message = "{Max.rateForm.rating}")
+    @NotNull(message = "{NotNull.rateForm.rating}")
     private Integer rating;
 
     public Integer getRating() {

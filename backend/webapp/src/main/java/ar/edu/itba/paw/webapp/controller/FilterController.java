@@ -44,17 +44,11 @@ import java.util.stream.Collectors;
 @Component
 public class FilterController {
     @Autowired
-    private TagService ts;
-    @Autowired
     private FilterService fs;
-
     @Context
     private HttpServletRequest request;
     @Context
     private UriInfo uriInfo;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TagController.class);
-
 
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON,})
@@ -71,10 +65,6 @@ public class FilterController {
         final FilterType res = fs.getFilterType(locations, types, minPrice, maxPrice, search, tags, showSoldOut, showNoTickets, userId);
         final FilterDto filterDto = FilterDto.fromFilter(uriInfo, res, request.getLocale().getLanguage());
 
-        if (filterDto != null) {
-            return Response.ok(filterDto).build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+        return Response.ok(filterDto).build();
     }
 }

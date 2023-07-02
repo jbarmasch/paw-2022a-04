@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 public class TypeController {
     @Autowired
     private TypeService ts;
-
     @Context
     private HttpServletRequest request;
     @Context
@@ -46,8 +45,6 @@ public class TypeController {
             return Response.noContent().build();
         }
 
-        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<TypeDto>>(typeList) {});
-
-        return response.build();
+        return Response.ok(new GenericEntity<List<TypeDto>>(typeList) {}).build();
     }
 }

@@ -78,8 +78,9 @@ const CreateEvent = () => {
     async function onImageChange(e) {
         e.preventDefault()
         if (e.target.files[0].size > (1024 * 1024)) {
-            console.log("HUGE")
+            setError('image', {type: 'custom', message: i18n.t("create.imageError")});
         } else {
+            setImageName(e.target.files[0].name)
             await setImage(e.target.files[0])
         }
     }
@@ -454,9 +455,9 @@ const CreateEvent = () => {
                                                 type="file"
                                                 ref={inputRef}
                                                 onChange={e => {
-                                                    field.onChange(e.target.files);
-                                                    setImageName(e.target.files[0].name)
-                                                    onImageChange(e)
+                                                        field.onChange(e.target.files);
+                                                        // setImageName(e.target.files[0].name)
+                                                        onImageChange(e)
                                                     }
                                                 }
                                             />
@@ -472,11 +473,11 @@ const CreateEvent = () => {
                                                     inputRef.current.value = null
                                                 }}><ClearRoundedIcon/></IconButton>
                                             </>)}
-                                            {/*{fieldState.error ? (*/}
-                                            {/*    <FormHelperText error>*/}
-                                            {/*        {fieldState.error?.message}*/}
-                                            {/*    </FormHelperText>*/}
-                                            {/*) : null}*/}
+                                            {fieldState.error ? (
+                                                <FormHelperText error>
+                                                    {fieldState.error?.message}
+                                                </FormHelperText>
+                                            ) : null}
                                         </>
                                     )}
                                 />

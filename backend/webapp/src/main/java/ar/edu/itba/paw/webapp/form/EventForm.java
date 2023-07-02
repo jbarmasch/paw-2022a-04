@@ -9,29 +9,29 @@ import javax.ws.rs.DefaultValue;
 import java.time.LocalDateTime;
 
 public class EventForm {
-    @Size(max = 100)
-    @NotEmpty
+    @Size(max = 100, message = "{Size.eventForm.name}")
+    @NotEmpty(message = "{NotEmpty.eventForm.name}")
     private String name;
 
-    @Size(max = 100)
+    @Size(max = 100, message = "{Size.eventForm.description}")
     private String description;
 
-    @NotNull
+    @NotNull(message = "{NotNull.eventForm.location}")
     private Long location;
 
-    @NotNull
+    @NotNull(message = "{NotNull.eventForm.type}")
     private Long type;
 
-    @NotEmpty
     @Future
-    @Pattern(regexp = "[0-9]{1,4}-[0-9]{1,2}-[0-9]{1,2}T[0-9]{1,2}:[0-9]{1,2}")
+    @NotEmpty(message = "{NotEmpty.eventForm.date}")
+    @Pattern(regexp = "[0-9]{1,4}-[0-9]{1,2}-[0-9]{1,2}T[0-9]{1,2}:[0-9]{1,2}", message = "{Pattern.eventForm.date}")
     private String date;
 
     private Long[] tags;
 
     private boolean hasMinAge;
-    @Min(value = 14)
-    @Max(value = 27)
+    @Min(value = 14, message = "{Range.eventForm.minAge}")
+    @Max(value = 27, message = "{Range.eventForm.minAge}")
     private Integer minAge;
 
     private MultipartFile image;

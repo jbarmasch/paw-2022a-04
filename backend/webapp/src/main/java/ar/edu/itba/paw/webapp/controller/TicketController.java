@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.exceptions.DateRangeException;
+import ar.edu.itba.paw.exceptions.IllegalTicketException;
 import ar.edu.itba.paw.exceptions.TicketUnderflowException;
 import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.model.Tag;
@@ -16,9 +17,11 @@ import ar.edu.itba.paw.webapp.form.TicketsForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
 import javax.validation.Validator;
@@ -35,7 +38,10 @@ import java.util.stream.Collectors;
 public class TicketController {
     @Autowired
     private TicketService ts;
-
+    @Autowired
+    private MessageSource messageSource;
+    @Context
+    private HttpServletRequest request;
     @Context
     private UriInfo uriInfo;
 
@@ -56,7 +62,9 @@ public class TicketController {
 //            errors.rejectValue("qty", "Min.bookForm.qtyAnother", new Object[]{ticket.getBooked()}, "");
 
             LOGGER.error("Ticket underflow error");
-            CustomErrorDto error = CustomErrorDto.fromException(e.getMessage());
+            CustomErrorDto error = CustomErrorDto.fromException(
+                    messageSource.getMessage(e.getMessage(), new Object[]{ticket.getBooked()}, request.getLocale())
+            );
 
             return Response
                     .status(Response.Status.BAD_REQUEST)

@@ -5,24 +5,22 @@ import ar.edu.itba.paw.webapp.validations.DateOrder;
 import ar.edu.itba.paw.webapp.validations.Future;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @DateOrder
 public class TicketForm {
     private int id;
-    @NotEmpty
+    
+    @NotEmpty(message = "{NotEmpty.ticketForm.ticketName}")
     private String ticketName;
 
-    @NotNull
-    @DecimalMin("0.00")
+    @NotNull(message = "{NotNull.ticketForm.price}")
+    @DecimalMin(value = "0.00", message = "{DecimalMin.ticketForm.price}")
     private Double price;
 
-    @Min(1)
+    @Min(value = 1, message = "{Min.ticketForm.qty}")
     private Integer qty;
 
     @Date
@@ -32,9 +30,9 @@ public class TicketForm {
     @Date
     private String until;
 
-    @Min(1)
-    @Max(10)
-    @NotNull
+    @Min(value = 1, message = "{Min.ticketForm.maxPerUser}")
+    @Max(value = 10, message = "{Max.ticketForm.maxPerUser}")
+    @NotNull(message = "{NotNull.ticketForm.maxPerUser}")
     private Integer maxPerUser;
 
     public String getTicketName() {

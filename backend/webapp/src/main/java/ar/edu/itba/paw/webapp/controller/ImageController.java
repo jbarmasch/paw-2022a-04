@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 public class ImageController {
     @Autowired
     private ImageService is;
-
     @Context
     private UriInfo uriInfo;
 

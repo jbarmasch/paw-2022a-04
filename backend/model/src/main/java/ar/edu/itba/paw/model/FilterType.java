@@ -10,11 +10,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class FilterType {
-    private Map<Location, Integer> locations;
-    private Map<Type, Integer> types;
-    private Map<Tag, Integer> tags;
-    private int soldOut;
-    private int noTickets;
+    private final Map<Location, Integer> locations;
+    private final Map<Type, Integer> types;
+    private final Map<Tag, Integer> tags;
+    private final int soldOut;
+    private final int noTickets;
 
     public FilterType(Map<Location,Integer> locations, Map<Type,Integer> types, Map<Tag,Integer> tags, int soldOut, int noTickets) {
         this.locations = locations;

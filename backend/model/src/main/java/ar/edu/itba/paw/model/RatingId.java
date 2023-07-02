@@ -12,8 +12,7 @@ public class RatingId implements Serializable {
         this.organizer = organizer;
     }
 
-    public RatingId() {
-    }
+    public RatingId() {}
 
     public User getUser() {
         return user;

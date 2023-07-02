@@ -7,6 +7,9 @@ pipelines:
           caches:
             - maven
           script:
+            - cd frontend
+            - export packageFile="package.json"
+            - sed -i "s/ssh.slococo.com.ar:2557/pawserver.it.itba.edu.ar/g" "$packageFile"
             - cd backend
             - export webConfigFile="webapp/src/main/java/ar/edu/itba/paw/webapp/config/WebConfig.java"
             - sed -i "s/@PropertySource(\"classpath:config.properties\")//g" "$webConfigFile"

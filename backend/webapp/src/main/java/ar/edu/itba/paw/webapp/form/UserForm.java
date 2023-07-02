@@ -9,23 +9,23 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 public class UserForm {
-    @Size(min = 8, max = 100)
-    @Pattern(regexp = "[a-zA-Z0-9]+", message = "{Pattern.userForm.username}")
-    @NotEmpty
     @UniqueUsername
+    @Size(min = 8, max = 100, message = "{Size.userForm.username}")
+    @Pattern(regexp = "[a-zA-Z0-9]+", message = "{Pattern.userForm.username}")
+    @NotEmpty(message = "{NotEmpty.userForm.username}")
     private String username;
 
-    @Size(min = 8, max = 100)
-    @NotEmpty
+    @Size(min = 8, max = 100, message = "{Size.userForm.password}")
+    @NotEmpty(message = "{NotEmpty.userForm.password}")
     private String password;
 
     @Size(min = 8, max = 100, message = "{Size.userForm.repeatPassword}")
-    @NotEmpty
+    @NotEmpty(message = "{NotEmpty.userForm.repeatPassword}")
     private String repeatPassword;
 
-    @Email
-    @NotEmpty
     @UniqueMail
+    @Email(message = "{Email.userForm.mail}")
+    @NotEmpty(message = "{NotEmpty.userForm.mail}")
     private String mail;
 
     public String getUsername() {

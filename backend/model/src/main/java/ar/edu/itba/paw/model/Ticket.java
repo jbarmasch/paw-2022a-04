@@ -68,8 +68,7 @@ public class Ticket {
         this.maxPerUser = maxPerUser;
     }
 
-    public Ticket() {
-    }
+    public Ticket() {}
 
     public Event getEvent() {
         return event;

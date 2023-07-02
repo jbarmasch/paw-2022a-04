@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 public class LocationController {
     @Autowired
     private LocationService ls;
-
     @Context
     private UriInfo uriInfo;
 
@@ -42,8 +41,6 @@ public class LocationController {
             return Response.noContent().build();
         }
 
-        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<LocationDto>>(locationList) {});
-
-        return response.build();
+        return Response.ok(new GenericEntity<List<LocationDto>>(locationList) {}).build();
     }
 }

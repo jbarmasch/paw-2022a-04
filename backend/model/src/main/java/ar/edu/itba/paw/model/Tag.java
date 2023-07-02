@@ -28,8 +28,7 @@ public class Tag {
         this.name_en = name_en;
     }
 
-    public Tag() {
-    }
+    public Tag() {}
 
     public static void setLocale(Locale locale) {
         Tag.locale = locale;

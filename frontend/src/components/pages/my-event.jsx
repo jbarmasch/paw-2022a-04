@@ -135,6 +135,13 @@ const MyEvent = (props) => {
         }
     }, [event])
 
+    // useEffect(() => {
+    //     if (edit) {
+    //         console.log(edit);
+    //         handleSubmit(onSubmit)
+    //     }
+    // }, [edit])
+
     const imgFetcher = (...args) => fetch(...args).then(res => res.blob())
     const {data: aux, error: error, isLoading: auxLoading} = useSWRImmutable(event ? `${event.image}` : null, imgFetcher)
 
@@ -185,6 +192,10 @@ const MyEvent = (props) => {
     }
 
     const onSubmit = async (data) => {
+        if (!edit) {
+            return;
+        }
+        // setEdit(false)
         let dateAux = new Date(data.date).toISOString().slice(0, -8)
 
         let obj = {
@@ -237,6 +248,7 @@ const MyEvent = (props) => {
             changed = true
         }
 
+        let errors
         let resi
 
         if (changed) {
@@ -255,26 +267,68 @@ const MyEvent = (props) => {
             })
 
 
+            // SI no hay errores, mutar
             console.log("mutate")
             // await mutate(`${server}/api/events/${props.match.params.id}`, obj)
             // await mutate({ ...event, obj })
             // mutate()
+
+            await resi
+
+            if (resi.status === 400) {
+                errors = await resi.json()
+                errors.forEach(x => {
+                    let variable = String(x["path"]).split(".").slice(-1)[0]
+                    switch (variable) {
+                        case "name":
+                            setError('name', {type: 'custom', message: x['message']});
+                            break
+                        case "description":
+                            setError('description', {type: 'custom', message: x['message']});
+                            break
+                        case "location":
+                            setError('location', {type: 'custom', message: x['message']});
+                            break
+                        case "type":
+                            setError('type', {type: 'custom', message: x['message']});
+                            break
+                        case "tags":
+                            setError('tags', {type: 'custom', message: x['message']});
+                            break
+                        case "date":
+                            setError('date', {type: 'custom', message: x['message']});
+                            break
+                        case "minAge":
+                            setError('minAge', {type: 'custom', message: x['message']});
+                            break
+                        default:
+                            break;
+                    }
+                })
+            } else {
+                // No iria pues rompería los siguientes cambios
+                // mutate()
+            }
         }
 
-        await resi
+        // await resi
 
         // if (resi.status !== 200)
 
+        let del
         for (const x of rowsData) {
-            await fetch(`${server}/api/tickets/${x.ticketId}`, {
+            del = await fetch(`${server}/api/tickets/${x.ticketId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 },
             })
 
-            remove(x.index)
-            reset()
+            await del
+            if (del.status === 204) {
+                remove(x.index)
+                reset()
+            }
         }
 
         let res
@@ -284,6 +338,19 @@ const MyEvent = (props) => {
 
         if (data.tickets) {
             for (let d of data.tickets) {
+                console.log(d)
+                console.log("im")
+                console.log(fields)
+
+                let q = 0
+                for (const f of fields)  {
+                    console.log(f)
+                    if (f.name === d.name) {
+                        break
+                    }
+                    q++
+                }
+
                 if (d.starting) {
                     d.starting = new Date(d.starting).toISOString().slice(0, -8)
                 } else {
@@ -332,6 +399,39 @@ const MyEvent = (props) => {
                             },
                             body: JSON.stringify(aux)
                         })
+
+                        await res
+
+                        if (res.status === 400) {
+                            errors = await res.json()
+                            errors.forEach(x => {
+                                let variable = String(x["path"]).split(".").slice(-1)[0]
+                                switch (variable) {
+                                    case "ticketName":
+                                        console.log(x)
+                                        setError('tickets[' + q + '].ticketName', {type: 'custom', message: x['message']});
+                                        break
+                                    case "price":
+                                        setError('tickets[' + q + '].price', {type: 'custom', message: x['message']});
+                                        break
+                                    case "qty":
+                                        setError('tickets[' + q + '].qty', {type: 'custom', message: x['message']});
+                                        break
+                                    case "starting":
+                                        setError('tickets[' + q + '].starting', {type: 'custom', message: x['message']});
+                                        break
+                                    case "until":
+                                        setError('tickets[' + q + '].until', {type: 'custom', message: x['message']});
+                                        break
+                                    case "maxPerUser":
+                                        console.log('tickets[' + q + '].maxPerUser')
+                                        setError('tickets[' + q + '].maxPerUser', {type: 'custom', message: x['message']});
+                                        break
+                                    default:
+                                        break;
+                                }
+                            })
+                        }
                     }
                 } else {
                     if (d.ticketName !== '') {
@@ -355,7 +455,7 @@ const MyEvent = (props) => {
                 await res;
 
                 if (res.status === 400) {
-                    let errors = await res.json()
+                    errors = await res.json()
                     errors.forEach(x => {
                         let variable = String(x["path"]).split(".").slice(-1)[0]
                         console.log(variable)
@@ -382,7 +482,10 @@ const MyEvent = (props) => {
         }
 
         // mutate()
-        await mutate({ ...event, obj })
+        if (!errors) {
+            await mutate({...event, obj})
+            setEdit(false)
+        }
     }
 
     const handleClickOpen = () => {
@@ -496,8 +599,7 @@ const MyEvent = (props) => {
                                 {!over && 
                                 (!edit ?
                                     <>
-                                        <IconButton onClick={() => setEdit(true)}
-                                                    type="submit"><EditRoundedIcon/></IconButton>
+                                        <IconButton onClick={() => {setEdit(true)}}><EditRoundedIcon/></IconButton>
                                         <IconButton onClick={handleClickOpen}><DeleteRoundedIcon/></IconButton>
                                         {event.soldOut ?
                                             <Button onClick={(e) => handleClickActive(e)} value={true}>{i18n.t("event.active")}</Button>
@@ -521,10 +623,8 @@ const MyEvent = (props) => {
             </Dialog>
                                     </> :
                                     <>
-                                        <IconButton onClick={() => {
-                                            setEdit(false)
-                                        }}><DoneRoundedIcon/></IconButton>
-                                        <IconButton onClick={() => setEdit(false)}><ClearRoundedIcon/></IconButton>
+                                        {/*<IconButton onClick={() => {handleSubmit(onSubmit)}} type="submit"><DoneRoundedIcon/></IconButton>*/}
+                                        {/*<IconButton onClick={() => setEdit(false)}><ClearRoundedIcon/></IconButton>*/}
                                     </>
                                 )}
                             </div>
@@ -884,6 +984,7 @@ const MyEvent = (props) => {
                                     <TableRow><StyledTableCell>{i18n.t("event.noTickets")}</StyledTableCell></TableRow>
 
                                     : fields.map((item, index) => {
+                                        console.log('EL INDICE ES' + index)
                                         return (
                                             <StyledTableRow key={item.id}>
                                                 <StyledTableCell>
@@ -1013,14 +1114,14 @@ const MyEvent = (props) => {
                                                             control={control}
                                                             rules={{
                                                                 required: i18n.t('fieldRequired'),
-                                                                validate: {
-                                                                    min: (x) => {
-                                                                        return x >= 1 || i18n.t("myEvents.ticketsPerUserError")
-                                                                    },
-                                                                    max: (x) => {
-                                                                        return x <= 10 || i18n.t("myEvents.ticketsPerUserError")
-                                                                    }
-                                                                }
+                                                                // validate: {
+                                                                //     min: (x) => {
+                                                                //         return x >= 1 || i18n.t("myEvents.ticketsPerUserError")
+                                                                //     },
+                                                                //     max: (x) => {
+                                                                //         return x <= 10 || i18n.t("myEvents.ticketsPerUserError")
+                                                                //     }
+                                                                // }
                                                             }}
                                                             defaultValue={`${item.maxPerUser}`}
                                                             render={({field, fieldState}) => {
@@ -1292,6 +1393,13 @@ const MyEvent = (props) => {
 
                         </Table>
                     </TableContainer>
+
+                    { edit &&
+                        <>
+                        <IconButton onClick={() => {handleSubmit(onSubmit)}} type="submit"><DoneRoundedIcon/></IconButton>
+                        <IconButton onClick={() => setEdit(false)}><ClearRoundedIcon/></IconButton>
+                        </>
+                    }
                 </form>
 
             </section>

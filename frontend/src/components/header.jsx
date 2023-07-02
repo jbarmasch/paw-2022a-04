@@ -34,7 +34,7 @@ const Header = () => {
     const arrayPaths = ['/'];
     const history = useHistory();
 
-    const { user } = useAuth();
+    const { user, getRoles } = useAuth();
 
     const [onTop, setOnTop] = useState(arrayPaths.includes(path));
     const [menuOpen, setMenuOpen] = useState(false);
@@ -89,6 +89,9 @@ const Header = () => {
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
+        if (!user?.roles?.includes("ROLE_CREATOR")) {
+            getRoles()
+        }
     };
     const handleClose = () => {
         setAnchorEl(null);

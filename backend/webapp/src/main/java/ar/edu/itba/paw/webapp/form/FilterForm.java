@@ -10,10 +10,10 @@ public class FilterForm {
     private String types;
     private String tags;
 
-    @DecimalMin("0.0")
+    @DecimalMin(value = "0.0", message = "{DecimalMin.filterForm.minPrice}")
     private Double minPrice;
 
-    @DecimalMin("0.0")
+    @DecimalMin(value = "0.0", message = "{DecimalMin.filterForm.maxPrice}")
     private Double maxPrice;
 
     private String searchQuery;

@@ -102,8 +102,7 @@ public class Event {
         this.bouncer = bouncer;
     }
 
-    public Event() {
-    }
+    public Event() {}
 
     public Integer getMinAge() {
         return minAge;

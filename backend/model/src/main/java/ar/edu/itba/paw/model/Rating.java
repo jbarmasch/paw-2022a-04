@@ -24,8 +24,7 @@ public class Rating {
         this.rating = rating;
     }
 
-    public Rating() {
-    }
+    public Rating() {}
 
     public User getUser() {
         return user;

@@ -46,8 +46,7 @@ public class EventBooking {
         this.confirmed = false;
     }
 
-    public EventBooking() {
-    }
+    public EventBooking() {}
 
     public long getId() {
         return id;

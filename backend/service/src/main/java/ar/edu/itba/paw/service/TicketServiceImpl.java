@@ -2,6 +2,7 @@ package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.exceptions.DateRangeException;
 import ar.edu.itba.paw.exceptions.EventFinishedException;
+import ar.edu.itba.paw.exceptions.IllegalTicketException;
 import ar.edu.itba.paw.exceptions.TicketUnderflowException;
 import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.model.Ticket;

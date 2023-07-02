@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -52,7 +53,8 @@ public class EventController {
     private EventBookingService bs;
     @Autowired
     private UserManager um;
-
+    @Autowired
+    private MessageSource messageSource;
     @Context
     private HttpServletRequest request;
     @Context
@@ -208,9 +210,7 @@ public class EventController {
             return Response.noContent().build();
         }
 
-        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<EventDto>>(eventList) {});
-
-        return response.build();
+        return Response.ok(new GenericEntity<List<EventDto>>(eventList) {}).build();
     }
 
     @Path("/few-tickets")
@@ -227,9 +227,7 @@ public class EventController {
             return Response.noContent().build();
         }
 
-        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<EventDto>>(eventList) {});
-
-        return response.build();
+        return Response.ok(new GenericEntity<List<EventDto>>(eventList) {}).build();
     }
 
     @GET
@@ -246,9 +244,7 @@ public class EventController {
             return Response.noContent().build();
         }
 
-        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<EventDto>>(eventList) {});
-
-        return response.build();
+        return Response.ok(new GenericEntity<List<EventDto>>(eventList) {}).build();
     }
 
     @GET
@@ -265,9 +261,7 @@ public class EventController {
             return Response.noContent().build();
         }
 
-        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<EventDto>>(eventList) {});
-
-        return response.build();
+        return Response.ok(new GenericEntity<List<EventDto>>(eventList) {}).build();
     } 
 
     @GET
@@ -284,9 +278,7 @@ public class EventController {
             return Response.noContent().build();
         }
 
-        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<TicketDto>>(ticketList) {});
-
-        return response.build();
+        return Response.ok(new GenericEntity<List<TicketDto>>(ticketList) {}).build();
     }
 
     @Path("/{id}/tickets")
@@ -300,10 +292,12 @@ public class EventController {
             return Response.serverError().build();
         }
 
+        int i = 0;
         try {
             for (TicketForm ticket : form.getTickets()) {
                 ts.addTicket(event.get(), ticket.getTicketName(), ticket.getPrice(), ticket.getQty(),
                         ticket.getLocalDate(ticket.getStarting()), ticket.getLocalDate(ticket.getUntil()), ticket.getMaxPerUser());
+                i++;
             }
         } catch (DateRangeException e) {
 //            if (e.getStarting() != null) {
@@ -312,11 +306,14 @@ public class EventController {
 //                errors.rejectValue("until", "Event.eventForm.date", null, "");
 //            }
             LOGGER.error("Ticket date error");
-            CustomErrorDto error = CustomErrorDto.fromException(e.getMessage());
+            ValidationErrorDto error = ValidationErrorDto.fromException(
+                    messageSource.getMessage(e.getMessage(), null, request.getLocale()),
+                    "tickets[" + i + "]" + (e.getStarting() != null ? "starting" : "until"));
+//            CustomErrorDto error = CustomErrorDto.fromException(e.getMessage());
 
             return Response
                     .status(Response.Status.BAD_REQUEST)
-                    .entity(new GenericEntity<CustomErrorDto>(error) {})
+                    .entity(new GenericEntity<ValidationErrorDto>(error) {})
                     .build();
         }
 

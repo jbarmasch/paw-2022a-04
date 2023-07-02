@@ -78,6 +78,10 @@ export const useAuth = () => {
         })
     }, []);
 
+    const getRoles = () => {
+        refresh()
+    }
+
     const login = (user) => {
         const accessToken = getItem('Access-Token')
 
@@ -115,5 +119,5 @@ export const useAuth = () => {
             })
     }
 
-    return {user, login, logout, refresh};
+    return {user, login, logout, refresh, getRoles};
 };

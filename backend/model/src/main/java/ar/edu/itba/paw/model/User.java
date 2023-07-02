@@ -64,8 +64,7 @@ public class User {
         roles.add(initialRole);
     }
 
-    public User() {
-    }
+    public User() {}
 
     public String getUsername() {
         return username;
