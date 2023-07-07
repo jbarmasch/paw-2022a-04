@@ -35,7 +35,7 @@ pipelines:
             - sed -i "s/env.getProperty(\"cors\")/\"false\"/g" "$responseFilterFile"
             - export eventControllerFile="webapp/src/main/java/ar/edu/itba/paw/webapp/controller/EventController.java"
             - sed -i "s/env.getProperty(\"baseUrl\")/\"http:\/\/pawserver.it.itba.edu.ar\/paw-2022a-04\"/g" "$eventControllerFile"
-            - export bookingControllerFile="src/main/java/ar/edu/itba/paw/webapp/controller/BookingController.java"
+            - export bookingControllerFile="webapp/src/main/java/ar/edu/itba/paw/webapp/controller/BookingController.java"
             - sed -i "s/env.getProperty(\"baseUrl\")/\"http:\/\/pawserver.it.itba.edu.ar\/paw-2022a-04\"/g" "$bookingControllerFile"
             - unset CI
             - mvn clean package
