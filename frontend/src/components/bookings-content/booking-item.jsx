@@ -66,7 +66,7 @@ const BookingItem = ({image, code, event, rating, ticketBookings, mutate}) => {
 
         await res;
 
-        if (res.status === 400) {
+        if (!res.ok) {
             setOpenSnackbar(true)
             return;
         }
@@ -101,7 +101,7 @@ const BookingItem = ({image, code, event, rating, ticketBookings, mutate}) => {
 
             let json = await res;
 
-            if (json.status !== 202) {
+            if (!json.ok) {
                 return;
             }
 

@@ -150,7 +150,7 @@ const Event = (props) => {
 
         let json = await response;
 
-        if (json.status !== 201) {
+        if (!json.ok) {
             setOpenSnackbar(true)
             return;
         }

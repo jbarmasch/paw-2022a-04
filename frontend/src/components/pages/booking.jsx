@@ -74,7 +74,7 @@ const Booking = (props) => {
 
         let json = await res;
 
-        if (json.status !== 202) {
+        if (!json.ok) {
             setOpenSnackbar(true);
             return;
         }
@@ -94,7 +94,7 @@ const Booking = (props) => {
 
         let json = await res;
 
-        if (json.status !== 202) {
+        if (!json.ok) {
             setOpenSnackbar(true);
             return;
         }

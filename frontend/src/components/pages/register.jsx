@@ -46,7 +46,7 @@ const RegisterPage = () => {
                 }
             })
 
-            if (aux.status !== 200) {
+            if (!aux.ok) {
                 setOpenSnackbar(true)
                 return
             }

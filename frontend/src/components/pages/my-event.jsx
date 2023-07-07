@@ -302,17 +302,13 @@ const MyEvent = (props) => {
                             break;
                     }
                 })
-            } else if (resi.status !== 201) {
+            } else if (!resi.ok) {
                 setOpenSnackbar(true)
             } else {
                 // No iria pues rompería los siguientes cambios
                 // mutate()
             }
         }
-
-        // await resi
-
-        // if (resi.status !== 200)
 
         let del
         for (const x of rowsData) {
@@ -441,7 +437,7 @@ const MyEvent = (props) => {
                                         break;
                                 }
                             })
-                        } else if (res.status !== 204) {
+                        } else if (!res.ok) {
                             setOpenSnackbar(true)
                         }
                     }
@@ -499,7 +495,7 @@ const MyEvent = (props) => {
                                         break;
                                 }
                             })
-                        } else if (res.status !== 201) {
+                        } else if (!res.ok) {
                             setOpenSnackbar(true)
                         }
                     }
@@ -564,8 +560,6 @@ const MyEvent = (props) => {
     };
 
     const handleClickActive = async (e) => {
-        // console.log(e.target.value)
-
         let resi = await fetch(`${server}/api/events/${props.match.params.id}`, {
             method: 'PATCH',
             headers: {
