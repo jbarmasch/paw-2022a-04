@@ -1,5 +1,4 @@
 import { rest } from 'msw'
-// import { Book, Review } from './types'
 
 export const handlers = [
     rest.get("http://ssh.slococo.com.ar:2555/api/users", (req, res, ctx) => {

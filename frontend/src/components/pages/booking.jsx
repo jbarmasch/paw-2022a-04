@@ -1,9 +1,7 @@
 import landingImage from '../../assets/images/intro.jpg'
-import {useHistory, useLocation} from 'react-router-dom'
+import {useHistory} from 'react-router-dom'
 import {server, fetcher} from "../../utils/server";
 import Layout from "../layout"
-import SimilarEvents from '../events-content/similar-events';
-import RecommendedEvents from '../events-content/recommended-events';
 import i18n from '../../i18n'
 import useSwr from 'swr';
 import Paper from "@mui/material/Paper";
@@ -22,21 +20,23 @@ import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
 import {useAuth} from "../../utils/useAuth";
 import {useEffect, useState} from "react";
 import {LoadingPage} from "../../utils/loadingPage";
+import {Alert, Snackbar} from "@mui/material";
 
 const Booking = (props) => {
     let {user} = useAuth()
 
     const history = useHistory();
     const [bouncer, setBouncer] = useState(false)
+    const [openSnackbar, setOpenSnackbar] = useState(false);
 
     useEffect(() => {
         if (user === undefined) {
             return
         }
-       if (user.role !== "ROLE_BOUNCER") {
+        if (!user.roles || !user.roles.includes("ROLE_BOUNCER")) {
            history.push("/404")
            return
-       }
+        }
         setBouncer(true)
     }, [user]);
 
@@ -48,17 +48,18 @@ const Booking = (props) => {
     const {data: booking, mutate, isLoading, error} = useSwr(`${server}/api/bookings/${props.match.params.code}`, fetcher)
     const {data: event, isLoading: isLoadingEvent, error: errorEvent} = useSwr(booking ? booking.event : null, fetcher)
 
-    if (!bouncer) {
+    if (!bouncer || isLoading || isLoadingEvent) {
         return <LoadingPage/>
     }
 
-    if (error || errorEvent) return <p>No data</p>
-    if (isLoading || isLoadingEvent) return <LoadingPage/>
+    if (error || errorEvent) {
+        history.push("/404")
+        return
+    }
 
     let total = 0;
     const calcPrice = (price, qty) => {
         total += price * qty;
-        return;
     }
 
     const confirmBooking = async () => {
@@ -73,7 +74,8 @@ const Booking = (props) => {
 
         let json = await res;
 
-        if (json.status != 202) {
+        if (json.status !== 202) {
+            setOpenSnackbar(true);
             return;
         }
 
@@ -92,15 +94,33 @@ const Booking = (props) => {
 
         let json = await res;
 
-        if (json.status != 202) {
+        if (json.status !== 202) {
+            setOpenSnackbar(true);
             return;
         }
 
         mutate()
     }
 
+    let vertical = "top"
+    let horizontal = "right"
+
+    const handleClose = () => {
+        setOpenSnackbar(false)
+    }
+
     return (
         <Layout>
+            <Snackbar
+                anchorOrigin={{ vertical, horizontal }}
+                open={openSnackbar}
+                onClose={handleClose}
+                key={vertical + horizontal}
+                autoHideDuration={15000}
+            >
+                <Alert severity="error" onClose={handleClose}>{i18n.t("error.api")}</Alert>
+            </Snackbar>
+
             <section className="thank-you-page">
                 <div style={{position: "relative"}}>
                     <img className="thank-you-image booking-intro" alt="Landing" src={landingImage}/>

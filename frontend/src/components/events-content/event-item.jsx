@@ -6,7 +6,6 @@ import i18n from '../../i18n'
 import {fetcher} from "../../utils/server";
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
-import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
 import LocalOfferRoundedIcon from '@mui/icons-material/LocalOfferRounded';
@@ -38,7 +37,9 @@ const EventItem = ({id, name, minPrice, location, type, date, image, soldOut, or
         return
     }
 
-    if (isLoading) return <EventItemLoading/>
+    if (isLoading) {
+        return <EventItemLoading/>
+    }
 
     return (
         <Link to={`/events/${id}`}>

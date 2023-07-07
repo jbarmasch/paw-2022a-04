@@ -8,6 +8,7 @@ export const fetcher = async url => {
         return null
     }
 
+    // TODO: snackbar?
     if (!res.ok) {
         const error = new Error('An error occurred while fetching the data.')
         error.info = await res.json()

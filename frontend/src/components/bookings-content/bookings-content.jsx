@@ -7,13 +7,7 @@ import {parseLink} from '../../utils/pages';
 import Pagination from '@mui/material/Pagination';
 import {useLocation, useHistory} from 'react-router-dom'
 import queryString from 'query-string'
-import {Controller, useForm} from "react-hook-form";
 import i18n from '../../i18n'
-import Select from '@mui/material/Select';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
-import MenuItem from '@mui/material/MenuItem';
 import NoBookingsContent from "./no-bookings-content";
 
 const fetcherHeaders = (...args) => fetch(...args).then((res) => {
@@ -64,19 +58,27 @@ function Page({data, aux, setAux, mutate, userId}) {
 
 const BookingsContent = ({userId}) => {
     const [pageIndex, setPageIndex] = useState(1);
-    const [order, setOrder] = useState("DATE_ASC")
     const [child, setChild] = useState();
     const history = useHistory()
     const {search} = useLocation()
     const values = queryString.parse(search)
 
     let links
-    const {control, formState: {errors}} = useForm();
 
-    let {data, mutate, error} = useSwr(`${server}/api/bookings?page=${pageIndex}&userId=${userId}`, fetcherHeaders);
+    let {data, isLoading, mutate, error} = useSwr(`${server}/api/bookings?page=${pageIndex}&userId=${userId}`, fetcherHeaders);
 
-    if (error) {history.push("/404"); return}
-    if (!data) return <BookingsLoading/>
+    if (error) {
+        history.push("/404");
+        return
+    }
+
+    if (!data) {
+        return <NoBookingsContent/>
+    }
+
+    if (isLoading) {
+        return <BookingsLoading/>
+    }
 
     links = parseLink(data.headers.get("Link"))
 
@@ -84,16 +86,6 @@ const BookingsContent = ({userId}) => {
         setPageIndex(page)
         history.replace(`/bookings?page=${page}`)
     }
-
-    let orderList = []
-    orderList.push({
-        value: "DATE_ASC",
-        label: "Fecha ascendente"
-    })
-    orderList.push({
-        value: "DATE_DESC",
-        label: "Fecha descendente"
-    })
 
     return (
         <section className="users-content products-content">

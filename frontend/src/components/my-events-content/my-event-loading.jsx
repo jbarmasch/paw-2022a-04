@@ -17,5 +17,4 @@ const MyEventLoading = () => (
     </>
 );
 
-
 export default MyEventLoading

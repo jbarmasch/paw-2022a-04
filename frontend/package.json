@@ -50,7 +50,7 @@
     "start": "PORT=2557 react-scripts start",
     "build": "GENERATE_SOURCEMAP=false react-scripts build && npm run post-build",
     "server": "GENERATE_SOURCEMAP=false react-scripts build && npm run post-build && serve -s build",
-    "post-build": "mv build/*.json build/*.png build/*.ico build/*.txt build/static/",
+    "post-build": "sed -i '1s/^/<%@ page session=\"false\" %>/' build/index.html && mv build/*.json build/*.png build/*.ico build/*.txt build/static/",
     "test": "jest --watch",
     "eject": "react-scripts eject"
   },

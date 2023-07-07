@@ -1,4 +1,3 @@
-import MyEventLoading from './my-event-loading';
 import Skeleton from "@mui/material/Skeleton";
 import EventItemLoading from "./my-event-loading";
 

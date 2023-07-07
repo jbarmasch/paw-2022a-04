@@ -14,12 +14,8 @@ const Footer = () => {
                 <div>&nbsp;</div>
                 <div className={"vertical"}>
                     <h6>{i18n.t("footer.contact")}</h6>
-                    <a className={"marg-top"} href="mailto:botlerpass@outlook.com">botlerpass@outlook.com</a>
+                    <a className={"marg-top"} href="mailto:bottlerpass@zohomail.com">bottlerpass@zohomail.com</a>
                 </div>
-            </div>
-            <Divider/>
-            <div className="center marg-top marg-bot full-width">
-                <p>BottlerTeam - Barmasch, Bellver & Lo Coco</p>
             </div>
         </footer>
     )

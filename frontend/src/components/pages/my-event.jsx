@@ -51,6 +51,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogTitle from '@mui/material/DialogTitle';
 import utc from "dayjs/plugin/utc";
+import {Alert, Snackbar} from "@mui/material";
 
 const isEqualsJson = (oldTicket, newTicket) => {
     let oldKeys = Object.keys(oldTicket);
@@ -69,6 +70,7 @@ const MyEvent = (props) => {
     const [edit, setEdit] = useState(false);
     const [activeMin, setActiveMin] = useState();
     const [open, setOpen] = useState(false);
+    const [openSnackbar, setOpenSnackbar] = useState(false);
 
     const {
         data: locations,
@@ -87,8 +89,6 @@ const MyEvent = (props) => {
     const [date, setDate] = useState(null);
 
     const [active, setActive] = useState(false)
-    const [imageName, setImageName] = useState()
-    const [image, setImage] = useState()
 
     let start = 14;
     let ages = [];
@@ -179,10 +179,6 @@ const MyEvent = (props) => {
         return;
     }
     if (auxLoading || eventLoading || !user) {
-        // console.log(aux)
-        // console.log(event)
-        // console.log(user)
-        // ver que event puede ser undefined acá cuando muta
         return <MyEventLoading/>
     }
 
@@ -275,6 +271,7 @@ const MyEvent = (props) => {
 
             await resi
 
+            // TODO: podria NO SER UNA LISTA!!!!
             if (resi.status === 400) {
                 errors = await resi.json()
                 errors.forEach(x => {
@@ -305,6 +302,8 @@ const MyEvent = (props) => {
                             break;
                     }
                 })
+            } else if (resi.status !== 201) {
+                setOpenSnackbar(true)
             } else {
                 // No iria pues rompería los siguientes cambios
                 // mutate()
@@ -328,6 +327,8 @@ const MyEvent = (props) => {
             if (del.status === 204) {
                 remove(x.index)
                 reset()
+            } else {
+                setOpenSnackbar(false)
             }
         }
 
@@ -440,6 +441,8 @@ const MyEvent = (props) => {
                                         break;
                                 }
                             })
+                        } else if (res.status !== 204) {
+                            setOpenSnackbar(true)
                         }
                     }
                 } else {
@@ -496,6 +499,8 @@ const MyEvent = (props) => {
                                         break;
                                 }
                             })
+                        } else if (res.status !== 201) {
+                            setOpenSnackbar(true)
                         }
                     }
                 }
@@ -647,8 +652,25 @@ const MyEvent = (props) => {
         x.id
     ))
 
+    let vertical = "top"
+    let horizontal = "right"
+
+    const handleCloseSnackbar = () => {
+        setOpenSnackbar(false)
+    }
+
     return (
         <Layout>
+            <Snackbar
+                anchorOrigin={{ vertical, horizontal }}
+                open={openSnackbar}
+                onClose={handleCloseSnackbar}
+                key={vertical + horizontal}
+                autoHideDuration={15000}
+            >
+                <Alert severity="error" onClose={handleClose}>{i18n.t("error.api")}</Alert>
+            </Snackbar>
+
             <section className="product-single">
                 <form className="form container my-event-page" onSubmit={handleSubmit(onSubmit)}>
                     <div className="my-event-content">

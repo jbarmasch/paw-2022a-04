@@ -11,6 +11,7 @@ import * as React from "react";
 import {useAuth} from '../../utils/useAuth';
 import {Link, useHistory, useLocation} from 'react-router-dom'
 import queryString from 'query-string'
+import {Alert, Snackbar} from "@mui/material";
 
 const RegisterPage = () => {
     const { register, handleSubmit, control, getValues, watch, formState: { errors }, setError } = useForm();
@@ -22,6 +23,7 @@ const RegisterPage = () => {
     // const [error, setError] = useState(false)
     const [usernameError, setUsernameError] = useState(false)
     const [mailError, setMailError] = useState(false)
+    const [openSnackbar, setOpenSnackbar] = useState(false);
 
     const onSubmit = async (data) => {
         const res = await fetch(`${server}/api/users`, {
@@ -34,7 +36,7 @@ const RegisterPage = () => {
         
         let json = await res;
 
-        if (json.status == 201) {
+        if (json.status === 201) {
             let authorization = data.username + ":" + data.password
     
             const aux = await fetch(json.headers.get("Location"), {
@@ -44,8 +46,8 @@ const RegisterPage = () => {
                 }
             })
 
-            if (aux.status != 200) {
-                alert(i18n.t("register.notFoundError"))
+            if (aux.status !== 200) {
+                setOpenSnackbar(true)
                 return
             }
     
@@ -86,11 +88,30 @@ const RegisterPage = () => {
                         break;
                 }
             })
+        } else {
+            setOpenSnackbar(true)
         }
+    }
+
+    let vertical = "top"
+    let horizontal = "right"
+
+    const handleClose = () => {
+        setOpenSnackbar(false)
     }
 
     return (
         <Layout>
+            <Snackbar
+                anchorOrigin={{ vertical, horizontal }}
+                open={openSnackbar}
+                onClose={handleClose}
+                key={vertical + horizontal}
+                autoHideDuration={15000}
+            >
+                <Alert severity="error" onClose={handleClose}>{i18n.t("error.api")}</Alert>
+            </Snackbar>
+
             <section className="form-page">
                 <div className="container">
                     <div className="form-block">

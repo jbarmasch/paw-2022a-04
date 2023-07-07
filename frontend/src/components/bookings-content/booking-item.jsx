@@ -20,6 +20,7 @@ import {ParseDateTime} from "../events-content/event-item";
 import LocationOnRoundedIcon from "@mui/icons-material/LocationOnRounded";
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 import { LazyLoadImage } from 'react-lazy-load-image-component';
+import {Alert, Snackbar} from "@mui/material";
 
 
 const BookingItem = ({image, code, event, rating, ticketBookings, mutate}) => {
@@ -27,15 +28,18 @@ const BookingItem = ({image, code, event, rating, ticketBookings, mutate}) => {
     const {data, isLoading, error} = useSwr(`${event}`, fetcher);
     const [openQR, setOpenQR] = useState(false);
     const [newRating, setNewRating] = useState(rating)
+    const [openSnackbar, setOpenSnackbar] = useState(false);
 
     const history = useHistory();
 
     if (error) {
         history.push("/404")
-        return <></>
+        return
     }
 
-    if (isLoading) return <BookingLoading/>
+    if (isLoading) {
+        return <BookingLoading/>
+    }
 
     let total = 0;
 
@@ -59,7 +63,14 @@ const BookingItem = ({image, code, event, rating, ticketBookings, mutate}) => {
                 'Authorization': `Bearer ${accessToken}`
             },
         })
+
         await res;
+
+        if (res.status === 400) {
+            setOpenSnackbar(true)
+            return;
+        }
+
         mutate()
         setOpen(!open)
     }
@@ -97,19 +108,36 @@ const BookingItem = ({image, code, event, rating, ticketBookings, mutate}) => {
             mutate()
     }
 
+    let vertical = "top"
+    let horizontal = "right"
+
+    const handleClose = () => {
+        setOpenSnackbar(false)
+    }
+
     return (
         <Paper className="booking-item" elevation={2}>
+            <Snackbar
+                anchorOrigin={{ vertical, horizontal }}
+                open={openSnackbar}
+                onClose={handleClose}
+                key={vertical + horizontal}
+                autoHideDuration={15000}
+            >
+                <Alert severity="error" onClose={handleClose}>{i18n.t("error.api")}</Alert>
+            </Snackbar>
+
             <div>
 
             <LazyLoadImage
-            onClick={handleClickOpenQR} 
+                onClick={handleClickOpenQR}
                             className="booking-qr-small pointer"
                             component="img"
                             height="100px"
                             width="100px"
                             src={`data:image/png;base64,${image}`}
                             alt={"QR"}
-                        />
+            />
 
 
             <Dialog

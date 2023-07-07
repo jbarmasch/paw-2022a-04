@@ -3,11 +3,17 @@ import EventItemLoading from './item-loading';
 import useSwr from 'swr';
 import {server, fetcher} from '../../utils/server';
 import i18n from '../../i18n'
+import {useHistory} from "react-router-dom";
 
 const SimilarEvents = ({id}) => {
+    const history = useHistory()
     const {data: aux, isLoading, error} = useSwr(`${server}/api/events/${id}/similar`, fetcher)
 
-    if (error) return
+    if (error) {
+        history.push("/404")
+        return
+    }
+
     if (isLoading) return (
         <div className="container">
             <div className="event-list featured-list">

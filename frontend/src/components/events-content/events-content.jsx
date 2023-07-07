@@ -103,8 +103,6 @@ const EventsContent = () => {
     const [soldOut, setSoldOut] = useState();
     const [noTickets, setNoTickets] = useState();
     const [userId, setUserId] = useState();
-    // const [minPrice, setMinPrice] = useState();
-    // const [maxPrice, setMaxPrice] = useState();
     const [priceArr, setPriceArr] = useState();
 
     const getFilters = () => {
@@ -257,8 +255,6 @@ const EventsContent = () => {
             setUserId(values?.userId)
             console.log("SE CARGA CON" + values?.minPrice)
             setPriceArr([values?.minPrice, values?.maxPrice])
-            // setMinPrice(values?.minPrice)
-            // setMaxPrice(values?.maxPrice)
             setFirstLoad(false)
         }
     }, [values.tags, values.locations, values.types, values.order, values.soldOut, values.noTickets, values.userId, values.minPrice, values.maxPrice, firstLoad])
@@ -297,7 +293,6 @@ const EventsContent = () => {
             if (soldOut) {
                 query = `${query}&soldOut=${soldOut}`
             }
-            // console.log(noTickets)
             if (noTickets) {
                 query = `${query}&noTickets=${noTickets}`
             }
@@ -307,12 +302,6 @@ const EventsContent = () => {
             if (values?.userId) {
                 query = `${query}&userId=${values.userId}`
             }
-            // if (minPrice) {
-            //     query = `${query}&minPrice=${minPrice}`
-            // }
-            // if (maxPrice) {
-            //     query = `${query}&maxPrice=${maxPrice}`
-            // }
             if (priceArr?.length > 0 && priceArr[0]) {
                 query = `${query}&minPrice=${priceArr[0]}`
             }
@@ -424,10 +413,6 @@ const EventsContent = () => {
     let soldOutCount = filters.soldOut;
     let noTicketsCount = filters.noTickets;
 
-    let priceList = [values?.minPrice, values?.maxPrice]
-    // let minPrice = values?.minPrice ? values.minPrice : ''
-    // let maxPrice = values?.maxPrice ? values.maxPrice : ''
-
     const handlePageChange = (e, page) => {
         setPageIndex(page)
         let str
@@ -440,29 +425,23 @@ const EventsContent = () => {
     }
 
     let orderList = []
-    // TODO: i18n
     orderList.push({
         value: "DATE_ASC",
-        label: "Fecha ascendente"
+        label: i18n.t("order.dateAsc")
     })
     orderList.push({
         value: "DATE_DESC",
-        label: "Fecha descendente"
+        label: i18n.t("order.dateDesc")
     })
 
     const onSubmit = (data) => {
         setFirstLoad(false);
-        // console.log("se hizo?")
-        // console.log(getValues("minPrice"))
-        // console.log(getValues("maxPrice"))
         setPriceArr([getValues("minPrice"), getValues("maxPrice")])
     }
 
     const clearFilters = () => {
         history.replace("/events?page=1")
         setNoTickets(undefined)
-        // setMinPrice(undefined)
-        // setMaxPrice(undefined)
         setPriceArr(undefined)
         setTagsArr(undefined)
         setLocationsArr(undefined)

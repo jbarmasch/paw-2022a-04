@@ -33,13 +33,18 @@ const ThankYou = () => {
 
     const {data, isLoading, error} = useSwr(`${booking}`, fetcher)
 
-    if (error) {history.push("/404"); return;}
-    if (isLoading) return <LoadingPage/>
+    if (error) {
+        history.push("/404");
+        return;
+    }
+
+    if (isLoading) {
+        return <LoadingPage/>
+    }
 
     let total = 0;
     const calcPrice = (price, qty) => {
         total += price * qty;
-        return;
     }
 
     return (

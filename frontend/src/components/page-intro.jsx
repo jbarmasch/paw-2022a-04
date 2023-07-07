@@ -1,6 +1,5 @@
 import i18n from '../i18n'
 import landingImage from '../assets/images/intro.jpg'
-import Button from "@mui/material/Button";
 import MoneyOffCsredRoundedIcon from '@mui/icons-material/MoneyOffCsredRounded';
 import CelebrationRoundedIcon from '@mui/icons-material/CelebrationRounded';
 import ChairRoundedIcon from '@mui/icons-material/ChairRounded';

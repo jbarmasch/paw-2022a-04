@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.scss';
 import App from './App';
-import {HashRouter, BrowserRouter} from 'react-router-dom'
+import {BrowserRouter} from 'react-router-dom'
 import {createTheme, ThemeProvider} from '@mui/material/styles';
 import WebFont from 'webfontloader';
 

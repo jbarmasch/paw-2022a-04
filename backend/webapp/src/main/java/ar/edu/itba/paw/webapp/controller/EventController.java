@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -44,7 +45,7 @@ public class EventController {
     @Autowired
     private UserManager um;
     @Autowired
-    private MessageSource messageSource;
+    private Environment env;
     @Context
     private HttpServletRequest request;
     @Context
@@ -313,7 +314,7 @@ public class EventController {
         // TODO: arreglar
         EventBooking eventBooking;
         try {
-            eventBooking = bs.book(booking, uriInfo.getBaseUriBuilder().toString(), request.getLocale());
+            eventBooking = bs.book(booking, env.getProperty("baseUrl"), request.getLocale());
         } catch (AlreadyMaxTicketsException | SurpassedMaxTicketsException e) {
             for (Map.Entry<Integer, Integer> error : e.getErrorMap().entrySet()) {
                 if (error.getValue() <= 0) {

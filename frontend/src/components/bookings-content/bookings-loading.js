@@ -1,7 +1,6 @@
 import BookingItemLoading from './item-loading';
 import Skeleton from '@mui/material/Skeleton';
 
-
 const BookingLoading = () => {
     return (
         <section className="users-content products-content">

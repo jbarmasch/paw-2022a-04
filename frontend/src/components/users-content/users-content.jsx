@@ -119,14 +119,18 @@ const UsersContent = () => {
 
     let links
 
-    const {data, error} = useSwr(`${server}/api/organizers${filtersStr}`, fetcherHeaders)
+    const {data, isLoading, error} = useSwr(`${server}/api/organizers${filtersStr}`, fetcherHeaders)
 
     if (error) {
         history.push("/404");
         return
     }
 
-    if (!data) return <ContentLoading/>
+    if (isLoading) return <ContentLoading/>
+
+    if (!data) {
+        return <NoOrganizersContent/>
+    }
 
     links = parseLink(data.headers.get("Link"))
 
@@ -144,22 +148,22 @@ const UsersContent = () => {
     let orderList = []
     orderList.push({
         value: "RATING_ASC",
-        label: "Rating ascendente"
+        label: i18n.t("order.ratingAsc")
     })
     orderList.push({
         value: "RATING_DESC",
-        label: "Rating descendente"
+        label: i18n.t("order.ratingDesc")
     })
     orderList.push({
         value: "USERNAME_ASC",
-        label: "Usuario ascendente"
+        label: i18n.t("order.usernameAsc")
     })
     orderList.push({
         value: "USERNAME_DESC",
-        label: "Usuario descendente"
+        label: i18n.t("order.usernameDesc")
     })
 
-    const onSubmit = (data) => {
+    const onSubmit = () => {
         setFirstLoad(false);
         setQuery(getValues("search"));
     }
@@ -206,7 +210,7 @@ const UsersContent = () => {
                             control={control}
                             defaultValue={'USERNAME_ASC'}
                             name="order"
-                            render={({field: {onChange, value, name, ref}}) => {
+                            render={({field: {onChange}}) => {
                                 const handleSelectChange = (selectedOption) => {
                                     setFirstLoad(false)
                                     onChange(selectedOption.target.value);

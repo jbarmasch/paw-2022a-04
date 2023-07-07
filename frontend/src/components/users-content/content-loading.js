@@ -1,7 +1,6 @@
 import UserLoading from './user-loading';
 import Skeleton from '@mui/material/Skeleton';
 
-
 const ContentLoading = () => {
     return (
         <section className="users-content products-content">

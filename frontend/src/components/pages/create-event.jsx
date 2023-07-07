@@ -55,8 +55,6 @@ const CreateEvent = () => {
         isLoading: typesLoading,
         error: typesError
     } = useSWRImmutable(`${server}/api/types`, fetcher)
-    const [type, setType] = useState([]);
-    const [minAge, setMinAge] = useState();
     const [date, setDate] = useState(null);
 
     const {handleSubmit, control, formState: {errors}, setError} = useForm();
@@ -86,7 +84,6 @@ const CreateEvent = () => {
     }
 
     const onSubmit = async (data) => {
-
         let auxi = new Date(data.date).toISOString().slice(0, -8)
 
         let obj = {
@@ -108,8 +105,6 @@ const CreateEvent = () => {
             obj.hasMinAge = data.hasMinAge
             obj.minAge = data.minAge
         }
-
-        // TODO: POST event and then PUT the image!
 
         const formData = new FormData();
         if (image) {
@@ -172,7 +167,14 @@ const CreateEvent = () => {
         return <></>
     }
 
-    if (locationsLoading || tagsLoading || typesLoading) return <LoadingPage/>
+    if (locationsLoading || tagsLoading || typesLoading) {
+        return <LoadingPage/>
+    }
+
+    if (locationsError || tagsError || typesError) {
+        history.push("/404")
+        return
+    }
 
     let locationList = []
     locations.forEach(x => locationList.push({

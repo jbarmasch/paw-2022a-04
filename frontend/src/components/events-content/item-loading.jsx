@@ -1,7 +1,6 @@
 import Skeleton from '@mui/material/Skeleton';
 import Box from '@mui/material/Box';
 
-
 const EventLoading = () => (
     <>
         <Box className="event-card">

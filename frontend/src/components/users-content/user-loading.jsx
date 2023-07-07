@@ -8,7 +8,6 @@ const UserLoading = () => (
             <Skeleton width="50%" height="40px" variant="rectangular"/>
             <Skeleton sx={{marginTop: "7px"}} width="70%" height="40px" variant="rectangular"/>
             <Skeleton sx={{marginTop: "7px"}} width="40%" height="40px" variant="rectangular"/>
-
         </Box>
     </>
 );

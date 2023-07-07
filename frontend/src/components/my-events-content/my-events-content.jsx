@@ -30,7 +30,7 @@ const fetcherHeaders = (...args) => fetch(...args).then((res) => {
     }
 })
 
-function Page({data, aux, setAux, mutate, userId}) {
+function Page({data, aux, setAux}) {
     if (!data) return <ContentLoading/>
     data = data.data
 
@@ -74,33 +74,56 @@ const MyEventsContent = ({userId}) => {
 
     let links
 
-    const {register, handleSubmit, control, watch, formState: {errors}} = useForm();
+    const {control} = useForm();
+
+    let page = values.page ? `${values.page}` : 1
+    let orderFilter = values.order ? `&order=${values.order}` : ''
 
     let {
         data,
         mutate,
         isLoading,
         error
-    } = useSwr(`${server}/api/events?page=${pageIndex}&userId=${userId}&noTickets=true&showPast=true`, fetcherHeaders);
+    } = useSwr(`${server}/api/events?page=${page}&userId=${userId}&noTickets=true&showPast=true${orderFilter}`, fetcherHeaders);
 
-    if (error) return <p>No data</p>
-    if (isLoading) return <ContentLoading/>
+    if (error) {
+        history.push("/404");
+        return
+    }
+
+    if (isLoading) {
+        return <ContentLoading/>
+    }
 
     links = parseLink(data.headers.get("Link"))
 
     const handlePageChange = (e, page) => {
         setPageIndex(page)
-        history.replace(`/my-events?page=${page}`)
+        let str
+        if (search.includes("page")) {
+            str = search.replace(new RegExp("[0-9]"), page)
+        } else {
+            str = `/my-events?page=${page}`
+        }
+        history.replace(str)
     }
+
+    const handleOrderChange = (option) => {
+        let value = option.target.value
+        setOrder(value)
+        let str = `/my-events?page=1&order=${value}`
+        history.replace(str)
+    }
+
 
     let orderList = []
     orderList.push({
         value: "DATE_ASC",
-        label: "Fecha ascendente"
+        label: i18n.t("order.dateAsc")
     })
     orderList.push({
         value: "DATE_DESC",
-        label: "Fecha descendente"
+        label: i18n.t("order.dateDesc")
     })
 
     return (
@@ -115,16 +138,7 @@ const MyEventsContent = ({userId}) => {
                             control={control}
                             defaultValue={'DATE_ASC'}
                             name="order"
-                            render={({field: {onChange, value, name, ref}}) => {
-                                const currentSelection = orderList.find(
-                                    (c) => c.value === value
-                                );
-
-                                const handleSelectChange = (selectedOption) => {
-                                    onChange(selectedOption.target.value);
-                                    setOrder(selectedOption.target.value);
-                                };
-
+                            render={() => {
                                 return (
                                     <FormControl>
                                         <InputLabel className="order-label"
@@ -134,7 +148,7 @@ const MyEventsContent = ({userId}) => {
                                             labelId="order-select-label"
                                             id="order-select"
                                             value={order ? order : "DATE_ASC"}
-                                            onChange={handleSelectChange}
+                                            onChange={handleOrderChange}
                                             input={<OutlinedInput className="order-label"
                                                                   label={i18n.t("filter.sortBy")}/>}
                                         >
@@ -169,4 +183,3 @@ const MyEventsContent = ({userId}) => {
 };
 
 export default MyEventsContent
-  

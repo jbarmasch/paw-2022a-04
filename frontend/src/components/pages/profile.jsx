@@ -19,8 +19,9 @@ const Profile = (props) => {
 
     const {data: userStats, isLoading: statsLoading, error: errorStats} = useSwr(user ? `${server}/api/users/${user.id}/stats` : null, fetcher)
 
-    if (errorStats) return <p>No data</p>
-    if (statsLoading || !user) return <LoadingPage/>
+    if (statsLoading || !user) {
+        return <LoadingPage/>
+    }
 
     return (
         <Layout>
@@ -41,7 +42,7 @@ const Profile = (props) => {
                             <h3 className="profile-name">{user.username}</h3>
                             <h3 className="profile-mail">{user.mail}</h3>
                             <span className="user-rating profile-rating">{user.rating}<Rating value={user.rating} readOnly size="small"/> ({user.votes})</span>
-                            {userStats &&
+                            {(userStats && !errorStats) &&
                             <TableContainer component={Paper} className="marg-top marg-bot">
                             <Table size="small">
                                 <TableHead>

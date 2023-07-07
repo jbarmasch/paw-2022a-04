@@ -93,7 +93,11 @@ public class EventJpaDao implements EventDao {
         queryCondition.append(" GROUP BY ec.eventid, date ");
         StringBuilder orderQuery = new StringBuilder();
         if (order != null) {
-            orderQuery.append(" ORDER BY lower(").append(order.getOrder()).append(") ").append(order.getOrderBy());
+            if (order == Order.USERNAME_ASC || order == Order.USERNAME_DESC) {
+                orderQuery.append(" ORDER BY lower(").append(order.getOrder()).append(") ").append(order.getOrderBy());
+            } else {
+                orderQuery.append(" ORDER BY ").append(order.getOrder()).append(" ").append(order.getOrderBy());
+            }
         } else {
             orderQuery.append(" ORDER BY date ");
         }

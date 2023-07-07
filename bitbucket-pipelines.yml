@@ -11,6 +11,9 @@ pipelines:
             - cd "$repoDir/frontend"
             - export packageFile="package.json"
             - sed -i "s/ssh.slococo.com.ar:2557/pawserver.it.itba.edu.ar/g" "$packageFile"
+            - export serverFile="src/utils/server.js"
+            - sed -i -e "1d" "$serverFile"
+            - sed -i "s/dev/false/g" "$serverFile"
             - cd "$repoDir/backend"
             - export webConfigFile="webapp/src/main/java/ar/edu/itba/paw/webapp/config/WebConfig.java"
             - sed -i "s/@PropertySource(\"classpath:config.properties\")//g" "$webConfigFile"
@@ -30,6 +33,10 @@ pipelines:
             - sed -i "s/env.getProperty(\"baseUrl\")/\"http:\/\/pawserver.it.itba.edu.ar\/paw-2022a-04\"/g" "$tokenConfigFile"
             - export responseFilterFile="webapp/src/main/java/ar/edu/itba/paw/webapp/config/ResponseFilter.java"
             - sed -i "s/env.getProperty(\"cors\")/\"false\"/g" "$responseFilterFile"
+            - export eventControllerFile="webapp/src/main/java/ar/edu/itba/paw/webapp/controller/EventController.java"
+            - sed -i "s/env.getProperty(\"baseUrl\")/\"http:\/\/pawserver.it.itba.edu.ar\/paw-2022a-04\"/g" "$eventControllerFile"
+            - export bookingControllerFile="src/main/java/ar/edu/itba/paw/webapp/controller/BookingController.java"
+            - sed -i "s/env.getProperty(\"baseUrl\")/\"http:\/\/pawserver.it.itba.edu.ar\/paw-2022a-04\"/g" "$bookingControllerFile"
             - unset CI
             - mvn clean package
           artifacts:

@@ -11,7 +11,7 @@ const RecommendedEvents = ({id}) => {
 
     if (error) {
         history.push("/404")
-        return <></>
+        return
     }
 
     if (isLoading) return (

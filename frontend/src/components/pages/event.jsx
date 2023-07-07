@@ -31,16 +31,15 @@ import MenuItem from '@mui/material/MenuItem';
 import FormHelperText from '@mui/material/FormHelperText';
 import {LoadingPage} from "../../utils/loadingPage";
 import {ParseDateTime} from "../events-content/event-item";
+import {Alert, Snackbar} from "@mui/material";
 
 const Event = (props) => {
     const prevLocation = useLocation();
 
-    const [showBlock, setShowBlock] = useState('description');
-
-    const {register, handleSubmit, control, watch, formState: {errors}} = useForm();
+    const {register, handleSubmit, control, formState: {errors}} = useForm();
+    const [openSnackbar, setOpenSnackbar] = useState(false);
 
     const history = useHistory();
-    let path = useFindPath();
 
     let accessToken;
     let refreshToken;
@@ -66,11 +65,18 @@ const Event = (props) => {
         error: errorBooking
     } = useSwr(props.match.params.id ? `${server}/api/users/${userId}/booking?eventId=${props.match.params.id}` : null, fetcher, {shouldRetryOnError: false})
 
-    if (errorData || errorOrganizer) return <p>{i18n.t("noData")}</p>
-    if (!event || !organizer || isLoading) return <LoadingPage/>
+    if (errorData || errorOrganizer || errorTickets || errorBooking) {
+        history.push("/404")
+        return
+    }
+
+    if (!event || !organizer || isLoading) {
+        return <LoadingPage/>
+    }
 
     if (new Date(event.date) <= Date.now()) {
         history.push("/404")
+        return
     }
 
     const getArray = (max, left, booked) => {
@@ -145,7 +151,7 @@ const Event = (props) => {
         let json = await response;
 
         if (json.status !== 201) {
-            history.push("/500")
+            setOpenSnackbar(true)
             return;
         }
 
@@ -171,14 +177,29 @@ const Event = (props) => {
         }
     }
 
+    let vertical = "top"
+    let horizontal = "right"
+
+    const handleClose = () => {
+        setOpenSnackbar(false)
+    }
+
     return (
         <Layout>
+            <Snackbar
+                anchorOrigin={{ vertical, horizontal }}
+                open={openSnackbar}
+                onClose={handleClose}
+                key={vertical + horizontal}
+                autoHideDuration={15000}
+            >
+                <Alert severity="error" onClose={handleClose}>{i18n.t("error.api")}</Alert>
+            </Snackbar>
 
             <section className="product-single">
                 <div className="container my-event-page">
                     <div className="my-event-content">
                         <div className="contain">
-                            {/*<img className="event-image" src={`data:image/png;base64,${aux.image}`} alt="Event"/>*/}
                             <img className="event-image" src={event.image} alt="Event"/>
                             {!!event.soldOut && <span className="event-image-sold-out">{i18n.t("event.soldOut")}</span>}
                         </div>

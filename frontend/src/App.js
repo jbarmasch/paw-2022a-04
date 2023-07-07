@@ -1,8 +1,7 @@
 import React, {Suspense} from 'react'
 import {Route, Switch} from 'react-router-dom'
-import {useAuth} from './utils/useAuth';
 import {AuthContext} from './utils/context';
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {LoadingPage} from "./utils/loadingPage";
 const Events = React.lazy(() => import('./components/pages/events'));
 const Event = React.lazy(() => import('./components/pages/event'));
@@ -13,7 +12,6 @@ const Booking = React.lazy(() => import('./components/pages/booking'));
 const Login = React.lazy(() => import('./components/pages/login'));
 const Register = React.lazy(() => import('./components/pages/register'));
 const Organizers = React.lazy(() => import('./components/pages/organizers'));
-const Recommended = React.lazy(() => import('./components/pages/recommended'));
 const MyEvents = React.lazy(() => import('./components/pages/my-events'));
 const MyEvent = React.lazy(() => import('./components/pages/my-event'));
 const Profile = React.lazy(() => import('./components/pages/profile'));
@@ -43,7 +41,6 @@ export default function App() {
                     <Route path="/login" component={Login}/>
                     <Route path="/register" component={Register}/>
                     <Route exact path="/organizers" component={Organizers}/>
-                    <Route path="/recommended" component={Recommended}/>
                     <Route exact path="/my-events" component={MyEvents}/>
                     <Route path="/my-events/:id" component={MyEvent}/>
                     <Route path="/profile" component={Profile}/>

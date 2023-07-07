@@ -26,14 +26,12 @@ const Login = () => {
     const history = useHistory();
     const {search} = useLocation()
     const values = queryString.parse(search)
-    // const [error, setError] = useState(false)
 
-    const {register, handleSubmit, control, watch, formState: {errors}, setError} = useForm();
+    const {handleSubmit, control, formState: {errors}, setError} = useForm();
 
     const [showPassword, setShowPassword] = React.useState(false);
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
-
     const handleMouseDownPassword = (event) => {
         event.preventDefault();
     };
@@ -156,8 +154,6 @@ const Login = () => {
                                 />
 
                             </div>
-
-                            {/*{error && <FormHelperText error>{i18n.t("login.notFound")}</FormHelperText>}*/}
 
                             <div className="form-actions">
                                 <Button type="submit" variant="contained">{i18n.t("login.signIn")}</Button>

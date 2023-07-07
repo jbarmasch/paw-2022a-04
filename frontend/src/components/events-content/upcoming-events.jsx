@@ -5,13 +5,13 @@ import {server, fetcher} from '../../utils/server';
 import i18n from '../../i18n'
 import {useHistory} from 'react-router-dom'
 
-const UpcomingEvents = ({id}) => {
+const UpcomingEvents = () => {
     const history = useHistory()
     const {data, isLoading, error} = useSwr(`${server}/api/events/upcoming`, fetcher)
 
     if (error) {
         history.push("/404")
-        return <></>
+        return
     }
 
     if (isLoading) return (

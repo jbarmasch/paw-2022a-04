@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect} from 'react';
 import {useUser} from './useUser';
 import {useLocalStorage} from './useLocalStorage';
 import {server} from './server';
@@ -65,7 +65,6 @@ export const useAuth = () => {
 
         const user = getItem('user');
         if (user) {
-            // console.log(user)
             addUser(JSON.parse(user));
         }
         protectedPaths.forEach(x => {
@@ -85,9 +84,7 @@ export const useAuth = () => {
     const login = (user) => {
         const accessToken = getItem('Access-Token')
 
-        // console.log(user)
         user["roles"] = jwtDecode(accessToken)["authorities"]
-        // console.log(user)
 
         addUser(user);
     };
@@ -105,7 +102,6 @@ export const useAuth = () => {
             },
         })
             .then(y => {
-                // console.log(y)
                 if (y.status === 200) {
                     let accessToken = y.headers.get("Access-Token")
                     localStorage.setItem("Access-Token", accessToken)
@@ -113,7 +109,6 @@ export const useAuth = () => {
                     const user = getItem('user')
                     let aux = JSON.parse(user)
                     aux["roles"] = jwtDecode(accessToken)["authorities"]
-                    // console.log(aux)
                     addUser(aux);
                 }
             })

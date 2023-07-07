@@ -3,11 +3,10 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.service.CodeService;
 import ar.edu.itba.paw.service.EventBookingService;
-import ar.edu.itba.paw.service.TicketService;
 import ar.edu.itba.paw.webapp.dto.BookingDto;
 import ar.edu.itba.paw.webapp.form.BouncerBookForm;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +25,8 @@ public class BookingController {
     private EventBookingService bs;
     @Autowired
     private CodeService cs;
+    @Autowired
+    private Environment env;
     @Context
     private HttpServletRequest request;
     @Context
@@ -78,7 +79,7 @@ public class BookingController {
     public Response getById(@PathParam("code") final String code) {
         Optional<BookingDto> bookingDto = bs.getBooking(code).map(e -> BookingDto.fromBooking(uriInfo, e));
 
-        String bookUrl = uriInfo.getBaseUriBuilder().toString() + "/bookings/" + code;
+        String bookUrl = env.getProperty("baseUrl") + "/bookings/" + code;
         byte[] encodeBase64 = Base64.getEncoder().encode(cs.createQr(bookUrl));
         String base64Encoded = new String(encodeBase64, StandardCharsets.UTF_8);
 

@@ -1,23 +1,18 @@
 import {Link} from 'react-router-dom';
-import useSwr from 'swr';
-import MyEventLoading from './my-event-loading';
 import {getPrice} from "../../utils/price";
 import Card from "@mui/material/Card";
 import CardActionArea from "@mui/material/CardActionArea";
-import CardMedia from "@mui/material/CardMedia";
 import i18n from "../../i18n";
 import CardHeader from "@mui/material/CardHeader";
 import CardContent from "@mui/material/CardContent";
 import LocalOfferRoundedIcon from "@mui/icons-material/LocalOfferRounded";
-import {fetcher} from '../../utils/server'
 import LocationOnRoundedIcon from "@mui/icons-material/LocationOnRounded";
 import LocalActivityRoundedIcon from "@mui/icons-material/LocalActivityRounded";
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 import {ParseDateTime} from "../events-content/event-item";
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 
-
-const MyEventItem = ({id, name, minPrice, location, type, date, image, soldOut, organizer}) => {
+const MyEventItem = ({id, name, minPrice, location, type, date, image, soldOut}) => {
     return (
         <Link to={`/my-events/${id}`}>
             <Card className="event-card">
@@ -47,6 +42,5 @@ const MyEventItem = ({id, name, minPrice, location, type, date, image, soldOut, 
         </Link>
     )
 };
-
 
 export default MyEventItem

@@ -1,4 +1,4 @@
-import {Link} from 'react-router-dom';
+import {Link, useHistory} from 'react-router-dom';
 import useSwr from 'swr';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -11,13 +11,17 @@ import {fetcher} from "../../utils/server";
 import UserLoading from "./user-loading";
 
 const UserItem = ({id, username, rating, votes, events}) => {
+    let history = useHistory()
     const {data: aux, isLoading, error} = useSwr(events, fetcher)
 
     if (error) {
-        return <p></p>
+        history.push("/404")
+        return
     }
 
-    if (isLoading) return <UserLoading/>
+    if (isLoading) {
+        return <UserLoading/>
+    }
 
     return (
         <Card>
