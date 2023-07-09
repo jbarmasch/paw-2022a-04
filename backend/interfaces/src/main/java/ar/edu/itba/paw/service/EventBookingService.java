@@ -11,7 +11,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 public interface EventBookingService {
-//    EventBookingList getAllBookingsFromUser(long userId, Long eventId, int page);
+    //    EventBookingList getAllBookingsFromUser(long userId, Long eventId, int page);
     EventBookingList getAllBookingsFromUser(long userId, int page);
 
     List<TicketBooking> getTicketBookingsFromUser(long userId, long eventId);

@@ -1,11 +1,11 @@
 package ar.edu.itba.paw.exceptions;
 
-public class IllegalTicketException extends LocalizedRuntimeException {
+public class IllegalBookingException extends LocalizedRuntimeException {
     private static final long serialVersionUID = -54L;
-    private static final String message = "exception.illegalTicket";
+    private static final String message = "exception.illegalBooking";
     private static final int statusCode = 400;
 
-    public IllegalTicketException() {
+    public IllegalBookingException() {
         super(message, statusCode);
     }
 }

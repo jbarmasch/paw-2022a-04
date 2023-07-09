@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.model.*;
+import ar.edu.itba.paw.model.EventBooking;
+import ar.edu.itba.paw.model.EventBookingList;
 import ar.edu.itba.paw.service.CodeService;
 import ar.edu.itba.paw.service.EventBookingService;
 import ar.edu.itba.paw.webapp.dto.BookingDto;
@@ -36,9 +37,7 @@ public class BookingController {
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON,})
     public Response listBookings(@QueryParam("userId") final long userId,
-//                                 @QueryParam("eventId") final Long eventId,
                                  @QueryParam("page") @DefaultValue("1") final int page) {
-//        final EventBookingList res = bs.getAllBookingsFromUser(userId, eventId, page);
         final EventBookingList res = bs.getAllBookingsFromUser(userId, page);
 
         final List<BookingDto> userList = res
@@ -46,12 +45,10 @@ public class BookingController {
                 .stream()
                 .map(e -> {
                     BookingDto bookingDto = BookingDto.fromBooking(uriInfo, e);
-//                    if (eventId == null) {
-                        String bookUrl = uriInfo.getBaseUriBuilder().toString() + "/bookings/" + e.getCode();
-                        byte[] encodeBase64 = Base64.getEncoder().encode(cs.createQr(bookUrl));
-                        String base64Encoded = new String(encodeBase64, StandardCharsets.UTF_8);
-                        bookingDto.setImage(base64Encoded);
-//                    }
+                    String bookUrl = uriInfo.getBaseUriBuilder().toString() + "/bookings/" + e.getCode();
+                    byte[] encodeBase64 = Base64.getEncoder().encode(cs.createQr(bookUrl));
+                    String base64Encoded = new String(encodeBase64, StandardCharsets.UTF_8);
+                    bookingDto.setImage(base64Encoded);
                     return bookingDto;
                 })
                 .collect(Collectors.toList());
@@ -95,7 +92,7 @@ public class BookingController {
         } else {
             bs.invalidateBooking(eventBooking);
         }
-        return Response.accepted().build();
+        return Response.ok().build();
     }
 
     @Path("/{code}")

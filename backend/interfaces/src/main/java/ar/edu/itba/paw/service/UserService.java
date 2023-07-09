@@ -17,6 +17,8 @@ public interface UserService {
 
     void updateUser(long userId, String username, String password, String mail);
 
+    void updateBouncer(long userId, Event event);
+
     Optional<User> findByUsername(String username);
 
     Optional<OrganizerStats> getOrganizerStats(long id);

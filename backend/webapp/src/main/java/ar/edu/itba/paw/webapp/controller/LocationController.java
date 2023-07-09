@@ -8,7 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,12 +18,11 @@ import java.util.stream.Collectors;
 @Path("api/locations")
 @Component
 public class LocationController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocationController.class);
     @Autowired
     private LocationService ls;
     @Context
     private UriInfo uriInfo;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(LocationController.class);
 
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON,})

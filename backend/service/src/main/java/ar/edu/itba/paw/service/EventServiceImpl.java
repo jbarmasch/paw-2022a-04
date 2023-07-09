@@ -1,6 +1,6 @@
 package ar.edu.itba.paw.service;
 
-import ar.edu.itba.paw.exceptions.FilterException;
+import ar.edu.itba.paw.exceptions.FilterRequestException;
 import ar.edu.itba.paw.exceptions.ForbiddenAccessException;
 import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.persistence.EventDao;
@@ -53,7 +53,7 @@ public class EventServiceImpl implements EventService {
         User organizer = userService.getUserById(userId).orElse(null);
         Event event = eventDao.createEvent(name, description, locationId, typeId, date, imageArray, tagIds, organizer, minAge, bouncer);
         userService.makeCreator(organizer);
-        userService.updateUser(bouncer.getId(), String.valueOf(event.getId()), null, String.valueOf(event.getId()));
+        userService.updateBouncer(bouncer.getId(), event);
         mailService.sendBouncerMail(event, password, baseURL + "events/" + event.getId(), locale);
 
         System.out.println("BOUNCER" + event.getId() + ":" + password);
@@ -77,17 +77,17 @@ public class EventServiceImpl implements EventService {
 
         for (Long location : locations) {
             if (location == null) {
-                throw new FilterException();
+                throw new FilterRequestException();
             }
         }
         for (Long type : types) {
             if (type == null) {
-                throw new FilterException();
+                throw new FilterRequestException();
             }
         }
         for (Long tag : tags) {
             if (tag == null) {
-                throw new FilterException();
+                throw new FilterRequestException();
             }
         }
         return eventDao.filterBy(locations, types, minPrice, maxPrice, query, tags, username, userId, orderBy, showSoldOut, showNoTickets, showPast, page);

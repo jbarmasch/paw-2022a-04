@@ -1,11 +1,11 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.exceptions.AlreadyMaxTicketsException;
+import ar.edu.itba.paw.exceptions.ForbiddenAccessException;
 import ar.edu.itba.paw.exceptions.SurpassedMaxTicketsException;
 import ar.edu.itba.paw.exceptions.TicketNotBookedException;
 import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.persistence.EventBookingDao;
-import ar.edu.itba.paw.persistence.EventDao;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -37,6 +37,8 @@ public class EventBookingServiceImplTest {
     @Mock
     private EventService mockEventService;
     @Mock
+    private AuthService mockAuthService;
+    @Mock
     private CodeService mockCodeService;
 
     @Test
@@ -45,6 +47,7 @@ public class EventBookingServiceImplTest {
         Mockito.when(mockCodeService.getCode(Mockito.eq(USER.getId() + ":" + EVENT.getId()))).thenReturn("");
         EVENT_BOOKING.setTicketBookings(Collections.singletonList(ACCEPTED_TICKET_BOOKING));
         Mockito.doNothing().when(mockEventService).checkSoldOut(Mockito.anyLong());
+        Mockito.when(mockAuthService.isAuthenticated()).thenReturn(true);
         eventBookingService.book(EVENT_BOOKING, "", null);
     }
 
@@ -53,31 +56,45 @@ public class EventBookingServiceImplTest {
         EVENT.setTickets(Arrays.asList(TICKET, DIFFERENT_TICKET));
         EVENT_BOOKING.setTicketBookings(Collections.singletonList(DECLINED_TICKET_BOOKING));
         Mockito.when(mockDao.getBookingFromUser(Mockito.eq(EVENT_BOOKING.getUser().getId()), Mockito.eq(EVENT_BOOKING.getEvent().getId()))).thenReturn(Optional.empty());
+        Mockito.when(mockAuthService.isAuthenticated()).thenReturn(true);
         eventBookingService.book(EVENT_BOOKING, "", null);
     }
 
-     @Test
-     public void testCancelBookOk() {
-         Mockito.when(mockDao.getBooking(Mockito.eq(EVENT_BOOKING.getCode()))).thenReturn(Optional.of(EVENT_BOOKING));
-         EVENT.setTickets(Arrays.asList(TICKET, DIFFERENT_TICKET));
-         EVENT_BOOKING.setTicketBookings(Collections.singletonList(ACCEPTED_TICKET_BOOKING));
-         try {
-             eventBookingService.cancelBooking(EVENT_BOOKING.getCode(), null);
-         } catch (TicketNotBookedException e) {
-             throw new RuntimeException();
-         }
-     }
+    @Test
+    public void testCancelBookOk() {
+        Mockito.when(mockDao.getBooking(Mockito.eq(EVENT_BOOKING.getCode()))).thenReturn(Optional.of(EVENT_BOOKING));
+        EVENT.setTickets(Arrays.asList(TICKET, DIFFERENT_TICKET));
+        EVENT_BOOKING.setTicketBookings(Collections.singletonList(ACCEPTED_TICKET_BOOKING));
+        Mockito.when(mockAuthService.isAuthenticated()).thenReturn(true);
+        Mockito.when(mockAuthService.isTheBookingOwner(EVENT_BOOKING.getUser())).thenReturn(true);
+        try {
+            eventBookingService.cancelBooking(EVENT_BOOKING.getCode(), null);
+        } catch (TicketNotBookedException e) {
+            throw new RuntimeException();
+        }
+    }
 
-     @Test(expected = RuntimeException.class)
-     public void testCancelBookFails() {
-         Mockito.when(mockDao.getBooking(Mockito.eq(DIFFERENT_EVENT_BOOKING.getCode()))).thenReturn(null);
-         EVENT.setTickets(Arrays.asList(TICKET, DIFFERENT_TICKET));
-         EVENT_BOOKING.setTicketBookings(Collections.singletonList(DIFFERENT_TICKET_BOOKING));
-         try {
-             eventBookingService.cancelBooking(DIFFERENT_EVENT_BOOKING.getCode(), null);
-         } catch (TicketNotBookedException e) {
-             throw new RuntimeException();
-         }
-     }
+    @Test(expected = RuntimeException.class)
+    public void testCancelBookFails() {
+        Mockito.when(mockDao.getBooking(Mockito.eq(DIFFERENT_EVENT_BOOKING.getCode()))).thenReturn(null);
+        EVENT.setTickets(Arrays.asList(TICKET, DIFFERENT_TICKET));
+        EVENT_BOOKING.setTicketBookings(Collections.singletonList(DIFFERENT_TICKET_BOOKING));
+        Mockito.when(mockAuthService.isAuthenticated()).thenReturn(true);
+        try {
+            eventBookingService.cancelBooking(DIFFERENT_EVENT_BOOKING.getCode(), null);
+        } catch (TicketNotBookedException e) {
+            throw new RuntimeException();
+        }
+    }
+
+    @Test(expected = ForbiddenAccessException.class)
+    public void testCancelBookNotAuthenticated() {
+        EVENT.setTickets(Arrays.asList(TICKET, DIFFERENT_TICKET));
+        Mockito.when(mockCodeService.getCode(Mockito.eq(USER.getId() + ":" + EVENT.getId()))).thenReturn("");
+        EVENT_BOOKING.setTicketBookings(Collections.singletonList(ACCEPTED_TICKET_BOOKING));
+        Mockito.doNothing().when(mockEventService).checkSoldOut(Mockito.anyLong());
+        Mockito.when(mockAuthService.isAuthenticated()).thenReturn(false);
+        eventBookingService.book(EVENT_BOOKING, "", null);
+    }
 }
 

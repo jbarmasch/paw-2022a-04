@@ -1,8 +1,6 @@
 package ar.edu.itba.paw.webapp.auth;
 
 import ar.edu.itba.paw.model.RoleEnum;
-import java.util.Base64;
-
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.UserService;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -21,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,7 +44,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
                 AuthenticationTokenDetails authenticationTokenDetails;
                 try {
-                     authenticationTokenDetails = authenticationTokenService.parseToken(authenticationToken);
+                    authenticationTokenDetails = authenticationTokenService.parseToken(authenticationToken);
 
                     if (authenticationTokenDetails.isRefresh()) {
                         User user = us.findByUsername(authenticationTokenDetails.getUsername()).orElseThrow(RuntimeException::new);
@@ -78,7 +77,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                 SecurityContext context = SecurityContextHolder.createEmptyContext();
                 Authentication authenticationResult;
                 try {
-                     authenticationResult = authenticationManager.authenticate(authenticationRequest);
+                    authenticationResult = authenticationManager.authenticate(authenticationRequest);
                 } catch (BadCredentialsException e) {
                     response.setStatus(Response.Status.UNAUTHORIZED.getStatusCode());
                     return;

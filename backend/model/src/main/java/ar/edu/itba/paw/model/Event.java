@@ -1,9 +1,9 @@
 package ar.edu.itba.paw.model;
 
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.Check;
+import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.Where;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;

@@ -10,11 +10,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.stream.Collectors;
-import java.util.Optional;
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class EventBookingJpaDao implements EventBookingDao {
@@ -37,7 +36,7 @@ public class EventBookingJpaDao implements EventBookingDao {
         count.setParameter("userid", userId);
         return new EventBookingList(typedQuery.getResultList(), (int) Math.ceil((double) ((Number) count.getSingleResult()).intValue() / 8));
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public Optional<EventBooking> getBookingFromUser(long userId, long eventId) {

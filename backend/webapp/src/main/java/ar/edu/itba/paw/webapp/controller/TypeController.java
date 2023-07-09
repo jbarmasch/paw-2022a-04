@@ -19,14 +19,13 @@ import java.util.stream.Collectors;
 @Path("api/types")
 @Component
 public class TypeController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TypeController.class);
     @Autowired
     private TypeService ts;
     @Context
     private HttpServletRequest request;
     @Context
     private UriInfo uriInfo;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TypeController.class);
 
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON,})

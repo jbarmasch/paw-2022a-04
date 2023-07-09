@@ -53,6 +53,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void updateBouncer(long userId, Event event) {
+        if (!(authService.isAuthenticated() && authService.isTheEventOrganizer(event))) {
+            throw new ForbiddenAccessException();
+        }
+
+        userDao.updateUser(userId, String.valueOf(event.getId()), null, String.valueOf(event.getId()));
+    }
+
+
+    @Override
     public Optional<User> findByUsername(String username) {
         return userDao.findByUsername(username);
     }

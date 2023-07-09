@@ -1,9 +1,5 @@
 package ar.edu.itba.paw.webapp.config;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -29,10 +25,8 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
-import org.springframework.web.servlet.LocaleResolver;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
@@ -40,7 +34,6 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
-import javax.validation.Validator;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
@@ -117,14 +110,6 @@ public class WebConfig {
         return messageSource;
     }
 
-//    @Bean
-//    public MessageSource messageSource() {
-//        final ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-//        messageSource.setBasename("classpath:i18n/ValidationMessages");
-//        messageSource.setDefaultEncoding(StandardCharsets.UTF_8.displayName());
-//        return messageSource;
-//    }
-
     @Bean(name = "multipartResolver")
     public CommonsMultipartResolver multipartResolver() {
         CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
@@ -184,18 +169,4 @@ public class WebConfig {
     public PlatformTransactionManager transactionManager(final EntityManagerFactory emf) {
         return new JpaTransactionManager(emf);
     }
-
-//    @Bean
-//    public Validator validatorFactory() {
-//        LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
-//        validator.setValidationMessageSource(messageSource());
-//        return validator;
-//    }
-
-//    @Bean
-//    public Validator validator() {
-//        final LocalValidatorFactoryBean factory = new LocalValidatorFactoryBean();
-//        factory.setValidationMessageSource(messageSource());
-//        return factory;
-//    }
 }

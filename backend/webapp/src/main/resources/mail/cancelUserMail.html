@@ -34,32 +34,32 @@
     </style>
 </head>
 <body>
-    <p th:text="#{mail.greeting(${booking.getUser().getUsername()})}"></p>
+<p th:text="#{mail.greeting(${booking.getUser().getUsername()})}"></p>
 
-    <p th:text="#{mail.cancelDesc(${booking.getEvent().getName()})}"></p>
+<p th:text="#{mail.cancelDesc(${booking.getEvent().getName()})}"></p>
 
-    <table class="tickets-table">
-        <tr>
-            <th th:text="#{tickets.ticketName}">
-            </th>
-            <th th:text="#{tickets.ticketQty}">
-            </th>
-            <th th:text="#{tickets.ticketPrice}">
-            </th>
-        </tr>
-        <tr th:each="ticketBooking : ${booking.getTicketBookings()}" th:if="${ticketBooking.getQty() > 0}">
-            <td th:text="${ticketBooking.getTicket().getTicketName()}">
-            </td>
-            <td class="table-number" th:text="${ticketBooking.getQty()}">
-            </td>
-            <td class="table-number">
-                $
-                <span th:text="${ticketBooking.getTicket().getPrice()}"></span>
-            </td>
-        </tr>
-    </table>
+<table class="tickets-table">
+    <tr>
+        <th th:text="#{tickets.ticketName}">
+        </th>
+        <th th:text="#{tickets.ticketQty}">
+        </th>
+        <th th:text="#{tickets.ticketPrice}">
+        </th>
+    </tr>
+    <tr th:each="ticketBooking : ${booking.getTicketBookings()}" th:if="${ticketBooking.getQty() > 0}">
+        <td th:text="${ticketBooking.getTicket().getTicketName()}">
+        </td>
+        <td class="table-number" th:text="${ticketBooking.getQty()}">
+        </td>
+        <td class="table-number">
+            $
+            <span th:text="${ticketBooking.getTicket().getPrice()}"></span>
+        </td>
+    </tr>
+</table>
 
-    <p th:text="#{mail.farewell}"></p>
-    <p>&emsp; <em>BotPass</em></p>
+<p th:text="#{mail.farewell}"></p>
+<p>&emsp; <em>BotPass</em></p>
 </body>
 </html>

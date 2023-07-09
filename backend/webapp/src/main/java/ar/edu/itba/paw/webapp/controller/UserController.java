@@ -1,12 +1,13 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.model.*;
-import ar.edu.itba.paw.service.UserService;
-import ar.edu.itba.paw.service.EventBookingService;
-import ar.edu.itba.paw.webapp.dto.*;
-import ar.edu.itba.paw.webapp.exceptions.BookingNotFoundException;
-import ar.edu.itba.paw.webapp.exceptions.UserStatsNotFoundException;
 import ar.edu.itba.paw.exceptions.UserNotFoundException;
+import ar.edu.itba.paw.model.User;
+import ar.edu.itba.paw.model.UserList;
+import ar.edu.itba.paw.service.EventBookingService;
+import ar.edu.itba.paw.service.UserService;
+import ar.edu.itba.paw.webapp.dto.TicketBookingDto;
+import ar.edu.itba.paw.webapp.dto.UserDto;
+import ar.edu.itba.paw.webapp.dto.UserStatsDto;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import ar.edu.itba.paw.webapp.helper.PaginationUtils;
 import org.springframework.beans.factory.annotation.Autowired;

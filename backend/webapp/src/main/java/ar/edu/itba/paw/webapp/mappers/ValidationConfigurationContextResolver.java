@@ -13,9 +13,9 @@ import javax.ws.rs.ext.Provider;
 @Provider
 @Component
 public class ValidationConfigurationContextResolver implements ContextResolver<ValidationConfig> {
+    private final ValidationConfig config;
     @Context
     private HttpServletRequest headers;
-    private final ValidationConfig config;
 
     public ValidationConfigurationContextResolver() {
         config = new ValidationConfig();

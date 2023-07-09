@@ -1,13 +1,6 @@
 package ar.edu.itba.paw.model;
 
-import ar.edu.itba.paw.model.Event;
-import ar.edu.itba.paw.model.Location;
-import ar.edu.itba.paw.model.Type;
-import ar.edu.itba.paw.model.Tag;
-
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class FilterType {
     private final Map<Location, Integer> locations;
@@ -16,7 +9,7 @@ public class FilterType {
     private final int soldOut;
     private final int noTickets;
 
-    public FilterType(Map<Location,Integer> locations, Map<Type,Integer> types, Map<Tag,Integer> tags, int soldOut, int noTickets) {
+    public FilterType(Map<Location, Integer> locations, Map<Type, Integer> types, Map<Tag, Integer> tags, int soldOut, int noTickets) {
         this.locations = locations;
         this.types = types;
         this.tags = tags;

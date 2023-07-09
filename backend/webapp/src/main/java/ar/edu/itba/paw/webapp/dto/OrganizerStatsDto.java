@@ -1,14 +1,8 @@
 package ar.edu.itba.paw.webapp.dto;
 
 import ar.edu.itba.paw.model.OrganizerStats;
-import ar.edu.itba.paw.model.Tag;
 
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.net.URI;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class OrganizerStatsDto {
     private int eventsCreated;
@@ -68,5 +62,5 @@ public class OrganizerStatsDto {
     public void setIncome(double income) {
         this.income = income;
     }
-    
+
 }

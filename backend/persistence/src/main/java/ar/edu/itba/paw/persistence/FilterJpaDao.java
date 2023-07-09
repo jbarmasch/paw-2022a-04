@@ -1,18 +1,18 @@
 package ar.edu.itba.paw.persistence;
 
-import ar.edu.itba.paw.exceptions.EventFinishedException;
-import ar.edu.itba.paw.model.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import ar.edu.itba.paw.model.FilterType;
+import ar.edu.itba.paw.model.Location;
+import ar.edu.itba.paw.model.Tag;
+import ar.edu.itba.paw.model.Type;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Repository
 public class FilterJpaDao implements FilterDao {
@@ -22,11 +22,11 @@ public class FilterJpaDao implements FilterDao {
     @Override
     public FilterType getFilterType(List<Long> locations, List<Long> types, Double minPrice, Double maxPrice, String searchQuery, List<Long> tags, Boolean showSoldOut, Boolean showNoTickets, Long userId) {
         return new FilterType(
-            getLocationFilterCount(types, minPrice, maxPrice, searchQuery, tags, showSoldOut, showNoTickets, userId),
-            getTypeFilterCount(locations, minPrice, maxPrice, searchQuery, tags, showSoldOut, showNoTickets, userId),
-            getTagFilterCount(locations, types, minPrice, maxPrice, searchQuery, showSoldOut, showNoTickets, userId),
-            getSoldOutFilterCount(locations, types, minPrice, maxPrice, searchQuery, tags, showNoTickets, userId),
-            getNoTicketsFilterCount(locations, types, minPrice, maxPrice, searchQuery, tags, showSoldOut, userId)
+                getLocationFilterCount(types, minPrice, maxPrice, searchQuery, tags, showSoldOut, showNoTickets, userId),
+                getTypeFilterCount(locations, minPrice, maxPrice, searchQuery, tags, showSoldOut, showNoTickets, userId),
+                getTagFilterCount(locations, types, minPrice, maxPrice, searchQuery, showSoldOut, showNoTickets, userId),
+                getSoldOutFilterCount(locations, types, minPrice, maxPrice, searchQuery, tags, showNoTickets, userId),
+                getNoTicketsFilterCount(locations, types, minPrice, maxPrice, searchQuery, tags, showSoldOut, userId)
         );
     }
 
@@ -112,7 +112,7 @@ public class FilterJpaDao implements FilterDao {
     private Map<Type, Integer> getTypeFilterCount(List<Long> locations, Double minPrice, Double maxPrice, String searchQuery, List<Long> tags, Boolean showSoldOut, Boolean showNoTickets, Long userId) {
         boolean having = false, condition = false;
         Map<String, Object> objects = new HashMap<>();
-        
+
         StringBuilder querySelect = new StringBuilder("SELECT t.typeid, t.name, t.name_en, e.eventid FROM types t JOIN events e ON t.typeid = e.typeid");
         StringBuilder queryCondition = new StringBuilder(" WHERE state != 1 AND date > NOW()");
         if (showSoldOut == null || !showSoldOut) {
@@ -143,13 +143,12 @@ public class FilterJpaDao implements FilterDao {
         if ((minPrice != null || maxPrice != null) && showNoTickets != null && showNoTickets) {
             querySelect.append(" LEFT JOIN (SELECT * FROM tickets ti WHERE (ti.starting IS NULL OR ti.starting <= NOW()) AND (ti.until IS NULL OR ti.until >= NOW())) AS ti ON e.eventid = ti.eventid");
         }
-            
+
         if (minPrice != null) {
             if (!having) {
                 queryCondition.append(" HAVING");
                 having = true;
-            }
-            else queryCondition.append(" AND");
+            } else queryCondition.append(" AND");
             queryCondition.append(" COALESCE(MIN(ti.price), 0) >= :minPrice");
             objects.put("minPrice", minPrice);
         }
@@ -191,7 +190,7 @@ public class FilterJpaDao implements FilterDao {
     private Map<Tag, Integer> getTagFilterCount(List<Long> locations, List<Long> types, Double minPrice, Double maxPrice, String searchQuery, Boolean showSoldOut, Boolean showNoTickets, Long userId) {
         boolean having = false;
         Map<String, Object> objects = new HashMap<>();
-        
+
         StringBuilder querySelect = new StringBuilder("SELECT ta.tagid, ta.name, ta.name_en, e.eventid FROM tags ta JOIN eventtags et ON ta.tagid = et.tagid JOIN events e ON et.eventid = e.eventid");
         StringBuilder queryCondition = new StringBuilder(" WHERE state != 1 AND date > NOW()");
         if (showSoldOut == null || !showSoldOut) {
@@ -226,7 +225,7 @@ public class FilterJpaDao implements FilterDao {
         if ((minPrice != null || maxPrice != null) && showNoTickets != null && showNoTickets) {
             querySelect.append(" LEFT JOIN (SELECT * FROM tickets ti WHERE (ti.starting IS NULL OR ti.starting <= NOW()) AND (ti.until IS NULL OR ti.until >= NOW())) AS ti ON e.eventid = ti.eventid");
         }
-            
+
         if (minPrice != null) {
             if (!having) {
                 queryCondition.append(" HAVING");
@@ -261,7 +260,7 @@ public class FilterJpaDao implements FilterDao {
     private int getSoldOutFilterCount(List<Long> locations, List<Long> types, Double minPrice, Double maxPrice, String searchQuery, List<Long> tags, Boolean showNoTickets, Long userId) {
         boolean having = false;
         Map<String, Object> objects = new HashMap<>();
-        
+
         StringBuilder querySelect = new StringBuilder("SELECT e.eventid FROM events e ");
         StringBuilder queryCondition = new StringBuilder(" WHERE state != 1 AND date > NOW()");
         queryCondition.append(" AND state = 2");
@@ -294,13 +293,12 @@ public class FilterJpaDao implements FilterDao {
         if ((minPrice != null || maxPrice != null) && showNoTickets != null && showNoTickets) {
             querySelect.append(" LEFT JOIN (SELECT * FROM tickets ti WHERE (ti.starting IS NULL OR ti.starting <= NOW()) AND (ti.until IS NULL OR ti.until >= NOW())) AS ti ON e.eventid = ti.eventid");
         }
-            
+
         if (minPrice != null) {
             if (!having) {
                 queryCondition.append(" HAVING");
                 having = true;
-            }
-            else
+            } else
                 queryCondition.append(" AND");
             queryCondition.append(" COALESCE(MIN(ti.price), 0) >= :minPrice");
             objects.put("minPrice", minPrice);
@@ -331,14 +329,14 @@ public class FilterJpaDao implements FilterDao {
         List<Object[]> resultSet = queryNative.getResultList();
         if (resultSet.isEmpty())
             return 0;
-        
+
         return ((Number) queryNative.getSingleResult()).intValue();
     }
 
     @SuppressWarnings("unchecked")
     private int getNoTicketsFilterCount(List<Long> locations, List<Long> types, Double minPrice, Double maxPrice, String searchQuery, List<Long> tags, Boolean showSoldOut, Long userId) {
         Map<String, Object> objects = new HashMap<>();
-        
+
         StringBuilder querySelect = new StringBuilder("SELECT e.eventid FROM events e ");
         StringBuilder queryCondition = new StringBuilder(" WHERE state != 1 AND date > NOW()");
         if (showSoldOut == null || !showSoldOut) {
@@ -392,7 +390,7 @@ public class FilterJpaDao implements FilterDao {
         List<Object[]> resultSet = queryNative.getResultList();
         if (resultSet.isEmpty())
             return 0;
-        
+
         return ((Number) queryNative.getSingleResult()).intValue();
     }
 }

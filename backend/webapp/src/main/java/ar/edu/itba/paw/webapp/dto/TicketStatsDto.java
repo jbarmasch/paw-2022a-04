@@ -1,14 +1,8 @@
 package ar.edu.itba.paw.webapp.dto;
 
 import ar.edu.itba.paw.model.TicketStats;
-import ar.edu.itba.paw.model.Tag;
 
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.net.URI;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class TicketStatsDto {
     private String ticketName;
@@ -98,5 +92,5 @@ public class TicketStatsDto {
 
     public void setBooked(int booked) {
         this.booked = booked;
-    }    
+    }
 }

@@ -1,10 +1,11 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.model.*;
+import ar.edu.itba.paw.model.Order;
+import ar.edu.itba.paw.model.UserList;
 import ar.edu.itba.paw.service.UserService;
-import ar.edu.itba.paw.webapp.dto.*;
+import ar.edu.itba.paw.webapp.dto.OrganizerStatsDto;
+import ar.edu.itba.paw.webapp.dto.UserDto;
 import ar.edu.itba.paw.webapp.exceptions.OrganizerNotFoundException;
-import ar.edu.itba.paw.webapp.exceptions.UserStatsNotFoundException;
 import ar.edu.itba.paw.webapp.helper.PaginationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

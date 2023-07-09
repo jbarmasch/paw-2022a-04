@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.model;
 
 import org.hibernate.annotations.Formula;
-import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -32,9 +31,9 @@ public class User {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-        name = "userroles",
-        joinColumns = @JoinColumn(name = "userid"),
-        inverseJoinColumns = @JoinColumn(name = "roleid")
+            name = "userroles",
+            joinColumns = @JoinColumn(name = "userid"),
+            inverseJoinColumns = @JoinColumn(name = "roleid")
     )
     private List<Role> roles;
 

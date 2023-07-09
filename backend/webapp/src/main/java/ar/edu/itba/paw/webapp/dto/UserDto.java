@@ -1,9 +1,6 @@
 package ar.edu.itba.paw.webapp.dto;
 
 import ar.edu.itba.paw.model.User;
-import ar.edu.itba.paw.model.Role;
-import ar.edu.itba.paw.model.RoleEnum;
-import java.util.List;
 
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;

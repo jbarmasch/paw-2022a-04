@@ -1,7 +1,10 @@
 package ar.edu.itba.paw.webapp.config;
 
 import ar.edu.itba.paw.service.UserService;
-import ar.edu.itba.paw.webapp.auth.*;
+import ar.edu.itba.paw.webapp.auth.AuthenticationTokenService;
+import ar.edu.itba.paw.webapp.auth.JwtAuthenticationProvider;
+import ar.edu.itba.paw.webapp.auth.JwtAuthenticationTokenFilter;
+import ar.edu.itba.paw.webapp.auth.PawUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -22,8 +25,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
-
-import javax.ws.rs.core.Response;
 
 @Configuration
 @EnableWebSecurity
@@ -52,7 +53,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .headers().cacheControl().disable()
                 .and()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.OPTIONS,"/**").permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 //                .antMatchers(HttpMethod.POST, "/api/events").hasAnyRole("CREATOR", "USER")
                 .antMatchers(HttpMethod.POST, "/api/events/**").hasAnyRole("CREATOR", "USER")
                 .antMatchers(HttpMethod.PATCH, "/api/events/*").hasAnyRole("CREATOR")
@@ -60,6 +61,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/users/**").authenticated()
                 .antMatchers(HttpMethod.PUT, "/api/bookings/*").hasRole("BOUNCER")
                 .antMatchers(HttpMethod.GET, "/api/bookings/**").authenticated()
+                .antMatchers(HttpMethod.DELETE, "/api/bookings/*").hasAnyRole("CREATOR", "USER")
                 .antMatchers(HttpMethod.DELETE, "/api/tickets/*").hasRole("CREATOR")
                 .antMatchers(HttpMethod.POST, "/api/tickets").hasRole("CREATOR")
                 .antMatchers(HttpMethod.GET, "/", "/search", "/events/*", "/profile/**").not().hasAnyRole("BOUNCER")
@@ -74,7 +76,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(final WebSecurity web) {
-        web.ignoring().antMatchers("/resources/css/**", "/resources/js/**", "/resources/svg/**", "/resources/png/**", "/favicon.ico", "/403");
+        web.ignoring().antMatchers("/static/**");
     }
 
     @Bean

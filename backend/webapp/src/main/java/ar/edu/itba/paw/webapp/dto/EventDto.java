@@ -1,6 +1,8 @@
 package ar.edu.itba.paw.webapp.dto;
 
-import ar.edu.itba.paw.model.*;
+import ar.edu.itba.paw.model.Event;
+import ar.edu.itba.paw.model.State;
+import ar.edu.itba.paw.model.Tag;
 
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -8,7 +10,6 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class EventDto {
     private long id;

@@ -1,13 +1,10 @@
 package ar.edu.itba.paw.webapp.dto;
 
-import ar.edu.itba.paw.model.*;
+import ar.edu.itba.paw.model.TicketBooking;
 
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class TicketBookingDto {
     private TicketDto ticket;

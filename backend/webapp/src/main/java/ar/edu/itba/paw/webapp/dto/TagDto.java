@@ -1,6 +1,5 @@
 package ar.edu.itba.paw.webapp.dto;
 
-import ar.edu.itba.paw.model.Location;
 import ar.edu.itba.paw.model.Tag;
 
 import javax.ws.rs.core.UriBuilder;

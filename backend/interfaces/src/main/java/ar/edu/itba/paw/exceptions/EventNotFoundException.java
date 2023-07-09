@@ -1,7 +1,5 @@
 package ar.edu.itba.paw.exceptions;
 
-import ar.edu.itba.paw.exceptions.LocalizedRuntimeException;
-
 public class EventNotFoundException extends LocalizedRuntimeException {
     private static final long serialVersionUID = -45L;
     private static final String message = "exception.eventNotFound";

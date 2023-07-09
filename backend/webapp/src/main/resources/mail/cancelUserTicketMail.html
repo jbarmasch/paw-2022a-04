@@ -7,11 +7,11 @@
     </style>
 </head>
 <body>
-    <p th:text="#{mail.greeting(${ticketbooking.getEventBooking().getUser().getUsername()})}"></p>
+<p th:text="#{mail.greeting(${ticketbooking.getEventBooking().getUser().getUsername()})}"></p>
 
-    <p th:text="#{mail.cancelDescTicket(${ticketbooking.getTicket().getTicketName()}, ${ticketbooking.getEventBooking().getEvent().getName()})}"></p>
+<p th:text="#{mail.cancelDescTicket(${ticketbooking.getTicket().getTicketName()}, ${ticketbooking.getEventBooking().getEvent().getName()})}"></p>
 
-    <p th:text="#{mail.farewell}"></p>
-    <p>&emsp; <em>BotPass</em></p>
+<p th:text="#{mail.farewell}"></p>
+<p>&emsp; <em>BotPass</em></p>
 </body>
 </html>

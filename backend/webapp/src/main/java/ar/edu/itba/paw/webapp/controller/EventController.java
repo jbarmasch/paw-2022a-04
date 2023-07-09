@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.exceptions.AlreadyMaxTicketsException;
+import ar.edu.itba.paw.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.exceptions.SurpassedMaxTicketsException;
 import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.service.EventBookingService;
@@ -8,9 +9,10 @@ import ar.edu.itba.paw.service.EventService;
 import ar.edu.itba.paw.service.TicketService;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.webapp.auth.UserManager;
-import ar.edu.itba.paw.webapp.dto.*;
-import ar.edu.itba.paw.exceptions.EventNotFoundException;
-import ar.edu.itba.paw.webapp.exceptions.EventStatsNotFoundException;
+import ar.edu.itba.paw.webapp.dto.EventDto;
+import ar.edu.itba.paw.webapp.dto.EventStatsDto;
+import ar.edu.itba.paw.webapp.dto.TicketDto;
+import ar.edu.itba.paw.webapp.dto.TicketStatsDto;
 import ar.edu.itba.paw.webapp.exceptions.TicketNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
 import ar.edu.itba.paw.webapp.helper.ImageUtils;
@@ -30,12 +32,14 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Path("api/events")
 @Component
 public class EventController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EventController.class);
     @Autowired
     private EventService es;
     @Autowired
@@ -52,8 +56,6 @@ public class EventController {
     private HttpServletRequest request;
     @Context
     private UriInfo uriInfo;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(EventController.class);
 
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON,})
@@ -93,14 +95,11 @@ public class EventController {
 
     @POST
     @Consumes(value = {MediaType.MULTIPART_FORM_DATA})
-    public Response createEvent(@Valid @FormDataParam("form") final EventForm form,
-                                @FormDataParam("image") InputStream inputStream,
-                                @FormDataParam("image") FormDataContentDisposition contentDisposition) {
+    public Response createEvent(@Valid @FormDataParam("form") final EventForm form) {
         final long userId = um.getUserId();
-        byte[] image = ImageUtils.getByteArray(inputStream);
 
         final Event event = es.create(form.getName(), form.getDescription(), form.getLocation(), form.getType(),
-                form.getTimestamp(), image, form.getTags(), userId, form.isHasMinAge() ? form.getMinAge() : null,
+                form.getTimestamp(), null, form.getTags(), userId, form.isHasMinAge() ? form.getMinAge() : null,
                 uriInfo.getBaseUriBuilder().toString(), request.getLocale());
 
         final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(event.getId())).build();
@@ -111,15 +110,24 @@ public class EventController {
     @PUT
     @Consumes(value = {MediaType.MULTIPART_FORM_DATA})
     public Response updateEvent(@PathParam("id") final long id,
-                                @Valid @FormDataParam("form") final EventForm form,
-                                @FormDataParam("image") InputStream inputStream,
-                                @FormDataParam("image") FormDataContentDisposition contentDisposition) {
-        byte[] image = ImageUtils.getByteArray(inputStream);
-
+                                @Valid @FormDataParam("form") final EventForm form) {
         es.updateEvent(id, form.getName(), form.getDescription(), form.getLocation(), form.getType(), form.getTimestamp(),
-                image, form.getTags(), form.isHasMinAge() ? form.getMinAge() : null);
+                null, form.getTags(), form.isHasMinAge() ? form.getMinAge() : null);
 
-        return Response.accepted().build();
+        return Response.ok().build();
+    }
+
+    @Path("/{id}/image")
+    @PUT
+    @Consumes(value = {MediaType.MULTIPART_FORM_DATA})
+    public Response updateEventImage(@PathParam("id") final long id,
+                                     @FormDataParam("image") InputStream inputStream,
+                                     @FormDataParam("image") FormDataContentDisposition contentDisposition) {
+        final byte[] image = ImageUtils.getByteArray(inputStream);
+
+        es.updateEventImage(id, image);
+
+        return Response.ok().build();
     }
 
     @GET
@@ -144,7 +152,7 @@ public class EventController {
 
         us.rateUser(userId, e.getOrganizer().getId(), form.getRating());
 
-        return Response.accepted().build();
+        return Response.ok().build();
     }
 
     @PATCH
@@ -163,7 +171,7 @@ public class EventController {
 
     @DELETE
     @Path("/{id}")
-    @Produces(value = { MediaType.APPLICATION_JSON, })
+    @Produces(value = {MediaType.APPLICATION_JSON,})
     public Response deleteById(@PathParam("id") final long id) {
         es.deleteEvent(id);
 
@@ -196,7 +204,7 @@ public class EventController {
         ts.addTicket(event, form.getTicketName(), form.getPrice(), form.getQty(),
                 form.getLocalDate(form.getStarting()), form.getLocalDate(form.getUntil()), form.getMaxPerUser());
 
-        return Response.accepted().build();
+        return Response.ok().build();
     }
 
     @Path("/{id}/bookings")
@@ -217,7 +225,7 @@ public class EventController {
         EventBooking eventBooking = bs.book(booking, env.getProperty("baseUrl"), request.getLocale());
 
         final URI uri = uriInfo.getBaseUriBuilder()
-            .path("api/bookings").path(String.valueOf(eventBooking.getCode())).build();
+                .path("api/bookings").path(String.valueOf(eventBooking.getCode())).build();
         return Response.created(uri).build();
     }
 

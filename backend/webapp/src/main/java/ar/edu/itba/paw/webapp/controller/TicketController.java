@@ -9,7 +9,10 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 @Path("api/tickets")
 @Component
@@ -32,7 +35,7 @@ public class TicketController {
         ts.updateTicket(ticket, form.getTicketName(), form.getPrice(), form.getQty(),
                 form.getLocalDate(form.getStarting()), form.getLocalDate(form.getUntil()), form.getMaxPerUser());
 
-        return Response.accepted().build();
+        return Response.ok().build();
     }
 
     @Path("/{id}")

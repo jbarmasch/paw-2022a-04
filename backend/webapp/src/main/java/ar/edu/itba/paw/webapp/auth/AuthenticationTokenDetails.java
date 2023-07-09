@@ -1,8 +1,6 @@
 package ar.edu.itba.paw.webapp.auth;
 
-import ar.edu.itba.paw.model.Role;
 import ar.edu.itba.paw.model.RoleEnum;
-import org.springframework.security.core.GrantedAuthority;
 
 import java.time.ZonedDateTime;
 import java.util.Collections;
@@ -16,6 +14,15 @@ public final class AuthenticationTokenDetails {
     private final ZonedDateTime issuedDate;
     private final ZonedDateTime expirationDate;
     private final boolean isRefresh;
+
+    private AuthenticationTokenDetails(String id, String username, Set<RoleEnum> authorities, ZonedDateTime issuedDate, ZonedDateTime expirationDate, boolean isRefresh) {
+        this.id = id;
+        this.username = username;
+        this.authorities = authorities;
+        this.issuedDate = issuedDate;
+        this.expirationDate = expirationDate;
+        this.isRefresh = isRefresh;
+    }
 
     public String getId() {
         return id;
@@ -39,15 +46,6 @@ public final class AuthenticationTokenDetails {
 
     public boolean isRefresh() {
         return isRefresh;
-    }
-
-    private AuthenticationTokenDetails(String id, String username, Set<RoleEnum> authorities, ZonedDateTime issuedDate, ZonedDateTime expirationDate, boolean isRefresh) {
-        this.id = id;
-        this.username = username;
-        this.authorities = authorities;
-        this.issuedDate = issuedDate;
-        this.expirationDate = expirationDate;
-        this.isRefresh = isRefresh;
     }
 
     public static class Builder {

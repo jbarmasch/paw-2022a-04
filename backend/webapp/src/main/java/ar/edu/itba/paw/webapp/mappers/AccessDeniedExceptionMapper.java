@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.webapp.mappers;
 
 import ar.edu.itba.paw.webapp.dto.CustomErrorDto;
-import org.glassfish.jersey.spi.ExtendedExceptionMapper;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.ws.rs.core.GenericEntity;

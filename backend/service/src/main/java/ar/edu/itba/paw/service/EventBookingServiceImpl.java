@@ -64,19 +64,26 @@ public class EventBookingServiceImpl implements EventBookingService {
             throw new ForbiddenAccessException();
         }
 
-       if ((eb.get().getEvent().getDate().isBefore(LocalDateTime.now()) || eb.get().getTicketBookingsSize() == 0))
+        if ((eb.get().getEvent().getDate().isBefore(LocalDateTime.now()) || eb.get().getTicketBookingsSize() == 0))
             return Optional.empty();
-       return eb;
+        return eb;
     }
 
     @Transactional
     @Override
-    public EventBooking book(EventBooking booking, String baseUrl, Locale locale) throws AlreadyMaxTicketsException, SurpassedMaxTicketsException {
-        EventBooking persistedBooking = eventBookingDao.getBookingFromUser(booking.getUser().getId(), booking.getEvent().getId()).orElse(null);
-
-        if (booking.getUser().getId() == booking.getEvent().getOrganizer().getId()) {
-            throw new IllegalTicketException();
+    public EventBooking book(EventBooking booking, String baseUrl, Locale locale)
+            throws AlreadyMaxTicketsException, SurpassedMaxTicketsException {
+        if (!(authService.isAuthenticated())) {
+            throw new ForbiddenAccessException();
         }
+
+        if (authService.isTheEventOrganizer(booking.getEvent()) || authService.isBouncer()) {
+            throw new IllegalBookingException();
+        }
+
+        EventBooking persistedBooking = eventBookingDao
+                .getBookingFromUser(booking.getUser().getId(), booking.getEvent().getId())
+                .orElse(null);
 
         Map<Long, TicketBooking> ticketMap = new HashMap<>();
         if (persistedBooking != null) {
@@ -131,10 +138,14 @@ public class EventBookingServiceImpl implements EventBookingService {
     @Transactional
     @Override
     public void cancelBooking(String code, Locale locale) {
-        EventBooking booking = eventBookingDao.getBooking(code).orElse(null);
-        
-        if (booking == null) {
-            throw new CancelBookingFailedException();
+        if (!authService.isAuthenticated()) {
+            throw new ForbiddenAccessException();
+        }
+
+        EventBooking booking = eventBookingDao.getBooking(code).orElseThrow(CancelBookingFailedException::new);
+
+        if (!authService.isTheBookingOwner(booking.getUser())) {
+            throw new IllegalBookingException();
         }
 
         if (eventBookingDao.cancelBooking(booking)) {
@@ -145,12 +156,22 @@ public class EventBookingServiceImpl implements EventBookingService {
     @Transactional
     @Override
     public void confirmBooking(EventBooking eventBooking) {
+        if (!(authService.isAuthenticated() && authService.isBouncer() &&
+                authService.isTheEventBouncer(eventBooking.getEvent().getId()))) {
+            throw new ForbiddenAccessException();
+        }
+
         eventBookingDao.confirmBooking(eventBooking);
     }
 
     @Transactional
     @Override
     public void invalidateBooking(EventBooking eventBooking) {
+        if (!(authService.isAuthenticated() && authService.isBouncer() &&
+                authService.isTheEventBouncer(eventBooking.getEvent().getId()))) {
+            throw new ForbiddenAccessException();
+        }
+
         eventBookingDao.invalidateBooking(eventBooking);
     }
 }

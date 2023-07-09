@@ -8,7 +8,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -55,8 +54,7 @@ public class UserJpaDao implements UserDao {
         if (order != null) {
             if (order == Order.RATING_ASC || order == Order.RATING_DESC) {
                 orderQuery.append(" ORDER BY AVG(COALESCE(").append(order.getOrder()).append(", 0)) ").append(order.getOrderBy());
-            }
-            else {
+            } else {
                 orderQuery.append(" ORDER BY ").append(order.getOrder()).append(" ").append(order.getOrderBy());
             }
             typedOrder.append(" ORDER BY ").append(order.getOrder()).append(" ").append(order.getOrderBy());
@@ -86,7 +84,7 @@ public class UserJpaDao implements UserDao {
     public boolean checkEventBouncer(long userId, long eventId) {
         final Query query = em.createNativeQuery("SELECT bouncerid FROM events WHERE eventid = :eventid AND bouncerid = :bouncerid");
         query.setParameter("eventid", eventId);
-        query.setParameter("userid", userId);
+        query.setParameter("bouncerid", userId);
         return !query.getResultList().isEmpty();
     }
 

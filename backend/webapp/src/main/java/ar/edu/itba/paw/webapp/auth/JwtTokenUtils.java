@@ -1,20 +1,21 @@
 package ar.edu.itba.paw.webapp.auth;
 
-import ar.edu.itba.paw.model.Role;
 import ar.edu.itba.paw.model.RoleEnum;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotNull;
-import java.security.SignatureException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
-import org.springframework.core.env.Environment;
 
 @Component
 public class JwtTokenUtils {
@@ -47,21 +48,21 @@ public class JwtTokenUtils {
     }
 
     public AuthenticationTokenDetails parseToken(String token) {
-            Claims claims = Jwts.parser()
-                    .setSigningKey(secret)
-                    .requireAudience(audience)
-                    .setAllowedClockSkewSeconds(clockSkew)
-                    .parseClaimsJws(token)
-                    .getBody();
+        Claims claims = Jwts.parser()
+                .setSigningKey(secret)
+                .requireAudience(audience)
+                .setAllowedClockSkewSeconds(clockSkew)
+                .parseClaimsJws(token)
+                .getBody();
 
-            return new AuthenticationTokenDetails.Builder()
-                    .withId(extractTokenIdFromClaims(claims))
-                    .withUsername(extractUsernameFromClaims(claims))
-                    .withAuthorities(extractAuthoritiesFromClaims(claims))
-                    .withIssuedDate(extractIssuedDateFromClaims(claims))
-                    .withExpirationDate(extractExpirationDateFromClaims(claims))
-                    .withIsRefresh(extractIsRefreshFromClaims(claims))
-                    .build();
+        return new AuthenticationTokenDetails.Builder()
+                .withId(extractTokenIdFromClaims(claims))
+                .withUsername(extractUsernameFromClaims(claims))
+                .withAuthorities(extractAuthoritiesFromClaims(claims))
+                .withIssuedDate(extractIssuedDateFromClaims(claims))
+                .withExpirationDate(extractExpirationDateFromClaims(claims))
+                .withIsRefresh(extractIsRefreshFromClaims(claims))
+                .build();
     }
 
     private String extractTokenIdFromClaims(@NotNull Claims claims) {

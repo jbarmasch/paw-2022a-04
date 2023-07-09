@@ -1,8 +1,6 @@
 package ar.edu.itba.paw.webapp.dto;
 
 import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.ValidationException;
 
 public class ValidationErrorDto {
     private String message;
@@ -26,12 +24,12 @@ public class ValidationErrorDto {
         return message;
     }
 
-    public String getPath() {
-        return path;
-    }
-
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getPath() {
+        return path;
     }
 
     public void setPath(String path) {

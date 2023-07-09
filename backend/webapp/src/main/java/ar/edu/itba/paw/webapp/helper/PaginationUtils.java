@@ -2,7 +2,6 @@ package ar.edu.itba.paw.webapp.helper;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.Map;
 
 public final class PaginationUtils {
     private PaginationUtils() {

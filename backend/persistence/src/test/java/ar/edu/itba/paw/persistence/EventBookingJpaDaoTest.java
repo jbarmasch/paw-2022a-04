@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.model.EventBooking;
-import ar.edu.itba.paw.model.EventBookingList;
 import ar.edu.itba.paw.model.TicketBooking;
 import org.junit.Assert;
 import org.junit.Before;
@@ -15,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Collections;
-import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TestConfig.class)

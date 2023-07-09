@@ -1,17 +1,13 @@
 package ar.edu.itba.paw.webapp.dto;
 
-import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.model.EventBooking;
-import ar.edu.itba.paw.model.Tag;
 import ar.edu.itba.paw.model.TicketBooking;
 
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class BookingDto {
     private long id;

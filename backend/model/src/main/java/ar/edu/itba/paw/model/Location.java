@@ -41,6 +41,6 @@ public class Location {
 
     @Override
     public int hashCode() {
-        return  (int) id;
+        return (int) id;
     }
 }
