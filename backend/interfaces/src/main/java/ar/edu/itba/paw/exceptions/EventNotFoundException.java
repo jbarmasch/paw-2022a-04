@@ -1,4 +1,4 @@
-package ar.edu.itba.paw.webapp.exceptions;
+package ar.edu.itba.paw.exceptions;
 
 import ar.edu.itba.paw.exceptions.LocalizedRuntimeException;
 

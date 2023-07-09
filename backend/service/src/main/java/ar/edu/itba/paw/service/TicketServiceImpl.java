@@ -22,16 +22,25 @@ public class TicketServiceImpl implements TicketService {
     private TicketBookingService ticketBookingService;
     @Autowired
     private MailService mailService;
+    @Autowired
+    private AuthService authService;
 
     @Transactional
     @Override
     public void addTicket(Event event, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until, Integer maxPerUser) {
-        if (event.isFinished())
+        if (!(authService.isAuthenticated() && authService.isTheEventOrganizer(event))) {
+            throw new ForbiddenAccessException();
+        }
+        if (event.isFinished()) {
             throw new EventFinishedException();
-        if (starting != null && starting.isAfter(event.getDate()))
+        }
+        if (starting != null && starting.isAfter(event.getDate())) {
             throw new DateRangeStartingException();
-        if (until != null && until.isAfter(event.getDate()))
+        }
+        if (until != null && until.isAfter(event.getDate())) {
             throw new DateRangeUntilException();
+        }
+
         ticketDao.addTicket(event, ticketName, price, qty, starting, until, maxPerUser);
     }
 
@@ -48,14 +57,23 @@ public class TicketServiceImpl implements TicketService {
     @Transactional
     @Override
     public void updateTicket(Ticket ticket, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until, Integer maxPerUser) {
-        if (qty < ticket.getBooked())
+        if (!(authService.isAuthenticated() && authService.isTheEventOrganizer(ticket.getEvent()))) {
+            throw new ForbiddenAccessException();
+        }
+        if (qty < ticket.getBooked()) {
             throw new TicketUnderflowException();
+        }
+
         ticketDao.updateTicket(ticket, ticketName, price, qty, starting, until, maxPerUser);
     }
 
     @Transactional
     @Override
     public void deleteTicket(long ticketId) {
+        if (!(authService.isAuthenticated() && authService.isTheEventOrganizerFromTicket(ticketId))) {
+            throw new ForbiddenAccessException();
+        }
+
         List<TicketBooking> ticketBookings = ticketBookingService.getBookingsForTicket(ticketId);
         for (TicketBooking ticketBooking : ticketBookings) {
             mailService.sendCancelTicketMail(ticketBooking);
@@ -65,6 +83,10 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public List<TicketStats> getTicketStats(long id) {
+        if (!(authService.isAuthenticated() && authService.isTheEventOrganizer(id))) {
+            throw new ForbiddenAccessException();
+        }
+
         return ticketDao.getTicketStats(id);
     }
 }

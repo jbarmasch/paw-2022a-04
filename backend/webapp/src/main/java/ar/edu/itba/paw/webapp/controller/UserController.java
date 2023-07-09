@@ -6,7 +6,7 @@ import ar.edu.itba.paw.service.EventBookingService;
 import ar.edu.itba.paw.webapp.dto.*;
 import ar.edu.itba.paw.webapp.exceptions.BookingNotFoundException;
 import ar.edu.itba.paw.webapp.exceptions.UserStatsNotFoundException;
-import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
+import ar.edu.itba.paw.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.UserForm;
 import ar.edu.itba.paw.webapp.helper.PaginationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,16 +73,21 @@ public class UserController {
     }
 
     @GET
-    @Path("/{id}/booking")
+    @Path("/{id}/ticketBookings")
     @Produces(value = {MediaType.APPLICATION_JSON,})
     public Response getById(@PathParam("id") final long id,
                             @QueryParam("eventId") final long eventId) {
-        BookingDto bookingDto = bs
-                .getBookingFromUser(id, eventId)
-                .map(e -> BookingDto.fromBooking(uriInfo, e))
-                .orElseThrow(BookingNotFoundException::new);
+        final List<TicketBookingDto> ticketBookingList = bs
+                .getTicketBookingsFromUser(id, eventId)
+                .stream()
+                .map(e -> TicketBookingDto.fromBooking(uriInfo, e))
+                .collect(Collectors.toList());
 
-        return Response.ok(bookingDto).build();
+        if (ticketBookingList.isEmpty()) {
+            return Response.noContent().build();
+        }
+
+        return Response.ok(new GenericEntity<List<TicketBookingDto>>(ticketBookingList) {}).build();
     }
 
     @Path("/{id}/stats")
@@ -92,8 +97,13 @@ public class UserController {
         UserStatsDto userStatsDto = us
                 .getUserStats(id)
                 .map(u -> UserStatsDto.fromUserStats(uriInfo, u))
-                .orElseThrow(UserStatsNotFoundException::new);
+                .orElse(null);
 
-        return Response.ok(userStatsDto).build();
+        if (userStatsDto != null) {
+            return Response.ok(userStatsDto).build();
+        } else {
+            return Response.noContent().build();
+        }
+
     }
 }

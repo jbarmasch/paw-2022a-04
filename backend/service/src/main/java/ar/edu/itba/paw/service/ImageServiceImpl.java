@@ -17,10 +17,4 @@ public class ImageServiceImpl implements ImageService {
     public Optional<Image> getImageById(long id) {
         return imageDao.getImageById(id);
     }
-
-    @Transactional
-    @Override
-    public Image createImage(byte[] imageArray) {
-        return imageDao.createImage(imageArray);
-    }
 }

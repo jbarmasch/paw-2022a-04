@@ -83,6 +83,14 @@ public class UserJpaDao implements UserDao {
     }
 
     @Override
+    public boolean checkEventBouncer(long userId, long eventId) {
+        final Query query = em.createNativeQuery("SELECT bouncerid FROM events WHERE eventid = :eventid AND bouncerid = :bouncerid");
+        query.setParameter("eventid", eventId);
+        query.setParameter("userid", userId);
+        return !query.getResultList().isEmpty();
+    }
+
+    @Override
     public User createBouncer(String password) {
         final User user = new User("", password, "", em.getReference(Role.class, RoleEnum.ROLE_BOUNCER.getValue()));
         em.persist(user);

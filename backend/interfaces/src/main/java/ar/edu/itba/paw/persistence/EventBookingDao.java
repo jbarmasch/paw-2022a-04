@@ -3,7 +3,6 @@ package ar.edu.itba.paw.persistence;
 import ar.edu.itba.paw.model.EventBooking;
 import ar.edu.itba.paw.model.EventBookingList;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface EventBookingDao {

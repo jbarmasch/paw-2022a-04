@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.exceptions.FilterException;
+import ar.edu.itba.paw.exceptions.ForbiddenAccessException;
 import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.persistence.EventDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,8 @@ public class EventServiceImpl implements EventService {
     private UserService userService;
     @Autowired
     private MailService mailService;
+    @Autowired
+    private AuthService authService;
 
     @Override
     public Optional<Event> getEventById(long id) {
@@ -31,6 +34,10 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public Event create(String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, long userId, Integer minAge, String baseURL, Locale locale) {
+        if (!(authService.isAuthenticated())) {
+            throw new ForbiddenAccessException();
+        }
+
         Random random = new SecureRandom();
         IntStream specialChars = random.ints(8, 48, 58);
         Stream<Character> passwordStream = specialChars.mapToObj(data -> (char) data);
@@ -89,18 +96,30 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public void updateEvent(long id, String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, Integer minAge) {
+        if (!(authService.isAuthenticated() && authService.isTheEventOrganizer(id))) {
+            throw new ForbiddenAccessException();
+        }
+
         eventDao.updateEvent(id, name, description, locationId, typeId, date, imageArray, tagIds, minAge);
     }
 
     @Transactional
     @Override
     public void updateEventImage(long id, byte[] imageArray) {
+        if (!(authService.isAuthenticated() && authService.isTheEventOrganizer(id))) {
+            throw new ForbiddenAccessException();
+        }
+
         eventDao.updateEventImage(id, imageArray);
     }
 
     @Transactional
     @Override
     public void deleteEvent(long id) {
+        if (!(authService.isAuthenticated() && authService.isTheEventOrganizer(id))) {
+            throw new ForbiddenAccessException();
+        }
+
         eventDao.deleteEvent(id);
     }
 
@@ -117,12 +136,20 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public void soldOut(long id) {
+        if (!(authService.isAuthenticated() && authService.isTheEventOrganizer(id))) {
+            throw new ForbiddenAccessException();
+        }
+
         eventDao.soldOut(id);
     }
 
     @Transactional
     @Override
     public void active(long id) {
+        if (!(authService.isAuthenticated() && authService.isTheEventOrganizer(id))) {
+            throw new ForbiddenAccessException();
+        }
+
         eventDao.active(id);
     }
 
@@ -143,6 +170,10 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Optional<EventStats> getEventStats(long id) {
+        if (!(authService.isAuthenticated() && authService.isTheEventOrganizer(id))) {
+            throw new ForbiddenAccessException();
+        }
+
         return eventDao.getEventStats(id);
     }
 

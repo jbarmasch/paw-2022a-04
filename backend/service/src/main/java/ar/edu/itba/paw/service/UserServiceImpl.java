@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.service;
 
+import ar.edu.itba.paw.exceptions.ForbiddenAccessException;
 import ar.edu.itba.paw.exceptions.UserCannotRateException;
 import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.persistence.UserDao;
@@ -17,6 +18,8 @@ public class UserServiceImpl implements UserService {
     private UserDao userDao;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private AuthService authService;
 
     @Override
     public Optional<User> getUserById(long id) {
@@ -42,6 +45,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUser(long userId, String username, String password, String mail) {
+        if (!(authService.isAuthenticated() && authService.isTheLoggedUser(username))) {
+            throw new ForbiddenAccessException();
+        }
+
         userDao.updateUser(userId, username, password == null ? null : passwordEncoder.encode(password), mail);
     }
 
@@ -52,6 +59,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserStats> getUserStats(long id) {
+        if (!(authService.isAuthenticated() && authService.isTheLoggedUser(id))) {
+            throw new ForbiddenAccessException();
+        }
+
         return userDao.getUserStats(id);
     }
 
@@ -85,5 +96,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserList filterBy(String searchQuery, Order order, int page) {
         return userDao.filterBy(searchQuery, order, page);
+    }
+
+    @Override
+    public boolean checkEventBouncer(long userId, long eventId) {
+        return userDao.checkEventBouncer(userId, eventId);
     }
 }

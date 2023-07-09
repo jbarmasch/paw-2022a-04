@@ -1,9 +1,6 @@
 package ar.edu.itba.paw.service;
 
-import ar.edu.itba.paw.exceptions.AlreadyMaxTicketsException;
-import ar.edu.itba.paw.exceptions.CancelBookingFailedException;
-import ar.edu.itba.paw.exceptions.IllegalTicketException;
-import ar.edu.itba.paw.exceptions.SurpassedMaxTicketsException;
+import ar.edu.itba.paw.exceptions.*;
 import ar.edu.itba.paw.model.EventBooking;
 import ar.edu.itba.paw.model.EventBookingList;
 import ar.edu.itba.paw.model.TicketBooking;
@@ -25,24 +22,49 @@ public class EventBookingServiceImpl implements EventBookingService {
     private MailService mailService;
     @Autowired
     private CodeService codeService;
+    @Autowired
+    private AuthService authService;
 
     @Override
     public EventBookingList getAllBookingsFromUser(long userId, int page) {
+        if (!(authService.isAuthenticated() && (authService.isTheLoggedUser(userId)))) {
+            throw new ForbiddenAccessException();
+        }
+
         return eventBookingDao.getAllBookingsFromUser(userId, page);
     }
 
     @Override
-    public Optional<EventBooking> getBookingFromUser(long userId, long eventId) {
+    public List<TicketBooking> getTicketBookingsFromUser(long userId, long eventId) {
+        if (!(authService.isAuthenticated() && (authService.isTheLoggedUser(userId)))) {
+            throw new ForbiddenAccessException();
+        }
+
         Optional<EventBooking> eb = eventBookingDao.getBookingFromUser(userId, eventId);
-        if (!eb.isPresent() || (eb.get().getEvent().getDate().isBefore(LocalDateTime.now()) || eb.get().getTicketBookingsSize() == 0))
-            return Optional.empty();
-        return eb;
+        if (!eb.isPresent() || (eb.get().getEvent().getDate().isBefore(LocalDateTime.now())))
+            return Collections.emptyList();
+
+        return eb.get().getTicketBookings();
     }
 
     @Override
     public Optional<EventBooking> getBooking(String code) {
+        if (!(authService.isAuthenticated())) {
+            throw new ForbiddenAccessException();
+        }
+
         Optional<EventBooking> eb = eventBookingDao.getBooking(code);
-       if (!eb.isPresent() || (eb.get().getEvent().getDate().isBefore(LocalDateTime.now()) || eb.get().getTicketBookingsSize() == 0))
+
+        if (!eb.isPresent()) {
+            return Optional.empty();
+        }
+
+        if (!(authService.isTheBookingOwner(eb.get().getUser()) ||
+                (authService.isBouncer() && authService.isTheEventBouncer(eb.get().getEvent().getBouncer())))) {
+            throw new ForbiddenAccessException();
+        }
+
+       if ((eb.get().getEvent().getDate().isBefore(LocalDateTime.now()) || eb.get().getTicketBookingsSize() == 0))
             return Optional.empty();
        return eb;
     }

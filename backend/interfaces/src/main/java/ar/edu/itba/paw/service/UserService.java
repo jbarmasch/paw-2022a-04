@@ -32,4 +32,6 @@ public interface UserService {
     void makeCreator(User user);
 
     UserList filterBy(String searchQuery, Order order, int page);
+
+    boolean checkEventBouncer(long userId, long eventId);
 }

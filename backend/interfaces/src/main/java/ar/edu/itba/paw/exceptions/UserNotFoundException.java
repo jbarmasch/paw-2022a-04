@@ -1,6 +1,4 @@
-package ar.edu.itba.paw.webapp.exceptions;
-
-import ar.edu.itba.paw.exceptions.LocalizedRuntimeException;
+package ar.edu.itba.paw.exceptions;
 
 public class UserNotFoundException extends LocalizedRuntimeException {
     private static final long serialVersionUID = -44L;

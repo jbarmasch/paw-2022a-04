@@ -62,8 +62,12 @@ public class OrganizerController {
         OrganizerStatsDto organizerStatsDto = us
                 .getOrganizerStats(id)
                 .map(u -> OrganizerStatsDto.fromOrganizerStats(uriInfo, u))
-                .orElseThrow(UserStatsNotFoundException::new);
+                .orElse(null);
 
-        return Response.ok(organizerStatsDto).build();
+        if (organizerStatsDto != null) {
+            return Response.ok(organizerStatsDto).build();
+        } else {
+            return Response.noContent().build();
+        }
     }
 }

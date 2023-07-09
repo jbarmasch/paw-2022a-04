@@ -9,7 +9,7 @@ import ar.edu.itba.paw.service.TicketService;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.webapp.auth.UserManager;
 import ar.edu.itba.paw.webapp.dto.*;
-import ar.edu.itba.paw.webapp.exceptions.EventNotFoundException;
+import ar.edu.itba.paw.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.exceptions.EventStatsNotFoundException;
 import ar.edu.itba.paw.webapp.exceptions.TicketNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
@@ -228,9 +228,13 @@ public class EventController {
         EventStatsDto eventStatsDto = es
                 .getEventStats(id)
                 .map(u -> EventStatsDto.fromEventStats(uriInfo, u))
-                .orElseThrow(EventStatsNotFoundException::new);
+                .orElse(null);
 
-        return Response.ok(eventStatsDto).build();
+        if (eventStatsDto != null) {
+            return Response.ok(eventStatsDto).build();
+        } else {
+            return Response.noContent().build();
+        }
     }
 
     @Path("/{id}/ticket-stats")

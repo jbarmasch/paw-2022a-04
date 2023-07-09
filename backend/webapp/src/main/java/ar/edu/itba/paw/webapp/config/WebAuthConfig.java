@@ -23,6 +23,8 @@ import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
+import javax.ws.rs.core.Response;
+
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
@@ -46,34 +48,27 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 
         http.sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and().headers().cacheControl().disable()
-                .and().authorizeRequests()
+                .and()
+                .headers().cacheControl().disable()
+                .and()
+                .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS,"/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/events").hasAnyRole("CREATOR", "USER")
-                .antMatchers(HttpMethod.PUT, "/api/events/*/image").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/events", "/api/events/*").permitAll()
-                .antMatchers(HttpMethod.PATCH, "/api/events/*").hasAnyRole("CREATOR", "USER")
-                .antMatchers(HttpMethod.GET, "/api/events/few-tickets").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/events/*/tickets").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/events/upcoming").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/users", "/api/users/*").hasAnyRole("CREATOR", "USER", "BOUNCER")
-                .antMatchers(HttpMethod.POST, "/api/users", "/api/users/*").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/users/*/event-stats").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/users/*/stats").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/users/*/ticket-stats").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/locations", "/api/locations/*").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/bookings", "/api/bookings/*").permitAll()
+//                .antMatchers(HttpMethod.POST, "/api/events").hasAnyRole("CREATOR", "USER")
+                .antMatchers(HttpMethod.POST, "/api/events/**").hasAnyRole("CREATOR", "USER")
+                .antMatchers(HttpMethod.PATCH, "/api/events/*").hasAnyRole("CREATOR")
+                .antMatchers(HttpMethod.PUT, "/api/events/*/image").hasAnyRole("CREATOR")
+                .antMatchers(HttpMethod.GET, "/api/users/**").authenticated()
                 .antMatchers(HttpMethod.PUT, "/api/bookings/*").hasRole("BOUNCER")
-                .antMatchers(HttpMethod.GET, "/api/tags", "/api/tags/*").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/types", "/api/types/*").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/image", "/api/image/*").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/tickets", "/api/tickets/*").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/bookings/**").authenticated()
                 .antMatchers(HttpMethod.DELETE, "/api/tickets/*").hasRole("CREATOR")
                 .antMatchers(HttpMethod.POST, "/api/tickets").hasRole("CREATOR")
                 .antMatchers(HttpMethod.GET, "/", "/search", "/events/*", "/profile/**").not().hasAnyRole("BOUNCER")
                 .antMatchers("/**").permitAll()
-                .and().exceptionHandling().authenticationEntryPoint(new BasicAuthenticationEntryPoint())
-                .and().csrf().disable()
+                .and().exceptionHandling()
+                .authenticationEntryPoint(new BasicAuthenticationEntryPoint())
+//                .accessDeniedHandler((x, y, z) -> y.setStatus(Response.Status.FORBIDDEN.getStatusCode()))
+                .and()
+                .csrf().disable()
                 .addFilterBefore(new JwtAuthenticationTokenFilter(authenticationManagerBean(), authenticationTokenService, userService), UsernamePasswordAuthenticationFilter.class);
     }
 

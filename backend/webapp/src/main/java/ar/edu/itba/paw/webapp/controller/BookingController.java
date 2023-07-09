@@ -36,7 +36,9 @@ public class BookingController {
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON,})
     public Response listBookings(@QueryParam("userId") final long userId,
+//                                 @QueryParam("eventId") final Long eventId,
                                  @QueryParam("page") @DefaultValue("1") final int page) {
+//        final EventBookingList res = bs.getAllBookingsFromUser(userId, eventId, page);
         final EventBookingList res = bs.getAllBookingsFromUser(userId, page);
 
         final List<BookingDto> userList = res
@@ -44,10 +46,12 @@ public class BookingController {
                 .stream()
                 .map(e -> {
                     BookingDto bookingDto = BookingDto.fromBooking(uriInfo, e);
-                    String bookUrl = uriInfo.getBaseUriBuilder().toString() + "/bookings/" + e.getCode();
-                    byte[] encodeBase64 = Base64.getEncoder().encode(cs.createQr(bookUrl));
-                    String base64Encoded = new String(encodeBase64, StandardCharsets.UTF_8);
-                    bookingDto.setImage(base64Encoded);
+//                    if (eventId == null) {
+                        String bookUrl = uriInfo.getBaseUriBuilder().toString() + "/bookings/" + e.getCode();
+                        byte[] encodeBase64 = Base64.getEncoder().encode(cs.createQr(bookUrl));
+                        String base64Encoded = new String(encodeBase64, StandardCharsets.UTF_8);
+                        bookingDto.setImage(base64Encoded);
+//                    }
                     return bookingDto;
                 })
                 .collect(Collectors.toList());
