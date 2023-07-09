@@ -28,7 +28,7 @@ public class LocalizedExceptionMapper implements ExceptionMapper<LocalizedRuntim
         );
 
         return Response
-                .status(Response.Status.BAD_REQUEST)
+                .status(e.getStatusCode())
                 .entity(new GenericEntity<CustomErrorDto>(error) {})
                 .build();
     }

@@ -46,8 +46,6 @@ public class TagController {
             return Response.noContent().build();
         }
 
-        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<TagDto>>(tagList) {});
-
-        return response.build();
+        return Response.ok(new GenericEntity<List<TagDto>>(tagList) {}).build();
     }
 }

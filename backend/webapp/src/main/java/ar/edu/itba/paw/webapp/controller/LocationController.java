@@ -1,11 +1,7 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.model.EventList;
 import ar.edu.itba.paw.model.Location;
-import ar.edu.itba.paw.model.Order;
-import ar.edu.itba.paw.service.EventService;
 import ar.edu.itba.paw.service.LocationService;
-import ar.edu.itba.paw.webapp.dto.EventDto;
 import ar.edu.itba.paw.webapp.dto.LocationDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

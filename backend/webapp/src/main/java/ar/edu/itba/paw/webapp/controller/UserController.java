@@ -1,15 +1,15 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.model.*;
-import ar.edu.itba.paw.service.EventService;
-import ar.edu.itba.paw.service.TicketService;
 import ar.edu.itba.paw.service.UserService;
 import ar.edu.itba.paw.service.EventBookingService;
 import ar.edu.itba.paw.webapp.dto.*;
+import ar.edu.itba.paw.webapp.exceptions.BookingNotFoundException;
+import ar.edu.itba.paw.webapp.exceptions.UserStatsNotFoundException;
+import ar.edu.itba.paw.webapp.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.UserForm;
+import ar.edu.itba.paw.webapp.helper.PaginationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,11 +17,7 @@ import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Path("api/users")
@@ -46,25 +42,12 @@ public class UserController {
                 .map(e -> UserDto.fromUser(uriInfo, e))
                 .collect(Collectors.toList());
 
-        int lastPage = res.getPages();
-
         if (userList.isEmpty()) {
             return Response.noContent().build();
         }
 
         Response.ResponseBuilder response = Response.ok(new GenericEntity<List<UserDto>>(userList) {});
-
-        if (page != 1) {
-            response.link(uriInfo.getAbsolutePathBuilder().queryParam("page", page - 1).build(), "prev");
-        }
-        if (page != lastPage) {
-            response.link(uriInfo.getAbsolutePathBuilder().queryParam("page", page + 1).build(), "next");
-        }
-
-        response
-                .link(uriInfo.getAbsolutePathBuilder().queryParam("page", 1).build(), "first")
-                .link(uriInfo.getAbsolutePathBuilder().queryParam("page", lastPage).build(), "last");
-
+        PaginationUtils.setResponsePages(response, uriInfo, page, res.getPages());
         return response.build();
     }
 
@@ -81,13 +64,12 @@ public class UserController {
     @Path("/{id}")
     @Produces(value = {MediaType.APPLICATION_JSON,})
     public Response getById(@PathParam("id") final long id) {
-        Optional<UserDto> userDto = us.getUserById(id).map(u -> UserDto.fromUser(uriInfo, u));
+        UserDto userDto = us
+                .getUserById(id)
+                .map(u -> UserDto.fromUser(uriInfo, u))
+                .orElseThrow(UserNotFoundException::new);
 
-        if (userDto.isPresent()) {
-            return Response.ok(userDto.get()).build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+        return Response.ok(userDto).build();
     }
 
     @GET
@@ -95,26 +77,23 @@ public class UserController {
     @Produces(value = {MediaType.APPLICATION_JSON,})
     public Response getById(@PathParam("id") final long id,
                             @QueryParam("eventId") final long eventId) {
-        Optional<BookingDto> bookingDto = bs.getBookingFromUser(id, eventId).map(e -> BookingDto.fromBooking(uriInfo, e));
+        BookingDto bookingDto = bs
+                .getBookingFromUser(id, eventId)
+                .map(e -> BookingDto.fromBooking(uriInfo, e))
+                .orElseThrow(BookingNotFoundException::new);
 
-        if (bookingDto.isPresent()) {
-            BookingDto aux = bookingDto.get();
-            return Response.ok(aux).build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+        return Response.ok(bookingDto).build();
     }
 
     @Path("/{id}/stats")
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON,})
     public Response getUserStats(@PathParam("id") final long id) {
-        Optional<UserStatsDto> userStatsDto = us.getUserStats(id).map(u -> UserStatsDto.fromUserStats(uriInfo, u));
+        UserStatsDto userStatsDto = us
+                .getUserStats(id)
+                .map(u -> UserStatsDto.fromUserStats(uriInfo, u))
+                .orElseThrow(UserStatsNotFoundException::new);
 
-        if (userStatsDto.isPresent()) {
-            return Response.ok(userStatsDto.get()).build();
-        } else {
-            return Response.noContent().build();
-        }
+        return Response.ok(userStatsDto).build();
     }
 }

@@ -4,7 +4,9 @@ import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.service.CodeService;
 import ar.edu.itba.paw.service.EventBookingService;
 import ar.edu.itba.paw.webapp.dto.BookingDto;
+import ar.edu.itba.paw.webapp.exceptions.BookingNotFoundException;
 import ar.edu.itba.paw.webapp.form.BouncerBookForm;
+import ar.edu.itba.paw.webapp.helper.PaginationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -15,7 +17,6 @@ import javax.ws.rs.core.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Path("api/bookings")
@@ -51,25 +52,12 @@ public class BookingController {
                 })
                 .collect(Collectors.toList());
 
-        int lastPage = res.getPages();
-
         if (userList.isEmpty()) {
             return Response.noContent().build();
         }
 
         Response.ResponseBuilder response = Response.ok(new GenericEntity<List<BookingDto>>(userList) {});
-
-        if (page != 1) {
-            response.link(uriInfo.getBaseUriBuilder().queryParam("page", page - 1).build(), "prev");
-        }
-        if (page != lastPage) {
-            response.link(uriInfo.getAbsolutePathBuilder().queryParam("page", page + 1).build(), "next");
-        }
-
-        response
-                .link(uriInfo.getAbsolutePathBuilder().queryParam("page", 1).build(), "first")
-                .link(uriInfo.getAbsolutePathBuilder().queryParam("page", lastPage).build(), "last");
-
+        PaginationUtils.setResponsePages(response, uriInfo, page, res.getPages());
         return response.build();
     }
 
@@ -77,29 +65,26 @@ public class BookingController {
     @Path("/{code}")
     @Produces(value = {MediaType.APPLICATION_JSON,})
     public Response getById(@PathParam("code") final String code) {
-        Optional<BookingDto> bookingDto = bs.getBooking(code).map(e -> BookingDto.fromBooking(uriInfo, e));
+        BookingDto bookingDto = bs
+                .getBooking(code)
+                .map(e -> BookingDto.fromBooking(uriInfo, e))
+                .orElseThrow(BookingNotFoundException::new);
 
         String bookUrl = env.getProperty("baseUrl") + "/bookings/" + code;
         byte[] encodeBase64 = Base64.getEncoder().encode(cs.createQr(bookUrl));
         String base64Encoded = new String(encodeBase64, StandardCharsets.UTF_8);
 
-        if (bookingDto.isPresent()) {
-            BookingDto aux = bookingDto.get();
-            aux.setImage(base64Encoded);
-            return Response.ok(aux).build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+        bookingDto.setImage(base64Encoded);
+        return Response.ok(bookingDto).build();
     }
 
     @Path("/{code}")
     @PUT
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
     public Response confirmBooking(@PathParam("code") final String code, final BouncerBookForm bouncerBookForm) {
-        EventBooking eventBooking = bs.getBooking(code).orElse(null);
-        if (eventBooking == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+        EventBooking eventBooking = bs
+                .getBooking(code)
+                .orElseThrow(BookingNotFoundException::new);
 
         if (bouncerBookForm.isConfirmed()) {
             bs.confirmBooking(eventBooking);
