@@ -107,11 +107,6 @@ const CreateEvent = () => {
         }
 
         const formData = new FormData();
-        if (image) {
-            formData.append('image', image, image.name)
-        } else {
-            formData.append('image', '')
-        }
         formData.append('form', new Blob([JSON.stringify(obj)], {
             type: "application/json"
         }));
@@ -129,6 +124,31 @@ const CreateEvent = () => {
         if (json.status === 201) {
             let eventId = json.headers.get("Location")?.split("/").slice(-1)[0]
             refresh()
+
+            if (image) {
+                const formData = new FormData();
+                formData.append('image', image, image.name)
+                formData.append('form', new Blob([JSON.stringify(obj)], {
+                    type: "application/json"
+                }));
+
+                const res = await fetch(`${server}/api/events/${eventId}/image`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                    body: formData
+                })
+
+                let json = await res;
+
+                if (!json.ok) {
+                    let errors = await json.json()
+                    setError('image', {type: 'custom', message: errors['message']});
+                    return;
+                }
+            }
+
             history.push("/my-events/" + eventId)
         } else if (json.status === 400) {
             let errors = await json.json()
@@ -163,11 +183,7 @@ const CreateEvent = () => {
         }
     }
 
-    if (!user) {
-        return <></>
-    }
-
-    if (locationsLoading || tagsLoading || typesLoading) {
+    if (!user || locationsLoading || tagsLoading || typesLoading) {
         return <LoadingPage/>
     }
 
@@ -288,6 +304,7 @@ const CreateEvent = () => {
                                                 label={i18n.t("create.type")}
                                                 labelId="type-select-label"
                                                 error={!!fieldState.error}
+                                                inputProps={{ "data-testid": "select-type-input" }}
                                                 {...field}
                                             >
                                                 {typeList.map((x) => (
@@ -369,10 +386,13 @@ const CreateEvent = () => {
                                                         onBlur={onBlur}
                                                         name={name}
                                                         error={!!fieldState.error}
+                                                        inputProps={{ "data-testid": "dateTimePicker" }}
+                                                        // data-testid='dateTimePicker'
                                                     />)}
                                                 label={i18n.t("create.date")}
                                                 onChange={(event) => {
                                                     onChange(event.toISOString());
+                                                    // console.log(event)
                                                     setDate(event.toISOString());
                                                 }}
                                                 {...field}
@@ -485,7 +505,7 @@ const CreateEvent = () => {
                                 />
                             </div>
                             <div className="form-actions">
-                                <Button variant="contained" type="submit">{i18n.t("submit")}</Button>
+                                <Button variant="contained" type="submit" data-testid='button-submit'>{i18n.t("submit")}</Button>
                             </div>
                         </form>
                     </div>

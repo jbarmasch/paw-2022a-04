@@ -38,7 +38,7 @@ const RegisterPage = () => {
 
         if (json.status === 201) {
             let authorization = data.username + ":" + data.password
-    
+
             const aux = await fetch(json.headers.get("Location"), {
                 method: "GET",
                 headers: {
@@ -50,7 +50,7 @@ const RegisterPage = () => {
                 setOpenSnackbar(true)
                 return
             }
-    
+
             let user = await aux.json();
 
             localStorage.setItem("Access-Token", aux.headers.get("Access-Token"))

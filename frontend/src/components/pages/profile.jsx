@@ -1,4 +1,4 @@
-import {server, fetcher} from '../../utils/server';
+import {server, fetcher, fetcherWithBearer} from '../../utils/server';
 import useSwr from "swr";
 import i18n from '../../i18n'
 import landingImage from '../../assets/images/intro.jpg'
@@ -17,7 +17,13 @@ import { LazyLoadImage } from 'react-lazy-load-image-component';
 const Profile = (props) => {
     const {user} = useAuth();
 
-    const {data: userStats, isLoading: statsLoading, error: errorStats} = useSwr(user ? `${server}/api/users/${user.id}/stats` : null, fetcher)
+    let accessToken;
+    if (typeof window !== 'undefined') {
+        accessToken = localStorage.getItem("Access-Token");
+    }
+
+    const {data: userStats, isLoading: statsLoading, error: errorStats} =
+        useSwr(user ? [`${server}/api/users/${user.id}/stats`, accessToken] : null, fetcherWithBearer)
 
     if (statsLoading || !user) {
         return <LoadingPage/>
@@ -40,7 +46,7 @@ const Profile = (props) => {
                         <div className="center column">
 
                             <h3 className="profile-name">{user.username}</h3>
-                            <h3 className="profile-mail">{user.mail}</h3>
+                            {/*<h3 className="profile-mail">{user.mail}</h3>*/}
                             <span className="user-rating profile-rating">{user.rating}<Rating value={user.rating} readOnly size="small"/> ({user.votes})</span>
                             {(userStats && !errorStats) &&
                             <TableContainer component={Paper} className="marg-top marg-bot">

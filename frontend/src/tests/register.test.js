@@ -1,20 +1,38 @@
-import {render, screen, waitForElement, fireEvent, act, wait, waitFor} from '@testing-library/react';
+import {render, screen, fireEvent, act, waitFor} from '@testing-library/react';
 import Register from '../components/pages/register';
-import {BrowserRouter, useLocation} from 'react-router-dom'
+import {BrowserRouter} from 'react-router-dom'
 import i18n from "../i18n";
-import 'whatwg-fetch'
-import '@testing-library/jest-dom/extend-expect'
+import 'whatwg-fetch';
+import '@testing-library/jest-dom/extend-expect';
+import {server} from "../mocks/server";
+
+beforeAll(() => {
+    server.listen()
+})
+
+afterEach(() => {
+    server.resetHandlers()
+})
+
+afterAll(() => {
+    server.close()
+})
+
+const mockHistoryPush = jest.fn();
 
 jest.mock("react-router-dom", () => ({
     ...jest.requireActual("react-router-dom"),
     useLocation: () => ({
         pathname: "localhost:2557/paw-2022a-04/register"
-    })
+    }),
+    useHistory: () => ({
+        push: mockHistoryPush,
+    }),
 }));
 
 global.window = { location: { pathname: null } };
 
-describe("register", () => {
+describe("Register", () => {
     beforeEach(() => {
         render(<BrowserRouter>
                 <Register/>
@@ -22,7 +40,7 @@ describe("register", () => {
         )
     })
 
-    test('load data', async () => {
+    test('should load data in the form correctly', async () => {
         const info = {
             username: "mairimashita",
             email: "mairimashita@gmail.com",
@@ -55,7 +73,7 @@ describe("register", () => {
         expect(screen.getByLabelText(registerRepeatPassword).value).toBe(info.repeatPassword);
     });
 
-    test('create x user', async () => {
+    test('should return an error', async () => {
         const info = {
             username: "mairimashita",
             email: "mairimashitagmail.com",
@@ -86,7 +104,7 @@ describe("register", () => {
     });
 
 
-    test('create user', async () => {
+    test('should create user', async () => {
         const info = {
             username: "mairimashita",
             email: "mairimashita@gmail.com",
@@ -112,13 +130,14 @@ describe("register", () => {
             target: { value: info.repeatPassword },
         });
 
+        const submitButton = screen.getByRole('button', { name: i18n.t("login.signUp") });
         await act(async () => {
-            fireEvent.click(screen.getByText(i18n.t("login.signUp")))
-            await waitFor(() => {
-                // const location = useLocation();
-                // expect(location.pathname).toBe("/localhost:2557/paw-2022a-04/")
-                expect(global.window.location.pathname).not.toContain('/register');
-            })
+            fireEvent.click(submitButton);
         })
+
+        await waitFor(() => {
+            expect(mockHistoryPush).toHaveBeenCalledWith('/');
+        })
+
     });
 })

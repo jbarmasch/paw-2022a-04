@@ -7,7 +7,7 @@ import {useHistory} from 'react-router-dom'
 
 const RecommendedEvents = ({id}) => {
     const history = useHistory()
-    const {data, isLoading, error} = useSwr(`${server}/api/events/${id}/recommended`, fetcher)
+    const {data, isLoading, error} = useSwr(`${server}/api/events?recommended=${id}`, fetcher)
 
     if (error) {
         history.push("/404")

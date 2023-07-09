@@ -1,6 +1,6 @@
 import {useEffect, useMemo, useState, useRef} from 'react';
 import Layout from '../layout';
-import {server, fetcher} from '../../utils/server';
+import {server, fetcher, fetcherWithBearer} from '../../utils/server';
 import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
 import MyEventLoading from "../../components/my-events-content/my-event-loading";
@@ -52,6 +52,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogTitle from '@mui/material/DialogTitle';
 import utc from "dayjs/plugin/utc";
 import {Alert, Snackbar} from "@mui/material";
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
 
 const isEqualsJson = (oldTicket, newTicket) => {
     let oldKeys = Object.keys(oldTicket);
@@ -71,6 +72,8 @@ const MyEvent = (props) => {
     const [activeMin, setActiveMin] = useState();
     const [open, setOpen] = useState(false);
     const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [imageName, setImageName] = useState()
+    const [image, setImage] = useState()
 
     const {
         data: locations,
@@ -100,6 +103,11 @@ const MyEvent = (props) => {
         start++;
     }
 
+    let accessToken;
+    if (typeof window !== 'undefined') {
+        accessToken = localStorage.getItem("Access-Token");
+    }
+
     const {
         data: event,
         mutate,
@@ -110,14 +118,15 @@ const MyEvent = (props) => {
         data: eventStats,
         isLoading: statsLoading,
         error: statsError
-    } = useSWR(props.match.params.id ? `${server}/api/events/${props.match.params.id}/stats` : null, fetcher)
+    } = useSWR(props.match.params.id ? [`${server}/api/events/${props.match.params.id}/stats`, accessToken] : null, fetcherWithBearer)
     const {
         data: ticketStats,
         isLoading: tStatsLoading,
         error: tStatsError
-    } = useSWR(props.match.params.id ? `${server}/api/events/${props.match.params.id}/ticket-stats` : null, fetcher)
+    } = useSWR(props.match.params.id ? [`${server}/api/events/${props.match.params.id}/ticket-stats`, accessToken] : null, fetcherWithBearer)
 
     const [tickets, setTickets] = useState([]);
+    const inputRef = useRef(null);
 
     useEffect(() => {
         if (event) {
@@ -135,12 +144,15 @@ const MyEvent = (props) => {
         }
     }, [event])
 
-    // useEffect(() => {
-    //     if (edit) {
-    //         console.log(edit);
-    //         handleSubmit(onSubmit)
-    //     }
-    // }, [edit])
+    async function onImageChange(e) {
+        e.preventDefault()
+        if (e.target.files[0].size > (1024 * 1024)) {
+            setError('image', {type: 'custom', message: i18n.t("create.imageError")});
+        } else {
+            setImageName(e.target.files[0].name)
+            await setImage(e.target.files[0])
+        }
+    }
 
     const imgFetcher = (...args) => fetch(...args).then(res => res.blob())
     const {data: aux, error: error, isLoading: auxLoading} = useSWRImmutable(event ? `${event.image}` : null, imgFetcher)
@@ -165,11 +177,6 @@ const MyEvent = (props) => {
         }
     );
 
-    let accessToken;
-    if (typeof window !== 'undefined') {
-        accessToken = localStorage.getItem("Access-Token");
-    }
-
     useEffect(() => {
         setValue("tickets", tickets);
     }, [tickets]);
@@ -179,7 +186,7 @@ const MyEvent = (props) => {
         return;
     }
     if (auxLoading || eventLoading || !user) {
-        return <MyEventLoading/>
+        return <LoadingPage/>
     }
 
     if (user.id != event.organizer.split("/").splice(-1)[0]) {
@@ -240,7 +247,6 @@ const MyEvent = (props) => {
             (data.description && event.description != data.description) ||
             (data.tags && event.tags != data.tags) ||
             (data.minAge && event.minAge != data.minAge)) {
-            console.log("DALE???")
             changed = true
         }
 
@@ -249,7 +255,6 @@ const MyEvent = (props) => {
 
         if (changed) {
             const formData = new FormData();
-            formData.append('image', aux, "")
             formData.append('form', new Blob([JSON.stringify(obj)], {
                 type: "application/json"
             }));
@@ -262,9 +267,6 @@ const MyEvent = (props) => {
                 body: formData
             })
 
-
-            // SI no hay errores, mutar
-            console.log("mutate")
             // await mutate(`${server}/api/events/${props.match.params.id}`, obj)
             // await mutate({ ...event, obj })
             // mutate()
@@ -305,8 +307,28 @@ const MyEvent = (props) => {
             } else if (!resi.ok) {
                 setOpenSnackbar(true)
             } else {
-                // No iria pues rompería los siguientes cambios
                 // mutate()
+                if (image) {
+                    const formData = new FormData();
+                    formData.append('image', image, image.name)
+
+                    resi = await fetch(`${server}/api/events/${props.match.params.id}/image`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`
+                        },
+                        body: formData
+                    })
+
+                    let json = await resi;
+
+                    if (!json.ok) {
+                        let errors = await json.json()
+                        setError('image', {type: 'custom', message: errors['message']});
+                        return;
+                    }
+
+                }
             }
         }
 
@@ -606,7 +628,9 @@ const MyEvent = (props) => {
         },
     }));
 
-    if (locationsLoading || tagsLoading || typesLoading) return <LoadingPage/>
+    if (locationsLoading || tagsLoading || typesLoading) {
+        return <LoadingPage/>
+    }
 
     let over = new Date(event.date) < Date.now()
 
@@ -615,7 +639,9 @@ const MyEvent = (props) => {
             history.push("/404")
             return;
         }
-        if (statsLoading || tStatsLoading) return <LoadingPage/>
+        if (statsLoading || tStatsLoading) {
+            return <LoadingPage/>
+        }
     }
     
     let locationList = []
@@ -669,12 +695,60 @@ const MyEvent = (props) => {
                 <form className="form container my-event-page" onSubmit={handleSubmit(onSubmit)}>
                     <div className="my-event-content">
                         <div className="contain">
+                            {edit &&
+                                (<div className="event-image-edit"><Controller
+
+                                    name="image"
+                                    control={control}
+                                    defaultValue={''}
+                                    render={({field, fieldState}) => (
+                                        <>
+                                            <input
+                                                accept="image/*"
+                                                hidden
+                                                id="file-upload-button"
+                                                type="file"
+                                                ref={inputRef}
+                                                onChange={e => {
+                                                    field.onChange(e.target.files);
+                                                    onImageChange(e)
+                                                }
+                                                }
+                                            />
+                                            <label htmlFor="file-upload-button">
+                                                <IconButton variant="raised" className="edit-button" component="span" color="primary">
+                                                    <CameraAltIcon/>
+                                                </IconButton>
+                                            </label>
+                                            {imageName && (<>
+                                                <span>{imageName}</span>
+                                                <IconButton onClick={() => {
+                                                    setImageName(null)
+                                                    inputRef.current.value = null
+                                                }}><ClearRoundedIcon/></IconButton>
+                                            </>)}
+                                            {fieldState.error ? (
+                                                <FormHelperText error>
+                                                    {fieldState.error?.message}
+                                                </FormHelperText>
+                                            ) : null}
+                                        </>
+                                    )}
+                                /></div>)
+                            }
                             <img className="event-image" src={event.image} alt="Event"/>
                             {!!event.soldOut && <span className="event-image-sold-out">{i18n.t("event.soldOut")}</span>}
                         </div>
                         <Paper className="event-info" elevation={2}>
                             <div className="event-actions">
-                                {!over && 
+                                {!over && edit &&
+                                    <>
+                                        <IconButton onClick={() => {handleSubmit(onSubmit)}} type="submit"><DoneRoundedIcon/></IconButton>
+                                        <IconButton onClick={() => setEdit(false)}><ClearRoundedIcon/></IconButton>
+                                    </>
+                                }
+
+                                {!over &&
                                 (!edit ?
                                     <>
                                         <IconButton onClick={() => {setEdit(true)}}><EditRoundedIcon/></IconButton>
@@ -1471,13 +1545,6 @@ const MyEvent = (props) => {
 
                         </Table>
                     </TableContainer>
-
-                    { edit &&
-                        <>
-                        <IconButton onClick={() => {handleSubmit(onSubmit)}} type="submit"><DoneRoundedIcon/></IconButton>
-                        <IconButton onClick={() => setEdit(false)}><ClearRoundedIcon/></IconButton>
-                        </>
-                    }
                 </form>
 
             </section>

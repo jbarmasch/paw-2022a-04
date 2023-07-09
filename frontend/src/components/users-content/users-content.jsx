@@ -229,6 +229,7 @@ const UsersContent = () => {
                                             onChange={handleSelectChange}
                                             input={<OutlinedInput className="order-label"
                                                                   label={i18n.t("filter.sortBy")}/>}
+                                            inputProps={{ "data-testid": "select-order-input" }}
                                         >
                                             {orderList.map((x) => (
                                                 <MenuItem

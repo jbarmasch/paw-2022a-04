@@ -7,7 +7,7 @@ import {useHistory} from 'react-router-dom'
 
 const UpcomingEvents = () => {
     const history = useHistory()
-    const {data, isLoading, error} = useSwr(`${server}/api/events/upcoming`, fetcher)
+    const {data, isLoading, error} = useSwr(`${server}/api/events?upcoming=true`, fetcher)
 
     if (error) {
         history.push("/404")

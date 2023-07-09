@@ -10,7 +10,12 @@ import queryString from 'query-string'
 import i18n from '../../i18n'
 import NoBookingsContent from "./no-bookings-content";
 
-const fetcherHeaders = (...args) => fetch(...args).then((res) => {
+const fetcherHeaders = (args) => fetch(args[0], {
+    method: 'GET',
+    headers: {
+        'Authorization': `Bearer ${args[1]}`
+    },
+}).then((res) => {
     if (res.status === 200) {
         return {
             headers: res.headers,
@@ -65,7 +70,15 @@ const BookingsContent = ({userId}) => {
 
     let links
 
-    let {data, isLoading, mutate, error} = useSwr(`${server}/api/bookings?page=${pageIndex}&userId=${userId}`, fetcherHeaders);
+    let accessToken;
+    if (typeof window !== 'undefined') {
+        accessToken = localStorage.getItem("Access-Token");
+    }
+
+    let {data, isLoading, mutate, error} = useSwr([
+        `${server}/api/bookings?page=${pageIndex}&userId=${userId}`,
+        accessToken
+    ], fetcherHeaders);
 
     if (error) {
         history.push("/404");

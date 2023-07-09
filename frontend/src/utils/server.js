@@ -8,7 +8,29 @@ export const fetcher = async url => {
         return null
     }
 
-    // TODO: snackbar?
+    if (!res.ok) {
+        const error = new Error('An error occurred while fetching the data.')
+        error.info = await res.json()
+        error.status = res.status
+        throw error
+    }
+
+    return res.json()
+}
+
+
+export const fetcherWithBearer = async (args) => {
+    const res = await fetch(args[0], {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${args[1]}`
+        },
+    })
+
+    if (res.status === 204) {
+        return null
+    }
+
     if (!res.ok) {
         const error = new Error('An error occurred while fetching the data.')
         error.info = await res.json()

@@ -1652,6 +1652,20 @@ h5 {
   }
 }
 
+.edit-button {
+  box-shadow: 0 4px 6px 1px rgba(0, 0, 0, 0.6);
+  background-color: pink !important;
+}
+
+.event-image-edit {
+  position: absolute;
+  padding: 10px 10px;
+  right: 0;
+  // width: 100%;
+  text-align: center;
+  top: 0;
+}
+
 .event-image-sold-out {
   position: absolute;
   transform: rotate(-45deg);
@@ -1720,14 +1734,14 @@ h5 {
   top: 20%;
   left: 15%;
   right: 15%;
-  font-size: 40px;
+  font-size: 50px;
   color: #FFF;
   font-weight: 600;
   line-height: 120%;
   margin-bottom: 45px;
 
   @include breakpoint(phone) {
-    font-size: 64px;
+    font-size: 50px;
     width: 600px;
   }
 }

@@ -1,6 +1,6 @@
 import landingImage from '../../assets/images/intro.jpg'
 import {useHistory, useLocation} from 'react-router-dom'
-import {fetcher} from "../../utils/server";
+import {fetcher, fetcherWithBearer} from "../../utils/server";
 import Layout from "../layout"
 import SimilarEvents from '../events-content/similar-events';
 import RecommendedEvents from '../events-content/recommended-events';
@@ -31,7 +31,12 @@ const ThankYou = () => {
     let booking = state.booking
     let event = state.event
 
-    const {data, isLoading, error} = useSwr(`${booking}`, fetcher)
+    let accessToken;
+    if (typeof window !== 'undefined') {
+        accessToken = localStorage.getItem("Access-Token");
+    }
+
+    const {data, isLoading, error} = useSwr([`${booking}`, accessToken], fetcherWithBearer)
 
     if (error) {
         history.push("/404");

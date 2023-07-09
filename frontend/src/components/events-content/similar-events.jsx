@@ -7,7 +7,7 @@ import {useHistory} from "react-router-dom";
 
 const SimilarEvents = ({id}) => {
     const history = useHistory()
-    const {data: aux, isLoading, error} = useSwr(`${server}/api/events/${id}/similar`, fetcher)
+    const {data: aux, isLoading, error} = useSwr(`${server}/api/events?similar=${id}`, fetcher)
 
     if (error) {
         history.push("/404")

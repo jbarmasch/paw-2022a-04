@@ -7,7 +7,7 @@ import {useHistory} from 'react-router-dom'
 
 const FewTicketsEvents = ({id}) => {
     const history = useHistory()
-    const {data, isLoading, error} = useSwr(`${server}/api/events/few-tickets`, fetcher)
+    const {data, isLoading, error} = useSwr(`${server}/api/events?fewTickets=true`, fetcher)
 
     if (error) {
         history.push("/404")

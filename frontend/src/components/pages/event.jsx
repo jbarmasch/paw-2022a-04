@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import Layout from '../layout';
-import {server, fetcher, imgFetcher} from '../../utils/server';
+import {server, fetcher, fetcherWithBearer, imgFetcher} from '../../utils/server';
 import {getPrice} from '../../utils/price';
 
 import useSwr from "swr";
@@ -60,12 +60,14 @@ const Event = (props) => {
     const [location, setLocation] = useState(tickets ? new Array(tickets.length) : []);
 
     const {
-        data: prevBooking,
+        data: prevTicketBookings,
         isLoading,
-        error: errorBooking
-    } = useSwr(props.match.params.id ? `${server}/api/users/${userId}/booking?eventId=${props.match.params.id}` : null, fetcher, {shouldRetryOnError: false})
+    } = useSwr([
+        props.match.params.id ? `${server}/api/users/${userId}/ticketBookings?eventId=${props.match.params.id}` : null,
+        accessToken
+        ], fetcherWithBearer, {shouldRetryOnError: false})
 
-    if (errorData || errorOrganizer || errorTickets || errorBooking) {
+    if (errorData || errorOrganizer || errorTickets) {
         history.push("/404")
         return
     }
@@ -135,6 +137,7 @@ const Event = (props) => {
         }
 
         if (!isLogged) {
+            console.log("redirect")
             history.push(`/login?redirectTo=${prevLocation.pathname}`);
             return
         }
@@ -170,7 +173,7 @@ const Event = (props) => {
     if (tickets) {
         for (const item of tickets) {
             let max = item.maxPerUser
-            let booked = prevBooking?.ticketBookings.find((x) => x.ticket.ticketId === item.ticketId)?.qty
+            let booked = prevTicketBookings?.find((x) => x.ticket.ticketId === item.ticketId)?.qty
             let left = item.qty - item.booked
             booked = booked ? booked : 0
             bookable += (max - booked) <= left ? (max - booked) : left;
@@ -258,7 +261,7 @@ const Event = (props) => {
                                                 <StyledTableCell>{i18n.t("event.quantity")}</StyledTableCell>
                                             </StyledTableRow>
                                         </TableHead>
-                                        <TableBody>
+                                        <TableBody data-testid="ticket-item">
                                             {tickets.map((item) => (
                                                 <StyledTableRow key={item.ticketId}>
                                                     <StyledTableCell>{item.ticketName}</StyledTableCell>
@@ -281,7 +284,7 @@ const Event = (props) => {
                                                                          field: {onChange, value, name, ref},
                                                                          fieldState
                                                                      }) => {
-                                                                const list = getArray(item.maxPerUser, item.qty - item.booked, prevBooking?.ticketBookings.find((x) => x.ticket.ticketId === item.ticketId)?.qty)
+                                                                const list = getArray(item.maxPerUser, item.qty - item.booked, prevTicketBookings?.find((x) => x.ticket.ticketId === item.ticketId)?.qty)
                                                                 const canBook = list.length > 0;
                                                                 const currentSelection = value
                                                                 const handleSelectChange = (selectedOption) => {
@@ -302,9 +305,7 @@ const Event = (props) => {
                                                                 };
 
                                                                 return (
-                                                                    <FormControl className={"qty-select "  + ((Number(userId) === organizer.id || event.soldOut || !canBook) ? "select-disabled" : "")} disabled={Number(userId) === organizer.id || event.soldOut || !canBook}
-
-                                                                    >
+                                                                    <FormControl className={"qty-select "  + ((Number(userId) === organizer.id || event.soldOut || !canBook) ? "select-disabled" : "")} disabled={Number(userId) === organizer.id || event.soldOut || !canBook}>
                                                                         <InputLabel id="select-qty-label"
                                                                                     error={!!fieldState.error}>{i18n.t("event.selectQty")}</InputLabel>
                                                                         <Select
@@ -313,6 +314,7 @@ const Event = (props) => {
                                                                             labelId="select-qty-label"
                                                                             value={currentSelection}
                                                                             error={!!fieldState.error}
+                                                                            inputProps={{ "data-testid": "select-ticket-input" }}
                                                                             onChange={handleSelectChange}
                                                                         >
                                                                             {list.map((x) => (
