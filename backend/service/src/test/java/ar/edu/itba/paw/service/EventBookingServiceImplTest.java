@@ -86,13 +86,10 @@ public class EventBookingServiceImplTest {
             throw new RuntimeException();
         }
     }
-
     @Test(expected = ForbiddenAccessException.class)
     public void testCancelBookNotAuthenticated() {
         EVENT.setTickets(Arrays.asList(TICKET, DIFFERENT_TICKET));
-        Mockito.when(mockCodeService.getCode(Mockito.eq(USER.getId() + ":" + EVENT.getId()))).thenReturn("");
         EVENT_BOOKING.setTicketBookings(Collections.singletonList(ACCEPTED_TICKET_BOOKING));
-        Mockito.doNothing().when(mockEventService).checkSoldOut(Mockito.anyLong());
         Mockito.when(mockAuthService.isAuthenticated()).thenReturn(false);
         eventBookingService.book(EVENT_BOOKING, "", null);
     }
