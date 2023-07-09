@@ -386,13 +386,11 @@ const CreateEvent = () => {
                                                         onBlur={onBlur}
                                                         name={name}
                                                         error={!!fieldState.error}
-                                                        inputProps={{ "data-testid": "dateTimePicker" }}
-                                                        // data-testid='dateTimePicker'
+                                                        data-testid="dateTimePicker"
                                                     />)}
                                                 label={i18n.t("create.date")}
                                                 onChange={(event) => {
                                                     onChange(event.toISOString());
-                                                    // console.log(event)
                                                     setDate(event.toISOString());
                                                 }}
                                                 {...field}
@@ -465,9 +463,6 @@ const CreateEvent = () => {
                                     name="image"
                                     control={control}
                                     defaultValue={''}
-                                    // rules={{
-                                    //     required: i18n.t('fieldRequired'),
-                                    // }}
                                     render={({field, fieldState}) => (
                                         <>
                                             <input
@@ -478,7 +473,6 @@ const CreateEvent = () => {
                                                 ref={inputRef}
                                                 onChange={e => {
                                                         field.onChange(e.target.files);
-                                                        // setImageName(e.target.files[0].name)
                                                         onImageChange(e)
                                                     }
                                                 }
@@ -505,7 +499,7 @@ const CreateEvent = () => {
                                 />
                             </div>
                             <div className="form-actions">
-                                <Button variant="contained" type="submit" data-testid='button-submit'>{i18n.t("submit")}</Button>
+                                <Button variant="contained" type="submit" data-testid="button-submit">{i18n.t("submit")}</Button>
                             </div>
                         </form>
                     </div>

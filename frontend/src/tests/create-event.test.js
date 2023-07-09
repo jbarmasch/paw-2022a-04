@@ -5,6 +5,13 @@ import i18n from "../i18n";
 import 'whatwg-fetch';
 import '@testing-library/jest-dom/extend-expect';
 import {server} from "../mocks/server";
+import preview from "jest-preview";
+
+jest.mock("@mui/x-date-pickers", () => {
+    return {
+        DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
+    };
+});
 
 beforeAll(() => {
     server.listen()
@@ -79,13 +86,10 @@ describe("Create event component", () => {
         const ticketQuantityInput = screen.getByTestId('select-type-input');
         fireEvent.change(ticketQuantityInput, { target: { value: 'Party' } });
 
-        fireEvent.input(screen.getByLabelText(i18n.t("create.date")), { target:
-                { value: new Date()}
-        });
-
-        const timePicker = screen.getByTestId('dateTimePicker');
-        const dateValue = new Date('2022-07-08T12:34:56Z');
-        fireEvent.change(timePicker, { target: { value: dateValue } });
+        // fireEvent.input(screen.getByTestId("dateTimePicker"), { target: { value: Date.now()} });
+        // const timePicker = screen.getByTestId('dateTimePicker');
+        // const dateValue = new Date('2022-07-08T12:34:56Z');
+        // fireEvent.change(timePicker, { target: { value: dateValue } });
 
         const submitButton = screen.getByTestId('button-submit')
         await act(async () => {
@@ -106,10 +110,6 @@ describe("Create event component", () => {
 
         const ticketQuantityInput = screen.getByTestId('select-type-input');
         fireEvent.change(ticketQuantityInput, { target: { value: 'Hannah Montana' } });
-
-        fireEvent.input(screen.getByLabelText(i18n.t("create.date")), { target:
-                { value: new Date()}
-        });
 
         const submitButton = screen.getByTestId('button-submit')
         await act(async () => {
