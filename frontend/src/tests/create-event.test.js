@@ -6,6 +6,7 @@ import 'whatwg-fetch';
 import '@testing-library/jest-dom/extend-expect';
 import {server} from "../mocks/server";
 import preview from "jest-preview";
+import userEvent from '@testing-library/user-event';
 
 jest.mock("@mui/x-date-pickers", () => {
     return {
@@ -56,7 +57,25 @@ describe("Create event component", () => {
     beforeEach(() => {
         localStorage.setItem("User-ID", '1')
         jest.clearAllMocks();
+
+        Object.defineProperty(window, 'matchMedia', {
+            writable: true,
+            value: (query) => ({
+                media: query,
+                matches: query === '(pointer: fine)',
+                onchange: () => {},
+                addEventListener: () => {},
+                removeEventListener: () => {},
+                addListener: () => {},
+                removeListener: () => {},
+                dispatchEvent: () => false,
+            }),
+        })
     });
+
+    afterEach(() => {
+        delete window.matchMedia;
+    })
 
     test('renders the form with correct elements', async () => {
         render(<BrowserRouter>
@@ -90,6 +109,10 @@ describe("Create event component", () => {
         // const timePicker = screen.getByTestId('dateTimePicker');
         // const dateValue = new Date('2022-07-08T12:34:56Z');
         // fireEvent.change(timePicker, { target: { value: dateValue } });
+        const startDateInput = await screen.findByRole('textbox', { name: i18n.t("create.date") });
+        await userEvent.clear(startDateInput);
+        await userEvent.type(startDateInput, '20200106', { delay: 1 });
+        // expect(screen.getByRole('textbox', { name: /start date/i })).toHaveValue('2020-01-06');
 
         const submitButton = screen.getByTestId('button-submit')
         await act(async () => {

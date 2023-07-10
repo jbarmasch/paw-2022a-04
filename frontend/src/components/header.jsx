@@ -19,6 +19,7 @@ import BotPassIntroLogo from '../assets/images/logo-right-intro.png';
 import LocalActivityRoundedIcon from '@mui/icons-material/LocalActivityRounded';
 import BookOnlineRoundedIcon from '@mui/icons-material/BookOnlineRounded';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
+import queryString from "query-string";
 
 export const useFindPath = () => {
     const location = useLocation();
@@ -33,6 +34,9 @@ const Header = () => {
     const path = useFindPath();
     const arrayPaths = ['/'];
     const history = useHistory();
+
+    const {search} = useLocation()
+    const values = queryString.parse(search)
 
     const { user, getRoles } = useAuth();
 
@@ -61,6 +65,14 @@ const Header = () => {
         };
     }, [path]);
 
+    useEffect(() => {
+        if (values.search === undefined) {
+            setQuery('')
+        } else {
+            setSearchOpen(true)
+        }
+    }, [values.search]);
+
     const closeMenu = () => {
         setMenuOpen(false);
     }
@@ -82,7 +94,7 @@ const Header = () => {
     }
 
     const handleSubmit = preventDefault(() => {
-        history.push(`/events?search=${query}`);
+        history.push(`/events?page=1&search=${query}`);
     })
 
     const [anchorEl, setAnchorEl] = useState(null);
@@ -160,7 +172,7 @@ const Header = () => {
 
                 <div className="site-header__actions">
                     <div ref={searchRef}
-                        className={`search-form-wrapper ${searchOpen ? 'search-form--active' : ''}`}>
+                        className={`search-form-wrapper ${searchOpen || query ? 'search-form--active' : ''}`}>
                         <form className={`search-form`} onSubmit={handleSubmit}>
                             <i className="icon-cancel" onClick={() => setSearchOpen(!searchOpen)}></i>
                             <input

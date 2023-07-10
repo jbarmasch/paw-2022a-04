@@ -233,6 +233,16 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>npm testing</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <arguments>run test</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>npm export</id>
                         <goals>
                             <goal>npm</goal>

@@ -137,7 +137,6 @@ const Event = (props) => {
         }
 
         if (!isLogged) {
-            console.log("redirect")
             history.push(`/login?redirectTo=${prevLocation.pathname}`);
             return
         }

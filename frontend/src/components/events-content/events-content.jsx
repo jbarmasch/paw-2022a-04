@@ -104,6 +104,25 @@ const EventsContent = () => {
     const [noTickets, setNoTickets] = useState();
     const [userId, setUserId] = useState();
     const [priceArr, setPriceArr] = useState();
+    // const [ locationKeys, setLocationKeys ] = useState([])
+
+    // useEffect(() => {
+    //     return history.listen(location => {
+    //         if (history.action === 'PUSH') {
+    //             setLocationKeys([ location.key ])
+    //         }
+    //
+    //         if (history.action === 'POP') {
+    //             if (locationKeys[1] === location.key) {
+    //                 setLocationKeys(([ _, ...keys ]) => keys)
+    //                 setFirstLoad(true)
+    //             } else {
+    //                 setLocationKeys((keys) => [ location.key, ...keys ])
+    //                 setFirstLoad(true)
+    //             }
+    //         }
+    //     })
+    // }, [ locationKeys, ])
 
     const getFilters = () => {
         let filters = ""
@@ -233,30 +252,27 @@ const EventsContent = () => {
     const {data: filters, error: errorFilters} = useSwr(`${server}/api/filters${getFilters()}`, fetcher)
 
     useEffect(() => {
-        if ((values.tags || values.types || values.locations || values.soldOut || values.order || values.noTickets || values.userId || values.minPrice || values.maxPrice)) {
-            if (values.tags && values.tags.constructor !== Array) {
-                setTagsArr(values?.tags.split(","))
-            } else {
-                setTagsArr(values?.tags)
-            }
-            if (values.locations && values.locations.constructor !== Array) {
-                setLocationsArr(values?.locations.split(","))
-            } else {
-                setLocationsArr(values?.locations)
-            }
-            if (values.types && values.types.constructor !== Array) {
-                setTypesArr(values?.types.split(","))
-            } else {
-                setTypesArr(values?.types)
-            }
-            setOrder(values?.order)
-            setSoldOut(values?.soldOut)
-            setNoTickets(values?.noTickets)
-            setUserId(values?.userId)
-            console.log("SE CARGA CON" + values?.minPrice)
-            setPriceArr([values?.minPrice, values?.maxPrice])
-            setFirstLoad(false)
+        if (values.tags && values.tags.constructor !== Array) {
+            setTagsArr(values?.tags.split(","))
+        } else {
+            setTagsArr(values?.tags)
         }
+        if (values.locations && values.locations.constructor !== Array) {
+            setLocationsArr(values?.locations.split(","))
+        } else {
+            setLocationsArr(values?.locations)
+        }
+        if (values.types && values.types.constructor !== Array) {
+            setTypesArr(values?.types.split(","))
+        } else {
+            setTypesArr(values?.types)
+        }
+        setOrder(values?.order)
+        setSoldOut(values?.soldOut)
+        setNoTickets(values?.noTickets)
+        setUserId(values?.userId)
+        setPriceArr([values?.minPrice, values?.maxPrice])
+        setFirstLoad(false)
     }, [values.tags, values.locations, values.types, values.order, values.soldOut, values.noTickets, values.userId, values.minPrice, values.maxPrice, firstLoad])
 
     useEffect(() => {
@@ -449,6 +465,8 @@ const EventsContent = () => {
         setSoldOut(undefined)
         setUserId(undefined)
     }
+
+    // setFirstLoad(true)
 
     return (
         <section className="products-content">
@@ -805,7 +823,10 @@ const EventsContent = () => {
                         }
                         <div className="space-around">
                             <Button onClick={clearFilters} variant="text">{i18n.t("filter.clear")}</Button>
-                            <Button type="submit" variant="contained">{i18n.t("filter.apply")}</Button>
+                            {
+                                dataEvents && child && child.length > 0 &&
+                                <Button type="submit" variant="contained">{i18n.t("filter.apply")}</Button>
+                            }
                         </div>
                     </form>
                 </div>

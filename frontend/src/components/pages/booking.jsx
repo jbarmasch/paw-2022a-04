@@ -53,8 +53,6 @@ const Booking = (props) => {
     }
 
     if (error || errorEvent) {
-        console.log(error)
-        console.log(errorEvent)
         history.push("/404")
         return
     }

@@ -58,8 +58,19 @@ const isEqualsJson = (oldTicket, newTicket) => {
     let oldKeys = Object.keys(oldTicket);
     let newKeys = Object.keys(newTicket);
 
+    // console.log(Object.keys(oldKeys).every(key => console.log(key)))
+    // console.log(Object.keys(newKeys).every(key => console.log(key)))
+    //
+    // console.log(oldKeys.length)
+    // console.log(newKeys.length)
+    //
+    // console.log(oldKeys)
+    // console.log(newKeys)
+
     return oldKeys.length === newKeys.length && Object.keys(oldTicket).every(key => {
-        return oldTicket[key] == newTicket[key]
+        // console.log(oldTicket[key])
+        // console.log(newTicket[key])
+        return oldTicket[key] === newTicket[key]
     });
 }
 const MyEvent = (props) => {
@@ -118,12 +129,14 @@ const MyEvent = (props) => {
         data: eventStats,
         isLoading: statsLoading,
         error: statsError
-    } = useSWR(props.match.params.id ? [`${server}/api/events/${props.match.params.id}/stats`, accessToken] : null, fetcherWithBearer)
+    } = useSWR(props.match.params.id && event && new Date(event.date) < Date.now()
+        ? [`${server}/api/events/${props.match.params.id}/stats`, accessToken] : null, fetcherWithBearer)
     const {
         data: ticketStats,
         isLoading: tStatsLoading,
         error: tStatsError
-    } = useSWR(props.match.params.id ? [`${server}/api/events/${props.match.params.id}/ticket-stats`, accessToken] : null, fetcherWithBearer)
+    } = useSWR(props.match.params.id && event && new Date(event.date) < Date.now()
+        ? [`${server}/api/events/${props.match.params.id}/ticket-stats`, accessToken] : null, fetcherWithBearer)
 
     const [tickets, setTickets] = useState([]);
     const inputRef = useRef(null);
@@ -167,7 +180,9 @@ const MyEvent = (props) => {
                 starting: "",
                 until: ""
             }]
-        }
+        },
+        mode: "onSubmit",
+        reValidateMode: "onSubmit",
     });
 
     const {fields, append, prepend, remove, swap, move, insert} = useFieldArray(
@@ -194,18 +209,31 @@ const MyEvent = (props) => {
         return; 
     }
 
+    const fixDate = (date) => {
+        let dateAux = new Date(date)
+        let timestamp = dateAux.getTime() - dateAux.getTimezoneOffset() * 60000;
+        return  new Date(timestamp).toISOString().slice(0, -8)
+    }
+
     const onSubmit = async (data) => {
         if (!edit) {
             return;
         }
-        // setEdit(false)
-        let dateAux = new Date(data.date).toISOString().slice(0, -8)
+
+        // let dateAux = new Date(data.date)
+        // let timestamp = dateAux.getTime() - dateAux.getTimezoneOffset() * 60000;
+        // let correctDate = new Date(timestamp).toISOString().slice(0, -8)
+
+        let correctDate = fixDate(data.date)
+
+        // console.log(correctDate)
+        // console.log(event.date)
 
         let obj = {
             name: data.name,
             location: data.location.value,
             type: data.type,
-            date: dateAux,
+            date: correctDate,
         }
 
         if (data.description) {
@@ -222,33 +250,19 @@ const MyEvent = (props) => {
         }
         let changed = false
 
-        var utc = require('dayjs/plugin/utc')
-        dayjs.extend(utc)
-
-        console.log(event.name)
-        console.log(data.name)
-        console.log(event.location)
-        console.log(data.location)
-        console.log(event.type)
-        console.log(data.type)
-        console.log(event.date)
-        console.log(dayjs(data.date).utc().format().slice(0, -4))
-        console.log(event.description)
-        console.log(data.description)
-        console.log(event.tags)
-        console.log(data.tags)
-        console.log(event.minAge)
-        console.log(data.minAge)
-
         if (event.name != data.name ||
-            event.location != data.location.value ||
-            event.type != data.type ||
-            event.date != dayjs(data.date).utc().format().slice(0, -4) ||
+            event.location?.id != data.location?.value ||
+            event.type?.id != data.type ||
+            event.date != correctDate ||
             (data.description && event.description != data.description) ||
-            (data.tags && event.tags != data.tags) ||
+            (data.tags && (event.tags.length != data.tags.length
+                || !event.tags.every(x => data.tags.includes(x['id']))
+                || !data.tags.every(x => event.tags.find(e => e['id'] == x)))) ||
             (data.minAge && event.minAge != data.minAge)) {
             changed = true
         }
+
+        console.log(changed)
 
         let errors
         let resi
@@ -357,13 +371,13 @@ const MyEvent = (props) => {
 
         if (data.tickets) {
             for (let d of data.tickets) {
-                console.log(d)
-                console.log("im")
-                console.log(fields)
+                // console.log(d)
+                // console.log("im")
+                // console.log(fields)
 
                 let q = 0
                 for (const f of fields) {
-                    console.log(f)
+                    // console.log(f)
                     if (f.name === d.name) {
                         break
                     }
@@ -371,13 +385,15 @@ const MyEvent = (props) => {
                 }
 
                 if (d.starting) {
-                    d.starting = new Date(d.starting).toISOString().slice(0, -8)
+                    // d.starting = new Date(d.starting).toISOString().slice(0, -8)
+                    d.starting = fixDate(d.starting)
                 } else {
                     d.starting = ""
                 }
 
                 if (d.until) {
-                    d.until = new Date(d.until).toISOString().slice(0, -8)
+                    // d.until = new Date(d.until).toISOString().slice(0, -8)
+                    d.until = fixDate(d.until)
                 } else {
                     d.until = ""
                 }
@@ -389,9 +405,9 @@ const MyEvent = (props) => {
 
                     const defaultValues = {
                         ticketId: ticket.ticketId,
-                        self: ticket.self,
-                        bookings: ticket.bookings,
-                        event: ticket.event,
+                        // self: ticket.self,
+                        // bookings: ticket.bookings,
+                        // event: ticket.event,
                         ticketName: ticket.ticketName,
                         price: ticket.price,
                         qty: ticket.qty,
@@ -405,11 +421,17 @@ const MyEvent = (props) => {
                     delete d.event
                     delete d.self
 
+                    // console.log(d.starting)
+                    // console.log(ticket.starting)
+                    // console.log(d.until)
+                    // console.log(ticket.until)
+
                     const newTicket = {...defaultValues};
 
                     let aux = JSON.parse(JSON.stringify(d));
 
                     if (!isEqualsJson(d, newTicket)) {
+                        console.log("NON EQUALITE")
                         res = await fetch(`${server}/api/tickets/${d.ticketId}`, {
                             method: 'PUT',
                             headers: {
@@ -427,7 +449,7 @@ const MyEvent = (props) => {
                                 let variable = String(x["path"]).split(".").slice(-1)[0]
                                 switch (variable) {
                                     case "ticketName":
-                                        console.log(x)
+                                        // console.log(x)
                                         setError('tickets[' + q + '].ticketName', {
                                             type: 'custom',
                                             message: x['message']
@@ -486,7 +508,7 @@ const MyEvent = (props) => {
                                 let variable = String(x["path"]).split(".").slice(-1)[0]
                                 switch (variable) {
                                     case "ticketName":
-                                        console.log(x)
+                                        // console.log(x)
                                         setError('tickets[' + q + '].ticketName', {
                                             type: 'custom',
                                             message: x['message']
@@ -1136,7 +1158,7 @@ const MyEvent = (props) => {
                                     <TableRow><StyledTableCell>{i18n.t("event.noTickets")}</StyledTableCell></TableRow>
 
                                     : fields.map((item, index) => {
-                                        console.log('EL INDICE ES' + index)
+                                        // console.log('EL INDICE ES' + index)
                                         return (
                                             <StyledTableRow key={item.id}>
                                                 <StyledTableCell>
@@ -1201,6 +1223,7 @@ const MyEvent = (props) => {
                                                                                        inputMode: 'numeric',
                                                                                        pattern: '[0-9]*'
                                                                                    }}
+                                                                                   onWheel={event => event.target.blur()}
                                                                                    error={!!fieldState.error}
                                                                                    {...field} />
                                                                         {fieldState.error ? (
@@ -1243,6 +1266,7 @@ const MyEvent = (props) => {
                                                                                        inputMode: 'numeric',
                                                                                        pattern: '[0-9]*'
                                                                                    }}
+                                                                                   onWheel={event => event.target.blur()}
                                                                                    error={!!fieldState.error}
                                                                                    {...field} />
                                                                         {fieldState.error ? (
@@ -1266,28 +1290,31 @@ const MyEvent = (props) => {
                                                             control={control}
                                                             rules={{
                                                                 required: i18n.t('fieldRequired'),
-                                                                // validate: {
-                                                                //     min: (x) => {
-                                                                //         return x >= 1 || i18n.t("myEvents.ticketsPerUserError")
-                                                                //     },
-                                                                //     max: (x) => {
-                                                                //         return x <= 10 || i18n.t("myEvents.ticketsPerUserError")
-                                                                //     }
-                                                                // }
+                                                                validate: {
+                                                                    min: (x) => {
+                                                                        return x >= 1 || i18n.t("myEvents.ticketsPerUserError")
+                                                                    },
+                                                                    max: (x) => {
+                                                                        return x <= 10 || i18n.t("myEvents.ticketsPerUserError")
+                                                                    }
+                                                                }
                                                             }}
                                                             defaultValue={`${item.maxPerUser}`}
                                                             render={({field, fieldState}) => {
+                                                                // console.log(item.maxPerUser)
+
                                                                 return (
                                                                     <FormControl>
                                                                         <InputLabel sx={{display: "none"}}
-                                                                                    htmlFor={`maxPUser-input${item.ticketid}`}>{i18n.t("bookings.price")}</InputLabel>
-                                                                        <TextField id={`maxPUser-input${item.ticketid}`}
+                                                                                    htmlFor={`maxPerUser-input${item.ticketid}`}>{i18n.t("bookings.price")}</InputLabel>
+                                                                        <TextField id={`maxPerUser-input${item.ticketid}`}
                                                                                    variant="standard"
                                                                                    type="number"
                                                                                    InputProps={{
                                                                                        inputMode: 'numeric',
                                                                                        pattern: '[0-9]*'
                                                                                    }}
+                                                                                   onWheel={event => event.target.blur()}
                                                                                    error={!!fieldState.error}
                                                                                    {...field} />
                                                                         {fieldState.error ? (
