@@ -166,7 +166,7 @@ public class EventController {
             es.soldOut(id);
         }
 
-        return Response.noContent().build();
+        return Response.ok().build();
     }
 
     @DELETE

@@ -8,6 +8,7 @@ import ar.edu.itba.paw.webapp.dto.BookingDto;
 import ar.edu.itba.paw.webapp.exceptions.BookingNotFoundException;
 import ar.edu.itba.paw.webapp.form.BouncerBookForm;
 import ar.edu.itba.paw.webapp.helper.PaginationUtils;
+import ar.edu.itba.paw.webapp.validations.PATCH;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -80,7 +81,7 @@ public class BookingController {
     }
 
     @Path("/{code}")
-    @PUT
+    @PATCH
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
     public Response confirmBooking(@PathParam("code") final String code, final BouncerBookForm bouncerBookForm) {
         EventBooking eventBooking = bs
