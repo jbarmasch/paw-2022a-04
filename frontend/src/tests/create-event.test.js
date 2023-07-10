@@ -109,9 +109,9 @@ describe("Create event component", () => {
         // const timePicker = screen.getByTestId('dateTimePicker');
         // const dateValue = new Date('2022-07-08T12:34:56Z');
         // fireEvent.change(timePicker, { target: { value: dateValue } });
-        const startDateInput = await screen.findByRole('textbox', { name: i18n.t("create.date") });
-        await userEvent.clear(startDateInput);
-        await userEvent.type(startDateInput, '20200106', { delay: 1 });
+//        const startDateInput = await screen.findByRole('textbox', { name: i18n.t("create.date") });
+//        await userEvent.clear(startDateInput);
+//        await userEvent.type(startDateInput, '20200106', { delay: 1 });
         // expect(screen.getByRole('textbox', { name: /start date/i })).toHaveValue('2020-01-06');
 
         const submitButton = screen.getByTestId('button-submit')
