@@ -7,6 +7,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class LocationJpaDao implements LocationDao {
@@ -18,4 +19,10 @@ public class LocationJpaDao implements LocationDao {
         final TypedQuery<Location> query = em.createQuery("from Location", Location.class);
         return query.getResultList();
     }
+
+    @Override
+    public Optional<Location> getLocationById(long id) {
+        return Optional.ofNullable(em.find(Location.class, id));
+    }
+
 }

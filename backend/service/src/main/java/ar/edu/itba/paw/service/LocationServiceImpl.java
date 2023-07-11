@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class LocationServiceImpl implements LocationService {
@@ -15,5 +16,10 @@ public class LocationServiceImpl implements LocationService {
     @Override
     public List<Location> getAll() {
         return locationDao.getAll();
+    }
+
+    @Override
+    public Optional<Location> getLocationById(long id) {
+        return locationDao.getLocationById(id);
     }
 }

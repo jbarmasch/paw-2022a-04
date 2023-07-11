@@ -44,6 +44,19 @@ public class EventJpaDao implements EventDao {
     }
 
     @Override
+    public Event createEvent(String name, String description, Location location, Type type, LocalDateTime date, byte[] imageArray, List<Tag> tags, User organizer, Integer minAge, User bouncer) {
+        Image image;
+        if (imageArray == null || imageArray.length == 0) {
+            image = em.getReference(Image.class, 1L);
+        } else {
+            image = imageDao.createImage(imageArray);
+        }
+        final Event event = new Event(name, description, location, type, date, tags, organizer, State.ACTIVE, null, image, minAge, bouncer);
+        em.persist(event);
+        return event;
+    }
+
+    @Override
     public Optional<Event> getEventById(long id) {
         return Optional.ofNullable(em.find(Event.class, id));
     }
@@ -177,23 +190,36 @@ public class EventJpaDao implements EventDao {
     }
 
     @Override
-    public void updateEventImage(long id, byte[] imageArray) {
+    public void updateEventImage(Event event, byte[] imageArray) {
         Image image = imageDao.createImage(imageArray);
-        final Event event = em.find(Event.class, id);
         event.setImage(image);
         em.persist(event);
     }
 
     @Override
-    public void deleteEvent(long id) {
-        final Event event = em.find(Event.class, id);
+    public void updateEvent(Event event, String name, String description, Location location, Type type, LocalDateTime date, byte[] imageArray, List<Tag> tags, Integer minAge) {
+        event.setDate(date);
+        event.setDescription(description);
+        if (!(imageArray == null || imageArray.length == 0)) {
+            Image image = imageDao.createImage(imageArray);
+            event.setImage(image);
+        }
+        event.setLocation(location);
+        event.setTags(tags);
+        event.setType(type);
+        event.setName(name);
+        event.setMinAge(minAge);
+        em.persist(event);
+    }
+
+    @Override
+    public void deleteEvent(Event event) {
         event.setState(State.DELETED);
         em.persist(event);
     }
 
     @Override
-    public void soldOut(long id) {
-        final Event event = em.find(Event.class, id);
+    public void soldOut(Event event) {
         if (event.isFinished())
             throw new EventFinishedException();
         event.setState(State.SOLDOUT);
@@ -201,8 +227,7 @@ public class EventJpaDao implements EventDao {
     }
 
     @Override
-    public void active(long id) {
-        final Event event = em.find(Event.class, id);
+    public void active(Event event) {
         if (event.isFinished())
             throw new EventFinishedException();
         event.setState(State.ACTIVE);
@@ -321,17 +346,17 @@ public class EventJpaDao implements EventDao {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void checkSoldOut(long id) {
+    public void checkSoldOut(Event event) {
         Query query = em.createNativeQuery(
                 "SELECT aux.eventid FROM (SELECT e.eventid, COUNT(ti.ticketid) AS count, state FROM events e LEFT JOIN tickets ti ON e.eventid = ti.eventid" +
                         " WHERE ((((((ti.qty is NULL AND ti.booked is NULL) OR ti.qty = ti.booked) AND (ti.starting IS NULL OR ti.starting <= NOW()) AND (ti.until IS NULL OR ti.until >= NOW())))" +
                         " ) OR state = 2) AND e.eventid = :eventid GROUP BY e.eventid) AS aux WHERE aux.count > 0 OR aux.state = 2");
-        query.setParameter("eventid", id);
+        query.setParameter("eventid", event.getId());
         List<Object[]> resultSet = query.getResultList();
         if (resultSet.isEmpty()) {
             return;
         }
 
-        soldOut(id);
+        soldOut(event);
     }
 }

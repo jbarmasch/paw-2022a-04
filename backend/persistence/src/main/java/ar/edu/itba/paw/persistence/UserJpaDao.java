@@ -96,8 +96,7 @@ public class UserJpaDao implements UserDao {
     }
 
     @Override
-    public void updateUser(long userId, String username, String password, String mail) {
-        final User user = em.find(User.class, userId);
+    public void updateUser(User user, String username, String password, String mail) {
         user.setUsername(username);
         if (password != null)
             user.setPassword(password);
@@ -178,9 +177,7 @@ public class UserJpaDao implements UserDao {
 
     @Transactional
     @Override
-    public void rateUser(long userId, long organizerId, int rating) {
-        User user = em.getReference(User.class, userId);
-        User organizer = em.getReference(User.class, organizerId);
+    public void rateUser(User user, User organizer, int rating) {
         Rating rate = em.find(Rating.class, new RatingId(user, organizer));
         if (rate == null)
             rate = new Rating(user, organizer, rating);

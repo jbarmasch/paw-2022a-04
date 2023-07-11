@@ -9,8 +9,18 @@ const i18n_es = {
     noData: "Sin datos",
     seeEvents: "Ver eventos",
     landing: "Imagen de landing",
+
     error: {
         api: "¡Oh oh! Ha ocurrido un error inesperado."
+    },
+
+    order: {
+      dateAsc: "Fecha ascendente",
+      dateDesc: "Fecha descendente",
+      ratingAsc: "Puntuación ascendente",
+      ratingDesc: "Puntuación descendente",
+      usernameAsc: "Nombre de usuario ascendente",
+      usernameDesc: "Nombre de usuario descendente",
     },
 
     nav: {
@@ -58,7 +68,7 @@ const i18n_es = {
 
     myEvents: {
         title: "Mis eventos",
-        ticketDateError: "STARTING > UNTIL",
+        ticketDateError: "La fecha de inicio debe ser anterior a la de finalización",
         ticketPriceError: "El precio de un ticket no puede ser menor a 0",
         ticketQtyError: "La cantidad de tickets no puede ser menor a 1",
         ticketsPerUserError: "La cantidad de tickets por usuario debe estar entre 1 y 10",
@@ -123,10 +133,10 @@ const i18n_es = {
         tags: "Seleccionar tags",
         sortBy: "Ordenar por",
         order: "Orden",
-        price: "Price",
-        apply: "Apply",
-        minPrice: "Min. price",
-        maxPrice: "Max. price",
+        price: "Precio",
+        apply: "Aplicar",
+        minPrice: "Precio mín.",
+        maxPrice: "Precio máx.",
         username: "Nombre de usuario",
         rating: "Puntuación",
         ascending: "Ascendente",
@@ -152,7 +162,8 @@ const i18n_es = {
         cancelMessage: "¿Está seguro de que desea cancelar su reserva?",
         accept: "Aceptar",
         confirm: "Confirmar",
-        invalidate: "Invalidar"
+        invalidate: "Invalidar",
+        noBookings: "No se han encontrado reservas",
     },
 
     stats: {

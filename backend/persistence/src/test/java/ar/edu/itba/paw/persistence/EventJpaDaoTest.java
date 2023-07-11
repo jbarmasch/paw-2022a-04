@@ -83,7 +83,7 @@ public class EventJpaDaoTest {
     @Test
     public void testDeleteEvent() {
         Event event = TestUtils.createEvent(em);
-        eventDao.deleteEvent(event.getId());
+        eventDao.deleteEvent(event);
         Assert.assertNotNull(event);
         Assert.assertEquals(State.DELETED, event.getState());
     }
@@ -91,7 +91,7 @@ public class EventJpaDaoTest {
     @Test
     public void testSoldOutEvent() {
         Event event = TestUtils.createEvent(em);
-        eventDao.soldOut(event.getId());
+        eventDao.soldOut(event);
         Assert.assertNotNull(event);
         Assert.assertEquals(State.SOLDOUT, event.getState());
     }
@@ -101,7 +101,7 @@ public class EventJpaDaoTest {
         Event event = TestUtils.createEvent(em);
         event.setState(State.DELETED);
         em.persist(event);
-        eventDao.active(event.getId());
+        eventDao.active(event);
         Assert.assertEquals(State.ACTIVE, event.getState());
     }
 

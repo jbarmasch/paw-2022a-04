@@ -1,6 +1,8 @@
 package ar.edu.itba.paw.service;
 
 import ar.edu.itba.paw.exceptions.ForbiddenAccessException;
+import ar.edu.itba.paw.exceptions.InvalidOrganizerException;
+import ar.edu.itba.paw.exceptions.InvalidUserException;
 import ar.edu.itba.paw.exceptions.UserCannotRateException;
 import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.persistence.UserDao;
@@ -49,7 +51,9 @@ public class UserServiceImpl implements UserService {
             throw new ForbiddenAccessException();
         }
 
-        userDao.updateUser(userId, username, password == null ? null : passwordEncoder.encode(password), mail);
+        User user = getUserById(userId).orElseThrow(InvalidUserException::new);
+
+        userDao.updateUser(user, username, password == null ? null : passwordEncoder.encode(password), mail);
     }
 
     @Override
@@ -58,7 +62,9 @@ public class UserServiceImpl implements UserService {
             throw new ForbiddenAccessException();
         }
 
-        userDao.updateUser(userId, String.valueOf(event.getId()), null, String.valueOf(event.getId()));
+        User user = getUserById(userId).orElseThrow(InvalidUserException::new);
+
+        userDao.updateUser(user, String.valueOf(event.getId()), null, String.valueOf(event.getId()));
     }
 
 
@@ -100,7 +106,11 @@ public class UserServiceImpl implements UserService {
         if (!userDao.canRate(organizerId, userId)) {
             throw new UserCannotRateException();
         }
-        userDao.rateUser(userId, organizerId, rating);
+
+        User user = getUserById(userId).orElseThrow(InvalidUserException::new);
+        User organizer = getUserById(userId).orElseThrow(InvalidOrganizerException::new);
+
+        userDao.rateUser(user, organizer, rating);
     }
 
     @Override

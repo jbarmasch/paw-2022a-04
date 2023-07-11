@@ -16,13 +16,9 @@ import {Alert, Snackbar} from "@mui/material";
 const RegisterPage = () => {
     const { register, handleSubmit, control, getValues, watch, formState: { errors }, setError } = useForm();
     const {login} = useAuth();
-    const [active, setActive] = useState(false)
     const history = useHistory();
     const {search} = useLocation()
     const values = queryString.parse(search)
-    // const [error, setError] = useState(false)
-    const [usernameError, setUsernameError] = useState(false)
-    const [mailError, setMailError] = useState(false)
     const [openSnackbar, setOpenSnackbar] = useState(false);
 
     const onSubmit = async (data) => {
@@ -66,29 +62,36 @@ const RegisterPage = () => {
             } else {
                 history.push("/")
             }
-        } else if (json.status === 400) {
+
+        } else if (!json.ok) {
             let errors = await json.json()
-            errors.forEach(x => {
-                let variable = String(x["path"]).split(".").slice(-1)[0]
-                switch (variable) {
-                    case "username":
-                        setError('username', { type: 'custom', message: x['message'] });
-                        break
-                    case "mail":
-                        setError('mail', { type: 'custom', message: x['message'] });
-                        break
-                    case "password":
-                        setError('password', { type: 'custom', message: x['message'] });
-                        break
-                    case "repeatPassword":
-                        setError('repeatPassword', { type: 'custom', message: x['message'] });
-                        break
-                    default:
-                        break;
-                }
-            })
-        } else {
-            setOpenSnackbar(true)
+            if (errors.constructor !== Array) {
+                setOpenSnackbar(true)
+            } else {
+                errors.forEach(x => {
+                    if (!x["path"]) {
+                        setOpenSnackbar(true)
+                    } else {
+                        let variable = String(x["path"]).split(".").slice(-1)[0]
+                        switch (variable) {
+                            case "username":
+                                setError('username', {type: 'custom', message: x['message']});
+                                break
+                            case "mail":
+                                setError('mail', {type: 'custom', message: x['message']});
+                                break
+                            case "password":
+                                setError('password', {type: 'custom', message: x['message']});
+                                break
+                            case "repeatPassword":
+                                setError('repeatPassword', {type: 'custom', message: x['message']});
+                                break
+                            default:
+                                break;
+                        }
+                    }
+                })
+            }
         }
     }
 
@@ -147,7 +150,7 @@ const RegisterPage = () => {
                                     }}
                                 />
 
-                            {usernameError && <FormHelperText error>{usernameError}</FormHelperText>}
+                            {/*{usernameError && <FormHelperText error>{usernameError}</FormHelperText>}*/}
                             </div>
 
                             <div className="form__input-row">

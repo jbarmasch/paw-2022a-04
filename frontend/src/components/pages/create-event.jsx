@@ -26,6 +26,7 @@ import 'dayjs/locale/es';
 import 'dayjs/locale/en';
 import {useAuth} from '../../utils/useAuth';
 import {LoadingPage} from '../../utils/loadingPage'
+import {Alert, Snackbar} from "@mui/material";
 
 const CreateEvent = () => {
     const history = useHistory();
@@ -62,6 +63,7 @@ const CreateEvent = () => {
     const [imageName, setImageName] = useState()
     const [image, setImage] = useState()
     const inputRef = useRef(null);
+    const [openSnackbar, setOpenSnackbar] = useState(false);
 
     let start = 14;
     let ages = [];
@@ -83,14 +85,20 @@ const CreateEvent = () => {
         }
     }
 
+    const fixDate = (date) => {
+        let dateAux = new Date(date)
+        let timestamp = dateAux.getTime() - dateAux.getTimezoneOffset() * 60000;
+        return  new Date(timestamp).toISOString().slice(0, -8)
+    }
+
     const onSubmit = async (data) => {
-        let auxi = new Date(data.date).toISOString().slice(0, -8)
+        let correctDate = fixDate(data.date)
 
         let obj = {
             name: data.name,
             location: data.location.value,
             type: data.type,
-            date: auxi,
+            date: correctDate,
         }
 
         if (data.description) {
@@ -121,9 +129,8 @@ const CreateEvent = () => {
 
         let json = await res;
 
-        if (json.status === 201) {
+        if (json.ok) {
             let eventId = json.headers.get("Location")?.split("/").slice(-1)[0]
-            refresh()
 
             if (image) {
                 const formData = new FormData();
@@ -149,37 +156,46 @@ const CreateEvent = () => {
                 }
             }
 
+            refresh()
             history.push("/my-events/" + eventId)
-        } else if (json.status === 400) {
+        } else {
             let errors = await json.json()
-            errors.forEach(x => {
-                let variable = String(x["path"]).split(".").slice(-1)[0]
-                switch (variable) {
-                    case "name":
-                        setError('name', {type: 'custom', message: x['message']});
-                        break
-                    case "description":
-                        setError('description', {type: 'custom', message: x['message']});
-                        break
-                    case "location":
-                        setError('location', {type: 'custom', message: x['message']});
-                        break
-                    case "type":
-                        setError('type', {type: 'custom', message: x['message']});
-                        break
-                    case "tags":
-                        setError('tags', {type: 'custom', message: x['message']});
-                        break
-                    case "date":
-                        setError('date', {type: 'custom', message: x['message']});
-                        break
-                    case "minAge":
-                        setError('minAge', {type: 'custom', message: x['message']});
-                        break
-                    default:
-                        break;
-                }
-            })
+            if (errors.constructor !== Array) {
+                setOpenSnackbar(true)
+            } else {
+                errors.forEach(x => {
+                    if (!x["path"]) {
+                        setOpenSnackbar(true)
+                    } else {
+                        let variable = String(x["path"]).split(".").slice(-1)[0]
+                        switch (variable) {
+                            case "name":
+                                setError('name', {type: 'custom', message: x['message']});
+                                break
+                            case "description":
+                                setError('description', {type: 'custom', message: x['message']});
+                                break
+                            case "location":
+                                setError('location', {type: 'custom', message: x['message']});
+                                break
+                            case "type":
+                                setError('type', {type: 'custom', message: x['message']});
+                                break
+                            case "tags":
+                                setError('tags', {type: 'custom', message: x['message']});
+                                break
+                            case "date":
+                                setError('date', {type: 'custom', message: x['message']});
+                                break
+                            case "minAge":
+                                setError('minAge', {type: 'custom', message: x['message']});
+                                break
+                            default:
+                                break;
+                        }
+                    }
+                })
+            }
         }
     }
 
@@ -210,8 +226,25 @@ const CreateEvent = () => {
         label: x.name
     }))
 
+    let vertical = "top"
+    let horizontal = "right"
+
+    const handleCloseSnackbar = () => {
+        setOpenSnackbar(false)
+    }
+
     return (
         <Layout>
+            <Snackbar
+                anchorOrigin={{ vertical, horizontal }}
+                open={openSnackbar}
+                onClose={handleCloseSnackbar}
+                key={vertical + horizontal}
+                autoHideDuration={15000}
+            >
+                <Alert severity="error" onClose={handleCloseSnackbar}>{i18n.t("error.api")}</Alert>
+            </Snackbar>
+
             <section className="form-page">
                 <div className="container">
                     <div className="form-block">

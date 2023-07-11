@@ -63,7 +63,7 @@ public class UserJpaDaoTest {
     public void testUpdateUser() {
         User user = TestUtils.createUser(em);
 
-        userDao.updateUser(user.getId(), TestUtils.USERNAME, TestUtils.PASSWORD2, TestUtils.MAIL);
+        userDao.updateUser(user, TestUtils.USERNAME, TestUtils.PASSWORD2, TestUtils.MAIL);
 
         Assert.assertEquals(TestUtils.USERNAME, user.getUsername());
         Assert.assertEquals(TestUtils.PASSWORD2, user.getPassword());
@@ -198,7 +198,7 @@ public class UserJpaDaoTest {
         TicketBooking tBooking = new TicketBooking(ticket, 5, eBooking);
         em.persist(tBooking);
 
-        userDao.rateUser(attendee.getId(), TestUtils.USER1.getId(), 3);
+        userDao.rateUser(attendee, TestUtils.USER1, 3);
 
         Rating rating = em.find(Rating.class, new RatingId(attendee, TestUtils.USER1));
         Assert.assertEquals(3, rating.getRating());

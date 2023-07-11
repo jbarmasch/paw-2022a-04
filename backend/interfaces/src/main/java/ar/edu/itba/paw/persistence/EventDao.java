@@ -12,17 +12,21 @@ public interface EventDao {
 
     Event createEvent(String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, User organizer, Integer minAge, User bouncer);
 
+    Event createEvent(String name, String description, Location location, Type type, LocalDateTime date, byte[] imageArray, List<Tag> tags, User organizer, Integer minAge, User bouncer);
+
     EventList filterBy(List<Long> locations, List<Long> types, Double minPrice, Double maxPrice, String query, List<Long> tags, String username, Long userId, Order order, Boolean showSoldOut, Boolean showNoTickets, Boolean showPast, int page);
 
     void updateEvent(long id, String name, String description, long locationId, long typeId, LocalDateTime date, byte[] imageArray, Long[] tagIds, Integer minAge);
 
-    void updateEventImage(long id, byte[] imageArray);
+    void updateEventImage(Event event, byte[] imageArray);
 
-    void deleteEvent(long id);
+    void updateEvent(Event event, String name, String description, Location location, Type type, LocalDateTime date, byte[] imageArray, List<Tag> tags, Integer minAge);
 
-    void soldOut(long id) throws EventFinishedException;
+    void deleteEvent(Event event);
 
-    void active(long id) throws EventFinishedException;
+    void soldOut(Event event) throws EventFinishedException;
+
+    void active(Event event) throws EventFinishedException;
 
     List<Event> getFewTicketsEvents();
 
@@ -36,5 +40,5 @@ public interface EventDao {
 
     Optional<EventStats> getEventStats(long id);
 
-    void checkSoldOut(long id);
+    void checkSoldOut(Event event);
 }

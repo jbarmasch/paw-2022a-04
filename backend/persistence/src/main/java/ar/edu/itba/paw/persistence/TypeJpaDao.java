@@ -7,6 +7,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class TypeJpaDao implements TypeDao {
@@ -17,5 +18,10 @@ public class TypeJpaDao implements TypeDao {
     public List<Type> getAll() {
         final TypedQuery<Type> query = em.createQuery("from Type", Type.class);
         return query.getResultList();
+    }
+
+    @Override
+    public Optional<Type> getTypeById(long id) {
+        return Optional.ofNullable(em.find(Type.class, id));
     }
 }

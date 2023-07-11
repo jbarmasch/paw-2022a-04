@@ -50,7 +50,6 @@ import {useAuth} from "../../utils/useAuth";
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogTitle from '@mui/material/DialogTitle';
-import utc from "dayjs/plugin/utc";
 import {Alert, Snackbar} from "@mui/material";
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 
@@ -220,14 +219,7 @@ const MyEvent = (props) => {
             return;
         }
 
-        // let dateAux = new Date(data.date)
-        // let timestamp = dateAux.getTime() - dateAux.getTimezoneOffset() * 60000;
-        // let correctDate = new Date(timestamp).toISOString().slice(0, -8)
-
         let correctDate = fixDate(data.date)
-
-        // console.log(correctDate)
-        // console.log(event.date)
 
         let obj = {
             name: data.name,
@@ -244,11 +236,13 @@ const MyEvent = (props) => {
             obj.tags = data.tags
         }
 
-        if (data.minAge) {
-            obj.hasMinAge = true
+        let changed = false
+
+        let hasMinAge = activeMin !== undefined ? activeMin : (event.minAge !== undefined)
+
+        if (hasMinAge) {
             obj.minAge = data.minAge
         }
-        let changed = false
 
         if (event.name != data.name ||
             event.location?.id != data.location?.value ||
@@ -258,7 +252,9 @@ const MyEvent = (props) => {
             (data.tags && (event.tags.length != data.tags.length
                 || !event.tags.every(x => data.tags.includes(x['id']))
                 || !data.tags.every(x => event.tags.find(e => e['id'] == x)))) ||
-            (data.minAge && event.minAge != data.minAge) || image) {
+            ((data.minAge && event.minAge != data.minAge) ||
+                ((event.minAge && !hasMinAge) || (!event.minAge && hasMinAge)))
+            || image) {
             changed = true
         }
 
@@ -281,47 +277,47 @@ const MyEvent = (props) => {
                 body: formData
             })
 
-            // await mutate(`${server}/api/events/${props.match.params.id}`, obj)
-            // await mutate({ ...event, obj })
-            // mutate()
-
             await resi
 
-            // TODO: podria NO SER UNA LISTA!!!!
-            if (resi.status === 400) {
+            if (!resi.ok) {
                 errors = await resi.json()
-                errors.forEach(x => {
-                    let variable = String(x["path"]).split(".").slice(-1)[0]
-                    switch (variable) {
-                        case "name":
-                            setError('name', {type: 'custom', message: x['message']});
-                            break
-                        case "description":
-                            setError('description', {type: 'custom', message: x['message']});
-                            break
-                        case "location":
-                            setError('location', {type: 'custom', message: x['message']});
-                            break
-                        case "type":
-                            setError('type', {type: 'custom', message: x['message']});
-                            break
-                        case "tags":
-                            setError('tags', {type: 'custom', message: x['message']});
-                            break
-                        case "date":
-                            setError('date', {type: 'custom', message: x['message']});
-                            break
-                        case "minAge":
-                            setError('minAge', {type: 'custom', message: x['message']});
-                            break
-                        default:
-                            break;
-                    }
-                })
-            } else if (!resi.ok) {
-                setOpenSnackbar(true)
+                if (errors.constructor !== Array) {
+                    setOpenSnackbar(true)
+                } else {
+                    errors.forEach(x => {
+                        if (!x["path"]) {
+                            setOpenSnackbar(true)
+                        } else {
+                            let variable = String(x["path"]).split(".").slice(-1)[0]
+                            switch (variable) {
+                                case "name":
+                                    setError('name', {type: 'custom', message: x['message']});
+                                    break
+                                case "description":
+                                    setError('description', {type: 'custom', message: x['message']});
+                                    break
+                                case "location":
+                                    setError('location', {type: 'custom', message: x['message']});
+                                    break
+                                case "type":
+                                    setError('type', {type: 'custom', message: x['message']});
+                                    break
+                                case "tags":
+                                    setError('tags', {type: 'custom', message: x['message']});
+                                    break
+                                case "date":
+                                    setError('date', {type: 'custom', message: x['message']});
+                                    break
+                                case "minAge":
+                                    setError('minAge', {type: 'custom', message: x['message']});
+                                    break
+                                default:
+                                    break;
+                            }
+                        }
+                    })
+                }
             } else {
-                // mutate()
                 if (image) {
                     const formData = new FormData();
                     formData.append('image', image, image.name)
@@ -356,7 +352,8 @@ const MyEvent = (props) => {
             })
 
             await del
-            if (del.status === 204) {
+
+            if (del.ok) {
                 remove(x.index)
                 reset()
             } else {
@@ -427,52 +424,66 @@ const MyEvent = (props) => {
 
                         await res
 
-                        if (res.status === 400) {
+                        if (!res.ok) {
                             errors = await res.json()
-                            errors.forEach(x => {
-                                let variable = String(x["path"]).split(".").slice(-1)[0]
-                                switch (variable) {
-                                    case "ticketName":
-                                        // console.log(x)
-                                        setError('tickets[' + q + '].ticketName', {
-                                            type: 'custom',
-                                            message: x['message']
-                                        });
-                                        break
-                                    case "price":
-                                        setError('tickets[' + q + '].price', {type: 'custom', message: x['message']});
-                                        break
-                                    case "qty":
-                                        setError('tickets[' + q + '].qty', {type: 'custom', message: x['message']});
-                                        break
-                                    case "starting":
-                                        setError('tickets[' + q + '].starting', {
-                                            type: 'custom',
-                                            message: x['message']
-                                        });
-                                        break
-                                    case "until":
-                                        setError('tickets[' + q + '].until', {type: 'custom', message: x['message']});
-                                        break
-                                    case "maxPerUser":
-                                        // console.log('tickets[' + q + '].maxPerUser')
-                                        setError('tickets[' + q + '].maxPerUser', {
-                                            type: 'custom',
-                                            message: x['message']
-                                        });
-                                        break
-                                    default:
-                                        break;
-                                }
-                            })
-                        } else if (!res.ok) {
-                            setOpenSnackbar(true)
+                            if (errors.constructor !== Array) {
+                                setOpenSnackbar(true)
+                            } else {
+                                errors.forEach(x => {
+                                    if (!x["path"]) {
+                                        setOpenSnackbar(true)
+                                    }
+                                    else {
+                                        let variable = String(x["path"]).split(".").slice(-1)[0]
+                                        switch (variable) {
+                                            case "ticketName":
+                                                setError('tickets[' + q + '].ticketName', {
+                                                    type: 'custom',
+                                                    message: x['message']
+                                                });
+                                                break
+                                            case "price":
+                                                setError('tickets[' + q + '].price', {
+                                                    type: 'custom',
+                                                    message: x['message']
+                                                });
+                                                break
+                                            case "qty":
+                                                setError('tickets[' + q + '].qty', {
+                                                    type: 'custom',
+                                                    message: x['message']
+                                                });
+                                                break
+                                            case "starting":
+                                                setError('tickets[' + q + '].starting', {
+                                                    type: 'custom',
+                                                    message: x['message']
+                                                });
+                                                break
+                                            case "until":
+                                                setError('tickets[' + q + '].until', {
+                                                    type: 'custom',
+                                                    message: x['message']
+                                                });
+                                                break
+                                            case "maxPerUser":
+                                                setError('tickets[' + q + '].maxPerUser', {
+                                                    type: 'custom',
+                                                    message: x['message']
+                                                });
+                                                break
+                                            default:
+                                                break;
+                                        }
+                                    }
+                                })
+                            }
                         }
+
+                        // ...
                     }
                 } else {
                     if (d.ticketName !== '') {
-                        // auxi.tickets.push(d)
-
                         res = await fetch(`${server}/api/events/${props.match.params.id}/tickets`, {
                             method: 'POST',
                             headers: {
@@ -484,95 +495,66 @@ const MyEvent = (props) => {
 
                         await res
 
-                        if (res.status === 400) {
+                        if (!res.ok) {
                             errors = await res.json()
-                            // TODO: podría no ser una lista: ticketUnderflow, dateRange, eventFinished
-                            //  hacer if con typeof
-                            errors.forEach(x => {
-                                let variable = String(x["path"]).split(".").slice(-1)[0]
-                                switch (variable) {
-                                    case "ticketName":
-                                        // console.log(x)
-                                        setError('tickets[' + q + '].ticketName', {
-                                            type: 'custom',
-                                            message: x['message']
-                                        });
-                                        break
-                                    case "price":
-                                        setError('tickets[' + q + '].price', {type: 'custom', message: x['message']});
-                                        break
-                                    case "qty":
-                                        setError('tickets[' + q + '].qty', {type: 'custom', message: x['message']});
-                                        break
-                                    case "starting":
-                                        setError('tickets[' + q + '].starting', {
-                                            type: 'custom',
-                                            message: x['message']
-                                        });
-                                        break
-                                    case "until":
-                                        setError('tickets[' + q + '].until', {type: 'custom', message: x['message']});
-                                        break
-                                    case "maxPerUser":
-                                        setError('tickets[' + q + '].maxPerUser', {
-                                            type: 'custom',
-                                            message: x['message']
-                                        });
-                                        break
-                                    default:
-                                        break;
-                                }
-                            })
-                        } else if (!res.ok) {
-                            setOpenSnackbar(true)
+                            if (errors.constructor !== Array) {
+                                setOpenSnackbar(true)
+                            } else {
+                                errors.forEach(x => {
+                                    if (!x["path"]) {
+                                        setOpenSnackbar(true)
+                                    }
+                                    else {
+                                        let variable = String(x["path"]).split(".").slice(-1)[0]
+                                        switch (variable) {
+                                            case "ticketName":
+                                                setError('tickets[' + q + '].ticketName', {
+                                                    type: 'custom',
+                                                    message: x['message']
+                                                });
+                                                break
+                                            case "price":
+                                                setError('tickets[' + q + '].price', {
+                                                    type: 'custom',
+                                                    message: x['message']
+                                                });
+                                                break
+                                            case "qty":
+                                                setError('tickets[' + q + '].qty', {
+                                                    type: 'custom',
+                                                    message: x['message']
+                                                });
+                                                break
+                                            case "starting":
+                                                setError('tickets[' + q + '].starting', {
+                                                    type: 'custom',
+                                                    message: x['message']
+                                                });
+                                                break
+                                            case "until":
+                                                setError('tickets[' + q + '].until', {
+                                                    type: 'custom',
+                                                    message: x['message']
+                                                });
+                                                break
+                                            case "maxPerUser":
+                                                setError('tickets[' + q + '].maxPerUser', {
+                                                    type: 'custom',
+                                                    message: x['message']
+                                                });
+                                                break
+                                            default:
+                                                break;
+                                        }
+                                    }
+                                })
+                            }
                         }
                     }
                 }
             }
         }
 
-        //     if (auxi.tickets.length !== 0) {
-        //         let aux = JSON.parse(JSON.stringify(auxi));
-        //
-        //         res = await fetch(`${server}/api/events/${props.match.params.id}/tickets`, {
-        //             method: 'POST',
-        //             headers: {
-        //                 'Content-Type': 'application/json',
-        //                 'Authorization': `Bearer ${accessToken}`
-        //             },
-        //             body: JSON.stringify(aux)
-        //         })
-        //
-        //         await res;
-        //
-        //         if (res.status === 400) {
-        //             errors = await res.json()
-        //             errors.forEach(x => {
-        //                 let variable = String(x["path"]).split(".").slice(-1)[0]
-        //                 console.log(variable)
-        //                 switch (variable) {
-        //                     case "ticketName":
-        //                         console.log(x)
-        //                         setError('tickets[].ticketName', {type: 'custom', message: x['message']});
-        //                         break
-        //                     case "price":
-        //                         setError('ticketPrice', {type: 'custom', message: x['message']});
-        //                         break
-        //                     case "password":
-        //                         setError('password', {type: 'custom', message: x['message']});
-        //                         break
-        //                     case "repeatPassword":
-        //                         setError('repeatPassword', {type: 'custom', message: x['message']});
-        //                         break
-        //                     default:
-        //                         break;
-        //                 }
-        //             })
-        //         }
-        //     }
-        // }
-
-        // mutate()
         if (!errors) {
             await mutate({...event, obj})
             setEdit(false)
@@ -694,7 +676,7 @@ const MyEvent = (props) => {
                 key={vertical + horizontal}
                 autoHideDuration={15000}
             >
-                <Alert severity="error" onClose={handleClose}>{i18n.t("error.api")}</Alert>
+                <Alert severity="error" onClose={handleCloseSnackbar}>{i18n.t("error.api")}</Alert>
             </Snackbar>
 
             <section className="product-single">
@@ -781,8 +763,6 @@ const MyEvent = (props) => {
             </Dialog>
                                     </> :
                                     <>
-                                        {/*<IconButton onClick={() => {handleSubmit(onSubmit)}} type="submit"><DoneRoundedIcon/></IconButton>*/}
-                                        {/*<IconButton onClick={() => setEdit(false)}><ClearRoundedIcon/></IconButton>*/}
                                     </>
                                 )}
                             </div>
@@ -1043,10 +1023,10 @@ const MyEvent = (props) => {
 
                                     <div className="horizontal align-center">
                                         <FormControlLabel
-                                            value={activeMin !== 'undefined' ? activeMin : (!!event.minAge)}
-                                            checked={activeMin !== 'undefined' ? activeMin : (!!event.minAge)}
+                                            value={activeMin !== undefined ? activeMin : (event.minAge !== undefined)}
+                                            checked={activeMin !== undefined ? activeMin : (event.minAge !== undefined)}
                                             control={<Checkbox onClick={() => {
-                                                setActiveMin(activeMin !== 'undefined' ? !activeMin : (!event.minAge))
+                                                setActiveMin(activeMin !== undefined ? !activeMin : !(event.minAge !== undefined))
                                             }
                                             }/>}
                                             label={i18n.t("create.hasMin")}
@@ -1063,11 +1043,11 @@ const MyEvent = (props) => {
                                                 }
                                             }}
                                             control={control}
-                                            defaultValue={event.minAge}
+                                            defaultValue={event.minAge ? event.minAge : ''}
                                             render={({field, fieldState}) => {
                                                 return (
                                                     <FormControl variant="standard"
-                                                                 disabled={activeMin !== 'undefined' ? !activeMin : (!event.minAge)}
+                                                                 disabled={activeMin !== undefined ? !activeMin : !(event.minAge !== undefined)}
                                                                  className={"min-age-select"}>
                                                         <InputLabel id="stackoverflow-label"
                                                                     error={!!fieldState.error}>{i18n.t("event.minAge")}</InputLabel>
@@ -1075,7 +1055,7 @@ const MyEvent = (props) => {
                                                             id="age-select"
                                                             label={i18n.t("event.minAge")}
                                                             labelId="minAge-id"
-                                                            value={event.minAge ? ages.indexOf(event.minAge) : ''}
+                                                            value={event.minAge ? event.minAge : ''}
                                                             error={!!fieldState.error}
                                                             {...field}
                                                         >

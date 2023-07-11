@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.service;
 
-import ar.edu.itba.paw.exceptions.FilterRequestException;
-import ar.edu.itba.paw.exceptions.ForbiddenAccessException;
+import ar.edu.itba.paw.exceptions.*;
 import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.persistence.EventDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +24,12 @@ public class EventServiceImpl implements EventService {
     private MailService mailService;
     @Autowired
     private AuthService authService;
+    @Autowired
+    private LocationService locationService;
+    @Autowired
+    private TypeService typeService;
+    @Autowired
+    private TagService tagService;
 
     @Override
     public Optional<Event> getEventById(long id) {
@@ -38,6 +43,10 @@ public class EventServiceImpl implements EventService {
             throw new ForbiddenAccessException();
         }
 
+        Location location = locationService.getLocationById(locationId).orElseThrow(InvalidLocationException::new);
+        Type type = typeService.getTypeById(typeId).orElseThrow(InvalidTypeException::new);
+        List<Tag> tags = tagService.getTagsById(tagIds);
+
         Random random = new SecureRandom();
         IntStream specialChars = random.ints(8, 48, 58);
         Stream<Character> passwordStream = specialChars.mapToObj(data -> (char) data);
@@ -50,13 +59,12 @@ public class EventServiceImpl implements EventService {
         String password = charList.stream().collect(StringBuilder::new, StringBuilder::append, StringBuilder::append).substring(0, 8);
 
         User bouncer = userService.createBouncer(password);
-        User organizer = userService.getUserById(userId).orElse(null);
-        Event event = eventDao.createEvent(name, description, locationId, typeId, date, imageArray, tagIds, organizer, minAge, bouncer);
+        User organizer = userService.getUserById(userId).orElseThrow(InvalidOrganizerException::new);
+        Event event = eventDao.createEvent(name, description, location, type, date, imageArray, tags, organizer, minAge, bouncer);
         userService.makeCreator(organizer);
         userService.updateBouncer(bouncer.getId(), event);
         mailService.sendBouncerMail(event, password, baseURL + "events/" + event.getId(), locale);
 
-        System.out.println("BOUNCER" + event.getId() + ":" + password);
         return event;
     }
 
@@ -100,7 +108,12 @@ public class EventServiceImpl implements EventService {
             throw new ForbiddenAccessException();
         }
 
-        eventDao.updateEvent(id, name, description, locationId, typeId, date, imageArray, tagIds, minAge);
+        Event event = getEventById(id).orElseThrow(InvalidEventException::new);
+        Location location = locationService.getLocationById(locationId).orElseThrow(InvalidLocationException::new);
+        Type type = typeService.getTypeById(typeId).orElseThrow(InvalidTypeException::new);
+        List<Tag> tags = tagService.getTagsById(tagIds);
+
+        eventDao.updateEvent(event, name, description, location, type, date, imageArray, tags, minAge);
     }
 
     @Transactional
@@ -110,7 +123,9 @@ public class EventServiceImpl implements EventService {
             throw new ForbiddenAccessException();
         }
 
-        eventDao.updateEventImage(id, imageArray);
+        Event event = getEventById(id).orElseThrow(InvalidEventException::new);
+
+        eventDao.updateEventImage(event, imageArray);
     }
 
     @Transactional
@@ -120,7 +135,9 @@ public class EventServiceImpl implements EventService {
             throw new ForbiddenAccessException();
         }
 
-        eventDao.deleteEvent(id);
+        Event event = getEventById(id).orElseThrow(InvalidEventException::new);
+
+        eventDao.deleteEvent(event);
     }
 
     @Override
@@ -140,7 +157,9 @@ public class EventServiceImpl implements EventService {
             throw new ForbiddenAccessException();
         }
 
-        eventDao.soldOut(id);
+        Event event = getEventById(id).orElseThrow(InvalidEventException::new);
+
+        eventDao.soldOut(event);
     }
 
     @Transactional
@@ -150,7 +169,9 @@ public class EventServiceImpl implements EventService {
             throw new ForbiddenAccessException();
         }
 
-        eventDao.active(id);
+        Event event = getEventById(id).orElseThrow(InvalidEventException::new);
+
+        eventDao.active(event);
     }
 
     @Override
@@ -179,7 +200,9 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void checkSoldOut(long id) {
-        eventDao.checkSoldOut(id);
+        Event event = getEventById(id).orElseThrow(InvalidEventException::new);
+
+        eventDao.checkSoldOut(event);
     }
 }
 

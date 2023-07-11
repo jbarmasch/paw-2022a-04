@@ -11,7 +11,16 @@ const i18n_en = {
     landing: "Landing image",
 
     error: {
-        api: "¡Oh oh! An unexcpected error has occured."
+        api: "¡Uh oh! An unexcpected error has occured."
+    },
+
+    order : {
+        dateAsc : "Ascending date",
+        dateDesc: "Descending date",
+        ratingAsc: "Ascending rating",
+        ratingDesc: "Descending rating",
+        usernameAsc: "Ascending username",
+        usernameDesc: "Descending username",
     },
 
     nav: {
@@ -59,7 +68,7 @@ const i18n_en = {
 
     myEvents: {
         title: "My events",
-        ticketDateError: "STARTING > UNTIL GILASTRUM",
+        ticketDateError: "Starting date must be before until date",
         ticketPriceError: "Ticket price should be at least 0",
         ticketQtyError: "There should be at least 1 ticket",
         ticketsPerUserError: "The amount of tickets per user should be between 1 & 10",
@@ -97,7 +106,7 @@ const i18n_en = {
         minAge: "Min. age",
         minAgeText: "From ",
         organizer: "Organizer",
-        noEvents: "No se han encontrado eventos",
+        noEvents: "No events found",
         event: "Event",
         over: "Over",
         bookingError: "The amount of tickets selected must be greater than 0 (zero)",
@@ -124,10 +133,10 @@ const i18n_en = {
         tags: "Select tags",
         sortBy: "Sort by",
         order: "Order",
-        price: "Precio",
-        apply: "Aplicar",
-        minPrice: "Precio mín.",
-        maxPrice: "Precio máx.",
+        price: "Price",
+        apply: "Apply",
+        minPrice: "Min. price",
+        maxPrice: "Max. price",
         ascending: "Ascending",
         descending: "Descending",
         username: "Username",
@@ -153,7 +162,8 @@ const i18n_en = {
         cancelMessage: "Are you sure you want to cancel your booking?",
         accept: "Accept",
         confirm: "Confirm",
-        invalidate: "Invalidate"
+        invalidate: "Invalidate",
+        noBookings: "No bookings found",
     },
 
     stats: {

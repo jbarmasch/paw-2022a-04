@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
 @Path("api/events")
 @Component
 public class EventController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(EventController.class);
     @Autowired
     private EventService es;
     @Autowired

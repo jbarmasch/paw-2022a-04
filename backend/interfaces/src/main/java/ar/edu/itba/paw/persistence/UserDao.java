@@ -14,7 +14,8 @@ public interface UserDao {
 
     User createBouncer(String password);
 
-    void updateUser(long userId, String username, String password, String mail);
+
+    void updateUser(User user, String username, String password, String mail);
 
     Optional<User> findByUsername(String username);
 
@@ -24,7 +25,7 @@ public interface UserDao {
 
     Optional<User> findByMail(String mail);
 
-    void rateUser(long userId, long organizerId, int rating);
+    void rateUser(User user, User organizer, int rating);
 
     void makeCreator(User user);
 
