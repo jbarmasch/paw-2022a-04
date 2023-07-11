@@ -18,6 +18,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import IconButton from '@mui/material/IconButton';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
+import {Alert, Snackbar} from "@mui/material";
 
 const Login = () => {
     const {login} = useAuth();
@@ -29,6 +30,7 @@ const Login = () => {
     const {handleSubmit, control, formState: {errors}, setError} = useForm();
 
     const [showPassword, setShowPassword] = React.useState(false);
+    const [openSnackbar, setOpenSnackbar] = useState(false);
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
     const handleMouseDownPassword = (event) => {
@@ -45,7 +47,7 @@ const Login = () => {
             }
         })
 
-        if (res.status !== 200) {
+        if (!res.ok) {
             if (res.status === 401) {
                 setError('username', {type: 'custom', message: ""});
                 setError('password', {type: 'custom', message: i18n.t("login.notFound")});
@@ -65,6 +67,11 @@ const Login = () => {
             }
         })
 
+        if (!bad.ok) {
+            setOpenSnackbar(true)
+            return;
+        }
+
         let user = await bad.json();
         user["accessToken"] = res.headers.get("Access-Token")
         user["refreshToken"] = res.headers.get("Refresh-Token")
@@ -77,8 +84,25 @@ const Login = () => {
         }
     };
 
+    let vertical = "top"
+    let horizontal = "right"
+
+    const handleClose = () => {
+        setOpenSnackbar(false)
+    }
+
     return (
         <Layout>
+            <Snackbar
+                anchorOrigin={{ vertical, horizontal }}
+                open={openSnackbar}
+                onClose={handleClose}
+                key={vertical + horizontal}
+                autoHideDuration={15000}
+            >
+                <Alert severity="error" onClose={handleClose}>{i18n.t("error.api")}</Alert>
+            </Snackbar>
+
             <section className="form-page">
                 <div className="container">
                     <div className="form-block">

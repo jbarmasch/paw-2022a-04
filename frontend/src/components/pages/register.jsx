@@ -12,6 +12,7 @@ import {useAuth} from '../../utils/useAuth';
 import {Link, useHistory, useLocation} from 'react-router-dom'
 import queryString from 'query-string'
 import {Alert, Snackbar} from "@mui/material";
+import {getErrorMessage, getErrorsParsed} from "../../utils/error";
 
 const RegisterPage = () => {
     const { register, handleSubmit, control, getValues, watch, formState: { errors }, setError } = useForm();
@@ -19,7 +20,7 @@ const RegisterPage = () => {
     const history = useHistory();
     const {search} = useLocation()
     const values = queryString.parse(search)
-    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [openSnackbar, setOpenSnackbar] = useState(undefined);
 
     const onSubmit = async (data) => {
         const res = await fetch(`${server}/api/users`, {
@@ -32,7 +33,7 @@ const RegisterPage = () => {
         
         let json = await res;
 
-        if (json.status === 201) {
+        if (json.ok) {
             let authorization = data.username + ":" + data.password
 
             const aux = await fetch(json.headers.get("Location"), {
@@ -43,7 +44,8 @@ const RegisterPage = () => {
             })
 
             if (!aux.ok) {
-                setOpenSnackbar(true)
+                let errors = await aux.text()
+                setOpenSnackbar(getErrorMessage(errors))
                 return
             }
 
@@ -63,14 +65,17 @@ const RegisterPage = () => {
                 history.push("/")
             }
 
-        } else if (!json.ok) {
-            let errors = await json.json()
-            if (errors.constructor !== Array) {
-                setOpenSnackbar(true)
+        } else {
+            let errorsText = await json.text()
+            let errors = getErrorsParsed(errorsText)
+            if (errors == null) {
+                setOpenSnackbar(i18n.t("error.api"))
+            } else if (errors.constructor !== Array) {
+                setOpenSnackbar(getErrorMessage(errorsText))
             } else {
                 errors.forEach(x => {
                     if (!x["path"]) {
-                        setOpenSnackbar(true)
+                        setOpenSnackbar(i18n.t("error.api"))
                     } else {
                         let variable = String(x["path"]).split(".").slice(-1)[0]
                         switch (variable) {
@@ -99,19 +104,19 @@ const RegisterPage = () => {
     let horizontal = "right"
 
     const handleClose = () => {
-        setOpenSnackbar(false)
+        setOpenSnackbar(undefined)
     }
 
     return (
         <Layout>
             <Snackbar
                 anchorOrigin={{ vertical, horizontal }}
-                open={openSnackbar}
+                open={openSnackbar !== undefined}
                 onClose={handleClose}
                 key={vertical + horizontal}
                 autoHideDuration={15000}
             >
-                <Alert severity="error" onClose={handleClose}>{i18n.t("error.api")}</Alert>
+                <Alert variant="filled" severity="error" onClose={handleClose}>{openSnackbar}</Alert>
             </Snackbar>
 
             <section className="form-page">

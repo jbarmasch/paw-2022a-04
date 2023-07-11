@@ -1,5 +1,5 @@
 const i18n_en = {
-    app: "Botpass",
+    app: "BotPass",
     submit: "Submit",
     fieldRequired: "This field is required",
     fieldInvalid: "This field is invalid",
@@ -11,7 +11,8 @@ const i18n_en = {
     landing: "Landing image",
 
     error: {
-        api: "¡Uh oh! An unexcpected error has occured."
+        api: "¡Uh oh! An unexpected error has occurred.",
+        rating: "Rating must be between 1 and 5"
     },
 
     order : {
@@ -74,7 +75,7 @@ const i18n_en = {
         ticketPriceError: "Ticket price should be at least 0",
         ticketQtyError: "There should be at least 1 ticket",
         ticketsPerUserError: "The amount of tickets per user should be between 1 & 10",
-        ticketsLeftError: "Te quedaste sin tickets hermano"
+        ticketsLeftError: "No more tickets"
     },
 
     event: {
@@ -144,7 +145,7 @@ const i18n_en = {
         username: "Username",
         rating: "Rating",
         soldOut: "Sold out",
-        noTickets: "Ticketless",
+        noTickets: "Ticket less",
         advancedOptions: "Advanced options",
         minPriceError: "Minimum price must be greater or equal than 0",
         maxPriceError: "Maximum price must be greater or equal than 0",
@@ -173,7 +174,12 @@ const i18n_en = {
         eventsAttended: "Booked events",
         ticketsBooked: "Tickets booked",
         favType: "Favorite event type",
-        favLocation: "Favorite location"
+        favLocation: "Favorite location",
+        income: "Total income",
+        attendance: "Total attendance",
+        popularEvent: "Popular event",
+        bookingsGotten: "Bookings gotten",
+        eventsCreated: "Events created"
     },
 
     register: {

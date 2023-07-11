@@ -21,6 +21,7 @@ import LocationOnRoundedIcon from "@mui/icons-material/LocationOnRounded";
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import {Alert, Snackbar} from "@mui/material";
+import {getErrorMessage} from "../../utils/error";
 
 
 const BookingItem = ({image, code, event, rating, ticketBookings, mutate}) => {
@@ -28,7 +29,7 @@ const BookingItem = ({image, code, event, rating, ticketBookings, mutate}) => {
     const {data, isLoading, error} = useSwr(`${event}`, fetcher);
     const [openQR, setOpenQR] = useState(false);
     const [newRating, setNewRating] = useState(rating)
-    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [openSnackbar, setOpenSnackbar] = useState(undefined);
 
     const history = useHistory();
 
@@ -64,10 +65,11 @@ const BookingItem = ({image, code, event, rating, ticketBookings, mutate}) => {
             },
         })
 
-        await res;
+        let text = await res;
 
-        if (!res.ok) {
-            setOpenSnackbar(true)
+        if (!text.ok) {
+            let errors = await text.text()
+            setOpenSnackbar(getErrorMessage(errors))
             return;
         }
 
@@ -89,6 +91,11 @@ const BookingItem = ({image, code, event, rating, ticketBookings, mutate}) => {
     };
 
     const rate = async (e, v) => {
+        if (v < 1 || v > 5) {
+            setOpenSnackbar(i18n.t("error.rating"))
+            return;
+        }
+
         setNewRating(v)
         const res = await fetch(`${server}/api/events/${data.id}/rating`, {
             method: 'POST',
@@ -99,11 +106,12 @@ const BookingItem = ({image, code, event, rating, ticketBookings, mutate}) => {
                 body: JSON.stringify({rating: v})
             })
 
-            let json = await res;
+            let text = await res;
 
-            if (!json.ok) {
-                setOpenSnackbar(true)
-                return;
+            if (!text.ok) {
+                let errors = await text.text()
+                setOpenSnackbar(getErrorMessage(errors))
+                return
             }
 
             mutate()
@@ -113,19 +121,19 @@ const BookingItem = ({image, code, event, rating, ticketBookings, mutate}) => {
     let horizontal = "right"
 
     const handleClose = () => {
-        setOpenSnackbar(false)
+        setOpenSnackbar(undefined)
     }
 
     return (
         <Paper className="booking-item" elevation={2}>
             <Snackbar
                 anchorOrigin={{ vertical, horizontal }}
-                open={openSnackbar}
+                open={openSnackbar !== undefined}
                 onClose={handleClose}
                 key={vertical + horizontal}
                 autoHideDuration={15000}
             >
-                <Alert severity="error" onClose={handleClose}>{i18n.t("error.api")}</Alert>
+                <Alert variant="filled" severity="error" onClose={handleClose}>{openSnackbar}</Alert>
             </Snackbar>
 
             <div>

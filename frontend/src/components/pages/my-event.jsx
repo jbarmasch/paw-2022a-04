@@ -52,6 +52,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogTitle from '@mui/material/DialogTitle';
 import {Alert, Snackbar} from "@mui/material";
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import {getErrorMessage, getErrorsParsed} from "../../utils/error";
 
 const isEqualsJson = (oldTicket, newTicket) => {
     let oldKeys = Object.keys(oldTicket);
@@ -81,8 +82,8 @@ const MyEvent = (props) => {
     const [edit, setEdit] = useState(false);
     const [activeMin, setActiveMin] = useState();
     const [open, setOpen] = useState(false);
-    const [openSnackbar, setOpenSnackbar] = useState(false);
-    const [imageName, setImageName] = useState()
+    const [openSnackbar, setOpenSnackbar] = useState(undefined);
+    const [imageName, setImageName] = useState(undefined)
     const [image, setImage] = useState()
 
     const {
@@ -254,7 +255,7 @@ const MyEvent = (props) => {
                 || !data.tags.every(x => event.tags.find(e => e['id'] == x)))) ||
             ((data.minAge && event.minAge != data.minAge) ||
                 ((event.minAge && !hasMinAge) || (!event.minAge && hasMinAge)))
-            || image) {
+            || imageName) {
             changed = true
         }
 
@@ -277,16 +278,19 @@ const MyEvent = (props) => {
                 body: formData
             })
 
-            await resi
+            let text = await resi
 
-            if (!resi.ok) {
-                errors = await resi.json()
-                if (errors.constructor !== Array) {
-                    setOpenSnackbar(true)
+            if (!text.ok) {
+                let errorsText = await text.text()
+                let errors = getErrorsParsed(errorsText)
+                if (errors == null) {
+                    setOpenSnackbar(i18n.t("error.api"))
+                } else if (errors.constructor !== Array) {
+                    setOpenSnackbar(getErrorMessage(errorsText))
                 } else {
                     errors.forEach(x => {
                         if (!x["path"]) {
-                            setOpenSnackbar(true)
+                            setOpenSnackbar(i18n.t("error.api"))
                         } else {
                             let variable = String(x["path"]).split(".").slice(-1)[0]
                             switch (variable) {
@@ -330,14 +334,15 @@ const MyEvent = (props) => {
                         body: formData
                     })
 
-                    let json = await resi;
+                    let text = await resi;
 
-                    if (!json.ok) {
-                        let errors = await json.json()
+                    if (!text.ok) {
+                        let errors = await text.json()
                         setError('image', {type: 'custom', message: errors['message']});
                         return;
                     }
 
+                    setImageName(undefined)
                 }
             }
         }
@@ -351,13 +356,15 @@ const MyEvent = (props) => {
                 },
             })
 
-            await del
+            let text = await del
 
-            if (del.ok) {
+            if (text.ok) {
                 remove(x.index)
                 reset()
             } else {
-                setOpenSnackbar(false)
+                let errors = await text.text()
+                setOpenSnackbar(getErrorMessage(errors))
+                return;
             }
         }
 
@@ -422,16 +429,19 @@ const MyEvent = (props) => {
                             body: JSON.stringify(aux)
                         })
 
-                        await res
+                        let text = await res
 
-                        if (!res.ok) {
-                            errors = await res.json()
-                            if (errors.constructor !== Array) {
-                                setOpenSnackbar(true)
+                        if (!text.ok) {
+                            let errorsText = await text.text()
+                            let errors = getErrorsParsed(errorsText)
+                            if (errors == null) {
+                                setOpenSnackbar(i18n.t("error.api"))
+                            } else if (errors.constructor !== Array) {
+                                setOpenSnackbar(getErrorMessage(errorsText))
                             } else {
                                 errors.forEach(x => {
                                     if (!x["path"]) {
-                                        setOpenSnackbar(true)
+                                        setOpenSnackbar(i18n.t("error.api"))
                                     }
                                     else {
                                         let variable = String(x["path"]).split(".").slice(-1)[0]
@@ -493,16 +503,19 @@ const MyEvent = (props) => {
                             body: JSON.stringify(d)
                         })
 
-                        await res
+                        let text = await res
 
-                        if (!res.ok) {
-                            errors = await res.json()
-                            if (errors.constructor !== Array) {
-                                setOpenSnackbar(true)
+                        if (!text.ok) {
+                            let errorsText = await text.text()
+                            let errors = getErrorsParsed(errorsText)
+                            if (errors == null) {
+                                setOpenSnackbar(i18n.t("error.api"))
+                            } else if (errors.constructor !== Array) {
+                                setOpenSnackbar(getErrorMessage(errorsText))
                             } else {
                                 errors.forEach(x => {
                                     if (!x["path"]) {
-                                        setOpenSnackbar(true)
+                                        setOpenSnackbar(i18n.t("error.api"))
                                     }
                                     else {
                                         let variable = String(x["path"]).split(".").slice(-1)[0]
@@ -579,7 +592,14 @@ const MyEvent = (props) => {
             body: JSON.stringify({"active": e.target.value})
         })
 
-        await resi;
+        let text = await resi;
+
+        if (!text.ok) {
+            let errors = await text.text()
+            setOpenSnackbar(getErrorMessage(errors))
+            return;
+        }
+
         mutate()
     }
 
@@ -590,8 +610,15 @@ const MyEvent = (props) => {
                 'Authorization': `Bearer ${accessToken}`
             },
         })
-        await res;
-        mutate()
+
+        let text = await res;
+
+        if (!text.ok) {
+            let errors = await text.text()
+            setOpenSnackbar(getErrorMessage(errors))
+            return;
+        }
+
         history.push("/")
     }
 
@@ -668,19 +695,19 @@ const MyEvent = (props) => {
     let horizontal = "right"
 
     const handleCloseSnackbar = () => {
-        setOpenSnackbar(false)
+        setOpenSnackbar(undefined)
     }
 
     return (
         <Layout>
             <Snackbar
                 anchorOrigin={{ vertical, horizontal }}
-                open={openSnackbar}
+                open={openSnackbar !== undefined}
                 onClose={handleCloseSnackbar}
                 key={vertical + horizontal}
                 autoHideDuration={15000}
             >
-                <Alert severity="error" onClose={handleCloseSnackbar}>{i18n.t("error.api")}</Alert>
+                <Alert variant="filled" severity="error" onClose={handleCloseSnackbar}>{openSnackbar}</Alert>
             </Snackbar>
 
             <section className="product-single">
@@ -736,7 +763,7 @@ const MyEvent = (props) => {
                                 {!over && edit &&
                                     <>
                                         <IconButton onClick={() => {handleSubmit(onSubmit)}} type="submit"><DoneRoundedIcon/></IconButton>
-                                        <IconButton onClick={() => setEdit(false)}><ClearRoundedIcon/></IconButton>
+                                        <IconButton onClick={() => {setEdit(false); setImageName(undefined)}}><ClearRoundedIcon/></IconButton>
                                     </>
                                 }
 
@@ -839,6 +866,11 @@ const MyEvent = (props) => {
                                             name="description"
                                             control={control}
                                             defaultValue={event.description}
+                                            rules={{
+                                                validate: {
+                                                    maxLength: (x) => {return x.length <= 1000 || i18n.t("create.maxLengthDescription")},
+                                                }
+                                            }}
                                             render={({field, fieldState}) => {
                                                 return (
                                                     <FormControl className="full-width-input">
@@ -847,7 +879,13 @@ const MyEvent = (props) => {
                                                         <TextField id="description-input" variant="standard"
                                                                    multiline
                                                                    maxRows={3}
+                                                                   error={!!fieldState.error}
                                                                    {...field} />
+                                                        {fieldState.error ? (
+                                                            <FormHelperText error>
+                                                                {fieldState.error?.message}
+                                                            </FormHelperText>
+                                                        ) : null}
                                                     </FormControl>
                                                 );
                                             }}

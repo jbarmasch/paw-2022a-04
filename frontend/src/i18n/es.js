@@ -1,5 +1,5 @@
 const i18n_es = {
-    app: "Botpass",
+    app: "BotPass",
     submit: "Enviar",
     fieldRequired: "Este campo es obligatorio",
     fieldInvalid: "Este campo es inválido",
@@ -11,7 +11,8 @@ const i18n_es = {
     landing: "Imagen de landing",
 
     error: {
-        api: "¡Oh oh! Ha ocurrido un error inesperado."
+        api: "¡Uh oh! Ha ocurrido un error inesperado.",
+        rating: "El puntaje debe estar entre 1 y 5"
     },
 
     order: {
@@ -174,6 +175,11 @@ const i18n_es = {
         ticketsBooked: "Entradas reservadas",
         favType: "Tipo de evento favorito",
         favLocation: "Ubicación favorita",
+        income: "Ingresos totales",
+        attendance: "Asistencia total",
+        popularEvent: "Evento popular",
+        bookingsGotten: "Reservas obtenidas",
+        eventsCreated: "Eventos creados"
     },
 
     register: {

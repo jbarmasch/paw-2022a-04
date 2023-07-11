@@ -78,7 +78,7 @@ public class EventBookingServiceImpl implements EventBookingService {
         }
 
         if (authService.isTheEventOrganizer(booking.getEvent()) || authService.isBouncer()) {
-            throw new IllegalBookingException();
+            throw new UserCannotBookException();
         }
 
         EventBooking persistedBooking = eventBookingDao
@@ -145,7 +145,7 @@ public class EventBookingServiceImpl implements EventBookingService {
         EventBooking booking = eventBookingDao.getBooking(code).orElseThrow(CancelBookingFailedException::new);
 
         if (!authService.isTheBookingOwner(booking.getUser())) {
-            throw new IllegalBookingException();
+            throw new UserCannotCancelException();
         }
 
         if (eventBookingDao.cancelBooking(booking)) {

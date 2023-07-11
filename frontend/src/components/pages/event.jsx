@@ -32,12 +32,13 @@ import FormHelperText from '@mui/material/FormHelperText';
 import {LoadingPage} from "../../utils/loadingPage";
 import {ParseDateTime} from "../events-content/event-item";
 import {Alert, Snackbar} from "@mui/material";
+import {getErrorMessage} from "../../utils/error";
 
 const Event = (props) => {
     const prevLocation = useLocation();
 
     const {register, handleSubmit, control, formState: {errors}} = useForm();
-    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [openSnackbar, setOpenSnackbar] = useState(undefined);
 
     const history = useHistory();
 
@@ -153,11 +154,9 @@ const Event = (props) => {
         let json = await response;
 
         if (!json.ok) {
-            setOpenSnackbar(true)
-            return;
-        }
-
-        if (json.status === 201) {
+            let errors = await json.text()
+            setOpenSnackbar(getErrorMessage(errors))
+        } else {
             history.push({
                 pathname: `/thank-you`,
                 state: {
@@ -183,19 +182,19 @@ const Event = (props) => {
     let horizontal = "right"
 
     const handleClose = () => {
-        setOpenSnackbar(false)
+        setOpenSnackbar(undefined)
     }
 
     return (
         <Layout>
             <Snackbar
                 anchorOrigin={{ vertical, horizontal }}
-                open={openSnackbar}
+                open={openSnackbar !== undefined}
                 onClose={handleClose}
                 key={vertical + horizontal}
                 autoHideDuration={15000}
             >
-                <Alert severity="error" onClose={handleClose}>{i18n.t("error.api")}</Alert>
+                <Alert variant="filled" severity="error" onClose={handleClose}>{openSnackbar}</Alert>
             </Snackbar>
 
             <section className="product-single">

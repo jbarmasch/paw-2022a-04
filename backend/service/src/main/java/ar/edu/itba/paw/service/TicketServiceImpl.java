@@ -63,6 +63,15 @@ public class TicketServiceImpl implements TicketService {
         if (qty < ticket.getBooked()) {
             throw new TicketUnderflowException();
         }
+        if (ticket.getEvent().isFinished()) {
+            throw new EventFinishedException();
+        }
+        if (starting != null && starting.isAfter(ticket.getEvent().getDate())) {
+            throw new DateRangeStartingException();
+        }
+        if (until != null && until.isAfter(ticket.getEvent().getDate())) {
+            throw new DateRangeUntilException();
+        }
 
         ticketDao.updateTicket(ticket, ticketName, price, qty, starting, until, maxPerUser);
     }

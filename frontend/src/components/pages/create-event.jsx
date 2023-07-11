@@ -27,6 +27,7 @@ import 'dayjs/locale/en';
 import {useAuth} from '../../utils/useAuth';
 import {LoadingPage} from '../../utils/loadingPage'
 import {Alert, Snackbar} from "@mui/material";
+import {getErrorMessage, getErrorsParsed} from "../../utils/error";
 
 const CreateEvent = () => {
     const history = useHistory();
@@ -63,7 +64,7 @@ const CreateEvent = () => {
     const [imageName, setImageName] = useState()
     const [image, setImage] = useState()
     const inputRef = useRef(null);
-    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [openSnackbar, setOpenSnackbar] = useState(undefined);
 
     let start = 14;
     let ages = [];
@@ -127,10 +128,10 @@ const CreateEvent = () => {
             body: formData
         })
 
-        let json = await res;
+        let text = await res;
 
-        if (json.ok) {
-            let eventId = json.headers.get("Location")?.split("/").slice(-1)[0]
+        if (text.ok) {
+            let eventId = text.headers.get("Location")?.split("/").slice(-1)[0]
 
             if (image) {
                 const formData = new FormData();
@@ -147,10 +148,10 @@ const CreateEvent = () => {
                     body: formData
                 })
 
-                let json = await res;
+                let text = await res;
 
-                if (!json.ok) {
-                    let errors = await json.json()
+                if (!text.ok) {
+                    let errors = await text.json()
                     setError('image', {type: 'custom', message: errors['message']});
                     return;
                 }
@@ -159,25 +160,37 @@ const CreateEvent = () => {
             refresh()
             history.push("/my-events/" + eventId)
         } else {
-            let errors = await json.json()
-            console.log(errors)
-            if (errors.constructor !== Array) {
-                setOpenSnackbar(true)
+            // let errors = await json.json()
+            // if (errors.constructor !== Array) {
+            //     let message = errors["message"]
+            //     if (message) {
+            //         setOpenSnackbar(message)
+            //     } else {
+            //         setOpenSnackbar(i18n.t("error.api"))
+            //     }
+            let errorsText = await text.text()
+            let errors = getErrorsParsed(errorsText)
+            if (errors == null) {
+                setOpenSnackbar(i18n.t("error.api"))
+            } else if (errors.constructor !== Array) {
+                setOpenSnackbar(getErrorMessage(errorsText))
             } else {
                 errors.forEach(x => {
-                    console.log(x)
-                    console.log(!x["path"])
                     if (!x["path"]) {
-                        setOpenSnackbar(true)
+                        // let message = errors["message"]
+                        // if (message) {
+                        //     setOpenSnackbar(message)
+                        // } else {
+                        //     setOpenSnackbar(i18n.t("error.api"))
+                        // }
+                        setOpenSnackbar(i18n.t("error.api"))
                     } else {
                         let variable = String(x["path"]).split(".").slice(-1)[0]
-                        console.log(variable)
                         switch (variable) {
                             case "name":
                                 setError('name', {type: 'custom', message: x['message']});
                                 break
                             case "description":
-                                console.log("hola")
                                 setError('description', {type: 'custom', message: x['message']});
                                 break
                             case "location":
@@ -239,19 +252,19 @@ const CreateEvent = () => {
     let horizontal = "right"
 
     const handleCloseSnackbar = () => {
-        setOpenSnackbar(false)
+        setOpenSnackbar(undefined)
     }
 
     return (
         <Layout>
             <Snackbar
                 anchorOrigin={{ vertical, horizontal }}
-                open={openSnackbar}
+                open={openSnackbar !== undefined}
                 onClose={handleCloseSnackbar}
                 key={vertical + horizontal}
                 autoHideDuration={15000}
             >
-                <Alert severity="error" onClose={handleCloseSnackbar}>{i18n.t("error.api")}</Alert>
+                <Alert variant="filled" severity="error" onClose={handleCloseSnackbar}>{openSnackbar}</Alert>
             </Snackbar>
 
             <section className="form-page">

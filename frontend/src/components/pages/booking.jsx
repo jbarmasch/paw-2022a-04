@@ -21,13 +21,14 @@ import {useAuth} from "../../utils/useAuth";
 import {useEffect, useState} from "react";
 import {LoadingPage} from "../../utils/loadingPage";
 import {Alert, Snackbar} from "@mui/material";
+import {getErrorMessage} from "../../utils/error";
 
 const Booking = (props) => {
     let {user} = useAuth()
 
     const history = useHistory();
     const [bouncer, setBouncer] = useState(false)
-    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [openSnackbar, setOpenSnackbar] = useState(undefined);
 
     useEffect(() => {
         if (user === undefined) {
@@ -74,10 +75,11 @@ const Booking = (props) => {
             body: JSON.stringify({confirmed: true})
         })
 
-        let json = await res;
+        let text = await res;
 
-        if (!json.ok) {
-            setOpenSnackbar(true);
+        if (!text.ok) {
+            let errors = await text.text()
+            setOpenSnackbar(getErrorMessage(errors))
             return;
         }
 
@@ -94,10 +96,11 @@ const Booking = (props) => {
             body: JSON.stringify({confirmed: false})
         })
 
-        let json = await res;
+        let text = await res;
 
-        if (!json.ok) {
-            setOpenSnackbar(true);
+        if (!text.ok) {
+            let errors = await text.text()
+            setOpenSnackbar(getErrorMessage(errors))
             return;
         }
 
@@ -108,19 +111,19 @@ const Booking = (props) => {
     let horizontal = "right"
 
     const handleClose = () => {
-        setOpenSnackbar(false)
+        setOpenSnackbar(undefined)
     }
 
     return (
         <Layout>
             <Snackbar
                 anchorOrigin={{ vertical, horizontal }}
-                open={openSnackbar}
+                open={openSnackbar !== undefined}
                 onClose={handleClose}
                 key={vertical + horizontal}
                 autoHideDuration={15000}
             >
-                <Alert severity="error" onClose={handleClose}>{i18n.t("error.api")}</Alert>
+                <Alert variant="filled" severity="error" onClose={handleClose}>{openSnackbar}</Alert>
             </Snackbar>
 
             <section className="thank-you-page">

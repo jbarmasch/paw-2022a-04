@@ -11,7 +11,7 @@ export const checkLogin = async (accessToken, refreshToken) => {
         })
 
         let aux = await res;
-        if (aux.status === 200) {
+        if (aux.ok) {
             isLogged = true
             return;
         }
@@ -23,7 +23,7 @@ export const checkLogin = async (accessToken, refreshToken) => {
         })
 
         aux = await res;
-        if (aux.status === 200) {
+        if (aux.ok) {
             isLogged = true
             localStorage.setItem("Access-Token", aux.headers.get("Access-Token"))
         }

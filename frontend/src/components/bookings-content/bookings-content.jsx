@@ -85,11 +85,7 @@ const BookingsContent = ({userId}) => {
         return
     }
 
-    if (!data) {
-        return <NoBookingsContent/>
-    }
-
-    if (isLoading) {
+    if (!data || isLoading) {
         return <BookingsLoading/>
     }
 
