@@ -183,6 +183,7 @@ const i18n_es = {
         username: "Nombre de usuario",
         pass: "Contraseña",
         repeat: "Repetir contraseña",
+        usernamePatternError: "El nombre de usuario solo puede contener letras minúsculas, mayúsculas y números",
         mailPatternError : "Mail inválido",
         passwordPatternError : "La contraseña solo puede contener letras minúsculas, mayúsculas y números",
         passwordLenError : "La contraseña debe tener entre 8 y 100 caracteres",

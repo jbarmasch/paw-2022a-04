@@ -184,6 +184,7 @@ const i18n_en = {
         pass: "Password",
         repeat: "Repeat password",
         mailPatternError : "Invalid mail",
+        usernamePatternError: "Username can only contain lowercase and uppercase letters and digits",
         passwordPatternError : "Password can only contain lowercase and uppercase letters and digits",
         passwordLenError : "Password must be between 8 and 100 characters long",
         passwordMatchError : "Passwords don't match",

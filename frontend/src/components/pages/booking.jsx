@@ -1,6 +1,6 @@
 import landingImage from '../../assets/images/intro.jpg'
 import {useHistory} from 'react-router-dom'
-import {server, fetcher} from "../../utils/server";
+import {server, fetcher, fetcherWithBearer} from "../../utils/server";
 import Layout from "../layout"
 import i18n from '../../i18n'
 import useSwr from 'swr';
@@ -45,7 +45,9 @@ const Booking = (props) => {
         accessToken = localStorage.getItem("Access-Token");
     }
 
-    const {data: booking, mutate, isLoading, error} = useSwr(`${server}/api/bookings/${props.match.params.code}`, fetcher)
+    const {data: booking, mutate, isLoading, error} = useSwr(
+        [bouncer ? `${server}/api/bookings/${props.match.params.code}` : null, accessToken]
+        , fetcherWithBearer)
     const {data: event, isLoading: isLoadingEvent, error: errorEvent} = useSwr(booking ? booking.event : null, fetcher)
 
     if (!bouncer || isLoading || isLoadingEvent) {

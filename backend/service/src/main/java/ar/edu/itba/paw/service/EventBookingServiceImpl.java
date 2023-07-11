@@ -127,7 +127,7 @@ public class EventBookingServiceImpl implements EventBookingService {
 
         EventBooking eventBooking = eventBookingDao.book(booking);
         if (eventBooking != null) {
-            TransactionUtil.executeAfterTransaction(() -> mailService.sendBookMail(baseUrl + "/bookings/" + eventBooking.getCode(), eventBooking, locale));
+            TransactionUtil.executeAfterTransaction(() -> mailService.sendBookMail(baseUrl + "/bookings/", eventBooking, locale));
         }
 
         eventService.checkSoldOut(booking.getEvent().getId());

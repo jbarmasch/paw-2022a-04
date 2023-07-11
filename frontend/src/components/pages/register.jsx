@@ -134,7 +134,6 @@ const RegisterPage = () => {
                                             },
                                             pattern: (x) => {
                                                 const reg = /^[A-Za-z0-9]+$/
-                                                // i18n
                                                 return reg.test(x) || i18n.t("register.usernamePatternError")
                                             }
                                         }
