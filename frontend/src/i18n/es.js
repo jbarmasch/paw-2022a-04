@@ -1,5 +1,5 @@
 const i18n_es = {
-    app: "Embotellador",
+    app: "Botpass",
     submit: "Enviar",
     fieldRequired: "Este campo es obligatorio",
     fieldInvalid: "Este campo es inválido",
@@ -8,7 +8,10 @@ const i18n_es = {
     filters: "Filtros",
     noData: "Sin datos",
     seeEvents: "Ver eventos",
-    landing: "Aterrizaje",
+    landing: "Imagen de landing",
+    error: {
+        api: "¡Oh oh! Ha ocurrido un error inesperado."
+    },
 
     nav: {
         events: "Eventos",
@@ -95,7 +98,10 @@ const i18n_es = {
         organizer: "Organizador",
         noEvents: "No se encontraron eventos",
         event: "Evento",
-        over: "Terminado"
+        over: "Terminado",
+        bookingError: "La cantidad de tickets seleccionada debe ser mayor que 0 (cero)",
+        enable: "Activar",
+        disable: "Desactivar",
     },
 
     login: {
@@ -159,7 +165,6 @@ const i18n_es = {
 
     register: {
         register: "Registrarse",
-        name : "Nombre de usuario",
         create: "Registrate para crear eventos y reservar entradas",
         mail: "Email",
         username: "Nombre de usuario",

@@ -99,9 +99,15 @@ const Header = () => {
 
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
+
+    let roles;
+    if (typeof window !== 'undefined') {
+        roles = localStorage.getItem('roles')
+    }
+
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
-        if (!user?.roles?.includes("ROLE_CREATOR")) {
+        if (!roles?.includes("ROLE_CREATOR")) {
             getRoles()
         }
     };
@@ -114,6 +120,7 @@ const Header = () => {
         localStorage.removeItem("Refresh-Token")
         localStorage.removeItem("User-ID")
         localStorage.removeItem("user")
+        localStorage.removeItem("roles")
         history.go(0)
     }
 
@@ -158,7 +165,7 @@ const Header = () => {
                     <Link className="site-nav__btn" to="/profile">
                         {i18n.t("nav.profile")}
                     </Link>
-                    {user?.role === "ROLE_CREATOR" && 
+                    {roles?.includes("ROLE_CREATOR") &&
                     <Link className="site-nav__btn" to="/my-events">
                         {i18n.t("nav.myEvents")}
                     </Link>}
@@ -249,7 +256,7 @@ const Header = () => {
                                         <Avatar />{i18n.t("nav.profile")}
                                     </MenuItem>
                                 </Link>
-                                {user?.roles?.includes("ROLE_CREATOR") && <Link to="/my-events">
+                                {roles?.includes("ROLE_CREATOR") && <Link to="/my-events">
                                     <MenuItem className={"nav-link"} onClick={handleClose}>
                                         <LocalActivityRoundedIcon className="nav-menu-icon" />{i18n.t("nav.myEvents")}
                                     </MenuItem>

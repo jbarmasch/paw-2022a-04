@@ -4,7 +4,7 @@ export const checkLogin = async (accessToken, refreshToken) => {
     let isLogged = false
 
     const fetchData = async (accessToken, refreshToken) => {
-        let res = fetch(`${server}/api/users`, {
+        let res = fetch(`${server}/api/organizers`, {
             headers: {
                 'Authorization': `Bearer ${accessToken}`
             },
@@ -16,7 +16,7 @@ export const checkLogin = async (accessToken, refreshToken) => {
             return;
         }
 
-        res = fetch(`${server}/api/users`, {
+        res = fetch(`${server}/api/organizers`, {
             headers: {
                 'Authorization': `Bearer ${refreshToken}`
             },

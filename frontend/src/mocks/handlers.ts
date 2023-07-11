@@ -467,7 +467,7 @@ export const handlers = [
             )
         )
     }),
-    rest.get('http://ssh.slococo.com.ar:2555/paw-2022a-04/api/users/1/ticketBookings', (req, res, ctx) => {
+    rest.get('http://ssh.slococo.com.ar:2555/paw-2022a-04/api/users/1/ticket-bookings', (req, res, ctx) => {
         return res(
             ctx.status(204),
         )

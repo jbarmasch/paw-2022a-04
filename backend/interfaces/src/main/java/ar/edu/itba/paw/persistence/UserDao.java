@@ -32,7 +32,7 @@ public interface UserDao {
 
     boolean canRate(long organizerId, long userId);
 
-    UserList filterBy(String searchQuery, Order order, int page);
+    UserList filterByOrganizers(String searchQuery, Order order, int page);
 
     boolean checkEventBouncer(long userId, long eventId);
 }

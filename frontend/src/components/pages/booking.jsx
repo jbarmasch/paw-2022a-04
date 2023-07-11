@@ -64,7 +64,7 @@ const Booking = (props) => {
 
     const confirmBooking = async () => {
         const res = await fetch(`${server}/api/bookings/${props.match.params.code}`, {
-            method: 'PUT',
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${accessToken}`
@@ -84,7 +84,7 @@ const Booking = (props) => {
 
     const invalidateBooking = async () => {
         const res = await fetch(`${server}/api/bookings/${props.match.params.code}`, {
-            method: 'PUT',
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${accessToken}`

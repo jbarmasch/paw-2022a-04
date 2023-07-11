@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.webapp.auth;
 
+import ar.edu.itba.paw.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.model.RoleEnum;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.UserService;
@@ -47,7 +48,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                     authenticationTokenDetails = authenticationTokenService.parseToken(authenticationToken);
 
                     if (authenticationTokenDetails.isRefresh()) {
-                        User user = us.findByUsername(authenticationTokenDetails.getUsername()).orElseThrow(RuntimeException::new);
+                        User user = us.findByUsername(authenticationTokenDetails.getUsername()).orElseThrow(UserNotFoundException::new);
                         Set<RoleEnum> authorities = user.getRoles().stream()
                                 .map(role -> RoleEnum.valueOf(role.getRoleName()))
                                 .collect(Collectors.toSet());

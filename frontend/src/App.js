@@ -3,6 +3,7 @@ import {Route, Switch} from 'react-router-dom'
 import {AuthContext} from './utils/context';
 import {useState} from "react";
 import {LoadingPage} from "./utils/loadingPage";
+
 const Events = React.lazy(() => import('./components/pages/events'));
 const Event = React.lazy(() => import('./components/pages/event'));
 const Home = React.lazy(() => import('./components/pages/home'));

@@ -3,6 +3,8 @@ package ar.edu.itba.paw.service;
 import ar.edu.itba.paw.model.Event;
 import ar.edu.itba.paw.model.EventBooking;
 import ar.edu.itba.paw.model.TicketBooking;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.io.ByteArrayResource;
@@ -21,6 +23,8 @@ import java.util.Locale;
 
 @Service
 public class MailServiceImpl implements MailService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MailServiceImpl.class);
+
     @Autowired
     private JavaMailSender emailSender;
     @Autowired
@@ -41,7 +45,7 @@ public class MailServiceImpl implements MailService {
             message.setText(htmlContent, true);
             emailSender.send(mimeMessage);
         } catch (MailException | MessagingException e) {
-            throw new RuntimeException("Mail exception: " + e.getMessage());
+            LOGGER.error("Mail exception: {}", e.getMessage());
         }
     }
 
@@ -60,7 +64,7 @@ public class MailServiceImpl implements MailService {
 
             emailSender.send(mimeMessage);
         } catch (MailException | MessagingException e) {
-            throw new RuntimeException("Mail exception: " + e.getMessage());
+            LOGGER.error("Mail exception: {}", e.getMessage());
         }
     }
 

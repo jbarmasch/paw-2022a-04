@@ -63,7 +63,7 @@ const Event = (props) => {
         data: prevTicketBookings,
         isLoading,
     } = useSwr([
-        props.match.params.id ? `${server}/api/users/${userId}/ticketBookings?eventId=${props.match.params.id}` : null,
+        props.match.params.id ? `${server}/api/users/${userId}/ticket-bookings?eventId=${props.match.params.id}` : null,
         accessToken
         ], fetcherWithBearer, {shouldRetryOnError: false})
 
@@ -345,7 +345,7 @@ const Event = (props) => {
 
                         <div className="center">
                             <Button disabled={((Number(userId) === organizer.id) || event.soldOut || bookable === 0)} className={"marg-top"} color="secondary"
-                            variant="contained" type="submit">{i18n.t("book")}</Button>
+                            variant="contained" type="submit">{i18n.t("event.book")}</Button>
                         </div>
                     </form>
                 </div>

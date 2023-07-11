@@ -18,7 +18,6 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import IconButton from '@mui/material/IconButton';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
-import FormControlLabel from '@mui/material/FormControlLabel';
 
 const Login = () => {
     const {login} = useAuth();
@@ -39,7 +38,7 @@ const Login = () => {
     const onSubmit = async (data) => {
         let authorization = data.username + ":" + data.password
 
-        const res = await fetch(`${server}/api/users`, {
+        const res = await fetch(`${server}/api/organizers`, {
             method: "GET",
             headers: {
                 'Authorization': `Basic ${btoa(authorization)}`

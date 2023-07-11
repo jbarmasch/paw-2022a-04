@@ -1,5 +1,5 @@
 const i18n_en = {
-    app: "Bottler",
+    app: "Botpass",
     submit: "Submit",
     fieldRequired: "This field is required",
     fieldInvalid: "This field is invalid",
@@ -8,7 +8,11 @@ const i18n_en = {
     filters: "Filters",
     noData: "No data",
     seeEvents: "See events",
-    landing: "Landing",
+    landing: "Landing image",
+
+    error: {
+        api: "¡Oh oh! An unexcpected error has occured."
+    },
 
     nav: {
         events: "Events",
@@ -95,7 +99,10 @@ const i18n_en = {
         organizer: "Organizer",
         noEvents: "No se han encontrado eventos",
         event: "Event",
-        over: "Over"
+        over: "Over",
+        bookingError: "The amount of tickets selected must be greater than 0 (zero)",
+        enable: "Enable",
+        disable: "Disable",
     },
 
     login: {
@@ -159,12 +166,11 @@ const i18n_en = {
 
     register: {
         register: "Register",
-        name : "Username",
         create: "Create an account to create events and book tickets",
         mail: "Email",
         username: "Username",
         pass: "Password",
-        repeatError: "Repeat password",
+        repeat: "Repeat password",
         mailPatternError : "Invalid mail",
         passwordPatternError : "Password can only contain lowercase and uppercase letters and digits",
         passwordLenError : "Password must be between 8 and 100 characters long",

@@ -19,7 +19,7 @@ export const useAuth = () => {
         const refreshToken = getItem('Refresh-Token')
 
         const fetchData = async (accessToken, refreshToken) => {
-            let res = fetch(`${server}/api/users`, {
+            let res = fetch(`${server}/api/organizers`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 },
@@ -30,7 +30,7 @@ export const useAuth = () => {
                 return;
             }
 
-            res = fetch(`${server}/api/users`, {
+            res = fetch(`${server}/api/organizers`, {
                 headers: {
                     'Authorization': `Bearer ${refreshToken}`
                 },
@@ -77,16 +77,26 @@ export const useAuth = () => {
         })
     }, []);
 
-    const getRoles = () => {
-        refresh()
+    const updateRoles = () => {
+        const refreshToken = getItem('Refresh-Token')
+
+        fetch(`${server}/api/organizers`, {
+            headers: {
+                'Authorization': `Bearer ${refreshToken}`
+            },
+        })
+            .then(y => {
+                if (y.status === 200) {
+                    let accessToken = y.headers.get("Access-Token")
+                    localStorage.setItem('roles', jwtDecode(accessToken)["authorities"]);
+                }
+            })
     }
 
     const login = (user) => {
         const accessToken = getItem('Access-Token')
-
-        user["roles"] = jwtDecode(accessToken)["authorities"]
-
         addUser(user);
+        localStorage.setItem('roles', jwtDecode(accessToken)["authorities"]);
     };
 
     const logout = () => {
@@ -96,7 +106,7 @@ export const useAuth = () => {
     const refresh = () => {
         const refreshToken = getItem('Refresh-Token')
 
-        fetch(`${server}/api/users`, {
+        fetch(`${server}/api/organizers`, {
             headers: {
                 'Authorization': `Bearer ${refreshToken}`
             },
@@ -108,11 +118,11 @@ export const useAuth = () => {
 
                     const user = getItem('user')
                     let aux = JSON.parse(user)
-                    aux["roles"] = jwtDecode(accessToken)["authorities"]
+                    localStorage.setItem('roles', jwtDecode(accessToken)["authorities"]);
                     addUser(aux);
                 }
             })
     }
 
-    return {user, login, logout, refresh, getRoles};
+    return {user, login, logout, refresh, getRoles: updateRoles};
 };

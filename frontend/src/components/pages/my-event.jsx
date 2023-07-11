@@ -421,17 +421,11 @@ const MyEvent = (props) => {
                     delete d.event
                     delete d.self
 
-                    // console.log(d.starting)
-                    // console.log(ticket.starting)
-                    // console.log(d.until)
-                    // console.log(ticket.until)
-
                     const newTicket = {...defaultValues};
 
                     let aux = JSON.parse(JSON.stringify(d));
 
                     if (!isEqualsJson(d, newTicket)) {
-                        console.log("NON EQUALITE")
                         res = await fetch(`${server}/api/tickets/${d.ticketId}`, {
                             method: 'PUT',
                             headers: {
@@ -776,9 +770,9 @@ const MyEvent = (props) => {
                                         <IconButton onClick={() => {setEdit(true)}}><EditRoundedIcon/></IconButton>
                                         <IconButton onClick={handleClickOpen}><DeleteRoundedIcon/></IconButton>
                                         {event.soldOut ?
-                                            <Button onClick={(e) => handleClickActive(e)} value={true}>{i18n.t("event.active")}</Button>
+                                            <Button onClick={(e) => handleClickActive(e)} value={true}>{i18n.t("event.enable")}</Button>
                                         :
-                                            <Button onClick={(e) => handleClickActive(e)} value={false}>{i18n.t("event.notActive")}</Button>
+                                            <Button onClick={(e) => handleClickActive(e)} value={false}>{i18n.t("event.disable")}</Button>
                                         }
                                         <Dialog
                 open={open}
@@ -1333,60 +1327,10 @@ const MyEvent = (props) => {
                                                 <StyledTableCell className="date-input">
 
                                                     {edit ?
-                                                        // <Controller
-                                                        //     control={control}
-                                                        //     name={`tickets[${index}].starting`}
-                                                        //     rules={{
-                                                        //     }}
-                                                        //     defaultValue={item?.starting}
-                                                        //     render={({
-                                                        //                  field: {ref, onBlur, name, onChange, ...field},
-                                                        //                  fieldState
-                                                        //              }) => (
-                                                        //         <FormControl>
-                                                        //             <LocalizationProvider dateAdapter={AdapterDayjs}
-                                                        //                                   adapterLocale={i18n.language != 'en' && i18n.language != 'es' ? 'en' : i18n.language}>
-                                                        //                 <InputLabel sx={{display: "none"}}
-                                                        //                             htmlFor={`tickets[${index}].starting`}>{i18n.t("bookings.starting")}</InputLabel>
-                                                        //                 <DateTimePicker
-                                                        //                     id={`tickets[${index}].starting`}
-                                                        //                     renderInput={(inputProps) => (
-                                                        //                         <TextField
-                                                        //                             {...inputProps}
-                                                        //                             onBlur={onBlur}
-                                                        //                             name={name}
-                                                        //                             error={!!fieldState.error}
-                                                        //                             variant="standard"
-                                                        //                         />)}
-                                                        //                     isHiddenLabel
-                                                        //                     onChange={(event) => {
-                                                        //                         onChange(event)
-                                                        //                         setDate(event)
-                                                        //                     }}
-                                                        //                     {...field}
-                                                        //                     inputRef={ref}
-                                                        //                 />
-                                                        //             </LocalizationProvider>
-                                                        //             {fieldState.error ? (
-                                                        //                 <FormHelperText error>
-                                                        //                     {fieldState.error?.message}
-                                                        //                 </FormHelperText>
-                                                        //             ) : null}
-                                                        //         </FormControl>
-                                                        //     )}
-                                                        // />
 
                                                         <Controller
                                                             control={control}
                                                             name={`tickets[${index}].starting`}
-                                                            rules={{
-                                                                // required: i18n.t('fieldRequired'),
-                                                                // validate: {
-                                                                //     min: (date) => {
-                                                                //         return (new Date(date) > Date.now()) || i18n.t("create.dateError")
-                                                                //     }
-                                                                // }
-                                                            }}
                                                             defaultValue={item?.starting ? item.starting : ""}
                                                             render={({field: {ref, onBlur, name, onChange, ...field}, fieldState}) => (
                                                                 <FormControl className="my-event-input">

@@ -30,6 +30,9 @@ public class EventDto {
     private URI tickets;
     private URI organizer;
 
+    private URI stats;
+    private URI ticketStats;
+
     public static EventDto fromEvent(final UriInfo uriInfo, final Event event) {
         final EventDto dto = new EventDto();
 
@@ -65,6 +68,20 @@ public class EventDto {
         final UriBuilder ticketsUriBuilder = uriInfo.getBaseUriBuilder().
                 path("api/events").path(String.valueOf(event.getId())).path("tickets");
         dto.tickets = ticketsUriBuilder.build();
+
+        final UriBuilder statsUriBuilder = uriInfo
+                .getBaseUriBuilder()
+                .path("api/events")
+                .path(String.valueOf(event.getId()))
+                .path("stats");
+        dto.stats = statsUriBuilder.build();
+
+        final UriBuilder ticketStatsUriBuilder = uriInfo
+                .getBaseUriBuilder()
+                .path("api/events")
+                .path(String.valueOf(event.getId()))
+                .path("ticket-stats");
+        dto.ticketStats = ticketStatsUriBuilder.build();
 
         return dto;
     }
@@ -195,5 +212,21 @@ public class EventDto {
 
     public void setSoldOut(Boolean soldOut) {
         this.soldOut = soldOut;
+    }
+
+    public URI getStats() {
+        return stats;
+    }
+
+    public void setStats(URI stats) {
+        this.stats = stats;
+    }
+
+    public URI getTicketStats() {
+        return ticketStats;
+    }
+
+    public void setTicketStats(URI ticketStats) {
+        this.ticketStats = ticketStats;
     }
 }

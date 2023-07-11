@@ -41,7 +41,7 @@ public class UserJpaDao implements UserDao {
 
     @SuppressWarnings("unchecked")
     @Override
-    public UserList filterBy(String searchQuery, Order order, int page) {
+    public UserList filterByOrganizers(String searchQuery, Order order, int page) {
         Map<String, Object> objects = new HashMap<>();
         StringBuilder querySelect = new StringBuilder("FROM users u JOIN userroles ur ON u.userid = ur.userid LEFT JOIN events e ON u.userid = e.userid LEFT JOIN ratings r ON u.userid = r.organizerid");
         StringBuilder queryCondition = new StringBuilder(" WHERE ur.roleid = 2");

@@ -6,38 +6,37 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
-public class UserDto {
+public class OrganizerDto {
     private String username;
+    private double rating;
+    private int votes;
     private long id;
 
     private URI self;
     private URI stats;
-    private URI ticketBookings;
+    private URI events;
 
-    public static UserDto fromUser(final UriInfo uriInfo, final User user) {
-        final UserDto dto = new UserDto();
+    public static OrganizerDto fromOrganizer(final UriInfo uriInfo, final User user) {
+        final OrganizerDto dto = new OrganizerDto();
 
         dto.id = user.getId();
         dto.username = user.getUsername();
+        dto.votes = user.getVotes();
+        dto.rating = user.getRating();
 
-        final UriBuilder userUriBuilder = uriInfo.getBaseUriBuilder()
-                .path("api/users")
-                .path(String.valueOf(user.getId()));
+        final UriBuilder userUriBuilder = uriInfo.getBaseUriBuilder().
+                path("api/organizers").path(String.valueOf(user.getId()));
         dto.self = userUriBuilder.build();
 
         final UriBuilder statsUriBuilder = uriInfo
                 .getBaseUriBuilder()
-                .path("api/users")
+                .path("api/organizers")
                 .path(String.valueOf(user.getId()))
                 .path("stats");
         dto.stats = statsUriBuilder.build();
 
-        final UriBuilder ticketBookings = uriInfo
-                .getBaseUriBuilder()
-                .path("api/users")
-                .path(String.valueOf(user.getId()))
-                .path("ticket-bookings");
-        dto.stats = ticketBookings.build();
+        final UriBuilder eventsUriBuilder = uriInfo.getBaseUriBuilder().path("api/events");
+        dto.events = eventsUriBuilder.queryParam("userId", String.valueOf(user.getId())).build();
 
         return dto;
     }
@@ -66,6 +65,14 @@ public class UserDto {
         this.self = self;
     }
 
+    public URI getEvents() {
+        return events;
+    }
+
+    public void setEvents(URI events) {
+        this.events = events;
+    }
+
     public URI getStats() {
         return stats;
     }
@@ -74,11 +81,19 @@ public class UserDto {
         this.stats = stats;
     }
 
-    public URI getTicketBookings() {
-        return ticketBookings;
+    public double getRating() {
+        return rating;
     }
 
-    public void setTicketBookings(URI ticketBookings) {
-        this.ticketBookings = ticketBookings;
+    public void setRating(double rating) {
+        this.rating = rating;
+    }
+
+    public int getVotes() {
+        return votes;
+    }
+
+    public void setVotes(int votes) {
+        this.votes = votes;
     }
 }

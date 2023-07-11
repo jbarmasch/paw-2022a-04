@@ -1,4 +1,4 @@
-import {server, fetcher, fetcherWithBearer} from '../../utils/server';
+import {server, fetcherWithBearer} from '../../utils/server';
 import useSwr from "swr";
 import i18n from '../../i18n'
 import landingImage from '../../assets/images/intro.jpg'
@@ -18,14 +18,22 @@ const Profile = (props) => {
     const {user} = useAuth();
 
     let accessToken;
+    let isOrganizer;
     if (typeof window !== 'undefined') {
         accessToken = localStorage.getItem("Access-Token");
+        isOrganizer = localStorage.getItem("roles").includes("ROLE_CREATOR");
     }
 
     const {data: userStats, isLoading: statsLoading, error: errorStats} =
         useSwr(user ? [`${server}/api/users/${user.id}/stats`, accessToken] : null, fetcherWithBearer)
 
-    if (statsLoading || !user) {
+    const {data: organizerData, isLoading: organizerDataLoading, error: errorOrganizerData} =
+        useSwr(user && isOrganizer ? [`${server}/api/organizers/${user.id}`, accessToken] : null, fetcherWithBearer)
+
+    const {data: organizerStats, isLoading: organizerStatsLoading, error: errorOrganizerStats} =
+        useSwr(user && isOrganizer ? [`${server}/api/organizers/${user.id}/stats`, accessToken] : null, fetcherWithBearer)
+
+    if (statsLoading || organizerStatsLoading || organizerDataLoading || !user) {
         return <LoadingPage/>
     }
 
@@ -46,8 +54,9 @@ const Profile = (props) => {
                         <div className="center column">
 
                             <h3 className="profile-name">{user.username}</h3>
-                            {/*<h3 className="profile-mail">{user.mail}</h3>*/}
-                            <span className="user-rating profile-rating">{user.rating}<Rating value={user.rating} readOnly size="small"/> ({user.votes})</span>
+                            {organizerData && !errorOrganizerData &&
+                                <span className="user-rating profile-rating">{organizerData.rating}<Rating value={organizerData.rating} readOnly size="small"/> ({organizerData.votes})</span>
+                            }
                             {(userStats && !errorStats) &&
                             <TableContainer component={Paper} className="marg-top marg-bot">
                             <Table size="small">
@@ -78,7 +87,40 @@ const Profile = (props) => {
                             </Table>
                             </TableContainer>
                             }
-
+                            {(organizerStats && !errorOrganizerStats) &&
+                                <TableContainer component={Paper} className="marg-top marg-bot">
+                                    <Table size="small">
+                                        <TableHead>
+                                            <StyledTableRow>
+                                                <StyledTableCell>{i18n.t("stats.stats")}</StyledTableCell>
+                                                <StyledTableCell></StyledTableCell>
+                                            </StyledTableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            <StyledTableRow>
+                                                <StyledTableCell>{i18n.t("stats.eventsCreated")}</StyledTableCell>
+                                                <StyledTableCell className="right-text">{organizerStats.eventsCreated}</StyledTableCell>
+                                            </StyledTableRow>
+                                            <StyledTableRow>
+                                                <StyledTableCell>{i18n.t("stats.bookingsGotten")}</StyledTableCell>
+                                                <StyledTableCell className="right-text">{organizerStats.bookingsGotten}</StyledTableCell>
+                                            </StyledTableRow>
+                                            <StyledTableRow>
+                                                <StyledTableCell>{i18n.t("stats.popularEvent")}</StyledTableCell>
+                                                <StyledTableCell className="right-text">{organizerStats.popularEvent.name}</StyledTableCell>
+                                            </StyledTableRow>
+                                            <StyledTableRow>
+                                                <StyledTableCell>{i18n.t("stats.attendance")}</StyledTableCell>
+                                                <StyledTableCell className="right-text">{organizerStats.attendance}</StyledTableCell>
+                                            </StyledTableRow>
+                                            <StyledTableRow>
+                                                <StyledTableCell>{i18n.t("stats.income")}</StyledTableCell>
+                                                <StyledTableCell className="right-text">{organizerStats.income}</StyledTableCell>
+                                            </StyledTableRow>
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                            }
                         </div>
                     </div>
                 </div>

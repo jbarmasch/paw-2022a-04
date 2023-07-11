@@ -33,25 +33,6 @@ public class UserController {
     @Context
     private UriInfo uriInfo;
 
-    @GET
-    @Produces(value = {MediaType.APPLICATION_JSON,})
-    public Response getUsers(@QueryParam("page") @DefaultValue("1") final int page) {
-        final UserList res = us.getAllUsers(page);
-        final List<UserDto> userList = res
-                .getUserList()
-                .stream()
-                .map(e -> UserDto.fromUser(uriInfo, e))
-                .collect(Collectors.toList());
-
-        if (userList.isEmpty()) {
-            return Response.noContent().build();
-        }
-
-        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<UserDto>>(userList) {});
-        PaginationUtils.setResponsePages(response, uriInfo, page, res.getPages());
-        return response.build();
-    }
-
     @POST
     @Consumes(value = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
     public Response createUser(@Context HttpServletRequest headers, @Valid UserForm form) {
@@ -74,10 +55,10 @@ public class UserController {
     }
 
     @GET
-    @Path("/{id}/ticketBookings")
+    @Path("/{id}/ticket-bookings")
     @Produces(value = {MediaType.APPLICATION_JSON,})
-    public Response getById(@PathParam("id") final long id,
-                            @QueryParam("eventId") final long eventId) {
+    public Response getTicketBookings(@PathParam("id") final long id,
+                                      @QueryParam("eventId") final long eventId) {
         final List<TicketBookingDto> ticketBookingList = bs
                 .getTicketBookingsFromUser(id, eventId)
                 .stream()

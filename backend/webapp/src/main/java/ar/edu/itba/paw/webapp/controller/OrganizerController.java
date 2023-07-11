@@ -3,6 +3,7 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.model.Order;
 import ar.edu.itba.paw.model.UserList;
 import ar.edu.itba.paw.service.UserService;
+import ar.edu.itba.paw.webapp.dto.OrganizerDto;
 import ar.edu.itba.paw.webapp.dto.OrganizerStatsDto;
 import ar.edu.itba.paw.webapp.dto.UserDto;
 import ar.edu.itba.paw.webapp.exceptions.OrganizerNotFoundException;
@@ -28,18 +29,18 @@ public class OrganizerController {
     public Response filterBy(@QueryParam("search") final String username,
                              @QueryParam("order") final Order order,
                              @QueryParam("page") @DefaultValue("1") final int page) {
-        final UserList res = us.filterBy(username, order, page);
-        final List<UserDto> userList = res
+        final UserList res = us.filterByOrganizers(username, order, page);
+        final List<OrganizerDto> organizerList = res
                 .getUserList()
                 .stream()
-                .map(e -> UserDto.fromUser(uriInfo, e))
+                .map(e -> OrganizerDto.fromOrganizer(uriInfo, e))
                 .collect(Collectors.toList());
 
-        if (userList.isEmpty()) {
+        if (organizerList.isEmpty()) {
             return Response.noContent().build();
         }
 
-        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<UserDto>>(userList) {});
+        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<OrganizerDto>>(organizerList) {});
         PaginationUtils.setResponsePages(response, uriInfo, page, res.getPages());
         return response.build();
     }
@@ -48,12 +49,12 @@ public class OrganizerController {
     @Path("/{id}")
     @Produces(value = {MediaType.APPLICATION_JSON,})
     public Response getById(@PathParam("id") final long id) {
-        UserDto userDto = us
-                .getUserById(id)
-                .map(u -> UserDto.fromUser(uriInfo, u))
+        OrganizerDto organizerDto = us
+                .getOrganizerById(id)
+                .map(u -> OrganizerDto.fromOrganizer(uriInfo, u))
                 .orElseThrow(OrganizerNotFoundException::new);
 
-        return Response.ok(userDto).build();
+        return Response.ok(organizerDto).build();
     }
 
     @Path("/{id}/stats")

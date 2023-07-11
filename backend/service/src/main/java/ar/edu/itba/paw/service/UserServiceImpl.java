@@ -78,6 +78,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<OrganizerStats> getOrganizerStats(long id) {
+        if (!(authService.isAuthenticated() && authService.isTheLoggedUser(id))) {
+            throw new ForbiddenAccessException();
+        }
+
         return userDao.getOrganizerStats(id);
     }
 
@@ -93,8 +97,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void rateUser(long userId, long organizerId, int rating) {
-        if (!userDao.canRate(organizerId, userId))
+        if (!userDao.canRate(organizerId, userId)) {
             throw new UserCannotRateException();
+        }
         userDao.rateUser(userId, organizerId, rating);
     }
 
@@ -104,8 +109,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserList filterBy(String searchQuery, Order order, int page) {
-        return userDao.filterBy(searchQuery, order, page);
+    public UserList filterByOrganizers(String searchQuery, Order order, int page) {
+        return userDao.filterByOrganizers(searchQuery, order, page);
+    }
+
+    @Override
+    public Optional<User> getOrganizerById(long id) {
+        User user = userDao.getUserById(id).orElse(null);
+        if (user == null || user.getRoles().stream().noneMatch(a -> a.getRoleName().equals("ROLE_CREATOR"))) {
+            return Optional.empty();
+        } else {
+            return Optional.of(user);
+        }
     }
 
     @Override

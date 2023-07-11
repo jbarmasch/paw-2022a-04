@@ -33,7 +33,9 @@ public interface UserService {
 
     void makeCreator(User user);
 
-    UserList filterBy(String searchQuery, Order order, int page);
+    UserList filterByOrganizers(String searchQuery, Order order, int page);
+
+    Optional<User> getOrganizerById(long id);
 
     boolean checkEventBouncer(long userId, long eventId);
 }
