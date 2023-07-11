@@ -258,7 +258,7 @@ const MyEvent = (props) => {
             (data.tags && (event.tags.length != data.tags.length
                 || !event.tags.every(x => data.tags.includes(x['id']))
                 || !data.tags.every(x => event.tags.find(e => e['id'] == x)))) ||
-            (data.minAge && event.minAge != data.minAge)) {
+            (data.minAge && event.minAge != data.minAge) || image) {
             changed = true
         }
 
@@ -371,13 +371,8 @@ const MyEvent = (props) => {
 
         if (data.tickets) {
             for (let d of data.tickets) {
-                // console.log(d)
-                // console.log("im")
-                // console.log(fields)
-
                 let q = 0
                 for (const f of fields) {
-                    // console.log(f)
                     if (f.name === d.name) {
                         break
                     }
@@ -385,14 +380,12 @@ const MyEvent = (props) => {
                 }
 
                 if (d.starting) {
-                    // d.starting = new Date(d.starting).toISOString().slice(0, -8)
                     d.starting = fixDate(d.starting)
                 } else {
                     d.starting = ""
                 }
 
                 if (d.until) {
-                    // d.until = new Date(d.until).toISOString().slice(0, -8)
                     d.until = fixDate(d.until)
                 } else {
                     d.until = ""
@@ -405,9 +398,6 @@ const MyEvent = (props) => {
 
                     const defaultValues = {
                         ticketId: ticket.ticketId,
-                        // self: ticket.self,
-                        // bookings: ticket.bookings,
-                        // event: ticket.event,
                         ticketName: ticket.ticketName,
                         price: ticket.price,
                         qty: ticket.qty,

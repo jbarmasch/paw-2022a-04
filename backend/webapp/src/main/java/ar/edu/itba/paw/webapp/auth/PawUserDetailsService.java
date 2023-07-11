@@ -5,6 +5,7 @@ import ar.edu.itba.paw.model.Role;
 import ar.edu.itba.paw.model.User;
 import ar.edu.itba.paw.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,7 +24,7 @@ public class PawUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        final User user = us.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        final User user = us.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(""));
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
                 mapToGrantedAuthorities(user.getRoles()));
     }
