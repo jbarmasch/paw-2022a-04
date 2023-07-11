@@ -126,8 +126,17 @@ const RegisterPage = () => {
                                     rules={{
                                         required: i18n.t('fieldRequired'),
                                         validate: {
-                                            minLength: (x) => {return x.length >= 8 || i18n.t("register.usernameLenError")},
-                                            maxLength: (x) => {return x.length <= 100 || i18n.t("register.usernameLenError")},
+                                            minLength: (x) => {
+                                                return x.length >= 8 || i18n.t("register.usernameLenError")
+                                            },
+                                            maxLength: (x) => {
+                                                return x.length <= 100 || i18n.t("register.usernameLenError")
+                                            },
+                                            pattern: (x) => {
+                                                const reg = /^[A-Za-z0-9]+$/
+                                                // i18n
+                                                return reg.test(x) || i18n.t("register.usernamePatternError")
+                                            }
                                         }
                                     }}
                                     control={control}
@@ -149,8 +158,6 @@ const RegisterPage = () => {
                                         );
                                     }}
                                 />
-
-                            {/*{usernameError && <FormHelperText error>{usernameError}</FormHelperText>}*/}
                             </div>
 
                             <div className="form__input-row">
@@ -188,14 +195,11 @@ const RegisterPage = () => {
                             <div className="form__input-row">
                                 <Controller
                                     name="password"
-                                    rules={{required: i18n.t('fieldRequired'),
+                                    rules={{
+                                        required: i18n.t('fieldRequired'),
                                         validate: {
                                             minLength: (x) => {return x.length >= 8 || i18n.t("register.passwordLenError")},
-                                            maxLength: (x) => {return x.length >= 8 || i18n.t("register.passwordLenError")},
-                                            pattern: (x) => {
-                                                const reg = /[a-zA-Z0-9]+/
-                                                return reg.test(x) || i18n.t("register.passwordPatternError")
-                                            }
+                                            maxLength: (x) => {return x.length <= 100 || i18n.t("register.passwordLenError")},
                                     }}}
                                     control={control}
                                     defaultValue={''}
@@ -223,7 +227,8 @@ const RegisterPage = () => {
                             <div className="form__input-row">
                                 <Controller
                                     name="repeatPassword"
-                                    rules={{required: i18n.t('fieldRequired'),
+                                    rules={{
+                                        required: i18n.t('fieldRequired'),
                                         validate: {
                                             match: (x) => {
                                                 const { password } = getValues();
@@ -254,10 +259,8 @@ const RegisterPage = () => {
                             </div>
 
                             <div className="center full-width"><Button variant="contained" type="submit">{i18n.t("login.signUp")}</Button></div>
-
                         </form>
                     </div>
-
                 </div>
             </section>
         </Layout>

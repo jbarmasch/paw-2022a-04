@@ -61,7 +61,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PATCH, "/api/events/*").hasAnyRole("CREATOR")
                 .antMatchers(HttpMethod.DELETE, "/api/events/*").hasRole("CREATOR")
                 .antMatchers(HttpMethod.POST, "/api/events/*/tickets").hasAnyRole("CREATOR")
-                .antMatchers(HttpMethod.POST, "/api/events/*/bookings").hasRole("CREATOR")
+                .antMatchers(HttpMethod.POST, "/api/events/*/bookings").hasAnyRole("CREATOR", "USER")
                 .antMatchers(HttpMethod.GET, "/api/events/*/stats").hasAnyRole("CREATOR")
                 .antMatchers(HttpMethod.GET, "/api/events/*/ticket-stats").hasAnyRole("CREATOR")
                 .antMatchers(HttpMethod.GET, "/api/bookings/**").hasAnyRole("CREATOR", "USER", "BOUNCER")

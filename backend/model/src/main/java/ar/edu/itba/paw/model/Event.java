@@ -21,7 +21,7 @@ public class Event {
     private long id;
     @Column(name = "name", length = 100, nullable = false)
     private String name;
-    @Column(name = "description", length = 100)
+    @Column(name = "description", length = 1000)
     private String description;
     private LocalDateTime date;
 

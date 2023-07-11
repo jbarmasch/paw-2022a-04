@@ -12,7 +12,7 @@ public class EventForm {
     @NotEmpty(message = "{NotEmpty.eventForm.name}")
     private String name;
 
-    @Size(max = 100, message = "{Size.eventForm.description}")
+    @Size(max = 1000, message = "{Size.eventForm.description}")
     private String description;
 
     @NotNull(message = "{NotNull.eventForm.location}")

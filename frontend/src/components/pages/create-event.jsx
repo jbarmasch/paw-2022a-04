@@ -160,19 +160,24 @@ const CreateEvent = () => {
             history.push("/my-events/" + eventId)
         } else {
             let errors = await json.json()
+            console.log(errors)
             if (errors.constructor !== Array) {
                 setOpenSnackbar(true)
             } else {
                 errors.forEach(x => {
+                    console.log(x)
+                    console.log(!x["path"])
                     if (!x["path"]) {
                         setOpenSnackbar(true)
                     } else {
                         let variable = String(x["path"]).split(".").slice(-1)[0]
+                        console.log(variable)
                         switch (variable) {
                             case "name":
                                 setError('name', {type: 'custom', message: x['message']});
                                 break
                             case "description":
+                                console.log("hola")
                                 setError('description', {type: 'custom', message: x['message']});
                                 break
                             case "location":
@@ -226,6 +231,10 @@ const CreateEvent = () => {
         label: x.name
     }))
 
+    const onKeyDown = (e) => {
+        e.preventDefault();
+    };
+
     let vertical = "top"
     let horizontal = "right"
 
@@ -253,7 +262,12 @@ const CreateEvent = () => {
 
                             <Controller
                                 name="name"
-                                rules={{required: i18n.t('fieldRequired')}}
+                                rules={{
+                                    required: i18n.t('fieldRequired'),
+                                    validate: {
+                                        maxLength: (x) => {return x.length <= 100 || i18n.t("create.maxLengthName")},
+                                    }
+                                }}
                                 control={control}
                                 defaultValue={''}
                                 render={({field, fieldState}) => {
@@ -274,6 +288,11 @@ const CreateEvent = () => {
 
                             <Controller
                                 name="description"
+                                rules={{
+                                    validate: {
+                                        maxLength: (x) => {return x.length <= 1000 || i18n.t("create.maxLengthDescription")},
+                                    }
+                                }}
                                 control={control}
                                 defaultValue={''}
                                 render={({field, fieldState}) => {
@@ -281,7 +300,13 @@ const CreateEvent = () => {
                                         <FormControl sx={{width: 120}}>
                                             <TextField id="description-input" label={i18n.t("create.description")}
                                                        variant="outlined"
+                                                       error={!!fieldState.error}
                                                        {...field} />
+                                            {fieldState.error ? (
+                                                <FormHelperText error>
+                                                    {fieldState.error?.message}
+                                                </FormHelperText>
+                                            ) : null}
                                         </FormControl>
                                     );
                                 }}
@@ -419,6 +444,7 @@ const CreateEvent = () => {
                                                         onBlur={onBlur}
                                                         name={name}
                                                         error={!!fieldState.error}
+                                                        onKeyDown={onKeyDown}
                                                         data-testid="dateTimePicker"
                                                     />)}
                                                 label={i18n.t("create.date")}

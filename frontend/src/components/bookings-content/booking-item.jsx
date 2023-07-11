@@ -102,6 +102,7 @@ const BookingItem = ({image, code, event, rating, ticketBookings, mutate}) => {
             let json = await res;
 
             if (!json.ok) {
+                setOpenSnackbar(true)
                 return;
             }
 

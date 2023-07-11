@@ -63,7 +63,9 @@ const i18n_es = {
         uploadFile: 'Subir foto de evento',
         date: 'Fecha del evento',
         dateError: "No se puede crear un evento que ya haya terminado",
-        imageError: "El tamaño de la imágen debe ser menor a 1MB"
+        imageError: "El tamaño de la imágen debe ser menor a 1MB",
+        maxLengthDescription: "El largo de la descripción no puede superar los 1000 caracteres",
+        maxLengthName: "El largo del nombre no puede superar los 100 caracteres",
     },
 
     myEvents: {

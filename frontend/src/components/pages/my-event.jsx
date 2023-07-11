@@ -660,6 +660,10 @@ const MyEvent = (props) => {
         x.id
     ))
 
+    const onKeyDown = (e) => {
+        e.preventDefault();
+    };
+
     let vertical = "top"
     let horizontal = "right"
 
@@ -917,6 +921,7 @@ const MyEvent = (props) => {
                                                                     {...inputProps}
                                                                     onBlur={onBlur}
                                                                     name={name}
+                                                                    onKeyDown={onKeyDown}
                                                                     error={!!fieldState.error}
                                                                     variant="standard"
                                                                 />)}
@@ -1315,6 +1320,7 @@ const MyEvent = (props) => {
                                                                                     {...inputProps}
                                                                                     onBlur={onBlur}
                                                                                     name={name}
+                                                                                    onKeyDown={onKeyDown}
                                                                                     error={!!fieldState.error}
                                                                                     variant="standard"
                                                                                 />)}
@@ -1373,6 +1379,7 @@ const MyEvent = (props) => {
                                                                                     {...inputProps}
                                                                                     onBlur={onBlur}
                                                                                     name={name}
+                                                                                    onKeyDown={onKeyDown}
                                                                                     error={!!fieldState.error}
                                                                                     variant="standard"
                                                                                 />)}

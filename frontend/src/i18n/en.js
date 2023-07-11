@@ -63,7 +63,9 @@ const i18n_en = {
         uploadFile: 'Upload event picture',
         date: 'Event date',
         dateError: "The event must not have ended",
-        imageError: "The image size must be less than 1MB"
+        imageError: "The image size must be less than 1MB",
+        maxLengthDescription: "Description length must be up to 1000 characters",
+        maxLengthName: "Name length must be up to 100 characters",
     },
 
     myEvents: {
