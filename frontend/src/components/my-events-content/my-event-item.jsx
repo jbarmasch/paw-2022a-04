@@ -27,7 +27,7 @@ const MyEventItem = ({id, name, minPrice, location, type, date, image, soldOut})
                             alt={i18n.t("event.event")}
                         />
                         {!!soldOut && <span className="event-card-image-sold-out">{i18n.t("event.soldOut")}</span>}
-                        {minPrice === -1 && <span className="event-card-image-no-tickets">{i18n.t("event.noTickets")}</span>}
+                        {(minPrice === -1 && !(!!soldOut)) && <span className="event-card-image-no-tickets">{i18n.t("event.noTickets")}</span>}
                         {new Date(date) < Date.now() && <span className="event-card-image-over">{i18n.t("event.over")}</span>}
                     </div>
                     <CardHeader className="event-card-header" title={name}/>

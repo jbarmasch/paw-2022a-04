@@ -1538,59 +1538,63 @@ const MyEvent = (props) => {
                                     </StyledTableRow>
                                     <StyledTableRow>
                                         <StyledTableCell>{i18n.t("eventStats.attendance")}</StyledTableCell>
-                                        <StyledTableCell className="right-text">{eventStats.attendance}</StyledTableCell>
+                                        <StyledTableCell className="right-text">{eventStats.attendance*100}%</StyledTableCell>
                                     </StyledTableRow>
                                     <StyledTableRow>
                                         <StyledTableCell>{i18n.t("eventStats.saleRatio")}</StyledTableCell>
-                                        <StyledTableCell className="right-text">{eventStats.saleRatio}</StyledTableCell>
+                                        <StyledTableCell className="right-text">{eventStats.saleRatio*100}%</StyledTableCell>
                                     </StyledTableRow>
                                     <StyledTableRow>
                                         <StyledTableCell>{i18n.t("eventStats.income")}</StyledTableCell>
-                                        <StyledTableCell className="right-text">{eventStats.income}</StyledTableCell>
+                                        <StyledTableCell className="right-text">${eventStats.income}</StyledTableCell>
                                     </StyledTableRow>
                                     <StyledTableRow>
                                         <StyledTableCell>{i18n.t("eventStats.expected")}</StyledTableCell>
-                                        <StyledTableCell className="right-text">{eventStats.expectedIncome}</StyledTableCell>
+                                        <StyledTableCell className="right-text">${eventStats.expectedIncome}</StyledTableCell>
                                     </StyledTableRow>
                                 </TableBody>
 </>
 }
-                                {ticketStats && 
-                                <>
-                                                                <TableHead>
-                                    <StyledTableRow>
-                                        <StyledTableCell>{i18n.t("ticketStats.ticketName")}</StyledTableCell>
-                                        <StyledTableCell>{i18n.t("ticketStats.attendance")}</StyledTableCell>
-                                        <StyledTableCell>{i18n.t("ticketStats.saleRatio")}</StyledTableCell>
-                                        <StyledTableCell>{i18n.t("ticketStats.price")}</StyledTableCell>
-                                        <StyledTableCell>{i18n.t("ticketStats.realQty")}</StyledTableCell>
-                                        <StyledTableCell>{i18n.t("ticketStats.qty")}</StyledTableCell>
-                                        <StyledTableCell>{i18n.t("ticketStats.income")}</StyledTableCell>
-                                        <StyledTableCell>{i18n.t("ticketStats.booked")}</StyledTableCell>
-                                    </StyledTableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {fields.map((item, index) => {
-                                            return (
-                                                <StyledTableRow key={item.id}>
-                                                    <StyledTableCell><span>{item.ticketName}</span></StyledTableCell>
-                                                    <StyledTableCell><span>{item.attendance}</span></StyledTableCell>
-                                                    <StyledTableCell><span>{item.saleRatio}</span></StyledTableCell>
-                                                    <StyledTableCell><span>{getPrice(item.price, false)}</span></StyledTableCell>
-                                                    <StyledTableCell><span>{item.realQty}</span></StyledTableCell>
-                                                    <StyledTableCell><span>{item.qty}</span></StyledTableCell>
-                                                    <StyledTableCell><span>{item.income}</span></StyledTableCell>
-                                                    <StyledTableCell><span>{item.booked}</span></StyledTableCell>
-                                                    </StyledTableRow>
-                                            );
-                                        })}
-                                </TableBody>
-                            </>
-                        }
                             </>}
 
                         </Table>
                     </TableContainer>
+
+                    {ticketStats &&
+
+                        <TableContainer component={Paper}>
+                            <Table className="edit-table" size="small">
+                            <TableHead>
+                                <StyledTableRow>
+                                    <StyledTableCell>{i18n.t("ticketStats.ticketName")}</StyledTableCell>
+                                    <StyledTableCell>{i18n.t("ticketStats.attendance")}</StyledTableCell>
+                                    <StyledTableCell>{i18n.t("ticketStats.saleRatio")}</StyledTableCell>
+                                    <StyledTableCell>{i18n.t("ticketStats.price")}</StyledTableCell>
+                                    <StyledTableCell>{i18n.t("ticketStats.realQty")}</StyledTableCell>
+                                    <StyledTableCell>{i18n.t("ticketStats.qty")}</StyledTableCell>
+                                    <StyledTableCell>{i18n.t("ticketStats.income")}</StyledTableCell>
+                                    <StyledTableCell>{i18n.t("ticketStats.booked")}</StyledTableCell>
+                                </StyledTableRow>
+                            </TableHead>
+                            <TableBody>
+                                {fields.map((item, index) => {
+                                    return (
+                                        <StyledTableRow key={item.id}>
+                                            <StyledTableCell><span>{item.ticketName}</span></StyledTableCell>
+                                            <StyledTableCell><span>{item.attendance}</span></StyledTableCell>
+                                            <StyledTableCell><span>{item.saleRatio*100}%</span></StyledTableCell>
+                                            <StyledTableCell><span>{getPrice(item.price, false)}</span></StyledTableCell>
+                                            <StyledTableCell><span>{item.realQty}</span></StyledTableCell>
+                                            <StyledTableCell><span>{item.qty}</span></StyledTableCell>
+                                            <StyledTableCell><span>${item.income}</span></StyledTableCell>
+                                            <StyledTableCell><span>{item.booked}</span></StyledTableCell>
+                                        </StyledTableRow>
+                                    );
+                                })}
+                            </TableBody>
+                        </Table>
+                        </TableContainer>
+                    }
                 </form>
 
             </section>
