@@ -74,7 +74,8 @@ const i18n_en = {
         ticketDateError: "Starting date must be before until date",
         ticketPriceError: "Ticket price should be at least 0",
         ticketQtyError: "There should be at least 1 ticket",
-        ticketsPerUserError: "The amount of tickets per user should be between 1 & 10",
+        ticketUnderflowError: "You cannot offer less than {{booked}} tickets because they are already booked",
+        ticketsPerUserError: "The amount of tickets per user should be between 1 and 10",
         ticketsLeftError: "No more tickets"
     },
 

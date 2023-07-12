@@ -74,6 +74,7 @@ const i18n_es = {
         ticketDateError: "La fecha de inicio debe ser anterior a la de finalización",
         ticketPriceError: "El precio de un ticket no puede ser menor a 0",
         ticketQtyError: "La cantidad de tickets no puede ser menor a 1",
+        ticketUnderflowError: "La cantidad de tickets no puede ser menor a {{booked}} pues ya están reservados",
         ticketsPerUserError: "La cantidad de tickets por usuario debe estar entre 1 y 10",
         ticketsLeftError: "Te quedaste sin tickets hermano"
     },

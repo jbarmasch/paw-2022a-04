@@ -1172,7 +1172,6 @@ const MyEvent = (props) => {
                                     <TableRow><StyledTableCell>{i18n.t("event.noTickets")}</StyledTableCell></TableRow>
 
                                     : fields.map((item, index) => {
-                                        // console.log('EL INDICE ES' + index)
                                         return (
                                             <StyledTableRow key={item.id}>
                                                 <StyledTableCell>
@@ -1263,7 +1262,13 @@ const MyEvent = (props) => {
                                                                 required: i18n.t('fieldRequired'),
                                                                 validate: {
                                                                     min: (x) => {
-                                                                        return x > 0 || i18n.t("myEvents.ticketQtyError")
+                                                                        if (x <= 0) {
+                                                                            return i18n.t("myEvents.ticketQtyError")
+                                                                        }
+
+                                                                        if (item.booked && x < item.booked) {
+                                                                            return i18n.t("myEvents.ticketUnderflowError", {booked: item.booked})
+                                                                        }
                                                                     }
                                                                 }
                                                             }}
@@ -1401,7 +1406,9 @@ const MyEvent = (props) => {
                                                             rules={{
                                                                 validate: () => {
                                                                     if (getValues(`tickets[${index}].starting`) && getValues(`tickets[${index}].until`)) {
-                                                                        return new Date(getValues(`tickets[${index}].starting`)).getTime() < new Date(getValues(`tickets[${index}].until`)).getTime()
+                                                                        if (Number(new Date(getValues(`tickets[${index}].starting`)).getTime()) >= Number(new Date(getValues(`tickets[${index}].until`)).getTime())) {
+                                                                            return i18n.t("myEvents.ticketDateError")
+                                                                        }
                                                                     }
                                                                     return true;
                                                                 }
