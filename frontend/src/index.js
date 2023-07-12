@@ -8,7 +8,7 @@ import WebFont from 'webfontloader';
 
 WebFont.load({
     google: {
-        families: ['Roboto&display=swap'],
+        families: ['Roboto&display=swap:300,400,600'],
     }
 });
 

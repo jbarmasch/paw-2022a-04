@@ -6,7 +6,23 @@
   font-family: 'Roboto';
   src: local('Roboto');
   font-display: swap;
+  font-weight: 300;
 }
+
+@font-face {
+  font-family: 'Roboto';
+  src: local('Roboto');
+  font-display: swap;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: local('Roboto');
+  font-display: swap;
+  font-weight: 600;
+}
+
 
 html,
 body {
@@ -1821,10 +1837,10 @@ h5 {
       display: inline-block;
       margin-top: 6px;
     }
-  }
 
-  h1 {
-    font-weight: 600 !important;
+    & > h4 {
+      font-weight: 600 !important;
+    }
   }
 }
 
