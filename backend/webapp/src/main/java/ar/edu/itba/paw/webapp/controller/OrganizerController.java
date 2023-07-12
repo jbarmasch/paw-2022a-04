@@ -11,6 +11,7 @@ import ar.edu.itba.paw.webapp.helper.PaginationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.util.List;
@@ -23,6 +24,8 @@ public class OrganizerController {
     private UserService us;
     @Context
     private UriInfo uriInfo;
+    @Context
+    private HttpServletRequest request;
 
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON,})
@@ -63,7 +66,7 @@ public class OrganizerController {
     public Response getOrganizerStats(@PathParam("id") final long id) {
         OrganizerStatsDto organizerStatsDto = us
                 .getOrganizerStats(id)
-                .map(u -> OrganizerStatsDto.fromOrganizerStats(uriInfo, u))
+                .map(u -> OrganizerStatsDto.fromOrganizerStats(uriInfo, u, request.getLocale().getLanguage()))
                 .orElse(null);
 
         if (organizerStatsDto != null) {

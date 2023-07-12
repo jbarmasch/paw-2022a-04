@@ -10,6 +10,7 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class EventDto {
     private long id;
@@ -33,7 +34,7 @@ public class EventDto {
     private URI stats;
     private URI ticketStats;
 
-    public static EventDto fromEvent(final UriInfo uriInfo, final Event event) {
+    public static EventDto fromEvent(final UriInfo uriInfo, final Event event, final String locale) {
         final EventDto dto = new EventDto();
 
         dto.id = event.getId();
@@ -45,10 +46,10 @@ public class EventDto {
         dto.maxCapacity = event.getMaxCapacity();
         dto.minAge = event.getMinAge();
         dto.location = LocationDto.fromLocation(uriInfo, event.getLocation());
-        dto.type = TypeDto.fromType(uriInfo, event.getType());
+        dto.type = TypeDto.fromType(uriInfo, event.getType(), locale);
         List<TagDto> list = new ArrayList<>();
         for (Tag tag : event.getTags()) {
-            list.add(TagDto.fromTag(uriInfo, tag));
+            list.add(TagDto.fromTag(uriInfo, tag, locale));
         }
         dto.tags = list;
         dto.soldOut = event.getState() == State.SOLDOUT;

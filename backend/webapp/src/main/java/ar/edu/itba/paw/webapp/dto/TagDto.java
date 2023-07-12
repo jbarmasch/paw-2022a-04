@@ -9,7 +9,6 @@ import java.net.URI;
 public class TagDto {
     private long id;
     private String name;
-    private String name_en;
 
     private URI self;
 

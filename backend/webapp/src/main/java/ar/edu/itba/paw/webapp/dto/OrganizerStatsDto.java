@@ -3,6 +3,7 @@ package ar.edu.itba.paw.webapp.dto;
 import ar.edu.itba.paw.model.OrganizerStats;
 
 import javax.ws.rs.core.UriInfo;
+import java.util.Locale;
 
 public class OrganizerStatsDto {
     private int eventsCreated;
@@ -11,12 +12,14 @@ public class OrganizerStatsDto {
     private double attendance;
     private double income;
 
-    public static OrganizerStatsDto fromOrganizerStats(final UriInfo uriInfo, final OrganizerStats organizerStats) {
+    public static OrganizerStatsDto fromOrganizerStats(final UriInfo uriInfo,
+                                                       final OrganizerStats organizerStats,
+                                                       final String locale) {
         final OrganizerStatsDto dto = new OrganizerStatsDto();
 
         dto.eventsCreated = organizerStats.getEventsCreated();
         dto.bookingsGotten = organizerStats.getBookingsGotten();
-        dto.popularEvent = EventDto.fromEvent(uriInfo, organizerStats.getPopularEvent());
+        dto.popularEvent = EventDto.fromEvent(uriInfo, organizerStats.getPopularEvent(), locale);
         dto.attendance = organizerStats.getAttendance();
         dto.income = organizerStats.getIncome();
 

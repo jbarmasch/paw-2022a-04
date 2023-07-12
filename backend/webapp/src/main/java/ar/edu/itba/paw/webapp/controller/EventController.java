@@ -80,7 +80,7 @@ public class EventController {
         final List<EventDto> eventList = res
                 .getEventList()
                 .stream()
-                .map(e -> EventDto.fromEvent(uriInfo, e))
+                .map(e -> EventDto.fromEvent(uriInfo, e, request.getLocale().getLanguage()))
                 .collect(Collectors.toList());
 
         if (eventList.isEmpty()) {
@@ -135,7 +135,7 @@ public class EventController {
     public Response getById(@PathParam("id") final long id) {
         EventDto eventDto = es
                 .getEventById(id)
-                .map(e -> EventDto.fromEvent(uriInfo, e))
+                .map(e -> EventDto.fromEvent(uriInfo, e, request.getLocale().getLanguage()))
                 .orElseThrow(EventNotFoundException::new);
 
         return Response.ok(eventDto).build();
