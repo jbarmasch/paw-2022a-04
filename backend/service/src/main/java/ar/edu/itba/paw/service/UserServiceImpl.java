@@ -108,7 +108,7 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = getUserById(userId).orElseThrow(InvalidUserException::new);
-        User organizer = getUserById(userId).orElseThrow(InvalidOrganizerException::new);
+        User organizer = getUserById(organizerId).orElseThrow(InvalidOrganizerException::new);
 
         userDao.rateUser(user, organizer, rating);
     }

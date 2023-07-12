@@ -41,7 +41,7 @@ public class BookingController {
                                  @QueryParam("page") @DefaultValue("1") final int page) {
         final EventBookingList res = bs.getAllBookingsFromUser(userId, page);
 
-        final List<BookingDto> userList = res
+        final List<BookingDto> bookingList = res
                 .getBookingList()
                 .stream()
                 .map(e -> {
@@ -54,11 +54,11 @@ public class BookingController {
                 })
                 .collect(Collectors.toList());
 
-        if (userList.isEmpty()) {
+        if (bookingList.isEmpty()) {
             return Response.noContent().build();
         }
 
-        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<BookingDto>>(userList) {});
+        Response.ResponseBuilder response = Response.ok(new GenericEntity<List<BookingDto>>(bookingList) {});
         PaginationUtils.setResponsePages(response, uriInfo, page, res.getPages());
         return response.build();
     }
