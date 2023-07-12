@@ -180,7 +180,8 @@ const i18n_es = {
         attendance: "Asistencia total",
         popularEvent: "Evento popular",
         bookingsGotten: "Reservas obtenidas",
-        eventsCreated: "Eventos creados"
+        eventsCreated: "Eventos creados",
+        bookingsMade: "Reservas realizadas"
     },
 
     register: {

@@ -11,6 +11,8 @@ import java.util.Optional;
 public interface TicketDao {
     Ticket addTicket(Event event, String ticketName, double price, int qty, LocalDateTime starting, LocalDateTime until, Integer maxPerUser);
 
+    Optional<Ticket> getTicketByName(String ticketName);
+
     Optional<Ticket> getTicketById(long ticketId);
 
     List<Ticket> getTickets(long eventId);

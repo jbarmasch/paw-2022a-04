@@ -347,10 +347,12 @@ public class EventJpaDao implements EventDao {
     @SuppressWarnings("unchecked")
     @Override
     public void checkSoldOut(Event event) {
-        Query query = em.createNativeQuery(
-                "SELECT aux.eventid FROM (SELECT e.eventid, COUNT(ti.ticketid) AS count, state FROM events e LEFT JOIN tickets ti ON e.eventid = ti.eventid" +
-                        " WHERE ((((((ti.qty is NULL AND ti.booked is NULL) OR ti.qty = ti.booked) AND (ti.starting IS NULL OR ti.starting <= NOW()) AND (ti.until IS NULL OR ti.until >= NOW())))" +
-                        " ) OR state = 2) AND e.eventid = :eventid GROUP BY e.eventid) AS aux WHERE aux.count > 0 OR aux.state = 2");
+        Query query = em.createNativeQuery("SELECT aux.eventid FROM (SELECT e.eventid, COUNT(ti.ticketid) AS count, state " +
+                "FROM events e LEFT JOIN tickets ti ON e.eventid = ti.eventid WHERE ((((ti.qty is NULL AND ti.booked is NULL) " +
+                "OR ti.qty = ti.booked) AND (ti.starting IS NULL OR ti.starting <= NOW()) AND (ti.until IS NULL OR ti.until >= NOW()) " +
+                ") OR state = 2) AND e.eventid = :eventid GROUP BY e.eventid) AS aux LEFT JOIN tickets t ON t.eventid = aux.eventid " +
+                "WHERE aux.count > 0 OR aux.state = 2 AND (t.starting IS NULL OR t.starting <= NOW() AND (t.until IS NULL OR t.until >= NOW())) " +
+                "GROUP BY aux.eventid, aux.count HAVING COUNT(t.ticketid) = count");
         query.setParameter("eventid", event.getId());
         List<Object[]> resultSet = query.getResultList();
         if (resultSet.isEmpty()) {

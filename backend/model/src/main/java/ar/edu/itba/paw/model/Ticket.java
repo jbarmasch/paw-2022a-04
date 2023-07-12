@@ -8,9 +8,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "tickets", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"eventid", "name"})
-})
+@Table(name = "tickets")
 @Check(constraints = "maxperuser >= 1 AND maxperuser <= 10")
 public class Ticket {
     @Id

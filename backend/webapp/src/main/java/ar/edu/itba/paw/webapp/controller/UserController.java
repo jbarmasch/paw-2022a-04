@@ -79,7 +79,7 @@ public class UserController {
     public Response getUserStats(@PathParam("id") final long id) {
         UserStatsDto userStatsDto = us
                 .getUserStats(id)
-                .map(u -> UserStatsDto.fromUserStats(uriInfo, u))
+                .map(u -> UserStatsDto.fromUserStats(uriInfo, u, request.getLocale().getLanguage()))
                 .orElse(null);
 
         if (userStatsDto != null) {

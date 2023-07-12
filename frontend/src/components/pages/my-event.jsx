@@ -85,6 +85,7 @@ const MyEvent = (props) => {
     const [openSnackbar, setOpenSnackbar] = useState(undefined);
     const [imageName, setImageName] = useState(undefined)
     const [image, setImage] = useState()
+    // const [postedTickets, setPostedTickets] = useState([])
 
     const {
         data: locations,
@@ -124,7 +125,9 @@ const MyEvent = (props) => {
         mutate,
         error: errorData,
         isLoading: eventLoading
-    } = useSWR(props.match.params.id ? `${server}/api/events/${props.match.params.id}` : null, fetcher)
+    } = useSWR(props.match.params.id ? `${server}/api/events/${props.match.params.id}` : null, fetcher, {
+        revalidateOnFocus: false,
+    })
     const {
         data: eventStats,
         isLoading: statsLoading,
@@ -150,6 +153,7 @@ const MyEvent = (props) => {
                     }
                 })
                 .then(d => {
+                    console.log("si?")
                     setTickets(d)
                     setValue("tickets", tickets);
                     reset()
@@ -200,7 +204,7 @@ const MyEvent = (props) => {
         history.push("/404")
         return;
     }
-    if (auxLoading || eventLoading || !user) {
+    if (auxLoading || eventLoading || !user || !event) {
         return <LoadingPage/>
     }
 
@@ -215,7 +219,10 @@ const MyEvent = (props) => {
         return  new Date(timestamp).toISOString().slice(0, -8)
     }
 
+    let postedTickets = []
+
     const onSubmit = async (data) => {
+        let error = false
         if (!edit) {
             return;
         }
@@ -281,6 +288,7 @@ const MyEvent = (props) => {
             let text = await resi
 
             if (!text.ok) {
+                error = true
                 let errorsText = await text.text()
                 let errors = getErrorsParsed(errorsText)
                 if (errors == null) {
@@ -340,6 +348,7 @@ const MyEvent = (props) => {
                     let text = await resi;
 
                     if (!text.ok) {
+                        error = true
                         let errors = await text.json()
                         setError('image', {type: 'custom', message: errors['message']});
                         return;
@@ -364,7 +373,9 @@ const MyEvent = (props) => {
             if (text.ok) {
                 remove(x.index)
                 reset()
+                setRowsData([])
             } else {
+                error = true
                 let errors = await text.text()
                 setOpenSnackbar(getErrorMessage(errors))
                 return;
@@ -376,6 +387,7 @@ const MyEvent = (props) => {
             tickets: []
         }
 
+        let i = 0
         if (data.tickets) {
             for (let d of data.tickets) {
                 let q = 0
@@ -435,6 +447,7 @@ const MyEvent = (props) => {
                         let text = await res
 
                         if (!text.ok) {
+                            error = true
                             let errorsText = await text.text()
                             let errors = getErrorsParsed(errorsText)
                             if (errors == null) {
@@ -497,6 +510,13 @@ const MyEvent = (props) => {
                         }
                     }
                 } else {
+                    console.log("probando")
+                    console.log(postedTickets)
+                    console.log(fields)
+                    console.log(fields[i])
+                    let ticketId = fields[i].id
+                    console.log(postedTickets.includes(ticketId))
+                    // if (d.ticketName !== '' && !postedTickets.includes(ticketId)) {
                     if (d.ticketName !== '') {
                         res = await fetch(`${server}/api/events/${props.match.params.id}/tickets`, {
                             method: 'POST',
@@ -510,19 +530,22 @@ const MyEvent = (props) => {
                         let text = await res
 
                         if (!text.ok) {
+                            error = true
+                            console.log(postedTickets)
+                            // setPostedTickets(postedTickets)
                             let errorsText = await text.text()
                             let errors = getErrorsParsed(errorsText)
                             if (errors == null) {
                                 setOpenSnackbar(i18n.t("error.api"))
-                                return
+                                // return
                             } else if (errors.constructor !== Array) {
                                 setOpenSnackbar(getErrorMessage(errorsText))
-                                return
+                                // return
                             } else {
                                 errors.forEach(x => {
                                     if (!x["path"]) {
                                         setOpenSnackbar(i18n.t("error.api"))
-                                        return
+                                        // return
                                     }
                                     else {
                                         let variable = String(x["path"]).split(".").slice(-1)[0]
@@ -569,13 +592,19 @@ const MyEvent = (props) => {
                                     }
                                 })
                             }
+                        } else {
+                            // postedTickets.push(d.ticketName)
+                            postedTickets.push(fields[i].id)
                         }
                     }
                 }
+
+                i++
             }
         }
 
-        if (!errors) {
+        if (!error) {
+            postedTickets = []
             await mutate({...event, obj})
             setEdit(false)
         }
@@ -846,7 +875,10 @@ const MyEvent = (props) => {
                                         <h4>{i18n.t("event.name")}</h4>
                                         <Controller
                                             name="name"
-                                            rules={{required: i18n.t('fieldRequired')}}
+                                            rules={{
+                                                required: i18n.t('fieldRequired'),
+
+                                            }}
                                             control={control}
                                             defaultValue={event.name}
                                             render={({field, fieldState}) => {
@@ -1217,7 +1249,7 @@ const MyEvent = (props) => {
                                                                 required: i18n.t('fieldRequired'),
                                                                 validate: {
                                                                     min: (x) => {
-                                                                        return x > 0 || i18n.t("myEvents.ticketPriceError")
+                                                                        return x >= 0 || i18n.t("myEvents.ticketPriceError")
                                                                     }
                                                                 }
                                                             }}

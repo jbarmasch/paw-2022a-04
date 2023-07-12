@@ -10,12 +10,12 @@ public class UserStatsDto {
     private TypeDto favType;
     private LocationDto favLocation;
 
-    public static UserStatsDto fromUserStats(final UriInfo uriInfo, final UserStats userStats) {
+    public static UserStatsDto fromUserStats(final UriInfo uriInfo, final UserStats userStats, final String locale) {
         final UserStatsDto dto = new UserStatsDto();
 
         dto.eventsAttended = userStats.getEventsAttended();
         dto.bookingsMade = userStats.getBookingsMade();
-        dto.favType = TypeDto.fromType(uriInfo, userStats.getFavType());
+        dto.favType = TypeDto.fromType(uriInfo, userStats.getFavType(), locale);
         dto.favLocation = LocationDto.fromLocation(uriInfo, userStats.getFavLocation());
 
         return dto;

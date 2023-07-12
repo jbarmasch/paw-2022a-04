@@ -56,7 +56,7 @@ const EventItem = ({id, name, minPrice, location, type, date, image, soldOut, or
                         />
                             
                         {!!soldOut && <span className="event-card-image-sold-out">{i18n.t("event.soldOut")}</span>}
-                        {minPrice === -1 && <span className="event-card-image-no-tickets">{i18n.t("event.noTickets")}</span>}
+                        {(!(!!soldOut) && minPrice === -1) && <span className="event-card-image-no-tickets">{i18n.t("event.noTickets")}</span>}
                     </div>
                     <CardHeader className="event-card-header" title={name}/>
                     <CardContent className="event-card-content">

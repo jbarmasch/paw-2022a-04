@@ -33,6 +33,13 @@ public class TicketJpaDao implements TicketDao {
     }
 
     @Override
+    public Optional<Ticket> getTicketByName(String ticketName) {
+        final TypedQuery<Ticket> query = em.createQuery("from Ticket as t where t.ticketName = :ticketname", Ticket.class);
+        query.setParameter("ticketname", ticketName);
+        return query.getResultList().stream().findFirst();
+    }
+
+    @Override
     public Optional<Ticket> getTicketById(long ticketId) {
         return Optional.ofNullable(em.find(Ticket.class, ticketId));
     }

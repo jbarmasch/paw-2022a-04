@@ -41,6 +41,10 @@ public class TicketServiceImpl implements TicketService {
             throw new DateRangeUntilException();
         }
 
+//        if (ticketDao.getTicketByName(ticketName).isPresent()) {
+//            throw new TicketConflictException();
+//        }
+
         ticketDao.addTicket(event, ticketName, price, qty, starting, until, maxPerUser);
     }
 

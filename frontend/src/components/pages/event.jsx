@@ -203,6 +203,7 @@ const Event = (props) => {
                         <div className="contain">
                             <img className="event-image" src={event.image} alt="Event"/>
                             {!!event.soldOut && <span className="event-image-sold-out">{i18n.t("event.soldOut")}</span>}
+                            {(!(!!event.soldOut) && event.minPrice === -1) && <span className="event-card-image-no-tickets">{i18n.t("event.noTickets")}</span>}
                         </div>
                         <Paper className="event-info" elevation={2}>
                             <ul className="event-info-content">
@@ -302,12 +303,18 @@ const Event = (props) => {
                                                                     setLocation(location);
                                                                 };
 
+                                                                if (!canBook || event.soldOut) {
+                                                                    return (
+                                                                        <Button disabled={true}>{i18n.t("event.soldOut")}</Button>
+                                                                    )
+                                                                }
+
                                                                 return (
-                                                                    <FormControl className={"qty-select "  + ((Number(userId) === organizer.id || event.soldOut || !canBook) ? "select-disabled" : "")} disabled={Number(userId) === organizer.id || event.soldOut || !canBook}>
+                                                                    <FormControl className={"qty-select "  + ((Number(userId) === organizer.id) ? "select-disabled" : "")} disabled={Number(userId) === organizer.id || event.soldOut || !canBook}>
                                                                         <InputLabel id="select-qty-label"
                                                                                     error={!!fieldState.error}>{i18n.t("event.selectQty")}</InputLabel>
                                                                         <Select
-                                                                            id="age-select"
+                                                                            id="ticket-select"
                                                                             label={i18n.t("event.selectQty")}
                                                                             labelId="select-qty-label"
                                                                             value={currentSelection}

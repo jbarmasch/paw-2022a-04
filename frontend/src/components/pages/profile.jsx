@@ -68,19 +68,19 @@ const Profile = (props) => {
                                 </TableHead>
                                 <TableBody>
                                 <StyledTableRow>
-                                    <StyledTableCell>{i18n.t("stats.ticketsBooked")}</StyledTableCell>
+                                    <StyledTableCell>{i18n.t("stats.eventsAttended")}</StyledTableCell>
                                     <StyledTableCell className="right-text">{userStats.eventsAttended}</StyledTableCell>
                                 </StyledTableRow>
                                 <StyledTableRow>
-                                    <StyledTableCell>{i18n.t("stats.favType")}</StyledTableCell>
+                                    <StyledTableCell>{i18n.t("stats.bookingsMade")}</StyledTableCell>
                                     <StyledTableCell className="right-text">{userStats.bookingsMade}</StyledTableCell>
                                 </StyledTableRow>
                                 <StyledTableRow>
-                                    <StyledTableCell>{i18n.t("stats.eventsAttended")}</StyledTableCell>
+                                    <StyledTableCell>{i18n.t("stats.favLocation")}</StyledTableCell>
                                     <StyledTableCell className="right-text">{userStats.favLocation.name}</StyledTableCell>
                                 </StyledTableRow>
                                 <StyledTableRow>
-                                    <StyledTableCell>{i18n.t("stats.favLocation")}</StyledTableCell>
+                                    <StyledTableCell>{i18n.t("stats.favType")}</StyledTableCell>
                                     <StyledTableCell className="right-text">{userStats.favType.name}</StyledTableCell>
                                 </StyledTableRow>
                                 </TableBody>

@@ -87,6 +87,6 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public boolean isTheEventOrganizerFromTicket(long ticketId) {
         Ticket ticket = ticketService.getTicketById(ticketId).orElseThrow(TicketNotFoundException::new);
-        return getUser().getId() == ticket.getEvent().getId();
+        return getUser().getId() == ticket.getEvent().getOrganizer().getId();
     }
 }

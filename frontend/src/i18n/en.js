@@ -76,7 +76,7 @@ const i18n_en = {
         ticketQtyError: "There should be at least 1 ticket",
         ticketUnderflowError: "You cannot offer less than {{booked}} tickets because they are already booked",
         ticketsPerUserError: "The amount of tickets per user should be between 1 and 10",
-        ticketsLeftError: "No more tickets"
+        ticketsLeftError: "No more tickets",
     },
 
     event: {
@@ -180,7 +180,8 @@ const i18n_en = {
         attendance: "Total attendance",
         popularEvent: "Popular event",
         bookingsGotten: "Bookings gotten",
-        eventsCreated: "Events created"
+        eventsCreated: "Events created",
+        bookingsMade: "Bookings made"
     },
 
     register: {
