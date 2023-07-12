@@ -118,6 +118,7 @@ const i18n_es = {
         bookingError: "La cantidad de tickets seleccionada debe ser mayor que 0 (cero)",
         enable: "Activar",
         disable: "Desactivar",
+        booked: "Entradas reservadas"
     },
 
     login: {

@@ -118,6 +118,7 @@ const i18n_en = {
         bookingError: "The amount of tickets selected must be greater than 0 (zero)",
         enable: "Enable",
         disable: "Disable",
+        booked: "Tickets booked"
     },
 
     login: {

@@ -121,7 +121,7 @@ const Header = () => {
         localStorage.removeItem("User-ID")
         localStorage.removeItem("user")
         localStorage.removeItem("roles")
-        history.go(0)
+        history.push("/")
     }
 
     return (

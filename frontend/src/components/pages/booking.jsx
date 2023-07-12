@@ -30,21 +30,23 @@ const Booking = (props) => {
     const [bouncer, setBouncer] = useState(false)
     const [openSnackbar, setOpenSnackbar] = useState(undefined);
 
+    let accessToken;
+    let roles;
+    if (typeof window !== 'undefined') {
+        accessToken = localStorage.getItem("Access-Token");
+        roles = localStorage.getItem('roles')
+    }
+
     useEffect(() => {
         if (user === undefined) {
             return
         }
-        if (!user.roles || !user.roles.includes("ROLE_BOUNCER")) {
+        if (!roles || !roles.includes("ROLE_BOUNCER")) {
            history.push("/404")
            return
         }
         setBouncer(true)
-    }, [user]);
-
-    let accessToken;
-    if (typeof window !== 'undefined') {
-        accessToken = localStorage.getItem("Access-Token");
-    }
+    }, [user, roles]);
 
     const {data: booking, mutate, isLoading, error} = useSwr(
         [bouncer ? `${server}/api/bookings/${props.match.params.code}` : null, accessToken]
