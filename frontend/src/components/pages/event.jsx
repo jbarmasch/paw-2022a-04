@@ -77,7 +77,13 @@ const Event = (props) => {
         return <LoadingPage/>
     }
 
-    if (new Date(event.date) <= Date.now()) {
+    const getUTC = (date) => {
+        let dateAux = new Date(date)
+        let timestamp = dateAux.getTime() - dateAux.getTimezoneOffset() * 60000;
+        return new Date(timestamp)
+    }
+
+    if (getUTC(event.date) <= Date.now()) {
         history.push("/404")
         return
     }
