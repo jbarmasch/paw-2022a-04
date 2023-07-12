@@ -64,7 +64,7 @@ const Event = (props) => {
         data: prevTicketBookings,
         isLoading,
     } = useSwr([
-        props.match.params.id ? `${server}/api/users/${userId}/ticket-bookings?eventId=${props.match.params.id}` : null,
+        props.match.params.id && userId ? `${server}/api/users/${userId}/ticket-bookings?eventId=${props.match.params.id}` : null,
         accessToken
         ], fetcherWithBearer, {shouldRetryOnError: false})
 
