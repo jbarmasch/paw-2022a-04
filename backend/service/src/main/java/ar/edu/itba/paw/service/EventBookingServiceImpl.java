@@ -64,7 +64,7 @@ public class EventBookingServiceImpl implements EventBookingService {
             throw new ForbiddenAccessException();
         }
 
-        if ((eb.get().getEvent().getDate().isBefore(LocalDateTime.now()) || eb.get().getTicketBookingsSize() == 0))
+        if (eb.get().getTicketBookingsSize() == 0)
             return Optional.empty();
         return eb;
     }
