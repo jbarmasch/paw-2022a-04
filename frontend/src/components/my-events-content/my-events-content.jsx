@@ -84,7 +84,7 @@ const MyEventsContent = ({userId}) => {
         mutate,
         isLoading,
         error
-    } = useSwr(`${server}/api/events?page=${page}&userId=${userId}&noTickets=true&showPast=true${orderFilter}`, fetcherHeaders);
+    } = useSwr(`${server}/api/events?page=${page}&userId=${userId}&noTickets=true&soldOut=true&showPast=true${orderFilter}`, fetcherHeaders);
 
     if (error) {
         history.push("/404");

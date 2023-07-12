@@ -219,8 +219,6 @@ const MyEvent = (props) => {
         return  new Date(timestamp).toISOString().slice(0, -8)
     }
 
-    // let postedTickets = []
-
     const onSubmit = async (data) => {
         let error = false
         if (!edit) {
@@ -249,6 +247,7 @@ const MyEvent = (props) => {
         let hasMinAge = activeMin !== undefined ? activeMin : (event.minAge !== undefined)
 
         if (hasMinAge) {
+            obj.hasMinAge = true
             obj.minAge = data.minAge
         }
 
@@ -256,7 +255,7 @@ const MyEvent = (props) => {
             event.location?.id != data.location?.value ||
             event.type?.id != data.type ||
             event.date != correctDate ||
-            (data.description && event.description != data.description) ||
+            (event.description != data.description) ||
             (data.tags && (event.tags.length != data.tags.length
                 || !event.tags.every(x => data.tags.includes(x['id']))
                 || !data.tags.every(x => event.tags.find(e => e['id'] == x)))) ||
@@ -510,13 +509,6 @@ const MyEvent = (props) => {
                         }
                     }
                 } else {
-                    // console.log("probando")
-                    // console.log(postedTickets)
-                    // console.log(fields)
-                    // console.log(fields[i])
-                    // let ticketId = fields[i].id
-                    // console.log(postedTickets.includes(ticketId))
-                    // if (d.ticketName !== '' && !postedTickets.includes(ticketId)) {
                     if (d.ticketName !== '') {
                         res = await fetch(`${server}/api/events/${props.match.params.id}/tickets`, {
                             method: 'POST',
@@ -531,8 +523,6 @@ const MyEvent = (props) => {
 
                         if (!text.ok) {
                             error = true
-                            // console.log(postedTickets)
-                            // setPostedTickets(postedTickets)
                             let errorsText = await text.text()
                             let errors = getErrorsParsed(errorsText)
                             if (errors == null) {
@@ -592,9 +582,6 @@ const MyEvent = (props) => {
                                     }
                                 })
                             }
-                        } else {
-                            // postedTickets.push(d.ticketName)
-                            // postedTickets.push(fields[i].id)
                         }
                     }
                 }
@@ -604,7 +591,6 @@ const MyEvent = (props) => {
         }
 
         if (!error) {
-            // postedTickets = []
             await mutate({...event, obj})
             setEdit(false)
         }
@@ -907,7 +893,12 @@ const MyEvent = (props) => {
                                             defaultValue={event.description}
                                             rules={{
                                                 validate: {
-                                                    maxLength: (x) => {return x.length <= 1000 || i18n.t("create.maxLengthDescription")},
+                                                    maxLength: (x) => {
+                                                        if (x) {
+                                                            return x.length <= 1000 || i18n.t("create.maxLengthDescription")
+                                                        }
+                                                        return true;
+                                                    }
                                                 }
                                             }}
                                             render={({field, fieldState}) => {
@@ -1174,6 +1165,7 @@ const MyEvent = (props) => {
                                     <StyledTableCell>{i18n.t("event.ticket")}</StyledTableCell>
                                     <StyledTableCell>{i18n.t("event.price")}</StyledTableCell>
                                     <StyledTableCell>{i18n.t("event.quantity")}</StyledTableCell>
+                                    <StyledTableCell>{i18n.t("event.booked")}</StyledTableCell>
                                     <StyledTableCell>{i18n.t("event.maxPUser")}</StyledTableCell>
                                     <StyledTableCell>{i18n.t("event.starting")}</StyledTableCell>
                                     <StyledTableCell>{i18n.t("event.until")}</StyledTableCell>
@@ -1280,7 +1272,7 @@ const MyEvent = (props) => {
                                                                 );
                                                             }}
                                                         />
-                                                        : <span>${item.price}</span>
+                                                        : <span>{getPrice(item.price, false)}</span>
                                                     }
 
                                                 </StyledTableCell>
@@ -1333,6 +1325,11 @@ const MyEvent = (props) => {
                                                         : <span>{item.qty}</span>
                                                     }
                                                 </StyledTableCell>
+
+                                                <StyledTableCell className="date-input">
+                                                    <span>{item.booked ? item.booked : ""}</span>
+                                                </StyledTableCell>
+
                                                 <StyledTableCell>
 
                                                     {edit ?
@@ -1352,8 +1349,6 @@ const MyEvent = (props) => {
                                                             }}
                                                             defaultValue={`${item.maxPerUser}`}
                                                             render={({field, fieldState}) => {
-                                                                // console.log(item.maxPerUser)
-
                                                                 return (
                                                                     <FormControl>
                                                                         <InputLabel sx={{display: "none"}}
@@ -1581,7 +1576,7 @@ const MyEvent = (props) => {
                                                     <StyledTableCell><span>{item.ticketName}</span></StyledTableCell>
                                                     <StyledTableCell><span>{item.attendance}</span></StyledTableCell>
                                                     <StyledTableCell><span>{item.saleRatio}</span></StyledTableCell>
-                                                    <StyledTableCell><span>{item.price}</span></StyledTableCell>
+                                                    <StyledTableCell><span>{getPrice(item.price, false)}</span></StyledTableCell>
                                                     <StyledTableCell><span>{item.realQty}</span></StyledTableCell>
                                                     <StyledTableCell><span>{item.qty}</span></StyledTableCell>
                                                     <StyledTableCell><span>{item.income}</span></StyledTableCell>
