@@ -146,7 +146,7 @@ const i18n_en = {
         username: "Username",
         rating: "Rating",
         soldOut: "Sold out",
-        noTickets: "Ticket less",
+        noTickets: "Ticketless",
         advancedOptions: "Advanced options",
         minPriceError: "Minimum price must be greater or equal than 0",
         maxPriceError: "Maximum price must be greater or equal than 0",

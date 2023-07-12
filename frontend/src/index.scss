@@ -13,8 +13,6 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
-
-
 body {
   overflow: overlay;
   scrollbar-gutter: stable both-edges;
@@ -1824,6 +1822,10 @@ h5 {
       margin-top: 6px;
     }
   }
+
+  h1 {
+    font-weight: 600 !important;
+  }
 }
 
 .home-icon {
@@ -1878,4 +1880,8 @@ h5 {
 
 .search-users {
   margin-right: 14px !important;
+}
+
+.bold {
+  font-weight: 600 !important;
 }
