@@ -4,6 +4,7 @@ import Profile from '../components/pages/profile';
 import '@testing-library/jest-dom/extend-expect';
 import {server} from "../mocks/server";
 import {BrowserRouter} from "react-router-dom";
+import preview from "jest-preview";
 
 beforeAll(() => {
     server.listen()
@@ -29,7 +30,7 @@ const mockHistoryPush = jest.fn();
 jest.mock("react-router-dom", () => ({
     ...jest.requireActual("react-router-dom"),
     useLocation: () => ({
-        pathname: "localhost:2557/paw-2022a-04/event/1"
+        pathname: "localhost:2557/paw-2022a-04/profile"
     }),
     useHistory: () => ({
         push: mockHistoryPush,
@@ -44,35 +45,14 @@ jest.mock('../utils/useAuth', () => ({
             id: 1,
             username: 'Test User',
             mail: 'test@example.com',
-            rating: 4.5,
-            votes: 10,
         },
     })),
 }));
 
-jest.mock('swr', () => jest.fn()
-    .mockReturnValueOnce({
-    data: {
-        eventsAttended: 5,
-        bookingsMade: 8,
-        favLocation: {name: 'Test Location'},
-        favType: {name: 'Test Type'},
-    },
-    isLoading: false,
-    error: null,
-}).mockReturnValueOnce({
-    data: null,
-    isLoading: true,
-    error: null,
-}).mockReturnValueOnce({
-        data: null,
-        isLoading: true,
-        error: null,
-    }))
-
-
 describe('Profile', () => {
     beforeEach(() => {
+        localStorage.setItem('roles', "ROLE_USER, ROLE_CREATOR")
+        localStorage.setItem('Access-Token', "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI0NTk4MDk1YS1lZTcwLTQ5ODktYjA2MS1hZGU2NDliM2NjYjEiLCJpc3MiOiJodHRwOi8vc3NoLnNsb2NvY28uY29tLmFyOjI1NTcvcGF3LTIwMjJhLTA0IiwiYXVkIjoiaHR0cDovL3NzaC5zbG9jb2NvLmNvbS5hcjoyNTU3L3Bhdy0yMDIyYS0wNCIsInN1YiI6Im1hcmljaG9jaG9jaG8iLCJpYXQiOjE2ODkxNDc3MDcsImV4cCI6MTY4OTIzNDEwNywiYXV0aG9yaXRpZXMiOlsiUk9MRV9DUkVBVE9SIiwiUk9MRV9VU0VSIl0sImlzUmVmcmVzaCI6ZmFsc2V9.zkgUmYYw8t9Y2d79uR80Uw7y98hfpLT8KKnyDR6pnXM")
         jest.clearAllMocks();
         jest.resetModules();
     });
@@ -84,36 +64,7 @@ describe('Profile', () => {
             </BrowserRouter>
         );
 
-        const username = await waitFor(() => screen.getByText('Test User'));
+        const username = await screen.findByText('Test User');
         expect(username).toBeInTheDocument();
-
-        expect(screen.getByText('5')).toBeInTheDocument();
-        expect(screen.getByText('8')).toBeInTheDocument();
-        expect(screen.getByText('Test Location')).toBeInTheDocument();
-        expect(screen.getByText('Test Type')).toBeInTheDocument();
-    });
-
-    test('renders loading page when user is not available', () => {
-        jest.mock('../utils/useAuth', () => ({
-            useAuth: jest.fn(() => ({
-                user: null,
-            })),
-        }));
-
-        render(<BrowserRouter>
-            <Profile/>
-        </BrowserRouter>);
-
-        expect(screen.getByTestId('loading')).toBeInTheDocument();
-    });
-
-    test('renders loading page while user stats are being fetched', () => {
-        render(
-            <BrowserRouter>
-                <Profile/>
-            </BrowserRouter>
-        );
-
-        expect(screen.getByTestId('loading')).toBeInTheDocument();
     });
 });

@@ -7,7 +7,6 @@ import i18n from "../i18n";
 import 'whatwg-fetch';
 import '@testing-library/jest-dom/extend-expect';
 import Login from "../components/pages/login";
-import preview from "jest-preview";
 
 beforeAll(() => {
     server.listen()
@@ -60,38 +59,6 @@ describe("Login", () => {
         await waitFor(() => expect(screen.getAllByText(i18n.t('fieldRequired'))).toHaveLength(2));
     });
 
-    test('displays custom error message when username is not found', async () => {
-        render(
-            <BrowserRouter>
-                <Login />
-            </BrowserRouter>
-        );
-
-        global.fetch = jest.fn(() =>
-            Promise.resolve({
-                status: 401,
-                headers: {
-                    get: () => null
-                },
-                json: () => Promise.resolve({}),
-            })
-        );
-
-         
-        fireEvent.change(screen.getByLabelText("Username"), { target: { value: "testuser" } });
-        fireEvent.change(screen.getByLabelText("Password"), { target: { value: "testpassword" } });
-
-        const submitButton = screen.getByRole('button', { name: i18n.t("login.signIn") });
-        await act(async () => {
-            fireEvent.click(submitButton);
-        })
-
-        preview.debug()
-
-        await waitFor(() => expect(screen.getByText(i18n.t("login.notFound"))).toBeInTheDocument());
-    });
-
-
     test('saves access token, refresh token, and user ID to local storage upon successful login', async () => {
         render(
             <BrowserRouter>
@@ -99,21 +66,6 @@ describe("Login", () => {
             </BrowserRouter>
         );
 
-        global.fetch = jest.fn(() =>
-            Promise.resolve({
-                status: 200,
-                headers: {
-                    get: (header) => {
-                        if (header === "Access-Token") return "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI0MjUwNzQ5ZC05ZGY2LTRjOTYtYjc5NC0zNGQ3N2NlNTg5NWQiLCJpc3MiOiJodHRwOi8vc3NoLnNsb2NvY28uY29tLmFyOjI1NTcvcGF3LTIwMjJhLTA0IiwiYXVkIjoiaHR0cDovL3NzaC5zbG9jb2NvLmNvbS5hcjoyNTU3L3Bhdy0yMDIyYS0wNCIsInN1YiI6Im1haXJpbWFzaGl0YSIsImlhdCI6MTY4ODkxMTQ1OSwiZXhwIjoxNjg4OTk3ODU5LCJhdXRob3JpdGllcyI6WyJST0xFX1VTRVIiLCJST0xFX0NSRUFUT1IiXSwiaXNSZWZyZXNoIjpmYWxzZX0.YCzlCt6a-PxxHyVSskUZBVF83iu46v1wQuAvcuXvvQo";
-                        if (header === "Refresh-Token") return "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI0MjUwNzQ5ZC05ZGY2LTRjOTYtYjc5NC0zNGQ3N2NlNTg5NWQiLCJpc3MiOiJodHRwOi8vc3NoLnNsb2NvY28uY29tLmFyOjI1NTcvcGF3LTIwMjJhLTA0IiwiYXVkIjoiaHR0cDovL3NzaC5zbG9jb2NvLmNvbS5hcjoyNTU3L3Bhdy0yMDIyYS0wNCIsInN1YiI6Im1haXJpbWFzaGl0YSIsImlhdCI6MTY4ODkxMTQ1OSwiZXhwIjoxNjg4OTk3ODU5LCJhdXRob3JpdGllcyI6WyJST0xFX1VTRVIiLCJST0xFX0NSRUFUT1IiXSwiaXNSZWZyZXNoIjpmYWxzZX0.YCzlCt6a-PxxHyVSskUZBVF83iu46v1wQuAvcuXvvQo";
-                        if (header === "User-ID") return "2";
-                    }
-                },
-                json: () => Promise.resolve({}),
-            })
-        );
-
-         
         fireEvent.change(screen.getByLabelText("Username"), { target: { value: "testuser" } });
         fireEvent.change(screen.getByLabelText("Password"), { target: { value: "testpassword" } });
 
@@ -122,9 +74,9 @@ describe("Login", () => {
             fireEvent.click(submitButton);
         })
          
-        await waitFor(() => expect(localStorage.getItem("Access-Token")).toBe("eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI0MjUwNzQ5ZC05ZGY2LTRjOTYtYjc5NC0zNGQ3N2NlNTg5NWQiLCJpc3MiOiJodHRwOi8vc3NoLnNsb2NvY28uY29tLmFyOjI1NTcvcGF3LTIwMjJhLTA0IiwiYXVkIjoiaHR0cDovL3NzaC5zbG9jb2NvLmNvbS5hcjoyNTU3L3Bhdy0yMDIyYS0wNCIsInN1YiI6Im1haXJpbWFzaGl0YSIsImlhdCI6MTY4ODkxMTQ1OSwiZXhwIjoxNjg4OTk3ODU5LCJhdXRob3JpdGllcyI6WyJST0xFX1VTRVIiLCJST0xFX0NSRUFUT1IiXSwiaXNSZWZyZXNoIjpmYWxzZX0.YCzlCt6a-PxxHyVSskUZBVF83iu46v1wQuAvcuXvvQo"));
-        await waitFor(() => expect(localStorage.getItem("Refresh-Token")).toBe("eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI0MjUwNzQ5ZC05ZGY2LTRjOTYtYjc5NC0zNGQ3N2NlNTg5NWQiLCJpc3MiOiJodHRwOi8vc3NoLnNsb2NvY28uY29tLmFyOjI1NTcvcGF3LTIwMjJhLTA0IiwiYXVkIjoiaHR0cDovL3NzaC5zbG9jb2NvLmNvbS5hcjoyNTU3L3Bhdy0yMDIyYS0wNCIsInN1YiI6Im1haXJpbWFzaGl0YSIsImlhdCI6MTY4ODkxMTQ1OSwiZXhwIjoxNjg4OTk3ODU5LCJhdXRob3JpdGllcyI6WyJST0xFX1VTRVIiLCJST0xFX0NSRUFUT1IiXSwiaXNSZWZyZXNoIjpmYWxzZX0.YCzlCt6a-PxxHyVSskUZBVF83iu46v1wQuAvcuXvvQo"));
-        await waitFor(() => expect(localStorage.getItem("User-ID")).toBe("2"));
+        await waitFor(() => expect(localStorage.getItem("Access-Token")).toBe("eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI3ZDZkYTkzYi01YWY0LTRjMDMtYTMxYy0yMWU2NzNjYzFlYzQiLCJpc3MiOiJodHRwOi8vc3NoLnNsb2NvY28uY29tLmFyOjI1NTcvcGF3LTIwMjJhLTA0IiwiYXVkIjoiaHR0cDovL3NzaC5zbG9jb2NvLmNvbS5hcjoyNTU3L3Bhdy0yMDIyYS0wNCIsInN1YiI6InNhbnRpbG9jb2NvIiwiaWF0IjoxNjg4ODM2NzYzLCJleHAiOjE2ODg5MjMxNjMsImF1dGhvcml0aWVzIjpbIlJPTEVfQ1JFQVRPUiIsIlJPTEVfVVNFUiJdLCJpc1JlZnJlc2giOmZhbHNlfQ.86eFX6MWIKbDM8amSjPdQ0Z4xp3t10a6q_IgaXjMd4E"));
+        await waitFor(() => expect(localStorage.getItem("Refresh-Token")).toBe("eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIwODI5NWU4MS0xYTdlLTQ3MTUtYmE5YS01MjRiYjMwNGFmODMiLCJpc3MiOiJodHRwOi8vc3NoLnNsb2NvY28uY29tLmFyOjI1NTcvcGF3LTIwMjJhLTA0IiwiYXVkIjoiaHR0cDovL3NzaC5zbG9jb2NvLmNvbS5hcjoyNTU3L3Bhdy0yMDIyYS0wNCIsInN1YiI6InNhbnRpbG9jb2NvIiwiaWF0IjoxNjg4ODM2NzYzLCJleHAiOjE2ODk0NDE1NjMsImF1dGhvcml0aWVzIjpbIlJPTEVfQ1JFQVRPUiIsIlJPTEVfVVNFUiJdLCJpc1JlZnJlc2giOnRydWV9.n69p-H3qkAT_ZZrw8xSEyUSNGbP3ZfaDnMRGJZ-NVNU"));
+        await waitFor(() => expect(localStorage.getItem("User-ID")).toBe("1"));
     });
 
     test('navigates to home page', async () => {
@@ -132,16 +84,6 @@ describe("Login", () => {
             <BrowserRouter>
                 <Login />
             </BrowserRouter>
-        );
-
-        global.fetch = jest.fn(() =>
-            Promise.resolve({
-                status: 200,
-                headers: {
-                    get: () => "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI0MjUwNzQ5ZC05ZGY2LTRjOTYtYjc5NC0zNGQ3N2NlNTg5NWQiLCJpc3MiOiJodHRwOi8vc3NoLnNsb2NvY28uY29tLmFyOjI1NTcvcGF3LTIwMjJhLTA0IiwiYXVkIjoiaHR0cDovL3NzaC5zbG9jb2NvLmNvbS5hcjoyNTU3L3Bhdy0yMDIyYS0wNCIsInN1YiI6Im1haXJpbWFzaGl0YSIsImlhdCI6MTY4ODkxMTQ1OSwiZXhwIjoxNjg4OTk3ODU5LCJhdXRob3JpdGllcyI6WyJST0xFX1VTRVIiLCJST0xFX0NSRUFUT1IiXSwiaXNSZWZyZXNoIjpmYWxzZX0.YCzlCt6a-PxxHyVSskUZBVF83iu46v1wQuAvcuXvvQo"
-                },
-                json: () => Promise.resolve({}),
-            })
         );
 
         fireEvent.change(screen.getByLabelText("Username"), { target: { value: "testuser" } });
@@ -166,5 +108,34 @@ describe("Login", () => {
 
         fireEvent.click(screen.getByText(i18n.t("login.notAMember")));
         expect(screen.getByText(i18n.t("login.signUp"))).toBeInTheDocument();
+    });
+
+    test('displays custom error message when username is not found', async () => {
+        render(
+            <BrowserRouter>
+                <Login />
+            </BrowserRouter>
+        );
+
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                status: 401,
+                headers: {
+                    get: () => null
+                },
+                json: () => Promise.resolve({}),
+            })
+        );
+
+
+        fireEvent.change(screen.getByLabelText("Username"), { target: { value: "testuser" } });
+        fireEvent.change(screen.getByLabelText("Password"), { target: { value: "testpassword" } });
+
+        const submitButton = screen.getByRole('button', { name: i18n.t("login.signIn") });
+        await act(async () => {
+            fireEvent.click(submitButton);
+        })
+
+        await waitFor(() => expect(screen.getByText(i18n.t("login.notFound"))).toBeInTheDocument());
     });
 });

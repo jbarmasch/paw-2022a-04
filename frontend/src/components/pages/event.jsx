@@ -151,16 +151,16 @@ const Event = (props) => {
             body: JSON.stringify(auxi)
         });
 
-        let json = await response;
+        let text = await response;
 
-        if (!json.ok) {
-            let errors = await json.text()
+        if (!text.ok) {
+            let errors = await text.text()
             setOpenSnackbar(getErrorMessage(errors))
         } else {
             history.push({
                 pathname: `/thank-you`,
                 state: {
-                    booking: json.headers.get("Location"),
+                    booking: text.headers.get("Location"),
                     event: event
                 }
             });

@@ -33,7 +33,7 @@ const Profile = (props) => {
     const {data: organizerStats, isLoading: organizerStatsLoading, error: errorOrganizerStats} =
         useSwr(user && isOrganizer ? [`${server}/api/organizers/${user.id}/stats`, accessToken] : null, fetcherWithBearer)
 
-    if (statsLoading || organizerStatsLoading || organizerDataLoading || !user) {
+    if (!user || (user && (statsLoading || (isOrganizer && (organizerStatsLoading || organizerDataLoading))))) {
         return <LoadingPage/>
     }
 
@@ -54,10 +54,10 @@ const Profile = (props) => {
                         <div className="center column">
 
                             <h3 className="profile-name">{user.username}</h3>
-                            {organizerData && !errorOrganizerData &&
+                            {!errorOrganizerData && organizerData &&
                                 <span className="user-rating profile-rating">{organizerData.rating}<Rating value={organizerData.rating} readOnly size="small"/> ({organizerData.votes})</span>
                             }
-                            {(userStats && !errorStats) &&
+                            {(!errorStats && userStats) &&
                             <TableContainer component={Paper} className="marg-top marg-bot">
                             <Table size="small">
                                 <TableHead>
@@ -87,7 +87,7 @@ const Profile = (props) => {
                             </Table>
                             </TableContainer>
                             }
-                            {(organizerStats && !errorOrganizerStats) &&
+                            {(!errorOrganizerStats && organizerStats) &&
                                 <TableContainer component={Paper} className="marg-top marg-bot">
                                     <Table size="small">
                                         <TableHead>

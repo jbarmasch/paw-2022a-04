@@ -10,7 +10,6 @@ export const fetcher = async url => {
 
     if (!res.ok) {
         const error = new Error('An error occurred while fetching the data.')
-        error.info = await res.json()
         error.status = res.status
         throw error
     }
@@ -33,7 +32,6 @@ export const fetcherWithBearer = async (args) => {
 
     if (!res.ok) {
         const error = new Error('An error occurred while fetching the data.')
-        error.info = await res.json()
         error.status = res.status
         throw error
     }

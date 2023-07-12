@@ -99,7 +99,7 @@ describe("Event component", () => {
         const ticketQuantityInput = screen.getByTestId('select-ticket-input');
         fireEvent.change(ticketQuantityInput, { target: { value: '2' } });
 
-        const submitButton = screen.getByRole('button', { name: i18n.t("book") });
+        const submitButton = screen.getByRole('button', { name: i18n.t("event.book") });
         await act(async () => {
             fireEvent.click(submitButton);
         })
@@ -170,8 +170,6 @@ describe("Event component", () => {
         const eventName = await waitFor(() => screen.getByText('Evento de prueba!!'));
         expect(eventName).toBeInTheDocument();
 
-        preview.debug()
-
         const soldOutMessage = await waitFor(() => screen.getByText(i18n.t("event.soldOut")));
         expect(soldOutMessage).toBeInTheDocument();
     });
@@ -179,16 +177,8 @@ describe("Event component", () => {
     test('should display error snackbar when booking fails', async () => {
         render(
             <BrowserRouter>
-                <Event match={{params: {id: 1}, isExact: true, path: "", url: ""}}/>
+                <Event match={{params: {id: 4}, isExact: true, path: "", url: ""}}/>
             </BrowserRouter>
-        );
-
-        global.fetch = jest.fn(() =>
-            Promise.resolve({
-                ok: false,
-                status: 500,
-                statusText: 'Internal Server Error',
-            })
         );
 
         const selectQty = i18n.t("event.selectQty")
@@ -197,7 +187,7 @@ describe("Event component", () => {
         const ticketQuantityInput = screen.getByTestId('select-ticket-input');
         fireEvent.change(ticketQuantityInput, { target: { value: '2' } });
 
-        const submitButton = screen.getByRole('button', { name: i18n.t("book") });
+        const submitButton = screen.getByRole('button', { name: i18n.t("event.book") });
         await act(async () => {
             fireEvent.click(submitButton);
         })

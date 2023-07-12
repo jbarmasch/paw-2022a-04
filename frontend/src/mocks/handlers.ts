@@ -17,6 +17,9 @@ export const handlers = [
     rest.get("http://ssh.slococo.com.ar:2555/paw-2022a-04/api/organizers", (req, res, ctx) => {
         return res(
             ctx.status(200),
+            ctx.set("Access-Token", "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI3ZDZkYTkzYi01YWY0LTRjMDMtYTMxYy0yMWU2NzNjYzFlYzQiLCJpc3MiOiJodHRwOi8vc3NoLnNsb2NvY28uY29tLmFyOjI1NTcvcGF3LTIwMjJhLTA0IiwiYXVkIjoiaHR0cDovL3NzaC5zbG9jb2NvLmNvbS5hcjoyNTU3L3Bhdy0yMDIyYS0wNCIsInN1YiI6InNhbnRpbG9jb2NvIiwiaWF0IjoxNjg4ODM2NzYzLCJleHAiOjE2ODg5MjMxNjMsImF1dGhvcml0aWVzIjpbIlJPTEVfQ1JFQVRPUiIsIlJPTEVfVVNFUiJdLCJpc1JlZnJlc2giOmZhbHNlfQ.86eFX6MWIKbDM8amSjPdQ0Z4xp3t10a6q_IgaXjMd4E"),
+            ctx.set("Refresh-Token", "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIwODI5NWU4MS0xYTdlLTQ3MTUtYmE5YS01MjRiYjMwNGFmODMiLCJpc3MiOiJodHRwOi8vc3NoLnNsb2NvY28uY29tLmFyOjI1NTcvcGF3LTIwMjJhLTA0IiwiYXVkIjoiaHR0cDovL3NzaC5zbG9jb2NvLmNvbS5hcjoyNTU3L3Bhdy0yMDIyYS0wNCIsInN1YiI6InNhbnRpbG9jb2NvIiwiaWF0IjoxNjg4ODM2NzYzLCJleHAiOjE2ODk0NDE1NjMsImF1dGhvcml0aWVzIjpbIlJPTEVfQ1JFQVRPUiIsIlJPTEVfVVNFUiJdLCJpc1JlZnJlc2giOnRydWV9.n69p-H3qkAT_ZZrw8xSEyUSNGbP3ZfaDnMRGJZ-NVNU"),
+            ctx.set("User-ID", "1"),
             ctx.json(
                 [{
                     "events": "http://ssh.slococo.com.ar:2555/paw-2022a-04/api/events?userId=78",
@@ -270,6 +273,22 @@ export const handlers = [
             )
         )
     }),
+    rest.get("http://ssh.slococo.com.ar:2555/paw-2022a-04/api/organizers/2", (req, res, ctx) => {
+        return res(
+            ctx.status(200),
+            ctx.json(
+                {
+                    "events": "http://ssh.slococo.com.ar:2555/paw-2022a-04/api/events?userId=198",
+                    "id": 198,
+                    "mail": "mairimashita@mairimashita.com",
+                    "rating": 0.0,
+                    "self": "http://ssh.slococo.com.ar:2555/paw-2022a-04/api/users/198",
+                    "username": "mairimashita",
+                    "votes": 0
+                }
+            )
+        )
+    }),
     rest.get("http://ssh.slococo.com.ar:2555/paw-2022a-04/api/events/1/tickets", (req, res, ctx) => {
         return res(
             ctx.status(200),
@@ -294,6 +313,11 @@ export const handlers = [
         return res(
             ctx.status(201),
             ctx.set("Location", "http://ssh.slococo.com.ar:2555/paw-2022a-04/api/bookings/lzjkJWl1PyIjmYkJBvrQZDBId3dTT2ZFSmZIZVF3LVZyak5ZN1E9PQ==")
+        )
+    }),
+    rest.post("http://ssh.slococo.com.ar:2555/paw-2022a-04/api/events/4/bookings", (req, res, ctx) => {
+        return res(
+            ctx.status(400),
         )
     }),
     rest.get("http://ssh.slococo.com.ar:2555/paw-2022a-04/api/bookings/lzjkJWl1PyIjmYkJBvrQZDBId3dTT2ZFSmZIZVF3LVZyak5ZN1E9PQ==", (req, res, ctx) => {
@@ -351,6 +375,26 @@ export const handlers = [
         return res(
             ctx.status(200),
             // ctx.body()
+        )
+    }),
+    rest.get("http://ssh.slococo.com.ar:2555/paw-2022a-04/api/users/1/stats", (req, res, ctx) => {
+        return res(
+            ctx.status(200),
+            ctx.set('Content-Type', 'application/json'),
+            ctx.json({
+                "bookingsMade": 6,
+                "eventsAttended": 2,
+                "favLocation": {
+                    "id": 34,
+                    "name": "Chacarita",
+                    "self": "http://pawserver.it.itba.edu.ar/paw-2022a-04/api/locations/34"
+                },
+                "favType": {
+                    "id": 6,
+                    "name": "Stand up",
+                    "self": "http://pawserver.it.itba.edu.ar/paw-2022a-04/api/types/6"
+                }
+            })
         )
     }),
     rest.get("http://ssh.slococo.com.ar:2555/paw-2022a-04/api/events/1", (req, res, ctx) => {
@@ -452,6 +496,44 @@ export const handlers = [
                     "organizer": "http://ssh.slococo.com.ar:2555/paw-2022a-04/api/organizers/1",
                     "self": "http://ssh.slococo.com.ar:2555/paw-2022a-04/api/events/1",
                     "soldOut": true,
+                    "tags": [{
+                        "id": 9,
+                        "name": "Offers drinks",
+                        "self": "http://ssh.slococo.com.ar:2555/paw-2022a-04/api/tags/9"
+                    }],
+                    "tickets": "http://ssh.slococo.com.ar:2555/paw-2022a-04/api/events/1/tickets",
+                    "type": {
+                        "id": 1,
+                        "name": "After",
+                        "self": "http://ssh.slococo.com.ar:2555/paw-2022a-04/api/types/1"
+                    }
+                }
+            )
+        )
+    }),
+    rest.get("http://ssh.slococo.com.ar:2555/paw-2022a-04/api/events/4", (req, res, ctx) => {
+        return res(
+            ctx.status(200),
+            ctx.set('Content-Type', 'application/json'),
+            ctx.json(
+                {
+                    "attendance": 0,
+                    "date": "2024-09-08T09:05",
+                    "id": 2,
+                    // "image": "http://ssh.slococo.com.ar:2555/paw-2022a-04/api/image/252",
+                    "image": "http://pawserver.it.itba.edu.ar/paw-2022a-04/api/image/1",
+                    "location": {
+                        "id": 2,
+                        "name": "9 de Abril",
+                        "self": "http://ssh.slococo.com.ar:2555/paw-2022a-04/api/locations/2"
+                    },
+                    "maxCapacity": 11,
+                    "minPrice": 23.0,
+                    "name": "Evento de prueba!!",
+                    "description": "Descripción de un gran evento",
+                    "organizer": "http://ssh.slococo.com.ar:2555/paw-2022a-04/api/organizers/1",
+                    "self": "http://ssh.slococo.com.ar:2555/paw-2022a-04/api/events/1",
+                    "soldOut": false,
                     "tags": [{
                         "id": 9,
                         "name": "Offers drinks",

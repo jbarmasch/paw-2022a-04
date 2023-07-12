@@ -160,14 +160,6 @@ const CreateEvent = () => {
             refresh()
             history.push("/my-events/" + eventId)
         } else {
-            // let errors = await json.json()
-            // if (errors.constructor !== Array) {
-            //     let message = errors["message"]
-            //     if (message) {
-            //         setOpenSnackbar(message)
-            //     } else {
-            //         setOpenSnackbar(i18n.t("error.api"))
-            //     }
             let errorsText = await text.text()
             let errors = getErrorsParsed(errorsText)
             if (errors == null) {
@@ -177,12 +169,6 @@ const CreateEvent = () => {
             } else {
                 errors.forEach(x => {
                     if (!x["path"]) {
-                        // let message = errors["message"]
-                        // if (message) {
-                        //     setOpenSnackbar(message)
-                        // } else {
-                        //     setOpenSnackbar(i18n.t("error.api"))
-                        // }
                         setOpenSnackbar(i18n.t("error.api"))
                     } else {
                         let variable = String(x["path"]).split(".").slice(-1)[0]

@@ -285,12 +285,15 @@ const MyEvent = (props) => {
                 let errors = getErrorsParsed(errorsText)
                 if (errors == null) {
                     setOpenSnackbar(i18n.t("error.api"))
+                    return
                 } else if (errors.constructor !== Array) {
                     setOpenSnackbar(getErrorMessage(errorsText))
+                    return
                 } else {
                     errors.forEach(x => {
                         if (!x["path"]) {
                             setOpenSnackbar(i18n.t("error.api"))
+                            return
                         } else {
                             let variable = String(x["path"]).split(".").slice(-1)[0]
                             switch (variable) {
@@ -436,12 +439,15 @@ const MyEvent = (props) => {
                             let errors = getErrorsParsed(errorsText)
                             if (errors == null) {
                                 setOpenSnackbar(i18n.t("error.api"))
+                                return
                             } else if (errors.constructor !== Array) {
                                 setOpenSnackbar(getErrorMessage(errorsText))
+                                return
                             } else {
                                 errors.forEach(x => {
                                     if (!x["path"]) {
                                         setOpenSnackbar(i18n.t("error.api"))
+                                        return
                                     }
                                     else {
                                         let variable = String(x["path"]).split(".").slice(-1)[0]
@@ -489,8 +495,6 @@ const MyEvent = (props) => {
                                 })
                             }
                         }
-
-                        // ...
                     }
                 } else {
                     if (d.ticketName !== '') {
@@ -510,12 +514,15 @@ const MyEvent = (props) => {
                             let errors = getErrorsParsed(errorsText)
                             if (errors == null) {
                                 setOpenSnackbar(i18n.t("error.api"))
+                                return
                             } else if (errors.constructor !== Array) {
                                 setOpenSnackbar(getErrorMessage(errorsText))
+                                return
                             } else {
                                 errors.forEach(x => {
                                     if (!x["path"]) {
                                         setOpenSnackbar(i18n.t("error.api"))
+                                        return
                                     }
                                     else {
                                         let variable = String(x["path"]).split(".").slice(-1)[0]
