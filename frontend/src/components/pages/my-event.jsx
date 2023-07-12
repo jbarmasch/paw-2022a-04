@@ -1524,11 +1524,11 @@ const MyEvent = (props) => {
                                     </StyledTableRow>
                                     <StyledTableRow>
                                         <StyledTableCell>{i18n.t("eventStats.attendance")}</StyledTableCell>
-                                        <StyledTableCell className="right-text">{(eventStats.attendance*100).toFixed(2)}%</StyledTableCell>
+                                        <StyledTableCell className="right-text">{Math.round((Number(eventStats.attendance)*100*100))/100}%</StyledTableCell>
                                     </StyledTableRow>
                                     <StyledTableRow>
                                         <StyledTableCell>{i18n.t("eventStats.saleRatio")}</StyledTableCell>
-                                        <StyledTableCell className="right-text">{(eventStats.saleRatio*100).toFixed(2)}%</StyledTableCell>
+                                        <StyledTableCell className="right-text">{Math.round((Number(eventStats.saleRatio)*100*100))/100}%</StyledTableCell>
                                     </StyledTableRow>
                                     <StyledTableRow>
                                         <StyledTableCell>{i18n.t("eventStats.income")}</StyledTableCell>
@@ -1567,12 +1567,12 @@ const MyEvent = (props) => {
                                     return (
                                         <StyledTableRow key={item.id}>
                                             <StyledTableCell><span>{item.ticketName}</span></StyledTableCell>
-                                            <StyledTableCell><span>{item.attendance}</span></StyledTableCell>
-                                            <StyledTableCell><span>{(item.saleRatio*100).toFixed(2)}%</span></StyledTableCell>
+                                            <StyledTableCell><span>{!item.attendance?0:item.attendance}</span></StyledTableCell>
+                                            <StyledTableCell><span>{Math.round((Number(!item.saleRatio?0:item.saleRatio)*100) * 100)/100}%</span></StyledTableCell>
                                             <StyledTableCell><span>{getPrice(item.price, false)}</span></StyledTableCell>
-                                            <StyledTableCell><span>{item.realQty}</span></StyledTableCell>
+                                            <StyledTableCell><span>{!item.realQty?0:item.realQty}</span></StyledTableCell>
                                             <StyledTableCell><span>{item.qty}</span></StyledTableCell>
-                                            <StyledTableCell><span>${item.income}</span></StyledTableCell>
+                                            <StyledTableCell><span>${item.income?0:item.income}</span></StyledTableCell>
                                             <StyledTableCell><span>{item.booked}</span></StyledTableCell>
                                         </StyledTableRow>
                                     );
