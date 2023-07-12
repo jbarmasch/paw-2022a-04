@@ -255,7 +255,7 @@ public class EventController {
                 .collect(Collectors.toList());
 
         if (!ticketList.isEmpty()) {
-            return Response.ok(ticketList).build();
+            return Response.ok(new GenericEntity<List<TicketStatsDto>>(ticketList) {}).build();
         } else {
             return Response.noContent().build();
         }
