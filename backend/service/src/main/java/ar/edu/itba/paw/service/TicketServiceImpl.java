@@ -21,6 +21,8 @@ public class TicketServiceImpl implements TicketService {
     @Autowired
     private TicketBookingService ticketBookingService;
     @Autowired
+    private EventService eventService;
+    @Autowired
     private MailService mailService;
     @Autowired
     private AuthService authService;
@@ -64,11 +66,12 @@ public class TicketServiceImpl implements TicketService {
         if (!(authService.isAuthenticated() && authService.isTheEventOrganizer(ticket.getEvent()))) {
             throw new ForbiddenAccessException();
         }
-        if (qty < ticket.getBooked()) {
-            throw new TicketUnderflowException();
-        }
         if (ticket.getEvent().isFinished()) {
             throw new EventFinishedException();
+        }
+
+        if (qty < ticket.getBooked()) {
+            throw new TicketUnderflowException();
         }
         if (starting != null && starting.isAfter(ticket.getEvent().getDate())) {
             throw new DateRangeStartingException();
@@ -78,6 +81,7 @@ public class TicketServiceImpl implements TicketService {
         }
 
         ticketDao.updateTicket(ticket, ticketName, price, qty, starting, until, maxPerUser);
+        eventService.checkSoldOut(ticket.getEvent().getId());
     }
 
     @Transactional

@@ -203,7 +203,7 @@ const Event = (props) => {
                         <div className="contain">
                             <img className="event-image" src={event.image} alt="Event"/>
                             {!!event.soldOut && <span className="event-image-sold-out">{i18n.t("event.soldOut")}</span>}
-                            {(!(!!event.soldOut) && event.minPrice === -1) && <span className="event-card-image-no-tickets">{i18n.t("event.noTickets")}</span>}
+                            {(!(!!event.soldOut) && event.minPrice === -1) && <span className="event-image-no-tickets">{i18n.t("event.noTickets")}</span>}
                         </div>
                         <Paper className="event-info" elevation={2}>
                             <ul className="event-info-content">

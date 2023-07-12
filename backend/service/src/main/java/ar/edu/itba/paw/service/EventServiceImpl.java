@@ -171,7 +171,16 @@ public class EventServiceImpl implements EventService {
 
         Event event = getEventById(id).orElseThrow(InvalidEventException::new);
 
-        eventDao.active(event);
+        if (event.isFinished()) {
+            throw new EventFinishedException();
+        }
+
+        if (eventDao.hasAvailableTickets(event)) {
+            eventDao.active(event);
+        }
+        else {
+            throw new InvalidEventStateException();
+        }
     }
 
     @Override

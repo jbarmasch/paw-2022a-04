@@ -219,7 +219,7 @@ const MyEvent = (props) => {
         return  new Date(timestamp).toISOString().slice(0, -8)
     }
 
-    let postedTickets = []
+    // let postedTickets = []
 
     const onSubmit = async (data) => {
         let error = false
@@ -510,12 +510,12 @@ const MyEvent = (props) => {
                         }
                     }
                 } else {
-                    console.log("probando")
-                    console.log(postedTickets)
-                    console.log(fields)
-                    console.log(fields[i])
-                    let ticketId = fields[i].id
-                    console.log(postedTickets.includes(ticketId))
+                    // console.log("probando")
+                    // console.log(postedTickets)
+                    // console.log(fields)
+                    // console.log(fields[i])
+                    // let ticketId = fields[i].id
+                    // console.log(postedTickets.includes(ticketId))
                     // if (d.ticketName !== '' && !postedTickets.includes(ticketId)) {
                     if (d.ticketName !== '') {
                         res = await fetch(`${server}/api/events/${props.match.params.id}/tickets`, {
@@ -531,7 +531,7 @@ const MyEvent = (props) => {
 
                         if (!text.ok) {
                             error = true
-                            console.log(postedTickets)
+                            // console.log(postedTickets)
                             // setPostedTickets(postedTickets)
                             let errorsText = await text.text()
                             let errors = getErrorsParsed(errorsText)
@@ -594,7 +594,7 @@ const MyEvent = (props) => {
                             }
                         } else {
                             // postedTickets.push(d.ticketName)
-                            postedTickets.push(fields[i].id)
+                            // postedTickets.push(fields[i].id)
                         }
                     }
                 }
@@ -604,7 +604,7 @@ const MyEvent = (props) => {
         }
 
         if (!error) {
-            postedTickets = []
+            // postedTickets = []
             await mutate({...event, obj})
             setEdit(false)
         }
@@ -808,11 +808,11 @@ const MyEvent = (props) => {
                                     <>
                                         <IconButton onClick={() => {setEdit(true)}}><EditRoundedIcon/></IconButton>
                                         <IconButton onClick={handleClickOpen}><DeleteRoundedIcon/></IconButton>
-                                        {event.soldOut ?
+                                        {event.minPrice != -1 && (event.soldOut ?
                                             <Button onClick={(e) => handleClickActive(e)} value={true}>{i18n.t("event.enable")}</Button>
                                         :
                                             <Button onClick={(e) => handleClickActive(e)} value={false}>{i18n.t("event.disable")}</Button>
-                                        }
+                                        )}
                                         <Dialog
                 open={open}
                 onClose={handleClose}
@@ -1389,6 +1389,17 @@ const MyEvent = (props) => {
                                                             control={control}
                                                             name={`tickets[${index}].starting`}
                                                             defaultValue={item?.starting ? item.starting : ""}
+                                                            rules={{
+                                                                validate: () => {
+                                                                    let starting = getValues(`tickets[${index}].starting`)
+
+                                                                    if (starting && Number(new Date(starting).getTime()) >= Number(new Date(event.date).getTime())) {
+                                                                        return i18n.t("myEvents.ticketStartingError")
+                                                                    }
+
+                                                                    return true;
+                                                                }
+                                                            }}
                                                             render={({field: {ref, onBlur, name, onChange, ...field}, fieldState}) => (
                                                                 <FormControl className="my-event-input">
                                                                     <LocalizationProvider dateAdapter={AdapterDayjs}
@@ -1437,11 +1448,19 @@ const MyEvent = (props) => {
                                                             name={`tickets[${index}].until`}
                                                             rules={{
                                                                 validate: () => {
-                                                                    if (getValues(`tickets[${index}].starting`) && getValues(`tickets[${index}].until`)) {
-                                                                        if (Number(new Date(getValues(`tickets[${index}].starting`)).getTime()) >= Number(new Date(getValues(`tickets[${index}].until`)).getTime())) {
+                                                                    let starting = getValues(`tickets[${index}].starting`)
+                                                                    let until = getValues(`tickets[${index}].until`)
+
+                                                                    if (starting && until) {
+                                                                        if (Number(new Date(starting).getTime()) >= Number(new Date(until).getTime())) {
                                                                             return i18n.t("myEvents.ticketDateError")
                                                                         }
                                                                     }
+
+                                                                    if (until && Number(new Date(until).getTime()) >= Number(new Date(event.date).getTime())) {
+                                                                         return i18n.t("myEvents.ticketUntilError")
+                                                                    }
+
                                                                     return true;
                                                                 }
                                                             }}

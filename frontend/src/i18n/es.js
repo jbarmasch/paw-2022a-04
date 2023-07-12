@@ -76,7 +76,9 @@ const i18n_es = {
         ticketQtyError: "La cantidad de tickets no puede ser menor a 1",
         ticketUnderflowError: "La cantidad de tickets no puede ser menor a {{booked}} pues ya están reservados",
         ticketsPerUserError: "La cantidad de tickets por usuario debe estar entre 1 y 10",
-        ticketsLeftError: "Te quedaste sin tickets hermano"
+        ticketsLeftError: "No hay más tickets",
+        ticketStartingError: "La fecha de inicio no puede ser posterior a la fecha del evento",
+        ticketUntilError: "La fecha de finalización no puede ser posterior a la fecha del evento"
     },
 
     event: {
@@ -181,7 +183,7 @@ const i18n_es = {
         popularEvent: "Evento popular",
         bookingsGotten: "Reservas obtenidas",
         eventsCreated: "Eventos creados",
-        bookingsMade: "Reservas realizadas"
+        bookingsMade: "Entradas reservadas"
     },
 
     register: {

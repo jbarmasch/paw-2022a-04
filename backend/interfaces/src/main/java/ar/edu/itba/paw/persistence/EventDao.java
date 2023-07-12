@@ -41,4 +41,7 @@ public interface EventDao {
     Optional<EventStats> getEventStats(long id);
 
     void checkSoldOut(Event event);
+
+    @SuppressWarnings("unchecked")
+    boolean hasAvailableTickets(Event event);
 }

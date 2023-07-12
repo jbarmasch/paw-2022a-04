@@ -1695,6 +1695,21 @@ h5 {
   top: 17%;
 }
 
+.event-image-no-tickets {
+  position: absolute;
+  transform: rotate(-45deg);
+  color: white;
+  padding: 4px 0;
+  left: -27%;
+  font-size: 60px;
+  background-color: slateblue;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 4px 6px 1px rgba(0, 0, 0, 0.6);
+  text-transform: uppercase;
+  top: 17%;
+}
+
 .event-content {
   width: 1fr;
   height: 100%;

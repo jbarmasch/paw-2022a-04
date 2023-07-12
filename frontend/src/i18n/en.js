@@ -77,6 +77,8 @@ const i18n_en = {
         ticketUnderflowError: "You cannot offer less than {{booked}} tickets because they are already booked",
         ticketsPerUserError: "The amount of tickets per user should be between 1 and 10",
         ticketsLeftError: "No more tickets",
+        ticketStartingError: "The starting date cannot be after the event date",
+        ticketUntilError: "The until date cannot be after the event date"
     },
 
     event: {
@@ -181,7 +183,7 @@ const i18n_en = {
         popularEvent: "Popular event",
         bookingsGotten: "Bookings gotten",
         eventsCreated: "Events created",
-        bookingsMade: "Bookings made"
+        bookingsMade: "Tickets booked"
     },
 
     register: {
