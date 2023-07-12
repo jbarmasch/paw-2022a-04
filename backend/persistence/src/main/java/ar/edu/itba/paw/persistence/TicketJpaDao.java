@@ -86,8 +86,10 @@ public class TicketJpaDao implements TicketDao {
             return Collections.emptyList();
         List<TicketStats> ticketStats = new ArrayList<>();
         for (Object[] result : resultSet) {
-            ticketStats.add(new TicketStats((String) result[0], ((Number) result[1]).doubleValue(), ((Number) result[2]).doubleValue(), ((Number) result[3]).doubleValue(),
-                    ((Number) result[4]).intValue(), ((Number) result[5]).intValue(), ((Number) result[6]).doubleValue(), ((Number) result[7]).intValue()));
+            if (result != null) {
+                ticketStats.add(new TicketStats((String) result[0], ((Number) result[1]).doubleValue(), ((Number) result[2]).doubleValue(), ((Number) result[3]).doubleValue(),
+                        ((Number) result[4]).intValue(), ((Number) result[5]).intValue(), ((Number) result[6]).doubleValue(), ((Number) result[7]).intValue()));
+            }
         }
         return ticketStats;
     }

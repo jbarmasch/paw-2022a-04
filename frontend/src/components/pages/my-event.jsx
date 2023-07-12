@@ -1327,7 +1327,7 @@ const MyEvent = (props) => {
                                                 </StyledTableCell>
 
                                                 <StyledTableCell className="date-input">
-                                                    <span>{item.booked ? item.booked : ""}</span>
+                                                    <span>{item.booked ? item.booked : 0}</span>
                                                 </StyledTableCell>
 
                                                 <StyledTableCell>

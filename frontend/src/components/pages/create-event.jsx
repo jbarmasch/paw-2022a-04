@@ -110,8 +110,8 @@ const CreateEvent = () => {
             obj.tags = data.tags
         }
 
-        if (data.hasMinAge) {
-            obj.hasMinAge = data.hasMinAge
+        if (active) {
+            obj.hasMinAge = true
             obj.minAge = data.minAge
         }
 
