@@ -46,7 +46,7 @@ public class BookingController {
                 .stream()
                 .map(e -> {
                     BookingDto bookingDto = BookingDto.fromBooking(uriInfo, e);
-                    String bookUrl = uriInfo.getBaseUriBuilder().toString() + "/bookings/" + e.getCode();
+                    String bookUrl = env.getProperty("baseUrl") + "/bookings/" + e.getCode();
                     byte[] encodeBase64 = Base64.getEncoder().encode(cs.createQr(bookUrl));
                     String base64Encoded = new String(encodeBase64, StandardCharsets.UTF_8);
                     bookingDto.setImage(base64Encoded);
