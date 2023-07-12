@@ -111,11 +111,11 @@ const Profile = (props) => {
                                             </StyledTableRow>
                                             <StyledTableRow>
                                                 <StyledTableCell>{i18n.t("stats.attendance")}</StyledTableCell>
-                                                <StyledTableCell className="right-text">{organizerStats.attendance}</StyledTableCell>
+                                                <StyledTableCell className="right-text">{(organizerStats.attendance*100).toFixed(2)}%</StyledTableCell>
                                             </StyledTableRow>
                                             <StyledTableRow>
                                                 <StyledTableCell>{i18n.t("stats.income")}</StyledTableCell>
-                                                <StyledTableCell className="right-text">{organizerStats.income}</StyledTableCell>
+                                                <StyledTableCell className="right-text">${organizerStats.income}</StyledTableCell>
                                             </StyledTableRow>
                                         </TableBody>
                                     </Table>

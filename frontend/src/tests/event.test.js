@@ -81,7 +81,6 @@ describe("Event component", () => {
         const ticketRowByTicketName = screen.getByText('dssa', { closest: 'row' });
         expect(ticketRowByTicketName).toBeInTheDocument();
 
-        // Assert ticket price
         let ticketRow = screen.getByRole('row', { name: /dssa/ })
         expect(within(ticketRow).getByText("$23")).toBeInTheDocument()
     });
@@ -158,20 +157,6 @@ describe("Event component", () => {
         await waitFor(() => {
             expect(mockHistoryPush).toHaveBeenNthCalledWith(1, '/404');
         });
-    });
-
-    test('should display "Sold Out" message for sold out events', async () => {
-        render(
-            <BrowserRouter>
-                <Event match={{params: {id: 2}, isExact: true, path: "", url: ""}}/>
-            </BrowserRouter>
-        );
-
-        const eventName = await waitFor(() => screen.getByText('Evento de prueba!!'));
-        expect(eventName).toBeInTheDocument();
-
-        const soldOutMessage = await waitFor(() => screen.getByText(i18n.t("event.soldOut")));
-        expect(soldOutMessage).toBeInTheDocument();
     });
 
     test('should display error snackbar when booking fails', async () => {

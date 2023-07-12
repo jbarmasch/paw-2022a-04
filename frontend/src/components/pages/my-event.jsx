@@ -58,18 +58,7 @@ const isEqualsJson = (oldTicket, newTicket) => {
     let oldKeys = Object.keys(oldTicket);
     let newKeys = Object.keys(newTicket);
 
-    // console.log(Object.keys(oldKeys).every(key => console.log(key)))
-    // console.log(Object.keys(newKeys).every(key => console.log(key)))
-    //
-    // console.log(oldKeys.length)
-    // console.log(newKeys.length)
-    //
-    // console.log(oldKeys)
-    // console.log(newKeys)
-
     return oldKeys.length === newKeys.length && Object.keys(oldTicket).every(key => {
-        // console.log(oldTicket[key])
-        // console.log(newTicket[key])
         return oldTicket[key] === newTicket[key]
     });
 }
@@ -153,7 +142,6 @@ const MyEvent = (props) => {
                     }
                 })
                 .then(d => {
-                    console.log("si?")
                     setTickets(d)
                     setValue("tickets", tickets);
                     reset()
@@ -264,8 +252,6 @@ const MyEvent = (props) => {
             || imageName) {
             changed = true
         }
-
-        console.log(changed)
 
         let errors
         let resi
@@ -1538,11 +1524,11 @@ const MyEvent = (props) => {
                                     </StyledTableRow>
                                     <StyledTableRow>
                                         <StyledTableCell>{i18n.t("eventStats.attendance")}</StyledTableCell>
-                                        <StyledTableCell className="right-text">{eventStats.attendance*100}%</StyledTableCell>
+                                        <StyledTableCell className="right-text">{(eventStats.attendance*100).toFixed(2)}%</StyledTableCell>
                                     </StyledTableRow>
                                     <StyledTableRow>
                                         <StyledTableCell>{i18n.t("eventStats.saleRatio")}</StyledTableCell>
-                                        <StyledTableCell className="right-text">{eventStats.saleRatio*100}%</StyledTableCell>
+                                        <StyledTableCell className="right-text">{(eventStats.saleRatio*100).toFixed(2)}%</StyledTableCell>
                                     </StyledTableRow>
                                     <StyledTableRow>
                                         <StyledTableCell>{i18n.t("eventStats.income")}</StyledTableCell>
@@ -1582,7 +1568,7 @@ const MyEvent = (props) => {
                                         <StyledTableRow key={item.id}>
                                             <StyledTableCell><span>{item.ticketName}</span></StyledTableCell>
                                             <StyledTableCell><span>{item.attendance}</span></StyledTableCell>
-                                            <StyledTableCell><span>{item.saleRatio*100}%</span></StyledTableCell>
+                                            <StyledTableCell><span>{(item.saleRatio*100).toFixed(2)}%</span></StyledTableCell>
                                             <StyledTableCell><span>{getPrice(item.price, false)}</span></StyledTableCell>
                                             <StyledTableCell><span>{item.realQty}</span></StyledTableCell>
                                             <StyledTableCell><span>{item.qty}</span></StyledTableCell>
