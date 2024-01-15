@@ -1,9 +1,6 @@
 package ar.edu.itba.paw.service;
 
-import ar.edu.itba.paw.exceptions.AlreadyMaxTicketsException;
-import ar.edu.itba.paw.exceptions.ForbiddenAccessException;
-import ar.edu.itba.paw.exceptions.SurpassedMaxTicketsException;
-import ar.edu.itba.paw.exceptions.TicketNotBookedException;
+import ar.edu.itba.paw.exceptions.*;
 import ar.edu.itba.paw.model.*;
 import ar.edu.itba.paw.persistence.EventBookingDao;
 import org.junit.Test;
@@ -74,17 +71,13 @@ public class EventBookingServiceImplTest {
         }
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = CancelBookingFailedException.class)
     public void testCancelBookFails() {
-        Mockito.when(mockDao.getBooking(Mockito.eq(DIFFERENT_EVENT_BOOKING.getCode()))).thenReturn(null);
+        Mockito.when(mockDao.getBooking(Mockito.eq(DIFFERENT_EVENT_BOOKING.getCode()))).thenReturn(Optional.empty());
         EVENT.setTickets(Arrays.asList(TICKET, DIFFERENT_TICKET));
         EVENT_BOOKING.setTicketBookings(Collections.singletonList(DIFFERENT_TICKET_BOOKING));
         Mockito.when(mockAuthService.isAuthenticated()).thenReturn(true);
-        try {
-            eventBookingService.cancelBooking(DIFFERENT_EVENT_BOOKING.getCode(), null);
-        } catch (TicketNotBookedException e) {
-            throw new RuntimeException();
-        }
+        eventBookingService.cancelBooking(DIFFERENT_EVENT_BOOKING.getCode(), null);
     }
     @Test(expected = ForbiddenAccessException.class)
     public void testCancelBookNotAuthenticated() {
